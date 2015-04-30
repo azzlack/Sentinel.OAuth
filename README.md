@@ -9,7 +9,7 @@ This project aims to simplify the work with setting up OAuth on a WebAPI applica
 
 ## Setting up
 ### The easy way
-In its simplest form `Sentinel` only requires the following line in your OWIN Startup class to work:
+In its simplest form `Sentinel` only requires the following code in your OWIN Startup class to work:
 
 ```csharp
 app.UseSentinelAuthorizationServer(
@@ -18,8 +18,10 @@ app.UseSentinelAuthorizationServer(
            ClientManager = new SimpleClientManager(),
            UserManager = new SimpleUserManager()
        });
-...
+```
+In addition, you need to implement a `IUserManager` and a `IClientManager` for validating users and clients:
 
+```csharp
 public class SimpleUserManager : IUserManager 
 {
     public async Task<ClaimsPrincipal> AuthenticateUserWithPasswordAsync(string username, string password)
