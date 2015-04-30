@@ -57,8 +57,8 @@ public class SimpleClientManager : IClientManager
     
 This will set up the OAuth server with the default settings, which are as follows:
 
-| | |
-|-|-|
+|    |     |
+| --- | --- |
 | Access Token Lifetime | 1 hour |
 | Authorization Code Lifetime | 5 minutes |
 | Refresh Token Lifetime | 3 months (90 days) |
@@ -100,12 +100,12 @@ TODO: Example where using Redis for storing tokens
 There are some claims that will be added to your user principal that are specific for `Sentinel`.  
 Below you can find an overview of claims with explanations.
 
-|Claim|Explanation|
-|-|-|
-|`urn:oauth:client`|The client that was used to authenticate the user|
-|`urn:oauth:scope`|The scope that was set when asking for an authorization code|
-|`urn:oauth:accesstoken`|The access token for the current user object|
-|`urn:oauth:refreshtoken`|The refresh token for the current user object|
+| Claim | Explanation |
+| --- | --- |
+| `urn:oauth:client` | The client that was used to authenticate the user |
+| `urn:oauth:scope` | The scope that was set when asking for an authorization code |
+| `urn:oauth:accesstoken` | The access token for the current user object |
+| `urn:oauth:refreshtoken` | The refresh token for the current user object |
 
 ## TODO
 - Add support for custom grant types
