@@ -26,7 +26,7 @@ public class SimpleUserManager : IUserManager
 {
     public async Task<ClaimsPrincipal> AuthenticateUserWithPasswordAsync(string username, string password)
     {
-        // Return an authenticated principal if the username matches the password
+        // Just return an authenticated principal with the username as name if the username matches the password
         if (username == password)
         {
             return new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(ClaimTypes.Name, username) }, AuthenticationType.OAuth));
@@ -38,7 +38,13 @@ public class SimpleUserManager : IUserManager
 
 public class SimpleClientManager : IClientManager 
 {
-    public async Task<ClaimsPrincipal> AuthenticateClientIdAsync(string clientId, string redirectUri)
+    public async Task<ClaimsPrincipal> AuthenticateClientAsync(string clientId, string redirectUri)
+    {
+        // Just return an authenticated principal with the client id as name (allows all clients)
+        return new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(ClaimTypes.Name, clientId) }, AuthenticationType.OAuth));
+    }
+
+    public async Task<ClaimsPrincipal> AuthenticateClientAsync(string clientId, IEnumerable<string> scope)
     {
         // Just return an authenticated principal with the client id as name (allows all clients)
         return new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(ClaimTypes.Name, clientId) }, AuthenticationType.OAuth));
