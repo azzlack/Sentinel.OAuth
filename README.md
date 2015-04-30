@@ -94,10 +94,10 @@ TODO: Example where using custom grant type to
 TODO: Example where using ASP.NET Identity
 
 ### Custom Client Manager
-TODO: Example where using ASP.NET Identity
+TODO: Example using RavenDB for storing clients
 
 ### Customer Token Manager
-TODO: Example where using Redis for storing tokens
+TODO: Example using Redis for storing tokens
 
 ## Claims
 There are some claims that will be added to your user principal that are specific for `Sentinel`.  
