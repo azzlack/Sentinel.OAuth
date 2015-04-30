@@ -88,13 +88,13 @@ app.UseSentinelAuthorizationServer(
 Did I mention that `Sentinel` is extendable? :-)
 
 ### Custom OAuth Grant Types
-TODO: Example where using custom grant type to 
+TODO: Example using custom grant type to add a new property to the token response
 
 ### Custom User Manager
-TODO: Example where using ASP.NET Identity
+TODO: Example using ASP.NET Identity for storing and validating users
 
 ### Custom Client Manager
-TODO: Example using RavenDB for storing clients
+TODO: Example using RavenDB for storing and validating clients
 
 ### Customer Token Manager
 TODO: Example using Redis for storing tokens
