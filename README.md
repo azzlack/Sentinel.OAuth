@@ -57,7 +57,7 @@ public class SimpleClientManager : IClientManager
     
 This will set up the OAuth server with the default settings, which are as follows:
 
-|    |     |
+| Setting | Default Value |
 | --- | --- |
 | Access Token Lifetime | 1 hour |
 | Authorization Code Lifetime | 5 minutes |
