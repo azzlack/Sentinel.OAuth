@@ -80,7 +80,7 @@ app.UseSentinelAuthorizationServer(
             RefreshTokenLifetime = TimeSpan.FromDays(180),
             UserManager = new SimpleUserManager(),
             ClientManager = new SimpleClientManager(),
-            TokenStore = new InMemoryTokenStore()
+            TokenManager = new SimpleTokenManager()
         });
 ```
 
