@@ -2,11 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Security.Claims;
-    using System.Security.Cryptography;
-    using System.Text;
 
     using Newtonsoft.Json;
 
@@ -15,10 +12,28 @@
 
     public class PrincipalProvider : IPrincipalProvider
     {
+        /// <summary>The crypto provider.</summary>
+        private readonly ICryptoProvider cryptoProvider;
+
         /// <summary>
         /// The current principal
         /// </summary>
         private readonly Lazy<ClaimsPrincipal> current = new Lazy<ClaimsPrincipal>(() => ClaimsPrincipal.Current);
+
+        /// <summary>
+        ///     Initializes a new instance of the Sentinel.OAuth.Implementation.PrincipalProvider
+        ///     class.
+        /// </summary>
+        /// <param name="cryptoProvider">The crypto provider.</param>
+        public PrincipalProvider(ICryptoProvider cryptoProvider)
+        {
+            if (cryptoProvider == null)
+            {
+                throw new ArgumentNullException("cryptoProvider");
+            }
+
+            this.cryptoProvider = cryptoProvider;
+        }
 
         /// <summary>
         /// Creates an anonymous claims principal.
@@ -128,27 +143,7 @@
         {
             var s = JsonConvert.SerializeObject(new JsonPrincipal(principal));
 
-            byte[] encrypted;
-
-            using (var rijAlg = new RijndaelManaged() { Key = Encoding.UTF8.GetBytes(key), IV = Encoding.UTF8.GetBytes("@1B2c3D4e5F6g7H8") })
-            {
-                var encryptor = rijAlg.CreateEncryptor(rijAlg.Key, rijAlg.IV);
-
-                using (var msEncrypt = new MemoryStream())
-                {
-                    using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                    {
-                        using (var swEncrypt = new StreamWriter(csEncrypt))
-                        {
-                            swEncrypt.Write(s);
-                        }
-
-                        encrypted = msEncrypt.ToArray();
-                    }
-                }
-            }
-
-            return Convert.ToBase64String(encrypted);
+            return this.cryptoProvider.Encrypt(s, key);
         }
 
         /// <summary>
@@ -159,23 +154,7 @@
         /// <returns>The principal.</returns>
         public ClaimsPrincipal Decrypt(string ticket, string key)
         {
-            string s;
-
-            using (var rijAlg = new RijndaelManaged() { Key = Encoding.UTF8.GetBytes(key), IV = Encoding.UTF8.GetBytes("@1B2c3D4e5F6g7H8") })
-            {
-                var decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
-
-                using (var msDecrypt = new MemoryStream(Convert.FromBase64String(ticket)))
-                {
-                    using (var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                    {
-                        using (var srDecrypt = new StreamReader(csDecrypt))
-                        {
-                            s = srDecrypt.ReadToEnd();
-                        }
-                    }
-                }
-            }
+            var s = this.cryptoProvider.Decrypt(ticket, key);
 
             return JsonConvert.DeserializeObject<JsonPrincipal>(s);
         }

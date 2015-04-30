@@ -27,7 +27,7 @@ public class SimpleUserManager : IUserManager
         // Return an authenticated principal if the username matches the password
         if (username == password)
         {
-            return new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(ClaimTypes.Name, username) }));
+            return new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(ClaimTypes.Name, username) }, AuthenticationType.OAuth));
         }
 
         return new ClaimsPrincipal(new ClaimsIdentity());
@@ -39,7 +39,7 @@ public class SimpleClientManager : IClientManager
     public async Task<ClaimsPrincipal> AuthenticateClientIdAsync(string clientId, string redirectUri)
     {
         // Just return an authenticated principal with the client id as name (allows all clients)
-        return new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(ClaimTypes.Name, clientId) }));
+        return new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(ClaimTypes.Name, clientId) }, AuthenticationType.OAuth));
     }
 
     public async Task<ClaimsPrincipal> AuthenticateClientCredentialsAsync(string clientId, string clientSecret)
@@ -47,7 +47,7 @@ public class SimpleClientManager : IClientManager
         // Return an authenticated principal if the client secret matches the client id
         if (clientId == clientSecret)
         {
-            return new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(ClaimTypes.Name, clientId) }));
+            return new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(ClaimTypes.Name, clientId) }, AuthenticationType.OAuth));
         }
 
         return new ClaimsPrincipal(new ClaimsIdentity());
@@ -64,7 +64,7 @@ This will set up the OAuth server with the default settings, which are as follow
 | Refresh Token Lifetime | 3 months (90 days) |
 | Token Endpoint | `/oauth/token` |
 | Authorization Code Endpoint | `/oauth/authorize` |
-| Token Format | Host default (On IIS `MachineKey` is used, for self-hosted apps `DPAPI` is used) |
+| Token Format | `Sentinel` A `PBKDF2` hasher with 256-bit key length |
 
 ### The advanced way
 The easy way is not always the best way, and `Sentinel` supports customization of user and client management, as well as custom token stores.

@@ -46,7 +46,7 @@
 
             if (options.PrincipalProvider == null)
             {
-                options.PrincipalProvider = new PrincipalProvider();
+                options.PrincipalProvider = new PrincipalProvider(options.CryptoProvider);
             }
 
             if (options.TokenManager == null)

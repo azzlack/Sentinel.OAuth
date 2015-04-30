@@ -1,10 +1,14 @@
 ﻿namespace Sentinel.OAuth.Implementation
 {
     using System;
+    using System.IO;
     using System.Security.Cryptography;
     using System.Text;
 
+    using Newtonsoft.Json;
+
     using Sentinel.OAuth.Core.Interfaces.Providers;
+    using Sentinel.OAuth.Core.Models.Identity;
 
     /// <summary>A <c>PBKDF2</c> crypto provider for creating and validating hashes.</summary>
     public class PBKDF2CryptoProvider : ICryptoProvider
@@ -41,7 +45,7 @@
         /// <param name="hashByteSize">The hash size. Defaults to 24.</param>
         /// <param name="iterations">The number of iterations used by the algorithm. Defaults to 10000.</param>
         /// <param name="delimiter">The hash components delimiter. Defaults to ':'.</param>
-        public PBKDF2CryptoProvider(int saltByteSize = 24, int hashByteSize = 24, int iterations = 10000, char[] delimiter = null)
+        public PBKDF2CryptoProvider(int saltByteSize = 128, int hashByteSize = 128, int iterations = 10000, char[] delimiter = null)
         {
             this.saltByteSize = saltByteSize;
             this.hashByteSize = hashByteSize;
@@ -57,7 +61,7 @@
         /// <param name="text">The text that was hashed.</param>
         /// <param name="textLength">The random text length in bits.</param>
         /// <returns>The hash of the text.</returns>
-        public string CreateHash(out string text, int textLength = 8)
+        public string CreateHash(out string text, int textLength)
         {
             text = this.GenerateText(textLength);
 
@@ -105,12 +109,75 @@
             return this.SlowEquals(hash, testHash);
         }
 
+        /// <summary>Encrypts the specified text.</summary>
+        /// <param name="text">The text.</param>
+        /// <param name="key">The key.</param>
+        /// <returns>The encrypted text.</returns>
+        public string Encrypt(string text, string key)
+        {
+            // Create random key generator
+            var pdb = new Rfc2898DeriveBytes(key, Encoding.UTF8.GetBytes(key));
+
+            // Encrypt the principal
+            byte[] encrypted;
+
+            using (var rijAlg = new RijndaelManaged() { Key = pdb.GetBytes(32), IV = pdb.GetBytes(16) })
+            {
+                var encryptor = rijAlg.CreateEncryptor(rijAlg.Key, rijAlg.IV);
+
+                using (var msEncrypt = new MemoryStream())
+                {
+                    using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                    {
+                        using (var swEncrypt = new StreamWriter(csEncrypt))
+                        {
+                            swEncrypt.Write(text);
+                        }
+
+                        encrypted = msEncrypt.ToArray();
+                    }
+                }
+            }
+
+            return Convert.ToBase64String(encrypted);
+        }
+
+        /// <summary>Decrypts the principal.</summary>
+        /// <param name="ticket">The encrypted principal.</param>
+        /// <param name="key">The key.</param>
+        /// <returns>The principal.</returns>
+        public string Decrypt(string ticket, string key)
+        {
+            string decryptedText;
+
+            // Create random key generator
+            var pdb = new Rfc2898DeriveBytes(key, Encoding.UTF8.GetBytes(key));
+
+            using (var rijAlg = new RijndaelManaged() { Key = pdb.GetBytes(32), IV = pdb.GetBytes(16) })
+            {
+                var decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
+
+                using (var msDecrypt = new MemoryStream(Convert.FromBase64String(ticket)))
+                {
+                    using (var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                    {
+                        using (var srDecrypt = new StreamReader(csDecrypt))
+                        {
+                            decryptedText = srDecrypt.ReadToEnd();
+                        }
+                    }
+                }
+            }
+
+            return decryptedText;
+        }
+
         /// <summary>
         /// Generates a random text.
         /// </summary>
         /// <param name="length">The text length.</param>
         /// <returns>The random text.</returns>
-        private string GenerateText(int length = 8)
+        private string GenerateText(int length)
         {
             const string AllowedChars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ0123456789!@$?_-";
 
@@ -171,7 +238,7 @@
         /// <returns>A hash of the text.</returns>
         private byte[] Compute(string text, byte[] salt, int iterations, int outputBytes)
         {
-            var pbkdf2 = new Rfc2898DeriveBytes(text, salt) { IterationCount = iterations };
+            var pbkdf2 = new Rfc2898DeriveBytes(text, salt, iterations);
 
             return pbkdf2.GetBytes(outputBytes);
         }

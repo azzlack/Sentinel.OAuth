@@ -19,6 +19,24 @@
         }
 
         /// <summary>
+        ///     Initializes a new instance of the Sentinel.OAuth.Core.Models.Identity.JsonPrincipal
+        ///     class.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        ///     Thrown when one or more required arguments are null.
+        /// </exception>
+        /// <param name="identity">The identity.</param>
+        public JsonPrincipal(JsonIdentity identity)
+        {
+            if (identity == null)
+            {
+                throw new ArgumentNullException("identity");
+            }
+
+            this.Identities = new[] { identity };
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="JsonPrincipal" /> class.
         /// </summary>
         /// <param name="principal">The principal.</param>

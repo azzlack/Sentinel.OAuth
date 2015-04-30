@@ -22,7 +22,7 @@
         [SetUp]
         public void SetUp()
         {
-            this.tokenManager = new TokenManager(LogManager.GetLogger<TokenManagerTests>(), new PrincipalProvider(), new PBKDF2CryptoProvider(), new MemoryTokenRepository());
+            this.tokenManager = new TokenManager(LogManager.GetLogger<TokenManagerTests>(), new PrincipalProvider(new PBKDF2CryptoProvider()), new PBKDF2CryptoProvider(), new MemoryTokenRepository());
         }
 
         [TestCase("NUnit", "http://localhost")]
@@ -32,6 +32,8 @@
             var t = await this.tokenManager.CreateAuthorizationCodeAsync(a, TimeSpan.FromMinutes(5), redirectUri);
             var r = await this.tokenManager.AuthenticateAuthorizationCodeAsync(redirectUri, t);
 
+            Console.WriteLine("Authorization Code: {0}", t);
+            Console.WriteLine();
             Console.WriteLine("Identity: {0}", r.AsJson());
 
             Assert.IsTrue(r.Identity.IsAuthenticated);
@@ -57,8 +59,13 @@
             var y = await this.tokenManager.CreateRefreshTokenAsync(r, TimeSpan.FromMinutes(5), clientId, redirectUri);
             var x = await this.tokenManager.AuthenticateRefreshTokenAsync(clientId, y, redirectUri);
 
+            Console.WriteLine("Authorization Code: {0}", t);
+            Console.WriteLine("Refresh Token: {0}", y);
+            Console.WriteLine();
             Console.WriteLine("Client Id Identity: {0}", a.AsJson());
+            Console.WriteLine();
             Console.WriteLine("Authorization Code Identity: {0}", r.AsJson());
+            Console.WriteLine();
             Console.WriteLine("Refresh Token Identity: {0}", x.AsJson());
 
             Assert.IsTrue(x.Identity.IsAuthenticated);
@@ -91,8 +98,13 @@
             var y = await this.tokenManager.CreateAccessTokenAsync(r, TimeSpan.FromHours(1), clientId, redirectUri);
             var x = await this.tokenManager.AuthenticateAccessTokenAsync(y);
 
+            Console.WriteLine("Authorization Code: {0}", t);
+            Console.WriteLine("Access Token: {0}", y);
+            Console.WriteLine();
             Console.WriteLine("Client Id Identity: {0}", a.AsJson());
+            Console.WriteLine();
             Console.WriteLine("Authorization Code Identity: {0}", r.AsJson());
+            Console.WriteLine();
             Console.WriteLine("Access Token Identity: {0}", x.AsJson());
 
             Assert.IsTrue(x.Identity.IsAuthenticated);

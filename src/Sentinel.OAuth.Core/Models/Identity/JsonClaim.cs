@@ -29,6 +29,17 @@
         }
 
         /// <summary>
+        ///     Initializes a new instance of the Sentinel.OAuth.Core.Models.Identity.JsonClaim class.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="value">The value.</param>
+        public JsonClaim(string type, string value)
+        {
+            this.Type = type;
+            this.Value = value;
+        }
+
+        /// <summary>
         /// Gets or sets the type.
         /// </summary>
         /// <value>The type.</value>

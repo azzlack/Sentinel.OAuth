@@ -1,23 +1,36 @@
 ﻿namespace Sentinel.Tests.Unit
 {
     using System;
+    using System.Collections.Generic;
+    using System.Security.Claims;
     using System.Security.Cryptography;
     using System.Text;
 
+    using Newtonsoft.Json;
+
     using NUnit.Framework;
 
+    using Sentinel.OAuth.Core.Constants.Identity;
+    using Sentinel.OAuth.Core.Interfaces.Providers;
+    using Sentinel.OAuth.Core.Models.Identity;
     using Sentinel.OAuth.Implementation;
 
     [TestFixture]
     [Category("Unit")]
     public class PBKDF2CryptoProviderTests
     {
+        private ICryptoProvider provider;
+
+        [SetUp]
+        public void SetUp()
+        {
+            this.provider = new PBKDF2CryptoProvider();
+        }
+
         [TestCase("aabbccddee")]
         public void Create_WhenGivenValidString_ReturnsHash(string text)
         {
-            var factory = new PBKDF2CryptoProvider();
-
-            var hash = factory.CreateHash(text);
+            var hash = this.provider.CreateHash(text);
 
             Console.WriteLine("Hash: {0}", hash);
 
@@ -29,10 +42,8 @@
         [Test]
         public void Create_WhenGeneratingString_ReturnsValidHash()
         {
-            var factory = new PBKDF2CryptoProvider();
-
             string text;
-            var hash = factory.CreateHash(out text);
+            var hash = this.provider.CreateHash(out text, 8);
 
             Console.WriteLine("Hash: {0}", hash);
 
@@ -40,7 +51,7 @@
             Assert.AreEqual(3, hash.Split(':').Length);
             Assert.AreEqual("10000", hash.Split(':')[0]);
 
-            var valid = factory.ValidateHash(text, hash);
+            var valid = this.provider.ValidateHash(text, hash);
 
             Assert.IsTrue(valid);
         }
@@ -51,10 +62,8 @@
         [TestCase(128)]
         public void Create_WhenGeneratingStringWithSpecificLength_ReturnsValidHash(int size)
         {
-            var factory = new PBKDF2CryptoProvider();
-
             string text;
-            var hash = factory.CreateHash(out text, size);
+            var hash = this.provider.CreateHash(out text, size);
 
             Console.WriteLine("Hash: {0}", hash);
 
@@ -69,7 +78,7 @@
             Assert.AreEqual(3, hash.Split(':').Length);
             Assert.AreEqual("10000", hash.Split(':')[0]);
 
-            var valid = factory.ValidateHash(text, hash);
+            var valid = this.provider.ValidateHash(text, hash);
 
             Assert.IsTrue(valid);
         }
@@ -79,9 +88,9 @@
         [TestCase(64, 64, 25000, new[] { '|' }, "aabbccddee")]
         public void Create_WhenGivenValidString_ReturnsHash(int saltByteSize, int hashByteSize, int iterations, char[] delimiter, string text)
         {
-            var factory = new PBKDF2CryptoProvider(saltByteSize, hashByteSize, iterations, delimiter);
+            var p = new PBKDF2CryptoProvider(saltByteSize, hashByteSize, iterations, delimiter);
 
-            var hash = factory.CreateHash(text);
+            var hash = p.CreateHash(text);
 
             Console.WriteLine("Hash: {0}", hash);
 
@@ -94,9 +103,7 @@
         [TestCase("aabbccddee", "10000:E+nmwGCEObvreQhlrV4clrekiUYu877i:szblNYoQohlabb31BDMdt2KFJCRtUtp8")]
         public void Validate_WhenGivenValidCorrectTextAndHashCombination_ReturnsTrue(string text, string correctHash)
         {
-            var factory = new PBKDF2CryptoProvider();
-
-            var valid = factory.ValidateHash(text, correctHash);
+            var valid = this.provider.ValidateHash(text, correctHash);
 
             Assert.IsTrue(valid);
         }
@@ -105,9 +112,9 @@
         [TestCase(64, 64, 25000, new[] { '|' }, "aabbccddee", "25000|lErTN/RUNSvCRDQPBmQ4/Y0FL40hI7aIku47BHYeuQt0qINTeCJJ86gRE6hKHiT0UQIuXiOrsfDowqNE6tZToQ==|nbDni54XduFJJdmGiPxvr5sLn7USBN66Gad8lrLr2J+mtZT2TR1UBu9O41iXfsI0GQXx2HL0httGL6nDiL1Ncg==")]
         public void Validate_WhenGivenValidCorrectTextAndHashCombination_ReturnsTrue(int saltByteSize, int hashByteSize, int iterations, char[] delimiter, string text, string correctHash)
         {
-            var factory = new PBKDF2CryptoProvider(saltByteSize, hashByteSize, iterations, delimiter);
+            var p = new PBKDF2CryptoProvider(saltByteSize, hashByteSize, iterations, delimiter);
 
-            var valid = factory.ValidateHash(text, correctHash);
+            var valid = p.ValidateHash(text, correctHash);
 
             Assert.IsTrue(valid);
         }
@@ -116,9 +123,7 @@
         [TestCase("aabbccddee", "10000:E+nmwGCEObvreQhlrV4clrfkiUYu877i:szblNYoQohlabb31BDMdt2KFJCRtUtp8")]
         public void Validate_WhenGivenValidIncorrectTextAndHashCombination_ReturnsFalse(string text, string correctHash)
         {
-            var factory = new PBKDF2CryptoProvider();
-
-            var valid = factory.ValidateHash(text, correctHash);
+            var valid = this.provider.ValidateHash(text, correctHash);
 
             Assert.IsFalse(valid);
         }
@@ -128,9 +133,9 @@
         [TestCase(64, 64, 25000, new[] { '|' }, "aabbccddee", "10000|E+nmwGCEObwreQhlrV4clrekiUYu877i|szblNYoQohlabb31BDMdt2KFJCRtUtp8")]
         public void Validate_WhenGivenValidIncorrectTextAndHashCombination_ReturnsFalse(int saltByteSize, int hashByteSize, int iterations, char[] delimiter, string text, string correctHash)
         {
-            var factory = new PBKDF2CryptoProvider(saltByteSize, hashByteSize, iterations, delimiter);
+            var p = new PBKDF2CryptoProvider(saltByteSize, hashByteSize, iterations, delimiter);
 
-            var valid = factory.ValidateHash(text, correctHash);
+            var valid = p.ValidateHash(text, correctHash);
 
             Assert.IsFalse(valid);
         }
@@ -139,7 +144,7 @@
         [TestCase(24, 24, 10000, new[] { ':' })]
         public void Validate_WhenGivenAutoGeneratedString_ReturnsValid(int saltByteSize, int hashByteSize, int iterations, char[] delimiter)
         {
-            var factory = new PBKDF2CryptoProvider(saltByteSize, hashByteSize, iterations, delimiter);
+            var p = new PBKDF2CryptoProvider(saltByteSize, hashByteSize, iterations, delimiter);
 
             var csprng = new RNGCryptoServiceProvider();
             var arr = new byte[128];
@@ -150,13 +155,48 @@
 
             Console.WriteLine("Text: {0}", text);
 
-            var hash = factory.CreateHash(text);
+            var hash = p.CreateHash(text);
 
             Console.WriteLine("Hash: {0}", hash);
 
-            var valid = factory.ValidateHash(text, hash);
+            var valid = p.ValidateHash(text, hash);
 
             Assert.IsTrue(valid);
+        }
+
+        [TestCase("Lorem ipsum", "myspecialkey")]
+        [TestCase("b dnsnfgrsnfgnfghnfgnfg", "some otherky")]
+        public void Encrypt_WhenGivenString_ReturnsEncryptedString(string text, string key)
+        {
+            var r = this.provider.Encrypt(text, key);
+
+            Console.WriteLine("Original: {0}", text);
+            Console.WriteLine("Encrypted: {0}", r);
+
+            Assert.IsNotNullOrEmpty(r);
+        }
+
+        [TestCase("v s bvzølnbdskøcmbøsdmvdøsbvjkdsb mvbdsvndjkls")]
+        [TestCase("myspecialkey")]
+        public void Decrypt_WhenGivenEncryptedString_ReturnsDecryptedString(string key)
+        {
+            var c1 = new JsonPrincipal(new JsonIdentity(new List<JsonClaim>() { new JsonClaim(ClaimTypes.Name, "azzlack") }));
+            var s = JsonConvert.SerializeObject(c1);
+ 
+            var e = this.provider.Encrypt(s, key);
+
+            Console.WriteLine("Original: {0}", s);
+            Console.WriteLine();
+            Console.WriteLine("Encrypted: {0}", e);
+            Console.WriteLine();
+
+            var d = this.provider.Decrypt(e, key);
+
+            Console.WriteLine("Decrypted: {0}", d);
+
+            var c2 = JsonConvert.DeserializeObject<JsonPrincipal>(d);
+
+            Assert.AreEqual(c1.Identity.Name, c2.Identity.Name);
         }
     }
 }

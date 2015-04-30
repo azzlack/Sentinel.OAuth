@@ -3,7 +3,6 @@
     using System;
     using System.Linq;
     using System.Security.Claims;
-    using System.Text;
     using System.Threading.Tasks;
 
     using Common.Logging;
@@ -211,9 +210,10 @@
             // Create and store authorization code fur future use
             this.logger.DebugFormat("Creating authorization code for '{0}' and redirect uri '{1}'", userPrincipal.Identity.Name, redirectUri);
 
-            var code = Guid.NewGuid().ToString("n");
+            string code;
+            var hashedCode = this.cryptoProvider.CreateHash(out code, 256);
 
-            var authorizationCode = new AuthorizationCode(this.cryptoProvider.CreateHash(code), DateTime.UtcNow.Add(expire))
+            var authorizationCode = new AuthorizationCode(hashedCode, DateTime.UtcNow.Add(expire))
                                         {
                                             ClientId = client.Value,
                                             Subject = userPrincipal.Identity.Name,
@@ -271,7 +271,7 @@
 
             // Create new access token
             string token;
-            var hashedToken = this.cryptoProvider.CreateHash(out token, 256);
+            var hashedToken = this.cryptoProvider.CreateHash(out token, 2048);
 
             var accessToken = new AccessToken(hashedToken, DateTime.UtcNow.Add(expire))
                                     {
@@ -330,7 +330,7 @@
 
             // Create new refresh token
             string token;
-            var hashedToken = this.cryptoProvider.CreateHash(out token, 256);
+            var hashedToken = this.cryptoProvider.CreateHash(out token, 2048);
 
             var refreshToken = new RefreshToken(hashedToken, DateTime.UtcNow.Add(expire))
                                     {

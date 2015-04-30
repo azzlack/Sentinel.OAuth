@@ -73,6 +73,37 @@
         }
 
         /// <summary>
+        ///     Initializes a new instance of the Sentinel.OAuth.Core.Models.Identity.JsonIdentity
+        ///     class.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        ///     Thrown when one or more required arguments are null.
+        /// </exception>
+        /// <param name="claims">The claims.</param>
+        public JsonIdentity(IEnumerable<JsonClaim> claims)
+        {
+            if (claims == null)
+            {
+                throw new ArgumentNullException("claims");
+            }
+
+            this.Claims = new List<JsonClaim>();
+
+            foreach (var claim in claims)
+            {
+                this.AddClaim(claim);
+            }
+
+            // Set name claim
+            var nameClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.Name);
+
+            if (nameClaim != null)
+            {
+                this.Name = nameClaim.Value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the type of the authentication.
         /// </summary>
         /// <value>The type of the authentication.</value>
