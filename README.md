@@ -93,7 +93,10 @@ TODO: Example where using custom grant type to
 ### Custom User Manager
 TODO: Example where using ASP.NET Identity
 
-### Customer Token Store
+### Custom Client Manager
+TODO: Example where using ASP.NET Identity
+
+### Customer Token Manager
 TODO: Example where using Redis for storing tokens
 
 ## Claims
