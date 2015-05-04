@@ -1,4 +1,4 @@
-﻿namespace Sentinel.Tests
+﻿namespace Sentinel.OAuth.Client
 {
     using System;
     using System.Net.Http.Headers;

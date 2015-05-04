@@ -16,6 +16,7 @@
 
     using NUnit.Framework;
 
+    using Sentinel.OAuth.Client;
     using Sentinel.OAuth.Core.Constants.OAuth;
     using Sentinel.OAuth.Models.Identity;
 

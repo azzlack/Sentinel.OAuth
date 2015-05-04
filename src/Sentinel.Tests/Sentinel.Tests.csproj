@@ -67,6 +67,10 @@
       <HintPath>..\packages\Coypu.2.8.0\lib\net40\Coypu.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Moq, Version=4.2.1502.911, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.2.1502.0911\lib\net40\Moq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -109,9 +113,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BasicAuthenticationHeaderValue.cs" />
     <Compile Include="Facade\SentinelAuthorizationServerTests.cs" />
     <Compile Include="Integration\PrincipalProviderTests.cs" />
+    <Compile Include="Facade\SentinelOAuthClientTests.cs" />
     <Compile Include="Integration\TokenManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Unit\MemoryTokenRepositoryTests.cs" />
@@ -142,6 +146,10 @@
     <None Include="Properties\SlowCheetah\SlowCheetah.Transforms.targets" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Sentinel.OAuth.Client\Sentinel.OAuth.Client.csproj">
+      <Project>{817dd465-2c53-44f5-9c19-5f4c40510f5e}</Project>
+      <Name>Sentinel.OAuth.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sentinel.OAuth.Core\Sentinel.OAuth.Core.csproj">
       <Project>{3590e38c-f48f-4dc6-bb12-06eb919a70e3}</Project>
       <Name>Sentinel.OAuth.Core</Name>
