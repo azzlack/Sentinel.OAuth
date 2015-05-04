@@ -111,6 +111,11 @@ app.UseSentinelAuthorizationServer(
             TokenManager = new SimpleTokenManager()
         });
 ```
+## Usage
+There is nothing special with `Sentinel` as an OAuth 2 provider, you can use a normal OAuth client that conforms to the [specification](https://tools.ietf.org/html/rfc6749).  
+`Sentinel` also includes a [client for use in .NET projects](https://www.nuget.org/packages/Sentinel.OAuth.Client/) ([source](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.Client))
+
+There is one thing that must be 
 
 ## Extending
 Did I mention that `Sentinel` is extendable? :-)
