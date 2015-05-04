@@ -18,6 +18,11 @@ This package lets you add OAuth authentication to your API quickly and securely.
     <copyright>Copyright EyeCatch 2015</copyright>
     <language>en-US</language>
     <tags>oauth webapi security authentication authorization eyecatch</tags>
+    <dependencies>
+      <dependency id="Common.Logging" version="3.0.0" />
+      <dependency id="Microsoft.Owin.Security.OAuth" version="3.0.0" />
+      <dependency id="Newtonsoft.Json" version="6.0.0" />
+    </dependencies> 
   </metadata>
   <files>
 	<file src="..\..\src\Sentinel.OAuth\bin\Release\**" target="lib\net45" />

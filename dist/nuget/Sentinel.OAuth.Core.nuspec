@@ -18,6 +18,11 @@ Use this if you want to develop an extension.</description>
     <copyright>Copyright EyeCatch 2015</copyright>
     <language>en-US</language>
     <tags>oauth webapi security authentication authorization eyecatch</tags>
+    <dependencies>
+      <dependency id="Common.Logging" version="3.0.0" />
+      <dependency id="Microsoft.Owin.Security.OAuth" version="3.0.0" />
+      <dependency id="Newtonsoft.Json" version="6.0.0" />
+    </dependencies> 
   </metadata>
   <files>
 	<file src="..\..\src\Sentinel.OAuth.Core\bin\Release\**" target="lib\net45" />
