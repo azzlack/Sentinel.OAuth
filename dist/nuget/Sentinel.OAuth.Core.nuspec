@@ -21,6 +21,6 @@ Use this if you want to develop an extension.</description>
   </metadata>
   <files>
 	<file src="..\..\src\Sentinel.OAuth.Core\bin\Release\**" target="lib\net45" />
-	<file src="..\..\src\Sentinel.OAuth.Core\**\*.cs" target="src" />
+	<file src="..\..\src\Sentinel.OAuth.Core\**\*.cs" exclude="**\obj\**\*.*" target="src" />
   </files>
 </package>

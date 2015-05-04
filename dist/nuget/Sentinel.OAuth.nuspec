@@ -21,6 +21,6 @@ This package lets you add OAuth authentication to your API quickly and securely.
   </metadata>
   <files>
 	<file src="..\..\src\Sentinel.OAuth\bin\Release\**" target="lib\net45" />
-	<file src="..\..\src\Sentinel.OAuth\**\*.cs" target="src" />
+	<file src="..\..\src\Sentinel.OAuth\**\*.cs" exclude="**\obj\**\*.*" target="src" />
   </files>
 </package>
