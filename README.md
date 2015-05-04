@@ -22,43 +22,63 @@ app.UseSentinelAuthorizationServer(
 In addition, you need to implement a `IUserManager` and a `IClientManager` for validating users and clients:
 
 ```csharp
-public class SimpleUserManager : IUserManager 
+public class SimpleUserManager : IUserManager
 {
-    public async Task<ClaimsPrincipal> AuthenticateUserWithPasswordAsync(string username, string password)
+    /// <summary>Authenticates the user using username and password.</summary>
+    /// <param name="username">The username.</param>
+    /// <param name="password">The password.</param>
+    /// <returns>The client principal.</returns>
+    public async Task<ISentinelPrincipal> AuthenticateUserWithPasswordAsync(string username, string password)
     {
         // Just return an authenticated principal with the username as name if the username matches the password
         if (username == password)
         {
-            return new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(ClaimTypes.Name, username) }, AuthenticationType.OAuth));
+            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, username)));
         }
 
-        return new ClaimsPrincipal(new ClaimsIdentity());
+        return SentinelPrincipal.Anonymous;
     }
 }
 
 public class SimpleClientManager : IClientManager 
 {
-    public async Task<ClaimsPrincipal> AuthenticateClientAsync(string clientId, string redirectUri)
+    /// <summary>
+    ///     Authenticates the client. Used when authenticating with the authorization_code grant type.
+    /// </summary>
+    /// <param name="clientId">The client id.</param>
+    /// <param name="redirectUri">The redirect URI.</param>
+    /// <returns>The client principal.</returns>
+    public async Task<ISentinelPrincipal> AuthenticateClientAsync(string clientId, string redirectUri)
     {
         // Just return an authenticated principal with the client id as name (allows all clients)
-        return new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(ClaimTypes.Name, clientId) }, AuthenticationType.OAuth));
+        return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
     }
 
-    public async Task<ClaimsPrincipal> AuthenticateClientAsync(string clientId, IEnumerable<string> scope)
+    /// <summary>
+    ///     Authenticates the client. Used when authenticating with the client_credentials grant type.
+    /// </summary>
+    /// <param name="clientId">The client id.</param>
+    /// <param name="scope">The redirect URI.</param>
+    /// <returns>The client principal.</returns>
+    public async Task<ISentinelPrincipal> AuthenticateClientAsync(string clientId, IEnumerable<string> scope)
     {
         // Just return an authenticated principal with the client id as name (allows all clients)
-        return new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(ClaimTypes.Name, clientId) }, AuthenticationType.OAuth));
+        return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
     }
 
-    public async Task<ClaimsPrincipal> AuthenticateClientCredentialsAsync(string clientId, string clientSecret)
+    /// <summary>Authenticates the client credentials using client id and secret.</summary>
+    /// <param name="clientId">The client id.</param>
+    /// <param name="clientSecret">The client secret.</param>
+    /// <returns>The client principal.</returns>
+    public async Task<ISentinelPrincipal> AuthenticateClientCredentialsAsync(string clientId, string clientSecret)
     {
         // Return an authenticated principal if the client secret matches the client id
         if (clientId == clientSecret)
         {
-            return new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(ClaimTypes.Name, clientId) }, AuthenticationType.OAuth));
+            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
         }
 
-        return new ClaimsPrincipal(new ClaimsIdentity());
+        return SentinelPrincipal.Anonymous;
     }
 }
 ```
@@ -91,6 +111,11 @@ app.UseSentinelAuthorizationServer(
             TokenManager = new SimpleTokenManager()
         });
 ```
+## Usage
+There is nothing special with `Sentinel` as an OAuth 2 provider, you can use a normal OAuth client that conforms to the [specification](https://tools.ietf.org/html/rfc6749).  
+`Sentinel` also includes a [client for use in .NET projects](https://www.nuget.org/packages/Sentinel.OAuth.Client/) ([source](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.Client))
+
+**There is one thing that must be mentioned however**. `Sentinel` requires the client redirect uri parameter to be present on the `authorize` request. Not all OAuth 2 providers do this, but it is possible [according to the specification](https://tools.ietf.org/html/rfc6749#section-4.1.1).
 
 ## Extending
 Did I mention that `Sentinel` is extendable? :-)
