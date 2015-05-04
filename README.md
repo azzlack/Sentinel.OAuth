@@ -115,7 +115,7 @@ app.UseSentinelAuthorizationServer(
 There is nothing special with `Sentinel` as an OAuth 2 provider, you can use a normal OAuth client that conforms to the [specification](https://tools.ietf.org/html/rfc6749).  
 `Sentinel` also includes a [client for use in .NET projects](https://www.nuget.org/packages/Sentinel.OAuth.Client/) ([source](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.Client))
 
-There is one thing that must be 
+**There is one thing that must be mentioned however**. `Sentinel` requires the client redirect uri parameter to be present on the `authorize` request. Not all OAuth 2 providers do this, but it is possible [according to the specification](https://tools.ietf.org/html/rfc6749#section-4.1.1).
 
 ## Extending
 Did I mention that `Sentinel` is extendable? :-)
