@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Sentinel.OAuth</id>
+    <version>1.0.0</version>
+    <title>Sentinel OAuth Provider</title>
+    <authors>Ove Andersen</authors>
+    <owners>EyeCatch</owners>
+    <licenseUrl>http://www.eyecatch.no/licenses/apache-20/</licenseUrl>
+    <projectUrl>https://github.com/azzlack/Sentinel.OAuth</projectUrl>
+    <iconUrl>http://www.eyecatch.no/favicon.ico</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>An easy to use OAuth 2 authentication provider for ASP.NET WebAPI 2.
+	
+This package lets you add OAuth authentication to your API quickly and securely.</description>
+    <summary>An easy to use OAuth 2 authentication provider for ASP.NET WebAPI 2.</summary>
+	<releaseNotes></releaseNotes>
+    <copyright>Copyright EyeCatch 2015</copyright>
+    <language>en-US</language>
+    <tags>oauth webapi security authentication authorization eyecatch</tags>
+  </metadata>
+</package>
