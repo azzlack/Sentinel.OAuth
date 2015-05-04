@@ -229,7 +229,7 @@
 
             if (client.Identity.IsAuthenticated)
             {
-                var ticket = new AuthenticationTicket(client.Identities.First(), new AuthenticationProperties());
+                var ticket = new AuthenticationTicket(client.Identity.AsClaimsIdentity(), new AuthenticationProperties());
 
                 context.Validated(ticket);
                 
@@ -274,7 +274,7 @@
             }
 
             // Add client claim
-            user.Identities.First().AddClaim(new Claim(ClaimType.Client, context.ClientId));
+            user.Identity.AddClaim(ClaimType.Client, context.ClientId);
 
             // Activate event if subscribed to
             if (this.options.Events.PrincipalCreated != null)
@@ -283,10 +283,10 @@
             } 
 
             // Convert to proper authentication type
-            var principal = this.options.PrincipalProvider.Create(context.Options.AuthenticationType, user.Claims.ToArray());
+            var principal = this.options.PrincipalProvider.Create(context.Options.AuthenticationType, user.Identity.Claims.ToArray());
 
             // Validate ticket
-            var ticket = new AuthenticationTicket(principal.Identities.First(), new AuthenticationProperties());
+            var ticket = new AuthenticationTicket(principal.Identity.AsClaimsIdentity(), new AuthenticationProperties());
 
             context.Validated(ticket);
 

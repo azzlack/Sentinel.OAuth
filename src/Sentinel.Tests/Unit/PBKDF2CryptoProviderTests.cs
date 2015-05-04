@@ -12,8 +12,8 @@
 
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Providers;
-    using Sentinel.OAuth.Core.Models.Identity;
     using Sentinel.OAuth.Implementation;
+    using Sentinel.OAuth.Models.Identity;
 
     [TestFixture]
     [Category("Unit")]
@@ -180,7 +180,7 @@
         [TestCase("myspecialkey")]
         public void Decrypt_WhenGivenEncryptedString_ReturnsDecryptedString(string key)
         {
-            var c1 = new JsonPrincipal(new JsonIdentity(new List<JsonClaim>() { new JsonClaim(ClaimTypes.Name, "azzlack") }));
+            var c1 = new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack")));
             var s = JsonConvert.SerializeObject(c1);
  
             var e = this.provider.Encrypt(s, key);
@@ -194,7 +194,7 @@
 
             Console.WriteLine("Decrypted: {0}", d);
 
-            var c2 = JsonConvert.DeserializeObject<JsonPrincipal>(d);
+            var c2 = JsonConvert.DeserializeObject<SentinelPrincipal>(d);
 
             Assert.AreEqual(c1.Identity.Name, c2.Identity.Name);
         }

@@ -10,9 +10,10 @@
 
 	using Sentinel.OAuth.Core.Constants.Identity;
 	using Sentinel.OAuth.Core.Models;
-	using Sentinel.OAuth.Core.Models.Identity;
+	using Sentinel.OAuth.Extensions;
+	using Sentinel.OAuth.Models.Identity;
 
-	/// <summary>The Sentinel authorization code provider.</summary>
+    /// <summary>The Sentinel authorization code provider.</summary>
 	public class SentinelAuthorizationCodeProvider : AuthenticationTokenProvider
 	{
 		/// <summary>Options for controlling the operation.</summary>
@@ -54,17 +55,17 @@
 				{
 					try
 					{
-						var identity = new JsonIdentity(context.Ticket.Identity);
+						var identity = new SentinelIdentity(AuthenticationType.OAuth, context.Ticket.Identity.Claims.Select(x => new SentinelClaim(x.Type, x.Value)).ToArray());
 						
 						// Overwrite client claim
-						identity.Claims = identity.Claims.Where(x => x.Type != ClaimType.Client);
-						identity.AddClaim(new Claim(ClaimType.Client, context.Request.Query["client_id"]));
+						identity.RemoveClaim(x => x.Type == ClaimType.Client);
+						identity.AddClaim(ClaimType.Client, context.Request.Query["client_id"]);
 
 						// Generate code
 						var code =
 							await
 							this.options.TokenManager.CreateAuthorizationCodeAsync(
-								new ClaimsPrincipal((ClaimsIdentity)identity),
+								new SentinelPrincipal(identity), 
 								this.options.AuthorizationCodeLifetime,
 								context.Request.Query["redirect_uri"],
 								!string.IsNullOrEmpty(context.Request.Query["scope"])
@@ -117,11 +118,11 @@
 							 * but we need to use the user id in Sentinel.
 							 */
 							var props = new AuthenticationProperties();
-							props.Dictionary.Add("client_id", principal.Claims.First(x => x.Type == ClaimType.Client).Value);
+							props.Dictionary.Add("client_id", principal.Identity.Claims.First(x => x.Type == ClaimType.Client).Value);
 							props.RedirectUri = parameters["redirect_uri"];
 							props.ExpiresUtc = DateTimeOffset.UtcNow.Add(this.options.AuthorizationCodeLifetime);
 
-							tcs.SetResult(new AuthenticationTicket(principal.Identities.First(), props));
+							tcs.SetResult(new AuthenticationTicket(principal.Identity.AsClaimsIdentity(), props));
 						}
 						else
 						{

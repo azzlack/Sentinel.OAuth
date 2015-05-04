@@ -8,7 +8,6 @@
     using Newtonsoft.Json;
 
     using Sentinel.OAuth.Core.Interfaces.Providers;
-    using Sentinel.OAuth.Core.Models.Identity;
 
     /// <summary>A <c>PBKDF2</c> crypto provider for creating and validating hashes.</summary>
     public class PBKDF2CryptoProvider : ICryptoProvider

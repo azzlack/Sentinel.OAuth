@@ -25,15 +25,15 @@
         /// Initializes a new instance of the <see cref="AccessTokenRequest"/> class.
         /// </summary>
         /// <param name="properties">The properties.</param>
-        public AccessTokenRequest(NameValueCollection properties)
+        public AccessTokenRequest(IDictionary<string, string> properties)
         {
-            this.GrantType = properties.Get("grant_type");
-            this.Code = properties.Get("code");
-            this.RefreshToken = properties.Get("refresh_token");
-            this.Username = properties.Get("username");
-            this.Password = properties.Get("password");
-            this.Scope = properties.Get("scope");
-            this.RedirectUri = properties.Get("redirect_uri");
+            this.GrantType = properties["grant_type"];
+            this.Code = properties["code"];
+            this.RefreshToken = properties["refresh_token"];
+            this.Username = properties["username"];
+            this.Password = properties["password"];
+            this.Scope = properties["scope"];
+            this.RedirectUri = properties["redirect_uri"];
         }
 
         /// <summary>

@@ -17,7 +17,7 @@
     using NUnit.Framework;
 
     using Sentinel.OAuth.Core.Constants.OAuth;
-    using Sentinel.OAuth.Core.Models.Identity;
+    using Sentinel.OAuth.Models.Identity;
 
     public class SentinelAuthorizationServerTests
     {
@@ -414,7 +414,7 @@
                     Console.WriteLine(content);
                 }
 
-                var identity = JsonConvert.DeserializeObject<JsonIdentity>(content);
+                var identity = JsonConvert.DeserializeObject<SentinelIdentity>(content);
 
                 Assert.IsTrue(identity.IsAuthenticated, "The access token didn't work");
 

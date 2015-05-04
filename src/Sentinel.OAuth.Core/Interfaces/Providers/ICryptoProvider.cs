@@ -2,8 +2,6 @@
 {
     using System.Security.Claims;
 
-    using Sentinel.OAuth.Core.Models.Identity;
-
     /// <summary>Interface for a provider for creating and validating hashes.</summary>
     public interface ICryptoProvider
     {

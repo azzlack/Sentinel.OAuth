@@ -70,7 +70,7 @@
                         var token =
                             await
                             this.options.TokenManager.CreateRefreshTokenAsync(
-                                new ClaimsPrincipal(context.Ticket.Identity),
+                                context.Ticket.Identity.AsSentinelPrincipal(), 
                                 this.options.RefreshTokenLifetime,
                                 context.OwinContext.GetOAuthContext().ClientId,
                                 context.OwinContext.GetOAuthContext().RedirectUri);
@@ -120,11 +120,11 @@
                              * but we need to use the user id in Sentinel.
                              */
                             var props = new AuthenticationProperties();
-                            props.Dictionary.Add("client_id", principal.Claims.First(x => x.Type == ClaimType.Client).Value);
+                            props.Dictionary.Add("client_id", principal.Identity.Claims.First(x => x.Type == ClaimType.Client).Value);
                             props.RedirectUri = redirectUri;
                             props.ExpiresUtc = DateTimeOffset.UtcNow.Add(this.options.RefreshTokenLifetime);
 
-                            tcs.SetResult(new AuthenticationTicket(principal.Identities.First(), props));
+                            tcs.SetResult(new AuthenticationTicket(principal.Identity.AsClaimsIdentity(), props));
                         }
                         else
                         {

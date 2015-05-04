@@ -9,9 +9,11 @@
     using NUnit.Framework;
 
     using Sentinel.OAuth.Core.Constants.Identity;
+    using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.Implementation;
+    using Sentinel.OAuth.Models.Identity;
 
     [TestFixture]
     [Category("Integration")]
@@ -34,10 +36,10 @@
 
             Console.WriteLine("Authorization Code: {0}", t);
             Console.WriteLine();
-            Console.WriteLine("Identity: {0}", r.AsJson());
+            Console.WriteLine("Identity: {0}", r.ToJson());
 
             Assert.IsTrue(r.Identity.IsAuthenticated);
-            Assert.IsTrue(r.HasClaim(p => p.Type == ClaimTypes.AuthenticationMethod && p.Value == AuthenticationType.OAuth));
+            Assert.IsTrue(r.Identity.AuthenticationType == AuthenticationType.OAuth);
         }
 
         [TestCase("NUnit", "http://localhost")]
@@ -45,7 +47,7 @@
         {
             var r = await this.tokenManager.AuthenticateAuthorizationCodeAsync(redirectUri, Guid.NewGuid().ToString("n"));
 
-            Console.WriteLine("Identity: {0}", r.AsJson());
+            Console.WriteLine("Identity: {0}", r.ToJson());
 
             Assert.IsFalse(r.Identity.IsAuthenticated);
         }
@@ -62,14 +64,14 @@
             Console.WriteLine("Authorization Code: {0}", t);
             Console.WriteLine("Refresh Token: {0}", y);
             Console.WriteLine();
-            Console.WriteLine("Client Id Identity: {0}", a.AsJson());
+            Console.WriteLine("Client Id Identity: {0}", a.ToJson());
             Console.WriteLine();
-            Console.WriteLine("Authorization Code Identity: {0}", r.AsJson());
+            Console.WriteLine("Authorization Code Identity: {0}", r.ToJson());
             Console.WriteLine();
-            Console.WriteLine("Refresh Token Identity: {0}", x.AsJson());
+            Console.WriteLine("Refresh Token Identity: {0}", x.ToJson());
 
             Assert.IsTrue(x.Identity.IsAuthenticated);
-            Assert.IsTrue(x.HasClaim(p => p.Type == ClaimTypes.AuthenticationMethod && p.Value == AuthenticationType.OAuth));
+            Assert.IsTrue(x.Identity.AuthenticationType == AuthenticationType.OAuth);
         }
 
         [TestCase("NUnit", "http://localhost")]
@@ -84,7 +86,7 @@
 
             var x = await this.tokenManager.AuthenticateRefreshTokenAsync(clientId, tamperedToken, redirectUri);
 
-            Console.WriteLine("Identity: {0}", x.AsJson());
+            Console.WriteLine("Identity: {0}", x.ToJson());
 
             Assert.IsFalse(x.Identity.IsAuthenticated);
         }
@@ -101,14 +103,14 @@
             Console.WriteLine("Authorization Code: {0}", t);
             Console.WriteLine("Access Token: {0}", y);
             Console.WriteLine();
-            Console.WriteLine("Client Id Identity: {0}", a.AsJson());
+            Console.WriteLine("Client Id Identity: {0}", a.ToJson());
             Console.WriteLine();
-            Console.WriteLine("Authorization Code Identity: {0}", r.AsJson());
+            Console.WriteLine("Authorization Code Identity: {0}", r.ToJson());
             Console.WriteLine();
-            Console.WriteLine("Access Token Identity: {0}", x.AsJson());
+            Console.WriteLine("Access Token Identity: {0}", x.ToJson());
 
             Assert.IsTrue(x.Identity.IsAuthenticated);
-            Assert.IsTrue(x.HasClaim(p => p.Type == ClaimTypes.AuthenticationMethod && p.Value == AuthenticationType.OAuth));
+            Assert.IsTrue(x.Identity.AuthenticationType == AuthenticationType.OAuth);
         }
 
         [TestCase("NUnit", "http://localhost")]
@@ -123,14 +125,14 @@
 
             var x = await this.tokenManager.AuthenticateRefreshTokenAsync(clientId, tamperedToken, redirectUri);
 
-            Console.WriteLine("Identity: {0}", x.AsJson());
+            Console.WriteLine("Identity: {0}", x.ToJson());
 
             Assert.IsFalse(x.Identity.IsAuthenticated);
         }
 
-        private ClaimsPrincipal CreateAuthenticatedPrincipal(string clientId, string authenticationType)
+        private ISentinelPrincipal CreateAuthenticatedPrincipal(string clientId, string authenticationType)
         {
-            return new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(ClaimTypes.Name, "azzlack"), new Claim(ClaimType.Client, clientId) }, authenticationType));
+            return new SentinelPrincipal(new SentinelIdentity(authenticationType, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, clientId)));
         }
 
         private string TamperWithToken(string token)

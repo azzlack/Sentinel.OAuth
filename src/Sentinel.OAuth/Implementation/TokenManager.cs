@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq;
-    using System.Security.Claims;
     using System.Threading.Tasks;
 
     using Common.Logging;
@@ -10,11 +9,12 @@
     using Newtonsoft.Json;
 
     using Sentinel.OAuth.Core.Constants.Identity;
+    using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.Core.Models.Identity;
     using Sentinel.OAuth.Core.Models.OAuth;
+    using Sentinel.OAuth.Models.Identity;
 
     public class TokenManager : ITokenManager
     {
@@ -73,7 +73,7 @@
         /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="authorizationCode">The authorization code.</param>
         /// <returns>The client principal.</returns>
-        public async Task<ClaimsPrincipal> AuthenticateAuthorizationCodeAsync(string redirectUri, string authorizationCode)
+        public async Task<ISentinelPrincipal> AuthenticateAuthorizationCodeAsync(string redirectUri, string authorizationCode)
         {
             this.logger.DebugFormat("Authenticating authorization code '{0}' for redirect uri '{1}'", authorizationCode, redirectUri);
 
@@ -90,10 +90,10 @@
 
                 var storedPrincipal = this.principalProvider.Decrypt(entity.Ticket, authorizationCode);
 
-                this.logger.DebugFormat("Client '{0}' was given the following claims from the IPrincipalFactory: '{1}'", storedPrincipal.Identity.Name, JsonConvert.SerializeObject(new JsonPrincipal(storedPrincipal).Claims));
+                this.logger.DebugFormat("Client '{0}' was given the following claims from the IPrincipalFactory: '{1}'", storedPrincipal.Identity.Name, JsonConvert.SerializeObject(storedPrincipal.Identity.Claims));
 
                 // Set correct authentication method and return new principal
-                return this.principalProvider.Create(AuthenticationType.OAuth, storedPrincipal.Claims.ToArray());
+                return this.principalProvider.Create(AuthenticationType.OAuth, storedPrincipal.Identity.Claims.ToArray());
             }
 
             this.logger.Warn("Authorization code is not valid");
@@ -104,7 +104,7 @@
         /// <summary>Authenticates the access token.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns>The user principal.</returns>
-        public async Task<ClaimsPrincipal> AuthenticateAccessTokenAsync(string accessToken)
+        public async Task<ISentinelPrincipal> AuthenticateAccessTokenAsync(string accessToken)
         {
             this.logger.DebugFormat("Authenticating access token");
 
@@ -118,7 +118,7 @@
 
                 var storedPrincipal = this.principalProvider.Decrypt(entity.Ticket, accessToken);
 
-                return this.principalProvider.Create(AuthenticationType.OAuth, storedPrincipal.Claims.ToArray());
+                return this.principalProvider.Create(AuthenticationType.OAuth, storedPrincipal.Identity.Claims.ToArray());
             }
 
             this.logger.WarnFormat("Access token '{0}' is not valid", accessToken);
@@ -131,7 +131,7 @@
         /// <param name="refreshToken">The refresh token.</param>
         /// <param name="redirectUri">The redirect URI.</param>
         /// <returns>The user principal.</returns>
-        public async Task<ClaimsPrincipal> AuthenticateRefreshTokenAsync(string clientId, string refreshToken, string redirectUri)
+        public async Task<ISentinelPrincipal> AuthenticateRefreshTokenAsync(string clientId, string refreshToken, string redirectUri)
         {
             this.logger.DebugFormat("Authenticating refresh token for client '{0}' and redirect uri '{1}'", clientId, redirectUri);
 
@@ -153,9 +153,9 @@
 
                 // TODO: Must get new claims from user database so any changes in permissions are updated
 
-                this.logger.DebugFormat("Client '{0}' was given the following claims from the IPrincipalFactory: '{1}'", storedPrincipal.Identity.Name, JsonConvert.SerializeObject(new JsonPrincipal(storedPrincipal).Claims));
+                this.logger.DebugFormat("Client '{0}' was given the following claims from the IPrincipalFactory: '{1}'", storedPrincipal.Identity.Name, JsonConvert.SerializeObject(storedPrincipal.Identity.Claims));
 
-                return this.principalProvider.Create(AuthenticationType.OAuth, storedPrincipal.Claims.ToArray());
+                return this.principalProvider.Create(AuthenticationType.OAuth, storedPrincipal.Identity.Claims.ToArray());
             }
 
             this.logger.WarnFormat("Refresh token '{0}' is not valid", refreshToken);
@@ -169,7 +169,7 @@
         /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="scope">The scope.</param>
         /// <returns>An authorization code.</returns>
-        public async Task<string> CreateAuthorizationCodeAsync(ClaimsPrincipal userPrincipal, TimeSpan expire, string redirectUri, string[] scope = null)
+        public async Task<string> CreateAuthorizationCodeAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string redirectUri, string[] scope = null)
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
@@ -178,7 +178,7 @@
                 return string.Empty;
             }
 
-            var client = userPrincipal.Claims.FirstOrDefault(x => x.Type == ClaimType.Client);
+            var client = userPrincipal.Identity.Claims.FirstOrDefault(x => x.Type == ClaimType.Client);
 
             if (client == null || string.IsNullOrEmpty(client.Value))
             {
@@ -196,15 +196,13 @@
                 }
             }
 
-            var claims = userPrincipal.Claims.ToList();
-
             // Remove unnecessary claims from principal
-            claims.RemoveAll(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
-
+            userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
+            
             // Add scope claims
             if (scope != null)
             {
-                claims.AddRange(scope.Select(x => new Claim(ClaimType.Scope, x)));
+                userPrincipal.Identity.AddClaim(scope.Select(x => new SentinelClaim(ClaimType.Scope, x)).ToArray());
             }
 
             // Create and store authorization code fur future use
@@ -217,7 +215,7 @@
                                         {
                                             ClientId = client.Value,
                                             Subject = userPrincipal.Identity.Name,
-                                            Ticket = this.principalProvider.Encrypt(new ClaimsPrincipal(new ClaimsIdentity(claims)), code),
+                                            Ticket = this.principalProvider.Encrypt(userPrincipal, code),
                                             RedirectUri = redirectUri,
                                             Scope = scope
                                         };
@@ -239,7 +237,7 @@
         /// <param name="clientId">.</param>
         /// <param name="redirectUri">The redirect URI.</param>
         /// <returns>An access token.</returns>
-        public async Task<string> CreateAccessTokenAsync(ClaimsPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri)
+        public async Task<string> CreateAccessTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri)
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
@@ -264,10 +262,8 @@
                 }
             }
 
-            var claims = userPrincipal.Claims.ToList();
-
             // Remove unnecessary claims from principal
-            claims.RemoveAll(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
+            userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
 
             // Create new access token
             string token;
@@ -277,7 +273,7 @@
                                     {
                                         ClientId = clientId,
                                         Subject = userPrincipal.Identity.Name,
-                                        Ticket = this.principalProvider.Encrypt(new ClaimsPrincipal(new ClaimsIdentity(claims)), token),
+                                        Ticket = this.principalProvider.Encrypt(userPrincipal, token),
                                         RedirectUri = redirectUri
                                     };
 
@@ -298,7 +294,7 @@
         /// <param name="clientId">.</param>
         /// <param name="redirectUri">The redirect URI.</param>
         /// <returns>A refresh token.</returns>
-        public async Task<string> CreateRefreshTokenAsync(ClaimsPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri)
+        public async Task<string> CreateRefreshTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri)
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
@@ -323,10 +319,8 @@
                 }
             }
 
-            var claims = userPrincipal.Claims.ToList();
-
             // Remove unnecessary claims from principal
-            claims.RemoveAll(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
+            userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
 
             // Create new refresh token
             string token;
@@ -336,7 +330,7 @@
                                     {
                                         ClientId = clientId,
                                         Subject = userPrincipal.Identity.Name,
-                                        Ticket = this.principalProvider.Encrypt(new ClaimsPrincipal(new ClaimsIdentity(claims)), token),
+                                        Ticket = this.principalProvider.Encrypt(userPrincipal, token),
                                         RedirectUri = redirectUri
                                     };
 

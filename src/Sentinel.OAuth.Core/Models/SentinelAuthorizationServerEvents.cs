@@ -1,7 +1,7 @@
 ﻿namespace Sentinel.OAuth.Core.Models
 {
     using System;
-    using System.Security.Claims;
+    using System.Security.Principal;
 
     using Microsoft.Owin.Security.OAuth;
 
@@ -29,7 +29,7 @@
         /// </summary>
         /// <param name="principal">The principal.</param>
         /// <param name="context">The context.</param>
-        public PrincipalCreatedEventArgs(ClaimsPrincipal principal, BaseValidatingContext<OAuthAuthorizationServerOptions> context)
+        public PrincipalCreatedEventArgs(IPrincipal principal, BaseValidatingContext<OAuthAuthorizationServerOptions> context)
         {
             this.Principal = principal;
             this.Context = context;
@@ -37,7 +37,7 @@
 
         /// <summary>Gets the principal.</summary>
         /// <value>The principal.</value>
-        public ClaimsPrincipal Principal { get; private set; }
+        public IPrincipal Principal { get; private set; }
 
         /// <summary>Gets the context.</summary>
         /// <value>The context.</value>

@@ -1,7 +1,8 @@
 ﻿namespace Sentinel.OAuth.Core.Interfaces.Managers
 {
-    using System.Security.Claims;
     using System.Threading.Tasks;
+
+    using Sentinel.OAuth.Core.Interfaces.Identity;
 
     public interface IUserManager
     {
@@ -11,6 +12,6 @@
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>The client principal.</returns>
-        Task<ClaimsPrincipal> AuthenticateUserWithPasswordAsync(string username, string password);
+        Task<ISentinelPrincipal> AuthenticateUserWithPasswordAsync(string username, string password);
     }
 }

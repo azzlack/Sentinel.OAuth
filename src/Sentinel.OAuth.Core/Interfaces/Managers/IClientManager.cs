@@ -1,8 +1,9 @@
 ﻿namespace Sentinel.OAuth.Core.Interfaces.Managers
 {
     using System.Collections.Generic;
-    using System.Security.Claims;
     using System.Threading.Tasks;
+
+    using Sentinel.OAuth.Core.Interfaces.Identity;
 
     public interface IClientManager
     {
@@ -13,7 +14,7 @@
         /// <param name="clientId">The client id.</param>
         /// <param name="redirectUri">The redirect URI.</param>
         /// <returns>The client principal.</returns>
-        Task<ClaimsPrincipal> AuthenticateClientAsync(string clientId, string redirectUri);
+        Task<ISentinelPrincipal> AuthenticateClientAsync(string clientId, string redirectUri);
 
         /// <summary>
         ///     Authenticates the client.
@@ -22,7 +23,7 @@
         /// <param name="clientId">The client id.</param>
         /// <param name="scope">The redirect URI.</param>
         /// <returns>The client principal.</returns>
-        Task<ClaimsPrincipal> AuthenticateClientAsync(string clientId, IEnumerable<string> scope);
+        Task<ISentinelPrincipal> AuthenticateClientAsync(string clientId, IEnumerable<string> scope);
 
         /// <summary>
         /// Authenticates the client credentials using client id and secret.
@@ -30,6 +31,6 @@
         /// <param name="clientId">The client id.</param>
         /// <param name="clientSecret">The client secret.</param>
         /// <returns>The client principal.</returns>
-        Task<ClaimsPrincipal> AuthenticateClientCredentialsAsync(string clientId, string clientSecret);
+        Task<ISentinelPrincipal> AuthenticateClientCredentialsAsync(string clientId, string clientSecret);
     }
 }

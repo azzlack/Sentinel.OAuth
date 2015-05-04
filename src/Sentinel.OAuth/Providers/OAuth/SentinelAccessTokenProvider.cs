@@ -72,7 +72,7 @@
                         var token =
                             await
                             this.options.TokenManager.CreateAccessTokenAsync(
-                                new ClaimsPrincipal(context.Ticket.Identity),
+                                context.Ticket.Identity.AsSentinelPrincipal(),
                                 this.options.AccessTokenLifetime,
                                 context.OwinContext.GetOAuthContext().ClientId,
                                 context.OwinContext.GetOAuthContext().RedirectUri);
@@ -123,12 +123,12 @@
                              * be the same as the client_id from ValidateClientAuthentication method,
                              * but we need to use the user id in Sentinel.
                              */
-                            if (principal.HasClaim(x => x.Type == ClaimType.Client))
+                            if (principal.Identity.HasClaim(x => x.Type == ClaimType.Client))
                             {
-                                props.Dictionary.Add("client_id", principal.Claims.First(x => x.Type == ClaimType.Client).Value);
+                                props.Dictionary.Add("client_id", principal.Identity.Claims.First(x => x.Type == ClaimType.Client).Value);
                             }
 
-                            tcs.SetResult(new AuthenticationTicket(principal.Identities.First(), props));
+                            tcs.SetResult(new AuthenticationTicket(principal.Identity.AsClaimsIdentity(), props));
                         }
                         else
                         {
