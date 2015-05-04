@@ -54,6 +54,24 @@
             this.Identity = new SentinelIdentity(principal.Identity);
         }
 
+        /// <summary>
+        ///     Initializes a new instance of the Sentinel.OAuth.Models.Identity.SentinelPrincipal
+        ///     class.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        ///     Thrown when one or more required arguments are null.
+        /// </exception>
+        /// <param name="principal">The principal.</param>
+        public SentinelPrincipal(ClaimsPrincipal principal)
+        {
+            if (principal.Identity == null)
+            {
+                throw new ArgumentNullException("principal", "Supplied Principal does not contain an identity");
+            }
+
+            this.Identity = new SentinelIdentity(principal.Identities.First());
+        }
+
         /// <summary>Gets the identity.</summary>
         /// <value>The identity.</value>
         IIdentity IPrincipal.Identity

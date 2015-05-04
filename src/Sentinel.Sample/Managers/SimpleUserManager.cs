@@ -10,6 +10,10 @@
 
     public class SimpleUserManager : IUserManager
     {
+        /// <summary>Authenticates the user using username and password.</summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>The client principal.</returns>
         public async Task<ISentinelPrincipal> AuthenticateUserWithPasswordAsync(string username, string password)
         {
             // Just return an authenticated principal with the username as name if the username matches the password

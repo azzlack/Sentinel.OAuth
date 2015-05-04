@@ -59,19 +59,26 @@
 
             this.Name = identity.Name;
             this.AuthenticationType = identity.AuthenticationType;
+        }
 
-            var claimsIdentity = identity as ClaimsIdentity;
-
-            if (claimsIdentity != null && claimsIdentity.Claims != null)
+        /// <summary>
+        ///     Initializes a new instance of the Sentinel.OAuth.Models.Identity.SentinelIdentity
+        ///     class.
+        /// </summary>
+        /// <param name="identity">The identity.</param>
+        public SentinelIdentity(ClaimsIdentity identity)
+        {
+            if (identity == null)
             {
-                this.Claims = claimsIdentity.Claims.Select(x => new SentinelClaim(x.Type, x.Value));
+                throw new ArgumentNullException("identity");
             }
 
-            var sentinelIdentity = identity as ISentinelIdentity;
+            this.Name = identity.Name;
+            this.AuthenticationType = identity.AuthenticationType;
 
-            if (sentinelIdentity != null && sentinelIdentity.Claims != null)
+            if (identity.Claims != null)
             {
-                this.Claims = sentinelIdentity.Claims;
+                this.Claims = identity.Claims.Select(x => new SentinelClaim(x.Type, x.Value));
             }
         }
 

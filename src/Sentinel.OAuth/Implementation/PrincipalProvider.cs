@@ -84,7 +84,7 @@
         /// <returns>The encrypted principal.</returns>
         public string Encrypt(ISentinelPrincipal principal, string key)
         {
-            var s = JsonConvert.SerializeObject(new SentinelPrincipal(principal));
+            var s = JsonConvert.SerializeObject(principal);
 
             return this.cryptoProvider.Encrypt(s, key);
         }
