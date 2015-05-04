@@ -1,31 +1,29 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
-    <id>Sentinel.OAuth.Core</id>
+    <id>Sentinel.OAuth.Client</id>
     <version>1.0.0</version>
-    <title>Sentinel OAuth Provider Core</title>
+    <title>Sentinel OAuth Provider</title>
     <authors>Ove Andersen</authors>
     <owners>EyeCatch</owners>
     <licenseUrl>http://www.eyecatch.no/licenses/apache-20/</licenseUrl>
     <projectUrl>https://github.com/azzlack/Sentinel.OAuth</projectUrl>
     <iconUrl>http://www.eyecatch.no/favicon.ico</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>The core assemblies for the Sentinel OAuth Provider. 
-	
-Use this if you want to develop an extension.</description>
-    <summary>The core assemblies for the Sentinel OAuth Provider.</summary>
+    <description>An easy to use OAuth 2 client for use with any OAuth 2 provider.</description>
+    <summary>An easy to use OAuth 2 client for use with any OAuth 2 provider.</summary>
 	<releaseNotes></releaseNotes>
     <copyright>Copyright EyeCatch 2015</copyright>
     <language>en-US</language>
     <tags>oauth webapi security authentication authorization eyecatch</tags>
     <dependencies>
-      <dependency id="Common.Logging.Core" version="3.0.0" />
-      <dependency id="Microsoft.Owin.Security.OAuth" version="3.0.0" />
+      <dependency id="Microsoft.Net.Http" version="2.2.29" />
       <dependency id="Newtonsoft.Json" version="6.0.0" />
+      <dependency id="Sentinel.OAuth.Core" version="1.0.0" />
     </dependencies> 
   </metadata>
   <files>
-	<file src="..\..\src\Sentinel.OAuth.Core\bin\Release\**" target="lib\net45" />
-	<file src="..\..\src\Sentinel.OAuth.Core\**\*.cs" exclude="**\obj\**\*.*" target="src" />
+	<file src="..\..\src\Sentinel.OAuth.Client\bin\Release\**" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.Client\**\*.cs" exclude="**\obj\**\*.*" target="src" />
   </files>
 </package>
