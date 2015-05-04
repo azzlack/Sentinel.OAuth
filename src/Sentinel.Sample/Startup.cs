@@ -24,6 +24,7 @@ namespace Sentinel.Sample
     {
         public void Configuration(IAppBuilder app)
         {
+            // Configure log4net
             XmlConfigurator.Configure();
 
             // The easiest way to use Sentinel
