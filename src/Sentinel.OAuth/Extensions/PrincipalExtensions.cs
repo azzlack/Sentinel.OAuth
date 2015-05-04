@@ -30,9 +30,7 @@
         /// <returns>A SentinelPrincipal.</returns>
         public static ISentinelPrincipal AsSentinelPrincipal(this ClaimsPrincipal principal)
         {
-            var identity = new SentinelIdentity(principal.Identity.AuthenticationType, principal.Claims.Select(x => new SentinelClaim(x.Type, x.Value)).ToArray());
-
-            return new SentinelPrincipal(identity);
+            return new SentinelPrincipal(principal);
         }
 
         /// <summary>
@@ -52,7 +50,7 @@
         /// <returns>An ISentinelIdentity.</returns>
         public static ISentinelIdentity AsSentinelIdentity(this ClaimsIdentity identity)
         {
-            return new SentinelIdentity(identity.AuthenticationType, identity.Claims.Select(x => new SentinelClaim(x.Type, x.Value)).ToArray());
+            return new SentinelIdentity(identity);
         }
 
         /// <summary>
