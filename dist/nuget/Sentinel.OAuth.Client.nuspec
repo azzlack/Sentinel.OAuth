@@ -3,7 +3,7 @@
   <metadata>
     <id>Sentinel.OAuth.Client</id>
     <version>1.0.0</version>
-    <title>Sentinel OAuth Provider</title>
+    <title>Sentinel OAuth Client</title>
     <authors>Ove Andersen</authors>
     <owners>EyeCatch</owners>
     <licenseUrl>http://www.eyecatch.no/licenses/apache-20/</licenseUrl>
