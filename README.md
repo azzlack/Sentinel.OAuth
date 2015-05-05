@@ -125,6 +125,16 @@ app.UseSentinelAuthorizationServer(
             TokenManager = new SimpleTokenManager()
         });
 ```
+
+## On supporting the `authorization_code` flow
+`Sentinel` does not include a view for your users to log in when using the `/oauth/authorize` endpoint.
+You need to create a page/controller that responds to that endpoint, and that logs in the user using the OWIN AuthorizationManager.
+However, there is a `BaseOAuthController` included in `Sentinel`, and it is fairly easy to use:
+
+```csharp
+Coming soon
+```
+
 ## Usage
 There is nothing special with `Sentinel` as an OAuth 2 provider, you can use a normal OAuth client that conforms to the [specification](https://tools.ietf.org/html/rfc6749).  
 `Sentinel` also includes a [client for use in .NET projects](https://www.nuget.org/packages/Sentinel.OAuth.Client/) ([source](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.Client))
