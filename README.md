@@ -1,4 +1,6 @@
 # Sentinel.OAuth
+![NuGet Downloads](https://img.shields.io/nuget/dt/Sentinel.OAuth.svg?style=flat-square) ![NuGet Version](https://img.shields.io/nuget/v/Sentinel.OAuth.svg?style=flat-square) ![TeamCity Build Status](https://img.shields.io/teamcity/https/teamcity.knowit.no/e/External_Sentinel_SentinelOAuth_Staging.svg?style=flat-square)
+
 An OAuth server based on the ASP.NET OWIN OAuth 2.0 Authorization Server.
 This project aims to simplify the work with setting up OAuth on a WebAPI application, by providing you with simpler interfaces and less work to do before  you have proper authorization up and running.
 
