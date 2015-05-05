@@ -5,7 +5,7 @@
 [![NuGet Downloads](https://img.shields.io/nuget/dt/Sentinel.OAuth.svg?style=flat-square&label=Sentinel.OAuth downloads)](https://www.nuget.org/packages/Sentinel.OAuth) [![NuGet Version](https://img.shields.io/nuget/v/Sentinel.OAuth.svg?style=flat-square&label=Sentinel.OAuth version)](https://www.nuget.org/packages/Sentinel.OAuth)  
 [![NuGet Downloads](https://img.shields.io/nuget/dt/Sentinel.OAuth.Client.svg?style=flat-square&label=Sentinel.OAuth.Client downloads)](https://www.nuget.org/packages/Sentinel.OAuth.Client) [![NuGet Version](https://img.shields.io/nuget/v/Sentinel.OAuth.Client.svg?style=flat-square&label=Sentinel.OAuth.Client version)](https://www.nuget.org/packages/Sentinel.OAuth.Client)  
 
-An OAuth server based on the ASP.NET OWIN OAuth 2.0 Authorization Server.
+`Sentinel` is an OAuth server based on the ASP.NET OWIN OAuth 2.0 Authorization Server.
 This project aims to simplify the work with setting up OAuth on a WebAPI application, by providing you with simpler interfaces and less work to do before  you have proper authorization up and running.
 
 ## Features
