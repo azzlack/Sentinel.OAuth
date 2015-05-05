@@ -73,7 +73,7 @@
         /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="authorizationCode">The authorization code.</param>
         /// <returns>The client principal.</returns>
-        public async Task<ISentinelPrincipal> AuthenticateAuthorizationCodeAsync(string redirectUri, string authorizationCode)
+        public virtual async Task<ISentinelPrincipal> AuthenticateAuthorizationCodeAsync(string redirectUri, string authorizationCode)
         {
             this.logger.DebugFormat("Authenticating authorization code '{0}' for redirect uri '{1}'", authorizationCode, redirectUri);
 
@@ -104,7 +104,7 @@
         /// <summary>Authenticates the access token.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns>The user principal.</returns>
-        public async Task<ISentinelPrincipal> AuthenticateAccessTokenAsync(string accessToken)
+        public virtual async Task<ISentinelPrincipal> AuthenticateAccessTokenAsync(string accessToken)
         {
             this.logger.DebugFormat("Authenticating access token");
 
@@ -131,7 +131,7 @@
         /// <param name="refreshToken">The refresh token.</param>
         /// <param name="redirectUri">The redirect URI.</param>
         /// <returns>The user principal.</returns>
-        public async Task<ISentinelPrincipal> AuthenticateRefreshTokenAsync(string clientId, string refreshToken, string redirectUri)
+        public virtual async Task<ISentinelPrincipal> AuthenticateRefreshTokenAsync(string clientId, string refreshToken, string redirectUri)
         {
             this.logger.DebugFormat("Authenticating refresh token for client '{0}' and redirect uri '{1}'", clientId, redirectUri);
 
@@ -169,7 +169,7 @@
         /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="scope">The scope.</param>
         /// <returns>An authorization code.</returns>
-        public async Task<string> CreateAuthorizationCodeAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string redirectUri, string[] scope = null)
+        public virtual async Task<string> CreateAuthorizationCodeAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string redirectUri, string[] scope = null)
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
@@ -237,7 +237,7 @@
         /// <param name="clientId">.</param>
         /// <param name="redirectUri">The redirect URI.</param>
         /// <returns>An access token.</returns>
-        public async Task<string> CreateAccessTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri)
+        public virtual async Task<string> CreateAccessTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri)
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
@@ -294,7 +294,7 @@
         /// <param name="clientId">.</param>
         /// <param name="redirectUri">The redirect URI.</param>
         /// <returns>A refresh token.</returns>
-        public async Task<string> CreateRefreshTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri)
+        public virtual async Task<string> CreateRefreshTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri)
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
