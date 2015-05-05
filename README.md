@@ -1,15 +1,14 @@
 # Sentinel
 [![TeamCity Build Status](https://img.shields.io/teamcity/https/teamcity.knowit.no/e/External_Sentinel_General_Release.svg?style=flat-square)](https://teamcity.knowit.no/viewType.html?buildTypeId=External_Sentinel_General_Release&tab=buildTypeStatusDiv&branch_External_Sentinel_General=__all_branches__)  
 
+`Sentinel` is an OAuth server based on the ASP.NET OWIN OAuth 2.0 Authorization Server.
+This project aims to simplify the work with setting up OAuth on a WebAPI application, by providing you with simpler interfaces and less work to do before  you have proper authorization up and running.
 
 | Package | Downloads | Version |
 | --- | --- | --- |
 | `Sentinel.OAuth.Core` | [![NuGet Downloads](https://img.shields.io/nuget/dt/Sentinel.OAuth.Core.svg?style=flat-square)](https://www.nuget.org/packages/Sentinel.OAuth.Core) | [![NuGet Version](https://img.shields.io/nuget/v/Sentinel.OAuth.Core.svg?style=flat-square)](https://www.nuget.org/packages/Sentinel.OAuth.Core) |
 | `Sentinel.OAuth` | [![NuGet Downloads](https://img.shields.io/nuget/dt/Sentinel.OAuth.svg?style=flat-square)](https://www.nuget.org/packages/Sentinel.OAuth) | [![NuGet Version](https://img.shields.io/nuget/v/Sentinel.OAuth.svg?style=flat-square)](https://www.nuget.org/packages/Sentinel.OAuth) |
 | `Sentinel.OAuth.Client` | [![NuGet Downloads](https://img.shields.io/nuget/dt/Sentinel.OAuth.Client.svg?style=flat-square)](https://www.nuget.org/packages/Sentinel.OAuth.Client) | [![NuGet Version](https://img.shields.io/nuget/v/Sentinel.OAuth.Client.svg?style=flat-square)](https://www.nuget.org/packages/Sentinel.OAuth.Client)
-
-`Sentinel` is an OAuth server based on the ASP.NET OWIN OAuth 2.0 Authorization Server.
-This project aims to simplify the work with setting up OAuth on a WebAPI application, by providing you with simpler interfaces and less work to do before  you have proper authorization up and running.
 
 ## Features
 - Simple setup
