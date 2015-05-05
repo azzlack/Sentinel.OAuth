@@ -1,9 +1,12 @@
 # Sentinel
 [![TeamCity Build Status](https://img.shields.io/teamcity/https/teamcity.knowit.no/e/External_Sentinel_General_Release.svg?style=flat-square)](https://teamcity.knowit.no/viewType.html?buildTypeId=External_Sentinel_General_Release&tab=buildTypeStatusDiv&branch_External_Sentinel_General=__all_branches__)  
 
-[![NuGet Downloads](https://img.shields.io/nuget/dt/Sentinel.OAuth.Core.svg?style=flat-square&label=Sentinel.OAuth.Core downloads)](https://www.nuget.org/packages/Sentinel.OAuth.Core) [![NuGet Version](https://img.shields.io/nuget/v/Sentinel.OAuth.Core.svg?style=flat-square&label=Sentinel.OAuth.Core version)](https://www.nuget.org/packages/Sentinel.OAuth.Core)  
-[![NuGet Downloads](https://img.shields.io/nuget/dt/Sentinel.OAuth.svg?style=flat-square&label=Sentinel.OAuth downloads)](https://www.nuget.org/packages/Sentinel.OAuth) [![NuGet Version](https://img.shields.io/nuget/v/Sentinel.OAuth.svg?style=flat-square&label=Sentinel.OAuth version)](https://www.nuget.org/packages/Sentinel.OAuth)  
-[![NuGet Downloads](https://img.shields.io/nuget/dt/Sentinel.OAuth.Client.svg?style=flat-square&label=Sentinel.OAuth.Client downloads)](https://www.nuget.org/packages/Sentinel.OAuth.Client) [![NuGet Version](https://img.shields.io/nuget/v/Sentinel.OAuth.Client.svg?style=flat-square&label=Sentinel.OAuth.Client version)](https://www.nuget.org/packages/Sentinel.OAuth.Client)  
+
+| Package |  |  |
+| :--- | ---: | ---: |
+| `Sentinel.OAuth.Core` | [![NuGet Downloads](https://img.shields.io/nuget/dt/Sentinel.OAuth.Core.svg?style=flat-square)](https://www.nuget.org/packages/Sentinel.OAuth.Core) | [![NuGet Version](https://img.shields.io/nuget/v/Sentinel.OAuth.Core.svg?style=flat-square)](https://www.nuget.org/packages/Sentinel.OAuth.Core) |
+| `Sentinel.OAuth` | [![NuGet Downloads](https://img.shields.io/nuget/dt/Sentinel.OAuth.svg?style=flat-square)](https://www.nuget.org/packages/Sentinel.OAuth) | [![NuGet Version](https://img.shields.io/nuget/v/Sentinel.OAuth.svg?style=flat-square)](https://www.nuget.org/packages/Sentinel.OAuth) |
+| `Sentinel.OAuth.Client` | [![NuGet Downloads](https://img.shields.io/nuget/dt/Sentinel.OAuth.Client.svg?style=flat-square)](https://www.nuget.org/packages/Sentinel.OAuth.Client) | [![NuGet Version](https://img.shields.io/nuget/v/Sentinel.OAuth.Client.svg?style=flat-square)](https://www.nuget.org/packages/Sentinel.OAuth.Client)
 
 `Sentinel` is an OAuth server based on the ASP.NET OWIN OAuth 2.0 Authorization Server.
 This project aims to simplify the work with setting up OAuth on a WebAPI application, by providing you with simpler interfaces and less work to do before  you have proper authorization up and running.
