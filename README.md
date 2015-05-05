@@ -129,7 +129,7 @@ app.UseSentinelAuthorizationServer(
 ## On supporting the `authorization_code` flow
 `Sentinel` does not include a view for your users to log in when using the `/oauth/authorize` endpoint.
 You need to create a page/controller that responds to that endpoint, and that logs in the user using the OWIN AuthorizationManager.
-However, there is a `BaseOAuthController` included in `Sentinel`, and it is fairly easy to use:
+However, the [Sentinel.OAuth.Authorize](https://www.nuget.org/packages/Sentinel.OAuth.AuthorizationCode) package includes a `BaseOAuthController` class, and it is fairly easy to use:
 
 ```csharp
 Coming soon
