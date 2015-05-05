@@ -124,6 +124,8 @@
                             props.RedirectUri = redirectUri;
                             props.ExpiresUtc = DateTimeOffset.UtcNow.Add(this.options.RefreshTokenLifetime);
 
+                            // TODO: Use UserManager to get new data
+
                             tcs.SetResult(new AuthenticationTicket(principal.Identity.AsClaimsIdentity(), props));
                         }
                         else

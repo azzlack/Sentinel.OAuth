@@ -115,6 +115,7 @@
     <Compile Include="Interfaces\Identity\ISentinelIdentity.cs" />
     <Compile Include="Interfaces\Identity\ISentinelPrincipal.cs" />
     <Compile Include="Interfaces\Managers\IClientManager.cs" />
+    <Compile Include="Interfaces\Models\IClient.cs" />
     <Compile Include="Interfaces\Providers\ICryptoProvider.cs" />
     <Compile Include="Interfaces\Managers\IUserManager.cs" />
     <Compile Include="Interfaces\Managers\ITokenManager.cs" />
