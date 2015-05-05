@@ -25,7 +25,8 @@ Use this if you want to develop an extension.</description>
     </dependencies> 
   </metadata>
   <files>
-	<file src="..\..\src\Sentinel.OAuth.Core\bin\Release\**" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.Core\bin\Release\Sentinel.OAuth.Core.dll" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.Core\bin\Release\Sentinel.OAuth.Core.pdb" target="lib\net45" />
 	<file src="..\..\src\Sentinel.OAuth.Core\**\*.cs" exclude="**\obj\**\*.*" target="src" />
   </files>
 </package>

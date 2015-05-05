@@ -23,7 +23,8 @@
     </dependencies> 
   </metadata>
   <files>
-	<file src="..\..\src\Sentinel.OAuth.Client\bin\Release\**" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.Client\bin\Release\Sentinel.OAuth.Client.dll" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.Client\bin\Release\Sentinel.OAuth.Client.pdb" target="lib\net45" />
 	<file src="..\..\src\Sentinel.OAuth.Client\**\*.cs" exclude="**\obj\**\*.*" target="src" />
   </files>
 </package>
