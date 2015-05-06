@@ -13,9 +13,6 @@
     using Sentinel.OAuth.Converters;
     using Sentinel.OAuth.Core.Interfaces.Identity;
 
-    using Claim = System.IdentityModel.Claims.Claim;
-    using ClaimTypes = System.IdentityModel.Claims.ClaimTypes;
-
     /// <summary>A JSON-serializable identity.</summary>
     [DebuggerDisplay("AuthenticationType: {AuthenticationType}, IsAuthenticated: {IsAuthenticated}, Name: {Name}, Claims: {Claims.Count()}")]
     public class SentinelIdentity : ISentinelIdentity

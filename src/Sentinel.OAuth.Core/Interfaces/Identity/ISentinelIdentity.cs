@@ -2,14 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IdentityModel.Claims;
     using System.Linq.Expressions;
     using System.Security.Principal;
 
     /// <summary>Defines basic funcitonality for an Identity object.</summary>
     public interface ISentinelIdentity : IIdentity
     {
-        /// <summary>Gets or sets the claims.</summary>
+        /// <summary>Gets the claims.</summary>
         /// <value>The claims.</value>
         IEnumerable<ISentinelClaim> Claims { get; }
         
@@ -22,10 +21,6 @@
         /// <param name="type">The type.</param>
         /// <param name="value">The value.</param>
         void AddClaim(string type, string value);
-
-        /// <summary>Adds a claim.</summary>
-        /// <param name="claims">The claims</param>
-        void AddClaim(params Claim[] claims);
 
         /// <summary>Adds a claim.</summary>
         /// <param name="claims">The claims.</param>

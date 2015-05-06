@@ -1,7 +1,5 @@
 ﻿namespace Sentinel.OAuth.Core.Interfaces.Providers
 {
-    using System.Security.Claims;
-
     /// <summary>Interface for a provider for creating and validating hashes.</summary>
     public interface ICryptoProvider
     {

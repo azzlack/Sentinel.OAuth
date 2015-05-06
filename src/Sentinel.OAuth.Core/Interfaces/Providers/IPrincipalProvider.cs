@@ -1,7 +1,5 @@
 ﻿namespace Sentinel.OAuth.Core.Interfaces.Providers
 {
-    using System.IdentityModel.Claims;
-
     using Sentinel.OAuth.Core.Interfaces.Identity;
 
     public interface IPrincipalProvider

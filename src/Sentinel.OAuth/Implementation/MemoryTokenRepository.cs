@@ -10,6 +10,54 @@
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.Core.Models.OAuth;
 
+    public class temp : ITokenRepository
+    {
+        public Task<IEnumerable<AuthorizationCode>> GetAuthorizationCodes(Expression<Func<AuthorizationCode, bool>> predicate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<AuthorizationCode> InsertAuthorizationCode(AuthorizationCode authorizationCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteAuthorizationCode(AuthorizationCode authorizationCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<AccessToken>> GetAccessTokens(Expression<Func<AccessToken, bool>> predicate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<AccessToken> InsertAccessToken(AccessToken accessToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteAccessToken(AccessToken accessToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<RefreshToken>> GetRefreshTokens(Expression<Func<RefreshToken, bool>> predicate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<RefreshToken> InsertRefreshToken(RefreshToken refreshToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteRefreshToken(RefreshToken refreshToken)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class MemoryTokenRepository : ITokenRepository
     {
         /// <summary>The authorization codes.</summary>

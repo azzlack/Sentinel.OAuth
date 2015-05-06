@@ -2,7 +2,7 @@
 {
     using System;
     using System.Diagnostics;
-    using System.IdentityModel.Claims;
+    using System.Security.Claims;
 
     using Newtonsoft.Json;
 
@@ -18,12 +18,12 @@
         /// <param name="claim">The claim.</param>
         public SentinelClaim(Claim claim)
         {
-            this.Type = claim.ClaimType;
-            this.Value = claim.Resource.ToString();
+            this.Type = claim.Type;
+            this.Value = claim.Value;
         }
 
         /// <summary>
-        ///     Initializes a new instance of the Sentinel.OAuth.Core.Models.Identity.JsonClaim class.
+        /// Initializes a new instance of the <see cref="SentinelClaim"/> class.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="value">The value.</param>
@@ -33,16 +33,12 @@
             this.Value = value;
         }
 
-        /// <summary>
-        /// Gets or sets the type.
-        /// </summary>
+        /// <summary>Gets the type.</summary>
         /// <value>The type.</value>
         [JsonProperty]
         public string Type { get; private set; }
 
-        /// <summary>
-        /// Gets or sets the value.
-        /// </summary>
+        /// <summary>Gets the value.</summary>
         /// <value>The value.</value>
         [JsonProperty]
         public string Value { get; private set; }
@@ -54,7 +50,7 @@
         /// <returns>The result of the conversion.</returns>
         public static implicit operator Claim(SentinelClaim m)
         {
-            return new Claim(m.Type, m.Value, Rights.PossessProperty);
+            return new Claim(m.Type, m.Value);
         }
 
         /// <summary>

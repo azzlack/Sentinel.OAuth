@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq;
-    using System.Security.Claims;
     using System.Threading.Tasks;
 
     using Microsoft.Owin.Security;
@@ -18,8 +17,11 @@
         private readonly SentinelAuthorizationServerOptions options;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="SentinelAuthorizationServerProvider"/> class.
+        /// Initializes a new instance of the <see cref="SentinelAuthorizationServerProvider"/> class.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when one or more required arguments are null.
+        /// </exception>
         /// <param name="options">The security handler.</param>
         public SentinelAuthorizationServerProvider(SentinelAuthorizationServerOptions options)
         {
@@ -345,7 +347,7 @@
         {
             if (context.TokenIssued && this.options.Events.TokenIssued != null)
             {
-                this.options.Events.TokenIssued(this, context);
+                this.options.Events.TokenIssued(this, new TokenIssuedEventArgs(context));
             }
 
             await base.TokenEndpointResponse(context);

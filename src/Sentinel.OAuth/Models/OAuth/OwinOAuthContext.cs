@@ -1,4 +1,4 @@
-﻿namespace Sentinel.OAuth.Core.Models.OAuth
+﻿namespace Sentinel.OAuth.Models.OAuth
 {
     using System.Collections.Generic;
     using System.Linq;
