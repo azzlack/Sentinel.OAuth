@@ -1,17 +1,20 @@
-﻿namespace Sentinel.OAuth.Core.Models.OAuth
+﻿namespace Sentinel.OAuth.Models.OAuth
 {
     using System;
+    using System.Collections.Generic;
 
-    public class AccessToken
+    using Sentinel.OAuth.Core.Interfaces.Models;
+
+    public class AuthorizationCode : IAuthorizationCode
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RefreshToken"/> class.
+        /// Initializes a new instance of the <see cref="AuthorizationCode"/> class.
         /// </summary>
-        /// <param name="token">The token.</param>
+        /// <param name="code">The code.</param>
         /// <param name="validTo">The valid to.</param>
-        public AccessToken(string token, DateTime validTo)
+        public AuthorizationCode(string code, DateTime validTo)
         {
-            this.Token = token;
+            this.Code = code;
             this.ValidTo = validTo;
             this.Created = DateTime.UtcNow;
         }
@@ -21,22 +24,16 @@
         public long Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the id.
+        /// Gets or sets the client id.
         /// </summary>
-        /// <value>The id.</value>
+        /// <value>The client id.</value>
         public string ClientId { get; set; }
 
         /// <summary>
-        /// Gets or sets the ticket.
+        /// Gets or sets the redirect URI.
         /// </summary>
-        /// <value>The ticket.</value>
-        public string Ticket { get; set; }
-
-        /// <summary>
-        /// Gets or sets the token.
-        /// </summary>
-        /// <value>The token.</value>
-        public string Token { get; set; }
+        /// <value>The redirect URI.</value>
+        public string RedirectUri { get; set; }
 
         /// <summary>
         /// Gets or sets the subject.
@@ -45,10 +42,22 @@
         public string Subject { get; set; }
 
         /// <summary>
-        /// Gets or sets the redirect URI.
+        /// Gets or sets the code.
         /// </summary>
-        /// <value>The redirect URI.</value>
-        public string RedirectUri { get; set; }
+        /// <value>The code.</value>
+        public string Code { get; set; }
+
+        /// <summary>
+        /// Gets or sets the scope.
+        /// </summary>
+        /// <value>The scope.</value>
+        public IEnumerable<string> Scope { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ticket.
+        /// </summary>
+        /// <value>The ticket.</value>
+        public string Ticket { get; set; }
 
         /// <summary>
         /// Gets or sets the expiration time.

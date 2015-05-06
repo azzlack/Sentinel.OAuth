@@ -8,57 +8,9 @@
     using System.Threading.Tasks;
 
     using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.Core.Models.OAuth;
+    using Sentinel.OAuth.Models.OAuth;
 
-    public class temp : ITokenRepository
-    {
-        public Task<IEnumerable<AuthorizationCode>> GetAuthorizationCodes(Expression<Func<AuthorizationCode, bool>> predicate)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<AuthorizationCode> InsertAuthorizationCode(AuthorizationCode authorizationCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> DeleteAuthorizationCode(AuthorizationCode authorizationCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<AccessToken>> GetAccessTokens(Expression<Func<AccessToken, bool>> predicate)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<AccessToken> InsertAccessToken(AccessToken accessToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> DeleteAccessToken(AccessToken accessToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<RefreshToken>> GetRefreshTokens(Expression<Func<RefreshToken, bool>> predicate)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<RefreshToken> InsertRefreshToken(RefreshToken refreshToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> DeleteRefreshToken(RefreshToken refreshToken)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class MemoryTokenRepository : ITokenRepository
+    public class MemoryTokenRepository : ITokenRepository<AccessToken, RefreshToken, AuthorizationCode>
     {
         /// <summary>The authorization codes.</summary>
         private readonly ConcurrentDictionary<long, AuthorizationCode> authorizationCodes;
@@ -70,8 +22,7 @@
         private readonly ConcurrentDictionary<long, AccessToken> accessTokens;
 
         /// <summary>
-        ///     Initializes a new instance of the Sentinel.OAuth.Implementation.MemoryTokenRepository
-        ///     class.
+        /// Initializes a new instance of the Sentinel.OAuth.Implementation.MemoryTokenRepository class.
         /// </summary>
         public MemoryTokenRepository()
         {
@@ -81,11 +32,11 @@
         }
 
         /// <summary>
-        ///     Gets authorization codes with the specified redirect uri and has an expiry date later
-        ///     than the specified datetime.
+        /// Gets authorization codes with the specified redirect uri and has an expiry date later than
+        /// the specified datetime.
         /// </summary>
         /// <param name="predicate">
-        ///     The predicate expression for reducing the authorization code collection.
+        /// The predicate expression for reducing the authorization code collection.
         /// </param>
         /// <returns>The authorization codes.</returns>
         public async Task<IEnumerable<AuthorizationCode>> GetAuthorizationCodes(Expression<Func<AuthorizationCode, bool>> predicate)
@@ -95,7 +46,7 @@
 
         /// <summary>Inserts the specified authorization code.</summary>
         /// <param name="authorizationCode">The authorization code.</param>
-        /// <returns>The inserted authorization code. <c>null</c> if the insertion was unsuccessfull.</returns>
+        /// <returns>The inserted authorization code. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<AuthorizationCode> InsertAuthorizationCode(AuthorizationCode authorizationCode)
         {
             // Autogenerate id 
@@ -114,7 +65,7 @@
         ///     Thrown when one or more arguments have unsupported or illegal values.
         /// </exception>
         /// <param name="authorizationCode">The authorization code.</param>
-        /// <returns><c>True</c> if successfull, <c>false</c> otherwise.</returns>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(AuthorizationCode authorizationCode)
         {
             if (authorizationCode == null || authorizationCode.Id <= 0)
@@ -148,7 +99,7 @@
 
         /// <summary>Inserts the specified access token.</summary>
         /// <param name="accessToken">The access token.</param>
-        /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessfull.</returns>
+        /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<AccessToken> InsertAccessToken(AccessToken accessToken)
         {
             // Autogenerate id 
@@ -167,7 +118,7 @@
         ///     Thrown when one or more arguments have unsupported or illegal values.
         /// </exception>
         /// <param name="accessToken">The access token.</param>
-        /// <returns><c>True</c> if successfull, <c>false</c> otherwise.</returns>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAccessToken(AccessToken accessToken)
         {
             if (accessToken == null || accessToken.Id <= 0)
@@ -202,7 +153,7 @@
         /// <summary>Inserts the specified refresh token.</summary>
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns>
-        ///     The inserted refresh token. <c>null</c> if the insertion was unsuccessfull.
+        ///     The inserted refresh token. <c>null</c> if the insertion was unsuccessful.
         /// </returns>
         public async Task<RefreshToken> InsertRefreshToken(RefreshToken refreshToken)
         {
@@ -222,7 +173,7 @@
         ///     Thrown when one or more arguments have unsupported or illegal values.
         /// </exception>
         /// <param name="refreshToken">The refresh token.</param>
-        /// <returns><c>True</c> if successfull, <c>false</c> otherwise.</returns>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteRefreshToken(RefreshToken refreshToken)
         {
             if (refreshToken == null || refreshToken.Id <= 0)

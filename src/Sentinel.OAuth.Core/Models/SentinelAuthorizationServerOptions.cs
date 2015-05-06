@@ -14,8 +14,7 @@
         private SentinelAuthorizationServerEvents events;
 
         /// <summary>
-        ///     Initializes a new instance of the
-        ///     Sentinel.OAuth.Core.Models.SentinelAuthorizationServerOptions class.
+        /// Initializes a new instance of the SentinelAuthorizationServerOptions class.
         /// </summary>
         public SentinelAuthorizationServerOptions()
         {
@@ -55,22 +54,22 @@
         public TimeSpan RefreshTokenLifetime { get; set; }
 
         /// <summary>
-        ///     Gets or sets the user management provider.
-        ///     This is the class responsible for locating and validating users.
+        /// Gets or sets the user management provider. This is the class responsible for locating and
+        /// validating users.
         /// </summary>
         /// <value>The user management provider.</value>
         public IUserManager UserManager { get; set; }
-        
+
         /// <summary>
-        ///     Gets or sets the client management provider.
-        ///     This is the class responsible for locating and validating clients.
+        /// Gets or sets the client management provider. This is the class responsible for locating and
+        /// validating clients.
         /// </summary>
         /// <value>The client management provider.</value>
         public IClientManager ClientManager { get; set; }
 
         /// <summary>
-        ///     Gets or sets the token store.
-        ///     This is the class responsible for creating and validating tokens and authorization codes.
+        /// Gets or sets the token store. This is the class responsible for creating and validating
+        /// tokens and authorization codes.
         /// </summary>
         /// <value>The token store.</value>
         public ITokenManager TokenManager { get; set; }

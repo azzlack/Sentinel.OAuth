@@ -97,7 +97,11 @@
     <Compile Include="Implementation\TokenManager.cs" />
     <Compile Include="Implementation\PBKDF2CryptoProvider.cs" />
     <Compile Include="Implementation\PrincipalProvider.cs" />
-    <Compile Include="Models\OAuth\OwinOAuthContext.cs" />
+    <Compile Include="Models\OAuth\AccessToken.cs" />
+    <Compile Include="Models\OAuth\AuthorizationCode.cs" />
+    <Compile Include="Models\OAuth\Client.cs" />
+    <Compile Include="Models\OAuth\RefreshToken.cs" />
+    <Compile Include="Models\Owin\OwinOAuthContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\OAuth\SentinelTicketFormat.cs" />
     <Compile Include="Providers\OAuth\SentinelAccessTokenProvider.cs" />

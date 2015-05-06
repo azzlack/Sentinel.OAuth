@@ -2,8 +2,7 @@
 {
     using Microsoft.Owin;
 
-    using Sentinel.OAuth.Core.Models.OAuth;
-    using Sentinel.OAuth.Models.OAuth;
+    using Sentinel.OAuth.Models.Owin;
 
     public static class OwinContextExtensions
     {

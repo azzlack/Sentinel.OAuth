@@ -6,14 +6,14 @@
     using NUnit.Framework;
 
     using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Implementation;
+    using Sentinel.OAuth.Models.OAuth;
 
     [TestFixture]
     [Category("Unit")]
     public class MemoryTokenRepositoryTests
     {
-        private ITokenRepository tokenRepository;
+        private ITokenRepository<AccessToken, RefreshToken, AuthorizationCode> tokenRepository;
 
         [SetUp]
         public void SetUp()

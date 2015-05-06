@@ -1,15 +1,17 @@
-﻿namespace Sentinel.OAuth.Core.Models.OAuth
+﻿namespace Sentinel.OAuth.Models.OAuth
 {
     using System;
 
-    public class RefreshToken
+    using Sentinel.OAuth.Core.Interfaces.Models;
+
+    public class AccessToken : IAccessToken
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RefreshToken"/> class.
         /// </summary>
         /// <param name="token">The token.</param>
         /// <param name="validTo">The valid to.</param>
-        public RefreshToken(string token, DateTime validTo)
+        public AccessToken(string token, DateTime validTo)
         {
             this.Token = token;
             this.ValidTo = validTo;

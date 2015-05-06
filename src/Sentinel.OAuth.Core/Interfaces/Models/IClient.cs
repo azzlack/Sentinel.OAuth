@@ -2,7 +2,7 @@
 {
     using System;
 
-    using Sentinel.OAuth.Core.Models.OAuth;
+    using Sentinel.OAuth;
 
     public interface IClient
     {
@@ -49,7 +49,7 @@
         DateTime LastUsed { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this <see cref="Client"/> is enabled.
+        /// Gets or sets a value indicating whether this <see cref="Sentinel.OAuth.Models.OAuth.Client"/> is enabled.
         /// </summary>
         /// <value><c>true</c> if enabled; otherwise, <c>false</c>.</value>
         bool Enabled { get; set; }

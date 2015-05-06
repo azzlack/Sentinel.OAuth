@@ -11,12 +11,13 @@
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Models.Identity;
+    using Sentinel.OAuth.Models.OAuth;
 
-    public class TokenManager : ITokenManager
+    public class TokenManager : ITokenManager<AccessToken, RefreshToken, AuthorizationCode>
     {
         /// <summary>The logger.</summary>
         private readonly ILog logger;
@@ -28,16 +29,16 @@
         private readonly ICryptoProvider cryptoProvider;
 
         /// <summary>
-        ///     Initializes a new instance of the Sentinel.OAuth.Implementation.MemoryTokenManager class.
+        /// Initializes a new instance of the Sentinel.OAuth.Implementation.MemoryTokenManager class.
         /// </summary>
         /// <exception cref="ArgumentNullException">
-        ///     Thrown when one or more required arguments are null.
+        /// Thrown when one or more required arguments are null.
         /// </exception>
         /// <param name="logger">The logger.</param>
         /// <param name="principalProvider">The principal provider.</param>
         /// <param name="cryptoProvider">The crypto provider.</param>
         /// <param name="tokenRepository">The token repository.</param>
-        public TokenManager(ILog logger, IPrincipalProvider principalProvider, ICryptoProvider cryptoProvider, ITokenRepository tokenRepository)
+        public TokenManager(ILog logger, IPrincipalProvider principalProvider, ICryptoProvider cryptoProvider, ITokenRepository<AccessToken, RefreshToken, AuthorizationCode> tokenRepository)
         {
             if (logger == null)
             {
@@ -65,9 +66,9 @@
             this.TokenRepository = tokenRepository;
         }
 
-        /// <summary>The token repository.</summary>
+        /// <summary>Gets the token repository.</summary>
         /// <value>The token repository.</value>
-        public ITokenRepository TokenRepository { get; private set; }
+        public ITokenRepository<AccessToken, RefreshToken, AuthorizationCode> TokenRepository { get; private set; }
 
         /// <summary>Authenticates the authorization code.</summary>
         /// <param name="redirectUri">The redirect URI.</param>
