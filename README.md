@@ -46,6 +46,17 @@ public class SimpleUserManager : IUserManager
 
         return SentinelPrincipal.Anonymous;
     }
+
+    /// <summary>
+    /// Authenticates the user using username only. This method is used to get new user claims after
+    /// a refresh token has been used. You can therefore assume that the user is already logged in.
+    /// </summary>
+    /// <param name="username">The username.</param>
+    /// <returns>The user principal.</returns>
+    public async Task<ISentinelPrincipal> AuthenticateUserAsync(string username)
+    {
+        return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, username)));
+    }
 }
 
 public class SimpleClientManager : IClientManager 
@@ -142,19 +153,25 @@ There is nothing special with `Sentinel` as an OAuth 2 provider, you can use a n
 **There is one thing that must be mentioned however**. `Sentinel` requires the client redirect uri parameter to be present on the `authorize` request. Not all OAuth 2 providers do this, but it is possible [according to the specification](https://tools.ietf.org/html/rfc6749#section-4.1.1).
 
 ## Extending
-Did I mention that `Sentinel` is extendable? :-)
+The samples below can be mixed and matched to your liking. You can use `SQL Server` for storing users and clients, and then use `RavenDB` for storing tokens, or the other way around :-)
 
 ### Custom OAuth Grant Types
 TODO: Example using custom grant type to add a new property to the token response
 
 ### Custom User Manager
-TODO: Example using ASP.NET Identity for storing and validating users
+It is possible to use the `ASP.NET Identity` system to store your users and use `Sentinel` at the same time.  
+Please look at the sample implementation in the [AspNetIdentityUserManager project](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.UserManagers.AspNetIdentityUserManager)  
+
+There is also a demo using `Dapper` and a vanilla SQL database in the [SqlServerUserManager project](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.UserManagers.SqlServerUserManager).
 
 ### Custom Client Manager
-TODO: Example using RavenDB for storing and validating clients
+There is a sample implementation using `Dapper` and SQL Server [here](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.ClientManagers.SqlServerClientManager).
+You can also use `NoSQL` databases for storing clients. You can find a sample [using RavenDB here](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.ClientManagers.RavenDbClientManager).
 
 ### Customer Token Manager
-TODO: Example using Redis for storing tokens
+- [Using `Dapper` and `SQL Server`](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.TokenManagers.SqlServerTokenRepository)
+- [Using `RavenDb`](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.TokenManagers.RavenDbTokenRepository)
+- [Using `Redis`](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.TokenManagers.RedisTokenRepository)
 
 ## Claims
 There are some claims that will be added to your user principal that are specific for `Sentinel`.  
