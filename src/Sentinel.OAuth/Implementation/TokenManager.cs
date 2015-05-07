@@ -11,13 +11,12 @@
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
-    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.Models.Identity;
     using Sentinel.OAuth.Models.OAuth;
 
-    public class TokenManager : ITokenManager<AccessToken, RefreshToken, AuthorizationCode>
+    public class TokenManager : ITokenManager
     {
         /// <summary>The logger.</summary>
         private readonly ILog logger;
@@ -29,7 +28,7 @@
         private readonly ICryptoProvider cryptoProvider;
 
         /// <summary>
-        /// Initializes a new instance of the Sentinel.OAuth.Implementation.MemoryTokenManager class.
+        /// Initializes a new instance of the TokenManager class.
         /// </summary>
         /// <exception cref="ArgumentNullException">
         /// Thrown when one or more required arguments are null.
@@ -38,7 +37,7 @@
         /// <param name="principalProvider">The principal provider.</param>
         /// <param name="cryptoProvider">The crypto provider.</param>
         /// <param name="tokenRepository">The token repository.</param>
-        public TokenManager(ILog logger, IPrincipalProvider principalProvider, ICryptoProvider cryptoProvider, ITokenRepository<AccessToken, RefreshToken, AuthorizationCode> tokenRepository)
+        public TokenManager(ILog logger, IPrincipalProvider principalProvider, ICryptoProvider cryptoProvider, ITokenRepository tokenRepository)
         {
             if (logger == null)
             {
@@ -68,7 +67,7 @@
 
         /// <summary>Gets the token repository.</summary>
         /// <value>The token repository.</value>
-        public ITokenRepository<AccessToken, RefreshToken, AuthorizationCode> TokenRepository { get; private set; }
+        public ITokenRepository TokenRepository { get; private set; }
 
         /// <summary>Authenticates the authorization code.</summary>
         /// <param name="redirectUri">The redirect URI.</param>
@@ -78,7 +77,7 @@
         {
             this.logger.DebugFormat("Authenticating authorization code '{0}' for redirect uri '{1}'", authorizationCode, redirectUri);
 
-            var authorizationCodes = await this.TokenRepository.GetAuthorizationCodes(x => x.RedirectUri == redirectUri && x.ValidTo > DateTime.UtcNow);
+            var authorizationCodes = await this.TokenRepository.GetAuthorizationCodes(redirectUri, DateTime.UtcNow);
 
             var entity = authorizationCodes.FirstOrDefault(x => this.cryptoProvider.ValidateHash(authorizationCode, x.Code));
 
@@ -109,7 +108,7 @@
         {
             this.logger.DebugFormat("Authenticating access token");
 
-            var accessTokens = await this.TokenRepository.GetAccessTokens(x => x.ValidTo > DateTime.UtcNow);
+            var accessTokens = await this.TokenRepository.GetAccessTokens(DateTime.UtcNow);
 
             var entity = accessTokens.FirstOrDefault(x => this.cryptoProvider.ValidateHash(accessToken, x.Token));
 
@@ -136,10 +135,7 @@
         {
             this.logger.DebugFormat("Authenticating refresh token for client '{0}' and redirect uri '{1}'", clientId, redirectUri);
 
-            var refreshTokens =
-                await
-                this.TokenRepository.GetRefreshTokens(
-                    x => x.RedirectUri == redirectUri && x.ValidTo > DateTime.UtcNow);
+            var refreshTokens = await this.TokenRepository.GetRefreshTokens(redirectUri, DateTime.UtcNow);
 
             var entity = refreshTokens.FirstOrDefault(x => this.cryptoProvider.ValidateHash(refreshToken, x.Token));
 
@@ -183,19 +179,12 @@
 
             if (client == null || string.IsNullOrEmpty(client.Value))
             {
-                throw  new ArgumentException("The specified principal does not have a valid client identifier", "userPrincipal");
+                throw new ArgumentException("The specified principal does not have a valid client identifier", "userPrincipal");
             }
 
             // Delete all authorization codes for the specified user, client id, redirect uri to prevent exploitation
-            var existingCodes = await this.TokenRepository.GetAuthorizationCodes(x => x.ClientId == client.Value && x.Subject == userPrincipal.Identity.Name && x.RedirectUri == redirectUri);
-
-            if (existingCodes != null)
-            {
-                foreach (var existingToken in existingCodes)
-                {
-                    await this.TokenRepository.DeleteAuthorizationCode(existingToken);
-                }
-            }
+            await this.TokenRepository.DeleteAuthorizationCodes(client.Value, redirectUri, userPrincipal.Identity.Name);
+            await this.TokenRepository.DeleteAuthorizationCodes(DateTime.UtcNow);
 
             // Remove unnecessary claims from principal
             userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
@@ -235,7 +224,7 @@
         /// <summary>Creates an access token.</summary>
         /// <param name="userPrincipal">The user principal.</param>
         /// <param name="expire">The expire time.</param>
-        /// <param name="clientId">.</param>
+        /// <param name="clientId">The client identifier.</param>
         /// <param name="redirectUri">The redirect URI.</param>
         /// <returns>An access token.</returns>
         public virtual async Task<string> CreateAccessTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri)
@@ -248,20 +237,8 @@
             }
 
             // Delete all expired access tokens as well as access tokens for the specified client id, user and redirect uri to prevent exploitation
-            var existingTokens =
-                await
-                this.TokenRepository.GetAccessTokens(
-                    x =>
-                    x.ValidTo < DateTime.UtcNow
-                    || (x.ClientId == clientId && x.Subject == userPrincipal.Identity.Name && x.RedirectUri == redirectUri));
-
-            if (existingTokens != null)
-            {
-                foreach (var existingToken in existingTokens)
-                {
-                    await this.TokenRepository.DeleteAccessToken(existingToken);
-                }
-            }
+            await this.TokenRepository.DeleteAccessTokens(clientId, redirectUri, userPrincipal.Identity.Name);
+            await this.TokenRepository.DeleteAccessTokens(DateTime.UtcNow);
 
             // Remove unnecessary claims from principal
             userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
@@ -292,7 +269,7 @@
         /// <summary>Creates a refresh token.</summary>
         /// <param name="userPrincipal">The principal.</param>
         /// <param name="expire">The expire time.</param>
-        /// <param name="clientId">.</param>
+        /// <param name="clientId">The client identifier.</param>
         /// <param name="redirectUri">The redirect URI.</param>
         /// <returns>A refresh token.</returns>
         public virtual async Task<string> CreateRefreshTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri)
@@ -305,20 +282,8 @@
             }
 
             // Delete all expired refresh tokens as well as refresh tokens for the specified client id, user and redirect uri to prevent exploitation
-            var existingTokens =
-                await
-                this.TokenRepository.GetRefreshTokens(
-                    x =>
-                    x.ValidTo < DateTime.UtcNow
-                    || (x.ClientId == clientId && x.Subject == userPrincipal.Identity.Name && x.RedirectUri == redirectUri));
-
-            if (existingTokens != null)
-            {
-                foreach (var existingToken in existingTokens)
-                {
-                    await this.TokenRepository.DeleteRefreshToken(existingToken);
-                }
-            }
+            await this.TokenRepository.DeleteRefreshTokens(clientId, redirectUri, userPrincipal.Identity.Name);
+            await this.TokenRepository.DeleteRefreshTokens(DateTime.UtcNow);
 
             // Remove unnecessary claims from principal
             userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);

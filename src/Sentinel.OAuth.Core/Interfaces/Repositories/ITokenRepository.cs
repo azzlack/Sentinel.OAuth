@@ -2,63 +2,131 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using System.Threading.Tasks;
 
     using Sentinel.OAuth.Core.Interfaces.Models;
 
     /// <summary>Interface for token repository.</summary>
-    /// <typeparam name="TAccessToken">The access token type.</typeparam>
-    /// <typeparam name="TRefreshToken">The refresh token type.</typeparam>
-    /// <typeparam name="TAuthorizationCode">The authorization code type.</typeparam>
-    public interface ITokenRepository<TAccessToken, TRefreshToken, TAuthorizationCode>
-        where TAccessToken : IAccessToken
-        where TRefreshToken : IRefreshToken
-        where TAuthorizationCode : IAuthorizationCode
+    public interface ITokenRepository
     {
-        /// <summary>Gets authorization codes matching the specified predicate.</summary>
-        /// <param name="predicate">The predicate expression for reducing the authorization code collection.</param>
+        /// <summary>
+        /// Gets all authorization codes that matches the specified redirect uri and expires after the specified date.
+        /// Called when authenticating an authorization code.
+        /// </summary>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="expires">The expire date.</param>
         /// <returns>The authorization codes.</returns>
-        Task<IEnumerable<TAuthorizationCode>> GetAuthorizationCodes(Expression<Func<TAuthorizationCode, bool>> predicate);
+        Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTime expires);
 
-        /// <summary>Inserts the specified authorization code.</summary>
+        /// <summary>
+        /// Inserts the specified authorization code.
+        /// Called when creating an authorization code.
+        /// </summary>
         /// <param name="authorizationCode">The authorization code.</param>
         /// <returns>The inserted authorization code. <c>null</c> if the insertion was unsuccessful.</returns>
-        Task<TAuthorizationCode> InsertAuthorizationCode(TAuthorizationCode authorizationCode);
+        Task<IAuthorizationCode> InsertAuthorizationCode(IAuthorizationCode authorizationCode);
 
-        /// <summary>Deletes the specified authorization code.</summary>
+        /// <summary>
+        /// Deletes the authorization codes that belongs to the specified client, redirect uri and user combination.
+        /// Called when creating an authorization code to prevent duplicate authorization codes.
+        /// </summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="userId">Identifier for the user.</param>
+        /// <returns>The number of deleted codes.</returns>
+        Task<int> DeleteAuthorizationCodes(string clientId, string redirectUri, string userId);
+
+        /// <summary>
+        /// Deletes the authorization codes that expires before the specified expire date.
+        /// Called when creating an authorization code to cleanup.
+        /// </summary>
+        /// <param name="expires">The expire date.</param>
+        /// <returns>The number of deleted codes.</returns>
+        Task<int> DeleteAuthorizationCodes(DateTime expires);
+
+        /// <summary>
+        /// Deletes the specified authorization code.
+        /// Called when authenticating an authorization code to prevent re-use.
+        /// </summary>
         /// <param name="authorizationCode">The authorization code.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        Task<bool> DeleteAuthorizationCode(TAuthorizationCode authorizationCode);
+        Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode);
 
-        /// <summary>Gets access tokens matching the specified predicate.</summary>
-        /// <param name="predicate">The predicate expression for reducing the access token collection.</param>
+        /// <summary>
+        /// Gets all access tokens that expires **after** the specified date.
+        /// Called when authenticating an access token to limit the number of tokens to go through when validating the hash.
+        /// </summary>
+        /// <param name="expires">The expire date.</param>
         /// <returns>The access tokens.</returns>
-        Task<IEnumerable<TAccessToken>> GetAccessTokens(Expression<Func<TAccessToken, bool>> predicate);
+        Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTime expires);
 
-        /// <summary>Inserts the specified access token.</summary>
+        /// <summary>
+        /// Inserts the specified access token.
+        /// Called when creating an access token.
+        /// </summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessful.</returns>
-        Task<TAccessToken> InsertAccessToken(TAccessToken accessToken);
+        Task<IAccessToken> InsertAccessToken(IAccessToken accessToken);
 
-        /// <summary>Deletes the specified access token.</summary>
-        /// <param name="accessToken">The access token.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        Task<bool> DeleteAccessToken(TAccessToken accessToken);
+        /// <summary>
+        /// Deletes the access tokens that belongs to the specified client, redirect uri and user combination.
+        /// Called when creating an access token to prevent duplicate access tokens.
+        /// </summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="userId">Identifier for the user.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        Task<int> DeleteAccessTokens(string clientId, string redirectUri, string userId);
 
-        /// <summary>Gets refresh tokens matching the specified predicate.</summary>
-        /// <param name="predicate">The predicate expression for reducing the refresh token collection.</param>
+        /// <summary>
+        /// Deletes the access tokens that expires before the specified expire date.
+        /// Called when creating an access token to cleanup.
+        /// </summary>
+        /// <param name="expires">The expire date.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        Task<int> DeleteAccessTokens(DateTime expires);
+
+        /// <summary>
+        /// Gets all refresh tokens that matches the specified redirect uri and expires after the specified date.
+        /// Called when authentication a refresh token to limit the number of tokens to go through when validating the hash.
+        /// </summary>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        Task<IEnumerable<TRefreshToken>> GetRefreshTokens(Expression<Func<TRefreshToken, bool>> predicate);
+        Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string redirectUri, DateTime expires);
 
-        /// <summary>Inserts the specified refresh token.</summary>
+        /// <summary>
+        /// Inserts the specified refresh token.
+        /// Called when creating a refresh token.
+        /// </summary>
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns>The inserted refresh token. <c>null</c> if the insertion was unsuccessful.</returns>
-        Task<TRefreshToken> InsertRefreshToken(TRefreshToken refreshToken);
+        Task<IRefreshToken> InsertRefreshToken(IRefreshToken refreshToken);
 
-        /// <summary>Deletes the specified refresh token.</summary>
+        /// <summary>
+        /// Deletes the refresh tokens that belongs to the specified client, redirect uri and user combination.
+        /// Called when creating a refresh token to prevent duplicate refresh tokens.
+        /// </summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="userId">Identifier for the user.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        Task<int> DeleteRefreshTokens(string clientId, string redirectUri, string userId);
+
+        /// <summary>
+        /// Deletes the refresh tokens that expires before the specified expire date.
+        /// Called when creating a refresh token to cleanup.
+        /// </summary>
+        /// <param name="expires">The expire date.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        Task<int> DeleteRefreshTokens(DateTime expires);
+
+        /// <summary>
+        /// Deletes the specified refresh token.
+        /// Called when authenticating a refresh token to prevent re-use.
+        /// </summary>
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        Task<bool> DeleteRefreshToken(TRefreshToken refreshToken);
+        Task<bool> DeleteRefreshToken(IRefreshToken refreshToken);
     }
 }

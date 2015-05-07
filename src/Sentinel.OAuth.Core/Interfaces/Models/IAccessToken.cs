@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>Interface for an OAuth 2 access token.</summary>
-    public interface IAccessToken
+    public interface IAccessToken : IEquatable<IAccessToken>
     {
         /// <summary>
         /// Gets or sets the id.

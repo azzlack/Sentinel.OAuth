@@ -1,26 +1,19 @@
-﻿namespace Sentinel.OAuth.Models.OAuth
+﻿namespace Sentinel.OAuth.Core.Models.OAuth
 {
     using System;
 
-    using Sentinel.OAuth.Core.Interfaces.Models;
-
-    public class AccessToken : IAccessToken
+    public class RefreshToken
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AccessToken"/> class.
+        /// Initializes a new instance of the <see cref="RefreshToken"/> class.
         /// </summary>
         /// <param name="token">The token.</param>
         /// <param name="validTo">The valid to.</param>
-        public AccessToken(string token, DateTime validTo)
+        public RefreshToken(string token, DateTime validTo)
         {
             this.Token = token;
             this.ValidTo = validTo;
-            this.Created = DateTime.UtcNow;
         }
-
-        /// <summary>Gets or sets the identifier.</summary>
-        /// <value>The identifier.</value>
-        public long Id { get; set; }
 
         /// <summary>
         /// Gets or sets the id.
@@ -57,24 +50,5 @@
         /// </summary>
         /// <value>The expiration time.</value>
         public DateTime ValidTo { get; set; }
-
-        /// <summary>
-        /// Gets or sets the created date.
-        /// </summary>
-        /// <value>The created date.</value>
-        public DateTime Created { get; set; }
-
-        /// <summary>Tests if this IAccessToken is considered equal to another.</summary>
-        /// <param name="other">The i access token to compare to this object.</param>
-        /// <returns>true if the objects are considered equal, false if they are not.</returns>
-        public bool Equals(IAccessToken other)
-        {
-            if (this.ClientId == other.ClientId && this.RedirectUri == other.RedirectUri && this.Subject == other.Subject)
-            {
-                return true;
-            }
-
-            return false;
-        }
     }
 }

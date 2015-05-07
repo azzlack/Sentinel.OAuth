@@ -4,12 +4,15 @@
     using System.Threading.Tasks;
 
     using Sentinel.OAuth.Core.Interfaces.Identity;
-    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
 
     /// <summary>Interface for token validation and creation.</summary>
     public interface ITokenManager
     {
+        /// <summary>Gets the token repository.</summary>
+        /// <value>The token repository.</value>
+        ITokenRepository TokenRepository { get; }
+
         /// <summary>
         /// Authenticates the authorization code.
         /// </summary>
@@ -59,19 +62,5 @@
         /// <param name="redirectUri">The redirect URI.</param>
         /// <returns>A refresh token.</returns>
         Task<string> CreateRefreshTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri);
-    }
-
-    /// <summary>Interface for token validation and creation.</summary>
-    /// <typeparam name="TAccessToken">The access token type.</typeparam>
-    /// <typeparam name="TRefreshToken">The refresh token type.</typeparam>
-    /// <typeparam name="TAuthorizationCode">The authorization code type.</typeparam>
-    public interface ITokenManager<TAccessToken, TRefreshToken, TAuthorizationCode> : ITokenManager
-        where TAccessToken : IAccessToken
-        where TRefreshToken : IRefreshToken
-        where TAuthorizationCode : IAuthorizationCode
-    {
-        /// <summary>Gets the token repository.</summary>
-        /// <value>The token repository.</value>
-        ITokenRepository<TAccessToken, TRefreshToken, TAuthorizationCode> TokenRepository { get; }
     }
 }

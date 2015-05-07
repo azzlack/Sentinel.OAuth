@@ -63,5 +63,18 @@
         /// </summary>
         /// <value>The created date.</value>
         public DateTime Created { get; set; }
+
+        /// <summary>Tests if this IRefreshToken is considered equal to another.</summary>
+        /// <param name="other">The i refresh token to compare to this object.</param>
+        /// <returns>true if the objects are considered equal, false if they are not.</returns>
+        public bool Equals(IRefreshToken other)
+        {
+            if (this.ClientId == other.ClientId && this.RedirectUri == other.RedirectUri && this.Subject == other.Subject)
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

@@ -7,10 +7,11 @@
     using System.Linq.Expressions;
     using System.Threading.Tasks;
 
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.Models.OAuth;
 
-    public class MemoryTokenRepository : ITokenRepository<AccessToken, RefreshToken, AuthorizationCode>
+    public class MemoryTokenRepository : ITokenRepository
     {
         /// <summary>The authorization codes.</summary>
         private readonly ConcurrentDictionary<long, AuthorizationCode> authorizationCodes;
@@ -32,27 +33,41 @@
         }
 
         /// <summary>
-        /// Gets authorization codes with the specified redirect uri and has an expiry date later than
-        /// the specified datetime.
+        /// Gets all authorization codes that matches the specified redirect uri and expires after the
+        /// specified date.
         /// </summary>
-        /// <param name="predicate">
-        /// The predicate expression for reducing the authorization code collection.
-        /// </param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="expires">The expire date.</param>
         /// <returns>The authorization codes.</returns>
-        public async Task<IEnumerable<AuthorizationCode>> GetAuthorizationCodes(Expression<Func<AuthorizationCode, bool>> predicate)
+        public async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTime expires)
         {
-            return this.authorizationCodes.Select(x => x.Value).Where(predicate.Compile());
+            return this.authorizationCodes.Where(x => x.Value.RedirectUri == redirectUri && x.Value.ValidTo > expires).Select(x => x.Value);
+        }
+
+        /// <summary>
+        /// Gets all authorization codes that matches the specified client redirect uri and user
+        /// combination.
+        /// </summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="userId">Identifier for the user.</param>
+        /// <returns>The authorization codes.</returns>
+        public async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string clientId, string redirectUri, string userId)
+        {
+            return this.authorizationCodes.Where(x => x.Value.ClientId == clientId && x.Value.RedirectUri == redirectUri && x.Value.Subject == userId).Select(x => x.Value);
         }
 
         /// <summary>Inserts the specified authorization code.</summary>
         /// <param name="authorizationCode">The authorization code.</param>
         /// <returns>The inserted authorization code. <c>null</c> if the insertion was unsuccessful.</returns>
-        public async Task<AuthorizationCode> InsertAuthorizationCode(AuthorizationCode authorizationCode)
+        public async Task<IAuthorizationCode> InsertAuthorizationCode(IAuthorizationCode authorizationCode)
         {
+            var code = (AuthorizationCode)authorizationCode;
+            
             // Autogenerate id 
-            authorizationCode.Id = this.authorizationCodes.Any() ? this.authorizationCodes.Max(x => x.Key) + 1 : 1;
+            code.Id = this.authorizationCodes.Any() ? this.authorizationCodes.Max(x => x.Key) + 1 : 1;
 
-            if (this.authorizationCodes.TryAdd(authorizationCode.Id, authorizationCode))
+            if (this.authorizationCodes.TryAdd(code.Id, code))
             {
                 return authorizationCode;
             }
@@ -60,31 +75,77 @@
             return null;
         }
 
-        /// <summary>Deletes the authorization code with the specified id.</summary>
-        /// <exception cref="ArgumentException">
-        ///     Thrown when one or more arguments have unsupported or illegal values.
-        /// </exception>
+        /// <summary>
+        /// Deletes the authorization codes that belongs to the specified client, redirect uri and user
+        /// combination.
+        /// </summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="userId">Identifier for the user.</param>
+        /// <returns>The number of deleted codes.</returns>
+        public async Task<int> DeleteAuthorizationCodes(string clientId, string redirectUri, string userId)
+        {
+            var i = 0;
+            var tokens = this.authorizationCodes.Where(x => x.Value.ClientId == clientId && x.Value.RedirectUri == redirectUri && x.Value.Subject == userId).ToList();
+
+            foreach (var token in tokens)
+            {
+                AuthorizationCode removedCode;
+                if (this.authorizationCodes.TryRemove(token.Key, out removedCode))
+                {
+                    i++;
+                }
+            }
+
+            return i;
+        }
+
+        /// <summary>
+        /// Deletes the authorization codes that expires before the specified expire date.
+        /// </summary>
+        /// <param name="expires">The expire date.</param>
+        /// <returns>The number of deleted codes.</returns>
+        public async Task<int> DeleteAuthorizationCodes(DateTime expires)
+        {
+            var i = 0;
+            var tokens = this.authorizationCodes.Where(x => x.Value.ValidTo < expires).ToList();
+
+            foreach (var token in tokens)
+            {
+                AuthorizationCode removedCode;
+                if (this.authorizationCodes.TryRemove(token.Key, out removedCode))
+                {
+                    i++;
+                }
+            }
+
+            return i;
+        }
+
+        /// <summary>Deletes the specified authorization code.</summary>
         /// <param name="authorizationCode">The authorization code.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAuthorizationCode(AuthorizationCode authorizationCode)
+        public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            if (authorizationCode == null || authorizationCode.Id <= 0)
-            {
-                throw new ArgumentException("The supplied authorization code is invalid.");
-            }
+            var exists = this.authorizationCodes.Any(x => x.Value.Equals(authorizationCode));
 
-            if (!this.authorizationCodes.ContainsKey(authorizationCode.Id))
+            if (exists)
             {
-                throw new ArgumentException(string.Format("No authorization code with id '{0}' exist", authorizationCode.Id));
-            }
+                var code = this.authorizationCodes.First(x => x.Value.Equals(authorizationCode));
 
-            AuthorizationCode removedCode;
-            if (this.authorizationCodes.TryRemove(authorizationCode.Id, out removedCode))
-            {
-                return true;
+                AuthorizationCode removedCode;
+                return this.authorizationCodes.TryRemove(code.Key, out removedCode);
             }
 
             return false;
+        }
+
+        /// <summary>Gets all access tokens that expires after the specified date.</summary>
+        /// <param name="expires">The expire date.</param>
+        /// <returns>The access tokens.</returns>
+        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTime expires)
+        {
+            return this.accessTokens.Select(x => x.Value).Where(x => x.ValidTo > expires);
         }
 
         /// <summary>Gets access tokens matching the specified predicate.</summary>
@@ -92,7 +153,7 @@
         ///     The predicate expression for reducing the access token collection.
         /// </param>
         /// <returns>The access tokens.</returns>
-        public async Task<IEnumerable<AccessToken>> GetAccessTokens(Expression<Func<AccessToken, bool>> predicate)
+        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(Expression<Func<IAccessToken, bool>> predicate)
         {
             return this.accessTokens.Select(x => x.Value).Where(predicate.Compile());
         }
@@ -100,12 +161,14 @@
         /// <summary>Inserts the specified access token.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessful.</returns>
-        public async Task<AccessToken> InsertAccessToken(AccessToken accessToken)
+        public async Task<IAccessToken> InsertAccessToken(IAccessToken accessToken)
         {
-            // Autogenerate id 
-            accessToken.Id = this.accessTokens.Any() ? this.accessTokens.Max(x => x.Key) + 1 : 1;
+            var token = (AccessToken)accessToken;
 
-            if (this.accessTokens.TryAdd(accessToken.Id, accessToken))
+            // Autogenerate id 
+            token.Id = this.accessTokens.Any() ? this.accessTokens.Max(x => x.Key) + 1 : 1;
+
+            if (this.accessTokens.TryAdd(token.Id, token))
             {
                 return accessToken;
             }
@@ -113,41 +176,81 @@
             return null;
         }
 
-        /// <summary>Deletes the access token with the specified id.</summary>
-        /// <exception cref="ArgumentException">
-        ///     Thrown when one or more arguments have unsupported or illegal values.
-        /// </exception>
+        /// <summary>
+        /// Deletes the access tokens that belongs to the specified client, redirect uri and user
+        /// combination.
+        /// </summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="userId">Identifier for the user.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        public async Task<int> DeleteAccessTokens(string clientId, string redirectUri, string userId)
+        {
+            var i = 0;
+            var tokens = this.accessTokens.Where(x => x.Value.ClientId == clientId && x.Value.RedirectUri == redirectUri && x.Value.Subject == userId).ToList();
+
+            foreach (var token in tokens)
+            {
+                AccessToken removedToken;
+                if (this.accessTokens.TryRemove(token.Key, out removedToken))
+                {
+                    i++;
+                }
+            }
+
+            return i;
+        }
+
+        /// <summary>
+        /// Deletes the access tokens that expires before the specified expire date. combination.
+        /// </summary>
+        /// <param name="expires">The expire date.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        public async Task<int> DeleteAccessTokens(DateTime expires)
+        {
+            var i = 0;
+            var tokens = this.accessTokens.Where(x => x.Value.ValidTo < expires).ToList();
+
+            foreach (var token in tokens)
+            {
+                AccessToken removedToken;
+                if (this.accessTokens.TryRemove(token.Key, out removedToken))
+                {
+                    i++;
+                }
+            }
+
+            return i;
+        }
+
+        /// <summary>Deletes the specified access token.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAccessToken(AccessToken accessToken)
+        public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
         {
-            if (accessToken == null || accessToken.Id <= 0)
-            {
-                throw new ArgumentException("The supplied authorization code is invalid.");
-            }
+            var exists = this.accessTokens.Any(x => x.Value.Equals(accessToken));
 
-            if (!this.accessTokens.ContainsKey(accessToken.Id))
+            if (exists)
             {
-                throw new ArgumentException(string.Format("No access token with id '{0}' exist", accessToken.Id));
-            }
+                var token = this.accessTokens.First(x => x.Value.Equals(accessToken));
 
-            AccessToken removedToken;
-            if (this.accessTokens.TryRemove(accessToken.Id, out removedToken))
-            {
-                return true;
+                AccessToken removedToken;
+                return this.accessTokens.TryRemove(token.Key, out removedToken);
             }
 
             return false;
         }
 
-        /// <summary>Gets refresh tokens matching the specified predicate.</summary>
-        /// <param name="predicate">
-        ///     The predicate expression for reducing the refresh token collection.
-        /// </param>
+        /// <summary>
+        /// Gets all refresh tokens that matches the specified redirect uri and expires after the
+        /// specified date.
+        /// </summary>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<RefreshToken>> GetRefreshTokens(Expression<Func<RefreshToken, bool>> predicate)
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string redirectUri, DateTime expires)
         {
-            return this.refreshTokens.Select(x => x.Value).Where(predicate.Compile());
+            return this.refreshTokens.Select(x => x.Value).Where(x => x.RedirectUri == redirectUri && x.ValidTo > expires);
         }
 
         /// <summary>Inserts the specified refresh token.</summary>
@@ -155,12 +258,14 @@
         /// <returns>
         ///     The inserted refresh token. <c>null</c> if the insertion was unsuccessful.
         /// </returns>
-        public async Task<RefreshToken> InsertRefreshToken(RefreshToken refreshToken)
+        public async Task<IRefreshToken> InsertRefreshToken(IRefreshToken refreshToken)
         {
-            // Autogenerate id 
-            refreshToken.Id = this.refreshTokens.Any() ? this.refreshTokens.Max(x => x.Key) + 1 : 1;
+            var token = (RefreshToken)refreshToken;
 
-            if (this.refreshTokens.TryAdd(refreshToken.Id, refreshToken))
+            // Autogenerate id 
+            token.Id = this.refreshTokens.Any() ? this.refreshTokens.Max(x => x.Key) + 1 : 1;
+
+            if (this.refreshTokens.TryAdd(token.Id, token))
             {
                 return refreshToken;
             }
@@ -168,28 +273,66 @@
             return null;
         }
 
-        /// <summary>Deletes the refresh token with the specified id.</summary>
-        /// <exception cref="ArgumentException">
-        ///     Thrown when one or more arguments have unsupported or illegal values.
-        /// </exception>
+        /// <summary>
+        /// Deletes the refresh tokens that belongs to the specified client, redirect uri and user
+        /// combination.
+        /// </summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="userId">Identifier for the user.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        public async Task<int> DeleteRefreshTokens(string clientId, string redirectUri, string userId)
+        {
+            var i = 0;
+            var tokens = this.refreshTokens.Where(x => x.Value.ClientId == clientId && x.Value.RedirectUri == redirectUri && x.Value.Subject == userId).ToList();
+
+            foreach (var token in tokens)
+            {
+                RefreshToken removedToken;
+                if (this.refreshTokens.TryRemove(token.Key, out removedToken))
+                {
+                    i++;
+                }
+            }
+
+            return i;
+        }
+
+        /// <summary>
+        /// Deletes the refresh tokens that expires before the specified expire date. combination.
+        /// </summary>
+        /// <param name="expires">The expire date.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        public async Task<int> DeleteRefreshTokens(DateTime expires)
+        {
+            var i = 0;
+            var tokens = this.refreshTokens.Where(x => x.Value.ValidTo < expires).ToList();
+
+            foreach (var token in tokens)
+            {
+                RefreshToken removedToken;
+                if (this.refreshTokens.TryRemove(token.Key, out removedToken))
+                {
+                    i++;
+                }
+            }
+
+            return i;
+        }
+
+        /// <summary>Deletes the specified refresh token.</summary>
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteRefreshToken(RefreshToken refreshToken)
+        public async Task<bool> DeleteRefreshToken(IRefreshToken refreshToken)
         {
-            if (refreshToken == null || refreshToken.Id <= 0)
-            {
-                throw new ArgumentException("The supplied authorization code is invalid.");
-            }
+            var exists = this.refreshTokens.Any(x => x.Value.Equals(refreshToken));
 
-            if (!this.refreshTokens.ContainsKey(refreshToken.Id))
+            if (exists)
             {
-                throw new ArgumentException(string.Format("No refresh token with id '{0}' exist", refreshToken.Id));
-            }
+                var token = this.refreshTokens.First(x => x.Value.Equals(refreshToken));
 
-            RefreshToken removedToken;
-            if (this.refreshTokens.TryRemove(refreshToken.Id, out removedToken))
-            {
-                return true;
+                RefreshToken removedToken;
+                return this.refreshTokens.TryRemove(token.Key, out removedToken);
             }
 
             return false;

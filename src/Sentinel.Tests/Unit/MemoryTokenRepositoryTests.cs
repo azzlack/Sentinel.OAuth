@@ -13,7 +13,7 @@
     [Category("Unit")]
     public class MemoryTokenRepositoryTests
     {
-        private ITokenRepository<AccessToken, RefreshToken, AuthorizationCode> tokenRepository;
+        private ITokenRepository tokenRepository;
 
         [SetUp]
         public void SetUp()
@@ -27,9 +27,9 @@
             await this.tokenRepository.InsertAuthorizationCode(new AuthorizationCode("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username"});
             await this.tokenRepository.InsertAuthorizationCode(new AuthorizationCode("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit2", RedirectUri = "http://localhost", Subject = "Username" });
 
-            var authorizationCodes = await this.tokenRepository.GetAuthorizationCodes(x => x.ClientId == "NUnit" && x.RedirectUri == "http://localhost");
+            var authorizationCodes = await this.tokenRepository.GetAuthorizationCodes("http://localhost", DateTime.UtcNow);
 
-            Assert.AreEqual(1, authorizationCodes.Count());
+            Assert.AreEqual(2, authorizationCodes.Count());
         }
 
         [Test]
@@ -39,10 +39,10 @@
             var code2 = await this.tokenRepository.InsertAuthorizationCode(new AuthorizationCode("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit2", RedirectUri = "http://localhost", Subject = "Username" });
 
             var deleteResult = await this.tokenRepository.DeleteAuthorizationCode(code1);
-            var authorizationCodes = await this.tokenRepository.GetAuthorizationCodes(x => x.ClientId == "NUnit" && x.RedirectUri == "http://localhost");
+            var authorizationCodes = await this.tokenRepository.GetAuthorizationCodes("http://localhost", DateTime.UtcNow);
 
             Assert.IsTrue(deleteResult);
-            Assert.AreEqual(0, authorizationCodes.Count());
+            Assert.AreEqual(1, authorizationCodes.Count());
         }
 
         [Test]
@@ -51,9 +51,9 @@
             await this.tokenRepository.InsertAccessToken(new AccessToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit", RedirectUri = "http://localhost"});
             await this.tokenRepository.InsertAccessToken(new AccessToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit2", RedirectUri = "http://localhost" });
 
-            var accessTokens = await this.tokenRepository.GetAccessTokens(x => x.ClientId == "NUnit" && x.RedirectUri == "http://localhost");
+            var accessTokens = await this.tokenRepository.GetAccessTokens(DateTime.UtcNow);
 
-            Assert.AreEqual(1, accessTokens.Count());
+            Assert.AreEqual(2, accessTokens.Count());
         }
 
         [Test]
@@ -62,10 +62,10 @@
             var token1 = await this.tokenRepository.InsertAccessToken(new AccessToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit", RedirectUri = "http://localhost" });
             var token2 = await this.tokenRepository.InsertAccessToken(new AccessToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit2", RedirectUri = "http://localhost" });
 
-            var deleteResult = await this.tokenRepository.DeleteAccessToken(token1);
-            var accessTokens = await this.tokenRepository.GetAccessTokens(x => x.ClientId == "NUnit" && x.RedirectUri == "http://localhost");
+            var deleteResult = await this.tokenRepository.DeleteAccessTokens(token1.ClientId, token1.RedirectUri, token1.Subject);
+            var accessTokens = await this.tokenRepository.GetAccessTokens(DateTime.UtcNow.AddMinutes(1));
 
-            Assert.IsTrue(deleteResult);
+            Assert.Greater(deleteResult, 0);
             Assert.AreEqual(0, accessTokens.Count());
         }
 
@@ -75,9 +75,9 @@
             await this.tokenRepository.InsertRefreshToken(new RefreshToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit", RedirectUri = "http://localhost" });
             await this.tokenRepository.InsertRefreshToken(new RefreshToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit2", RedirectUri = "http://localhost" });
 
-            var accessTokens = await this.tokenRepository.GetRefreshTokens(x => x.ClientId == "NUnit" && x.RedirectUri == "http://localhost");
+            var refreshTokens = await this.tokenRepository.GetRefreshTokens("http://localhost", DateTime.UtcNow);
 
-            Assert.AreEqual(1, accessTokens.Count());
+            Assert.AreEqual(2, refreshTokens.Count());
         }
 
         [Test]
@@ -87,10 +87,10 @@
             var token2 = await this.tokenRepository.InsertRefreshToken(new RefreshToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit2", RedirectUri = "http://localhost" });
 
             var deleteResult = await this.tokenRepository.DeleteRefreshToken(token1);
-            var accessTokens = await this.tokenRepository.GetRefreshTokens(x => x.ClientId == "NUnit" && x.RedirectUri == "http://localhost");
+            var refreshTokens = await this.tokenRepository.GetRefreshTokens("http://localhost", DateTime.UtcNow);
 
             Assert.IsTrue(deleteResult);
-            Assert.AreEqual(0, accessTokens.Count());
+            Assert.AreEqual(1, refreshTokens.Count());
         }
     }
 }

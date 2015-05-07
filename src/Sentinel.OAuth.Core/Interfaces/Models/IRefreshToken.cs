@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>Interface for an OAuth 2 refresh token.</summary>
-    public interface IRefreshToken
+    public interface IRefreshToken : IEquatable<IRefreshToken>
     {
         /// <summary>
         /// Gets or sets the id.
