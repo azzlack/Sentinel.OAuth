@@ -2,26 +2,29 @@
 {
     using System;
     using System.Data;
+    using System.Data.Entity;
     using System.Data.SqlLocalDb;
 
-    using Dapper;
+    using Microsoft.AspNet.Identity;
+    using Microsoft.AspNet.Identity.EntityFramework;
 
     using NUnit.Framework;
 
     using Sentinel.OAuth.Core.Interfaces.Managers;
-    using Sentinel.OAuth.Implementation;
-    using Sentinel.OAuth.UserManagers.SqlServerUserManager.Implementation;
-    using Sentinel.OAuth.UserManagers.SqlServerUserManager.Models;
+    using Sentinel.OAuth.UserManagers.AspNetIdentityUserManager;
+    using Sentinel.OAuth.UserManagers.AspNetIdentityUserManager.Implementation;
+
+    using User = Sentinel.OAuth.UserManagers.AspNetIdentityUserManager.Models.User;
 
     [TestFixture]
     [Category("Integration")]
-    public class SqlServerUserManagerTests
+    public class AspNetIdentityUserManagerTests
     {
-        private ISqlLocalDbInstance instance;
-
-        private string databaseName;
+        private string connectionString;
 
         private IUserManager userManager;
+
+        private ISqlLocalDbInstance instance;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
@@ -35,38 +38,36 @@
 
             var provider = new SqlLocalDbProvider();
 
-            this.databaseName = "SqlServerUserManagerTests_" + Guid.NewGuid().ToString("N");
-
-            // Configure dapper to support datetime2
-            SqlMapper.AddTypeMap(typeof(DateTime), DbType.DateTime2);
-
             // Create test instance
-            this.instance = provider.GetOrCreateInstance("SqlServerUserManager");
+            this.instance = provider.GetOrCreateInstance("AspNetIdentityUserManager");
             this.instance.Start();
 
-            // Seed test data
-            using (var connection = this.instance.CreateConnection())
-            {
-                connection.Open();
+            // Initialize database
+            var strategy = new DropCreateDatabaseAlways<SentinelContext>();
+            Database.SetInitializer(strategy);
 
-                try
-                {
-                    connection.Execute("CREATE DATABASE " + this.databaseName);
-                    connection.Execute("USE " + this.databaseName);
-                    connection.Execute("CREATE TABLE Users (Username VARCHAR(255) NOT NULL PRIMARY KEY, Password VARCHAR(MAX) NOT NULL, FirstName NVARCHAR(255) NOT NULL, LastName NVARCHAR(255) NOT NULL, LastLogin DATETIME2)");
-                    connection.Execute("INSERT INTO Users (Username, Password, FirstName, LastName) VALUES ('azzlack', '10000:gW7zpVeugKl8IFu7TcpPskcgQjy4185eAwBk9fFlZK6JNd1I45tLyCYtJrzWzE+kVCUP7lMSY8o808EjUgfavBzYU/ZtWypcdCdCJ0BMfMcf8Mk+XIYQCQLiFpt9Rjrf5mAY86NuveUtd1yBdPjxX5neMXEtquNYhu9I6iyzcN4=:Lk2ZkpmTDkNtO/tsB/GskMppdAX2bXehP+ED4oLis0AAv3Q1VeI8KL0SxIIWdxjKH0NJKZ6qniRFkfZKZRS2hS4SB8oyB34u/jyUlmv+RZGZSt9nJ9FYJn1percd/yFA7sSQOpkGljJ6OTwdthe0Bw0A/8qlKHbO2y2M5BFgYHY=', 'Ove', 'Andersen')");
-                }
-                finally
-                {
-                    connection.Close();
-                }
+            var builder = this.instance.CreateConnectionStringBuilder();
+
+            // Update the connection string to specify the name of the database
+            // and its physical location to the current application directory
+            builder.SetInitialCatalogName("SentinelAuth");
+            builder.SetPhysicalFileName(@".\SentinelAuth.mdf");
+
+            this.connectionString = builder.ConnectionString;
+
+            using (var context = new SentinelContext(this.connectionString))
+            {
+                context.Database.Initialize(true);
             }
         }
 
         [SetUp]
         public void SetUp()
         {
-            this.userManager = new SqlServerUserManager(new SqlServerUserManagerConfiguration(this.instance.CreateConnectionStringBuilder().ToString(), this.databaseName), new PBKDF2CryptoProvider());
+            this.userManager = new AspNetIdentityUserManager(new UserStore<User>(new SentinelContext(this.connectionString)));
+
+            // Add a user to the database
+            ((UserManager<User>)this.userManager).Create(new User() { UserName = "azzlack", FirstName = "Ove", LastName = "Andersen" }, "aabbccddee");
         }
 
         [Test]
@@ -118,21 +119,6 @@
         {
             if (this.instance != null)
             {
-                // Delete database
-                using (var connection = this.instance.CreateConnection())
-                {
-                    connection.Open();
-
-                    try
-                    {
-                        connection.Execute("DROP DATABASE " + this.databaseName);
-                    }
-                    finally
-                    {
-                        connection.Close();
-                    }
-                }
-                
                 this.instance.Stop();
             }
         }

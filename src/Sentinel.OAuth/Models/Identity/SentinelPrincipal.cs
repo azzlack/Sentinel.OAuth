@@ -45,31 +45,25 @@
         /// </summary>
         /// <param name="principal">The principal.</param>
         public SentinelPrincipal(IPrincipal principal)
+            : this(principal.Identity)
         {
-            if (principal.Identity == null)
-            {
-                throw new ArgumentNullException("principal", "Supplied Principal does not contain an identity");
-            }
-
-            this.Identity = new SentinelIdentity(principal.Identity);
         }
 
         /// <summary>
-        ///     Initializes a new instance of the Sentinel.OAuth.Models.Identity.SentinelPrincipal
-        ///     class.
+        /// Initializes a new instance of the Sentinel.OAuth.Models.Identity.SentinelPrincipal class.
         /// </summary>
         /// <exception cref="ArgumentNullException">
-        ///     Thrown when one or more required arguments are null.
+        /// Thrown when one or more required arguments are null.
         /// </exception>
-        /// <param name="principal">The principal.</param>
-        public SentinelPrincipal(ClaimsPrincipal principal)
+        /// <param name="identity">The identity.</param>
+        public SentinelPrincipal(IIdentity identity)
         {
-            if (principal.Identity == null)
+            if (identity == null)
             {
                 throw new ArgumentNullException("principal", "Supplied Principal does not contain an identity");
             }
 
-            this.Identity = new SentinelIdentity(principal.Identities.First());
+            this.Identity = new SentinelIdentity(identity);
         }
 
         /// <summary>Gets the identity.</summary>
