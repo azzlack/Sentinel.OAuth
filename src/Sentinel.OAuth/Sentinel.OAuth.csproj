@@ -99,7 +99,6 @@
     <Compile Include="Implementation\PrincipalProvider.cs" />
     <Compile Include="Models\OAuth\AccessToken.cs" />
     <Compile Include="Models\OAuth\AuthorizationCode.cs" />
-    <Compile Include="Models\OAuth\Client.cs" />
     <Compile Include="Models\OAuth\RefreshToken.cs" />
     <Compile Include="Models\Owin\OwinOAuthContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

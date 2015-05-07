@@ -10,12 +10,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthorizationCode"/> class.
         /// </summary>
-        /// <param name="code">The code.</param>
-        /// <param name="validTo">The valid to.</param>
-        public AuthorizationCode(string code, DateTime validTo)
+        public AuthorizationCode()
         {
-            this.Code = code;
-            this.ValidTo = validTo;
             this.Created = DateTime.UtcNow;
         }
 

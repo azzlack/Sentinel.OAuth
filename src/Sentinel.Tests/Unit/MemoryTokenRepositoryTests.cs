@@ -24,8 +24,8 @@
         [Test]
         public async void InsertAndGet_WhenGivenValidAuthorizationCodes_ReturnsAuthorizationCodes()
         {
-            await this.tokenRepository.InsertAuthorizationCode(new AuthorizationCode("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username"});
-            await this.tokenRepository.InsertAuthorizationCode(new AuthorizationCode("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit2", RedirectUri = "http://localhost", Subject = "Username" });
+            await this.tokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username"});
+            await this.tokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit2", RedirectUri = "http://localhost", Subject = "Username" });
 
             var authorizationCodes = await this.tokenRepository.GetAuthorizationCodes("http://localhost", DateTime.UtcNow);
 
@@ -35,8 +35,8 @@
         [Test]
         public async void InsertAndDelete_WhenGivenValidAuthorizationCodes_ReturnsTrue()
         {
-            var code1 = await this.tokenRepository.InsertAuthorizationCode(new AuthorizationCode("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username" });
-            var code2 = await this.tokenRepository.InsertAuthorizationCode(new AuthorizationCode("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit2", RedirectUri = "http://localhost", Subject = "Username" });
+            var code1 = await this.tokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username" });
+            var code2 = await this.tokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit2", RedirectUri = "http://localhost", Subject = "Username" });
 
             var deleteResult = await this.tokenRepository.DeleteAuthorizationCode(code1);
             var authorizationCodes = await this.tokenRepository.GetAuthorizationCodes("http://localhost", DateTime.UtcNow);
@@ -48,8 +48,8 @@
         [Test]
         public async void InsertAndGet_WhenGivenValidAccessTokens_ReturnsAccessTokens()
         {
-            await this.tokenRepository.InsertAccessToken(new AccessToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit", RedirectUri = "http://localhost"});
-            await this.tokenRepository.InsertAccessToken(new AccessToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit2", RedirectUri = "http://localhost" });
+            await this.tokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost" });
+            await this.tokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit2", RedirectUri = "http://localhost" });
 
             var accessTokens = await this.tokenRepository.GetAccessTokens(DateTime.UtcNow);
 
@@ -59,8 +59,8 @@
         [Test]
         public async void InsertAndDelete_WhenGivenValidAccessTokens_ReturnsTrue()
         {
-            var token1 = await this.tokenRepository.InsertAccessToken(new AccessToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit", RedirectUri = "http://localhost" });
-            var token2 = await this.tokenRepository.InsertAccessToken(new AccessToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit2", RedirectUri = "http://localhost" });
+            var token1 = await this.tokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost" });
+            var token2 = await this.tokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit2", RedirectUri = "http://localhost" });
 
             var deleteResult = await this.tokenRepository.DeleteAccessTokens(token1.ClientId, token1.RedirectUri, token1.Subject);
             var accessTokens = await this.tokenRepository.GetAccessTokens(DateTime.UtcNow.AddMinutes(1));
@@ -72,8 +72,8 @@
         [Test]
         public async void InsertAndGet_WhenGivenValidRefreshTokens_ReturnsRefreshTokens()
         {
-            await this.tokenRepository.InsertRefreshToken(new RefreshToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit", RedirectUri = "http://localhost" });
-            await this.tokenRepository.InsertRefreshToken(new RefreshToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit2", RedirectUri = "http://localhost" });
+            await this.tokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost" });
+            await this.tokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit2", RedirectUri = "http://localhost" });
 
             var refreshTokens = await this.tokenRepository.GetRefreshTokens("http://localhost", DateTime.UtcNow);
 
@@ -83,8 +83,8 @@
         [Test]
         public async void InsertAndDelete_WhenGivenValidRefreshTokens_ReturnsTrue()
         {
-            var token1 = await this.tokenRepository.InsertRefreshToken(new RefreshToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit", RedirectUri = "http://localhost" });
-            var token2 = await this.tokenRepository.InsertRefreshToken(new RefreshToken("123456789", DateTime.UtcNow.AddMinutes(1)) { ClientId = "NUnit2", RedirectUri = "http://localhost" });
+            var token1 = await this.tokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost" });
+            var token2 = await this.tokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit2", RedirectUri = "http://localhost" });
 
             var deleteResult = await this.tokenRepository.DeleteRefreshToken(token1);
             var refreshTokens = await this.tokenRepository.GetRefreshTokens("http://localhost", DateTime.UtcNow);

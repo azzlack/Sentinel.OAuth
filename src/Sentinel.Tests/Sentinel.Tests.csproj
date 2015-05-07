@@ -68,6 +68,10 @@
       <HintPath>..\packages\Coypu.2.8.0\lib\net40\Coypu.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Dapper, Version=1.40.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.42\lib\net45\Dapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Moq, Version=4.2.1502.911, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
       <HintPath>..\packages\Moq.4.2.1502.0911\lib\net40\Moq.dll</HintPath>
       <Private>True</Private>
@@ -83,6 +87,10 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SqlLocalDb, Version=1.14.0.0, Culture=neutral, PublicKeyToken=9a192a7522c9e1a0, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SqlLocalDb.1.14.0\lib\net20\System.Data.SqlLocalDb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.Extensions, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -114,9 +122,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Facade\SentinelAuthorizationServerTests.cs" />
+    <Compile Include="Integration\ClientManagers\SqlServerClientManagerTests.cs" />
     <Compile Include="Integration\PrincipalProviderTests.cs" />
     <Compile Include="Facade\SentinelOAuthClientTests.cs" />
+    <Compile Include="Integration\TokenManagers\SqlServerTokenRepositoryTests.cs" />
     <Compile Include="Integration\TokenManagerTests.cs" />
+    <Compile Include="Integration\UserManagers\SqlServerUserManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Unit\MemoryTokenRepositoryTests.cs" />
     <Compile Include="Unit\PBKDF2CryptoProviderTests.cs" />
@@ -146,6 +157,18 @@
     <None Include="Properties\SlowCheetah\SlowCheetah.Transforms.targets" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AspNetIdentityUserManager\AspNetIdentityUserManager.csproj">
+      <Project>{3fd81fab-932d-4592-b325-ec190d8e0c03}</Project>
+      <Name>AspNetIdentityUserManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sentinel.OAuth.ClientManagers.RavenDbClientManager\RavenDbClientManager.csproj">
+      <Project>{3c257ce8-ce5f-4913-be59-8c44b078184d}</Project>
+      <Name>RavenDbClientManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sentinel.OAuth.ClientManagers.SqlServerClientManager\SqlServerClientManager.csproj">
+      <Project>{a4dc3c3b-014e-42ed-ac98-555186f8ab98}</Project>
+      <Name>SqlServerClientManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sentinel.OAuth.Client\Sentinel.OAuth.Client.csproj">
       <Project>{817dd465-2c53-44f5-9c19-5f4c40510f5e}</Project>
       <Name>Sentinel.OAuth.Client</Name>
@@ -153,6 +176,22 @@
     <ProjectReference Include="..\Sentinel.OAuth.Core\Sentinel.OAuth.Core.csproj">
       <Project>{3590e38c-f48f-4dc6-bb12-06eb919a70e3}</Project>
       <Name>Sentinel.OAuth.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sentinel.OAuth.TokenManagers.RavenDbTokenRepository\RavenDbTokenRepository.csproj">
+      <Project>{dede4be0-5567-442a-b658-66a73eb3bfa7}</Project>
+      <Name>RavenDbTokenRepository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sentinel.OAuth.TokenManagers.RedisTokenRepository\RedisTokenRepository.csproj">
+      <Project>{94eaf7b2-a1a0-4380-8cb1-15de5747e343}</Project>
+      <Name>RedisTokenRepository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sentinel.OAuth.TokenManagers.SqlServerTokenRepository\SqlServerTokenRepository.csproj">
+      <Project>{2a880295-cd2f-45c7-b592-0595318292cb}</Project>
+      <Name>SqlServerTokenRepository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sentinel.OAuth.UserManagers.SqlServerUserManager\SqlServerUserManager.csproj">
+      <Project>{7d33d993-b9be-463d-8942-cc5d0b99c06d}</Project>
+      <Name>SqlServerUserManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sentinel.OAuth\Sentinel.OAuth.csproj">
       <Project>{d456998c-5a63-4743-b46e-89f6324c38c7}</Project>

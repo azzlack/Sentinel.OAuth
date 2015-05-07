@@ -9,12 +9,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="RefreshToken"/> class.
         /// </summary>
-        /// <param name="token">The token.</param>
-        /// <param name="validTo">The valid to.</param>
-        public RefreshToken(string token, DateTime validTo)
+        public RefreshToken()
         {
-            this.Token = token;
-            this.ValidTo = validTo;
             this.Created = DateTime.UtcNow;
         }
 

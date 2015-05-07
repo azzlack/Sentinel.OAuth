@@ -86,6 +86,7 @@
         [TestCase(64, 64, 25000, new[] { ':' }, "aabbccddee")]
         [TestCase(48, 48, 25000, new[] { ':' }, "123")]
         [TestCase(64, 64, 25000, new[] { '|' }, "aabbccddee")]
+        [TestCase(128, 128, 10000, new[] { ':' }, "aabbccddee")]
         public void Create_WhenGivenValidString_ReturnsHash(int saltByteSize, int hashByteSize, int iterations, char[] delimiter, string text)
         {
             var p = new PBKDF2CryptoProvider(saltByteSize, hashByteSize, iterations, delimiter);

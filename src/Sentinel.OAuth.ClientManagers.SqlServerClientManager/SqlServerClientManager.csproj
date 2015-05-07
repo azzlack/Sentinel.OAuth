@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Sentinel.OAuth.ClientManagers.SqlServerClientManager</RootNamespace>
     <AssemblyName>Sentinel.OAuth.ClientManagers.SqlServerClientManager</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=1.40.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.42\lib\net45\Dapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -39,7 +44,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Implementation\SqlServerClientManager.cs" />
+    <Compile Include="Models\Client.cs" />
+    <Compile Include="Models\SqlServerClientManagerConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sentinel.OAuth.Core\Sentinel.OAuth.Core.csproj">
+      <Project>{3590E38C-F48F-4DC6-BB12-06EB919A70E3}</Project>
+      <Name>Sentinel.OAuth.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sentinel.OAuth\Sentinel.OAuth.csproj">
+      <Project>{D456998C-5A63-4743-B46E-89F6324C38C7}</Project>
+      <Name>Sentinel.OAuth</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
