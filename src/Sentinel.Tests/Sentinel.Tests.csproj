@@ -190,7 +190,7 @@
     <None Include="Properties\SlowCheetah\SlowCheetah.Transforms.targets" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AspNetIdentityUserManager\AspNetIdentityUserManager.csproj">
+    <ProjectReference Include="..\Sentinel.OAuth.UserManagers.AspNetIdentityUserManager\AspNetIdentityUserManager.csproj">
       <Project>{3fd81fab-932d-4592-b325-ec190d8e0c03}</Project>
       <Name>AspNetIdentityUserManager</Name>
     </ProjectReference>

@@ -29,7 +29,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlServerTokenRepository", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlServerUserManager", "Sentinel.OAuth.UserManagers.SqlServerUserManager\SqlServerUserManager.csproj", "{7D33D993-B9BE-463D-8942-CC5D0B99C06D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetIdentityUserManager", "AspNetIdentityUserManager\AspNetIdentityUserManager.csproj", "{3FD81FAB-932D-4592-B325-EC190D8E0C03}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetIdentityUserManager", "Sentinel.OAuth.UserManagers.AspNetIdentityUserManager\AspNetIdentityUserManager.csproj", "{3FD81FAB-932D-4592-B325-EC190D8E0C03}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
