@@ -84,7 +84,20 @@
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Raven.Abstractions, Version=3.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <HintPath>..\packages\RavenDB.Database.3.0.3660\lib\net45\Raven.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Raven.Client.Lightweight, Version=3.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <HintPath>..\packages\RavenDB.Client.3.0.3660\lib\net45\Raven.Client.Lightweight.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Raven.Database, Version=3.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <HintPath>..\packages\RavenDB.Database.3.0.3660\lib\net45\Raven.Database.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SqlLocalDb, Version=1.14.0.0, Culture=neutral, PublicKeyToken=9a192a7522c9e1a0, processorArchitecture=MSIL">
@@ -125,6 +138,8 @@
     <Compile Include="Integration\ClientManagers\SqlServerClientManagerTests.cs" />
     <Compile Include="Integration\PrincipalProviderTests.cs" />
     <Compile Include="Facade\SentinelOAuthClientTests.cs" />
+    <Compile Include="Integration\TokenManagers\RedisTokenRepositoryTests.cs" />
+    <Compile Include="Integration\TokenManagers\RavenDbTokenRepositoryTests.cs" />
     <Compile Include="Integration\TokenManagers\SqlServerTokenRepositoryTests.cs" />
     <Compile Include="Integration\TokenManagerTests.cs" />
     <Compile Include="Integration\UserManagers\SqlServerUserManagerTests.cs" />
@@ -160,10 +175,6 @@
     <ProjectReference Include="..\AspNetIdentityUserManager\AspNetIdentityUserManager.csproj">
       <Project>{3fd81fab-932d-4592-b325-ec190d8e0c03}</Project>
       <Name>AspNetIdentityUserManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Sentinel.OAuth.ClientManagers.RavenDbClientManager\RavenDbClientManager.csproj">
-      <Project>{3c257ce8-ce5f-4913-be59-8c44b078184d}</Project>
-      <Name>RavenDbClientManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sentinel.OAuth.ClientManagers.SqlServerClientManager\SqlServerClientManager.csproj">
       <Project>{a4dc3c3b-014e-42ed-ac98-555186f8ab98}</Project>
