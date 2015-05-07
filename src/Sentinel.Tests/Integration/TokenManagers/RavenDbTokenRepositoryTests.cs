@@ -26,8 +26,6 @@
     {
         private ITokenManager tokenManager;
 
-        private IDocumentStore documentStore;
-
         [SetUp]
         public void SetUp()
         {

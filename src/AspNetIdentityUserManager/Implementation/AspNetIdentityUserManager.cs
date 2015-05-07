@@ -1,11 +1,15 @@
 ﻿namespace Sentinel.OAuth.UserManagers.AspNetIdentityUserManager.Implementation
 {
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Microsoft.AspNet.Identity;
 
+    using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
+    using Sentinel.OAuth.Implementation;
+    using Sentinel.OAuth.Models.Identity;
     using Sentinel.OAuth.UserManagers.AspNetIdentityUserManager.Models;
 
     public class AspNetIdentityUserManager : UserManager<User>, IUserManager
@@ -18,16 +22,49 @@
         public AspNetIdentityUserManager(IUserStore<User> store)
             : base(store)
         {
+            this.ClaimsIdentityFactory = new AspNetIdentityClaimsIdentityFactory();
+            this.PasswordHasher = new AspNetIdentityPasswordHasher(new PBKDF2CryptoProvider());
         }
 
-        public Task<ISentinelPrincipal> AuthenticateUserWithPasswordAsync(string username, string password)
+        /// <summary>Authenticates the user using username and password.</summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>The user principal.</returns>
+        public async Task<ISentinelPrincipal> AuthenticateUserWithPasswordAsync(string username, string password)
         {
-            throw new System.NotImplementedException();
+            var user = await this.FindByNameAsync(username);
+
+            if (user != null)
+            {
+                var valid = this.PasswordHasher.VerifyHashedPassword(password, user.PasswordHash);
+
+                if (valid == PasswordVerificationResult.Success)
+                {
+                    var identity = await this.CreateIdentityAsync(user, AuthenticationType.OAuth);
+                    return new SentinelPrincipal(identity);
+                }
+            }
+
+            return SentinelPrincipal.Anonymous;
         }
 
-        public Task<ISentinelPrincipal> AuthenticateUserAsync(string username)
+        /// <summary>
+        /// Authenticates the user using username only. This method is used to get new user claims after
+        /// a refresh token has been used. You can therefore assume that the user is already logged in.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <returns>The user principal.</returns>
+        public async Task<ISentinelPrincipal> AuthenticateUserAsync(string username)
         {
-            throw new System.NotImplementedException();
+            var user = await this.FindByNameAsync(username);
+
+            if (user != null)
+            {
+                var identity = await this.CreateIdentityAsync(user, AuthenticationType.OAuth);
+                return new SentinelPrincipal(identity);
+            }
+
+            return SentinelPrincipal.Anonymous;
         }
     }
 }

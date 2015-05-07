@@ -6,16 +6,11 @@
 
     public class SentinelContext : IdentityDbContext<User>
     {
-        public SentinelContext()
-            : base("DefaultConnection", false)
+        public SentinelContext(string connectionString)
+            : base(connectionString, false)
         {
             this.Configuration.ProxyCreationEnabled = false;
             this.Configuration.LazyLoadingEnabled = false;
-        }
-
-        public static SentinelContext Create()
-        {
-            return new SentinelContext();
         }
     }
 }

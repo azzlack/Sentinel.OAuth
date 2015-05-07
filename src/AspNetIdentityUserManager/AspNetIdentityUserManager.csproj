@@ -57,8 +57,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Implementation\AspNetIdentityClaimsIdentityFactory.cs" />
+    <Compile Include="Implementation\AspNetIdentityPasswordHasher.cs" />
     <Compile Include="Implementation\AspNetIdentityUserManager.cs" />
-    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SentinelContext.cs" />
@@ -67,6 +68,10 @@
     <ProjectReference Include="..\Sentinel.OAuth.Core\Sentinel.OAuth.Core.csproj">
       <Project>{3590E38C-F48F-4DC6-BB12-06EB919A70E3}</Project>
       <Name>Sentinel.OAuth.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sentinel.OAuth\Sentinel.OAuth.csproj">
+      <Project>{d456998c-5a63-4743-b46e-89f6324c38c7}</Project>
+      <Name>Sentinel.OAuth</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
