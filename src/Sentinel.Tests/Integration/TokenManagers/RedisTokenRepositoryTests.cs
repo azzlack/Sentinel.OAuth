@@ -1,6 +1,7 @@
 ﻿namespace Sentinel.Tests.Integration.TokenManagers
 {
     using System;
+    using System.Configuration;
     using System.Security.Claims;
     using System.Threading.Tasks;
 
@@ -37,7 +38,7 @@
                 userManager.Object,
                 new PrincipalProvider(new PBKDF2CryptoProvider()), 
                 new PBKDF2CryptoProvider(), 
-                new RedisTokenRepository(new RedisTokenRepositoryConfiguration("localhost", 4)));
+                new RedisTokenRepository(new RedisTokenRepositoryConfiguration(ConfigurationManager.AppSettings["RedisHost"], 4)));
         }
 
         [Test]
