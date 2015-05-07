@@ -62,7 +62,7 @@
             {
                 var id =
                     await
-                    connection.ExecuteAsync(
+                    connection.QueryAsync<long>(
                         "INSERT INTO AuthorizationCodes (ClientId, RedirectUri, Subject, Code, Scope, Ticket, ValidTo, Created) VALUES (@ClientId, @RedirectUri, @Subject, @Code, @Scope, @Ticket, @ValidTo, @Created); SELECT CAST(SCOPE_IDENTITY() as bigint);",
                         new
                             {
@@ -176,7 +176,7 @@
             {
                 var id =
                     await
-                    connection.ExecuteAsync(
+                    connection.QueryAsync<long>(
                         "INSERT INTO AccessTokens (ClientId, RedirectUri, Subject, Token, Ticket, ValidTo, Created) VALUES (@ClientId, @RedirectUri, @Subject, @Token, @Ticket, @ValidTo, @Created); SELECT CAST(SCOPE_IDENTITY() as bigint);",
                         new
                         {
@@ -268,7 +268,7 @@
             {
                 var id =
                     await
-                    connection.ExecuteAsync(
+                    connection.QueryAsync<long>(
                         "INSERT INTO RefreshTokens (ClientId, RedirectUri, Subject, Token, ValidTo, Created) VALUES (@ClientId, @RedirectUri, @Subject, @Token, @ValidTo, @Created); SELECT CAST(SCOPE_IDENTITY() as bigint);",
                         new
                         {
