@@ -51,7 +51,7 @@
             SqlMapper.AddTypeMap(typeof(DateTime), DbType.DateTime2);
 
             // Create test instance
-            this.instance = TemporarySqlLocalDbInstance.Create(deleteFiles: true);
+            this.instance = TemporarySqlLocalDbInstance.Create();
 
             // Seed test data
             using (var connection = this.instance.CreateConnection())
