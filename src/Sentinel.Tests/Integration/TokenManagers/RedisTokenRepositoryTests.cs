@@ -18,6 +18,8 @@
     using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Implementation;
     using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models;
 
+    [TestFixture]
+    [Category("Integration")]
     public class RedisTokenRepositoryTests
     {
         private ITokenManager tokenManager;

@@ -20,6 +20,8 @@
     using Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Implementation;
     using Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Models;
 
+    [TestFixture]
+    [Category("Integration")]
     public class RavenDbTokenRepositoryTests
     {
         private ITokenManager tokenManager;
@@ -168,6 +170,5 @@
 
             Assert.IsFalse(user.Identity.IsAuthenticated, "The token is possible to use after expiration");
         }
-
     } 
 }

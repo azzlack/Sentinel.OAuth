@@ -4,6 +4,7 @@
     using System.Data;
     using System.Data.SqlLocalDb;
     using System.Security.Claims;
+    using System.Threading.Tasks;
 
     using Common.Logging;
 
@@ -20,6 +21,8 @@
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Implementation;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models;
 
+    [TestFixture]
+    [Category("Integration")]
     public class SqlServerTokenRepositoryTests
     {
         /// <summary>The instance.</summary>
@@ -118,6 +121,46 @@
         }
 
         [Test]
+        public async void AuthenticateAuthorizationCode_WhenGivenUsingCodeTwice_ReturnsNotAuthenticatedIdentity()
+        {
+            var code =
+                await
+                this.tokenManager.CreateAuthorizationCodeAsync(
+                    new SentinelPrincipal(
+                    new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                    TimeSpan.FromMinutes(5),
+                    "http://localhost");
+
+            Console.WriteLine("Code: {0}", code);
+
+            var user = await this.tokenManager.AuthenticateAuthorizationCodeAsync("http://localhost", code);
+            var user2 = await this.tokenManager.AuthenticateAuthorizationCodeAsync("http://localhost", code);
+
+            Assert.IsFalse(user2.Identity.IsAuthenticated, "The code is possible to use twice");
+        }
+
+        [Test]
+        public async void AuthenticateAccessToken_WhenGivenUsingExpiredToken_ReturnsNotAuthenticatedIdentity()
+        {
+            var token =
+                await
+                this.tokenManager.CreateAccessTokenAsync(
+                    new SentinelPrincipal(
+                    new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                    TimeSpan.FromSeconds(10),
+                    "NUnit",
+                    "http://localhost");
+
+            Console.WriteLine("Token: {0}", token);
+
+            await Task.Delay(TimeSpan.FromSeconds(10));
+
+            var user = await this.tokenManager.AuthenticateAccessTokenAsync(token);
+
+            Assert.IsFalse(user.Identity.IsAuthenticated, "The token is possible to use after expiration");
+        }
+
+        [Test]
         public async void AuthenticateAccessToken_WhenGivenValidIdentity_ReturnsAuthenticatedIdentity()
         {
             var token =
@@ -157,6 +200,27 @@
             var user = await this.tokenManager.AuthenticateRefreshTokenAsync("NUnit", token, "http://localhost");
 
             Assert.IsTrue(user.Identity.IsAuthenticated);
+        }
+
+        [Test]
+        public async void AuthenticateRefreshToken_WhenGivenUsingExpiredToken_ReturnsNotAuthenticatedIdentity()
+        {
+            var token =
+                await
+                this.tokenManager.CreateRefreshTokenAsync(
+                    new SentinelPrincipal(
+                    new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                    TimeSpan.FromSeconds(10),
+                    "NUnit",
+                    "http://localhost");
+
+            Console.WriteLine("Token: {0}", token);
+
+            await Task.Delay(TimeSpan.FromSeconds(10));
+
+            var user = await this.tokenManager.AuthenticateRefreshTokenAsync("NUnit", "https://localhost", token);
+
+            Assert.IsFalse(user.Identity.IsAuthenticated, "The token is possible to use after expiration");
         }
 
         /// <summary>

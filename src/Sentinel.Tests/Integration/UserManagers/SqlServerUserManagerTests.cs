@@ -13,23 +13,16 @@
     using Sentinel.OAuth.UserManagers.SqlServerUserManager.Implementation;
     using Sentinel.OAuth.UserManagers.SqlServerUserManager.Models;
 
-    /// <summary>
-    /// The sql server user manager tests.
-    /// </summary>
+    [TestFixture]
+    [Category("Integration")]
     public class SqlServerUserManagerTests
     {
-        /// <summary>The instance.</summary>
         private SqlLocalDbInstance instance;
 
         private string databaseName;
 
         private IUserManager userManager;
 
-        /// <summary>
-        /// The test fixture set up.
-        /// </summary>
-        /// <exception cref="Exception">
-        /// </exception>
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
@@ -92,9 +85,6 @@
             Assert.IsFalse(user.Identity.IsAuthenticated, "The user was authenticated");
         }
 
-        /// <summary>
-        /// The test fixture tear down.
-        /// </summary>
         [TestFixtureTearDown]
         public void TestFixtureTearDown()
         {

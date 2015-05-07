@@ -13,23 +13,16 @@
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Implementation;
 
-    /// <summary>
-    /// The sql server client manager tests.
-    /// </summary>
+    [TestFixture]
+    [Category("Integration")]
     public class SqlServerClientManagerTests
     {
-        /// <summary>The instance.</summary>
         private SqlLocalDbInstance instance;
 
         private string databaseName;
 
         private IClientManager clientManager;
 
-        /// <summary>
-        /// The test fixture set up.
-        /// </summary>
-        /// <exception cref="Exception">
-        /// </exception>
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
@@ -133,9 +126,6 @@
             Assert.IsFalse(user.Identity.IsAuthenticated, "The client was authenticated");
         }
 
-        /// <summary>
-        /// The test fixture tear down.
-        /// </summary>
         [TestFixtureTearDown]
         public void TestFixtureTearDown()
         {
