@@ -6,6 +6,8 @@
 
     using Common.Logging;
 
+    using Moq;
+
     using NUnit.Framework;
 
     using Raven.Client;
@@ -27,8 +29,17 @@
         [SetUp]
         public void SetUp()
         {
+            var userManager = new Mock<IUserManager>();
+            userManager.Setup(x => x.AuthenticateUserAsync(It.IsAny<string>()))
+                .ReturnsAsync(new SentinelPrincipal(
+                        new SentinelIdentity(
+                            AuthenticationType.OAuth,
+                            new SentinelClaim(ClaimTypes.Name, "azzlack"),
+                            new SentinelClaim(ClaimType.Client, "NUnit"))));
+
             this.tokenManager = new TokenManager(
                 LogManager.GetLogger(typeof(RavenDbTokenRepositoryTests)), 
+                userManager.Object,
                 new PrincipalProvider(new PBKDF2CryptoProvider()), 
                 new PBKDF2CryptoProvider(), 
                 new RavenDbTokenRepository(

@@ -72,6 +72,49 @@
             }
         }
 
+        /// <summary>
+        /// Authenticates the user using username only. This method is used to get new user claims after
+        /// a refresh token has been used. You can therefore assume that the user is already logged in.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <returns>The user principal.</returns>
+        public override async Task<ISentinelPrincipal> AuthenticateUserAsync(string username)
+        {
+            using (var connection = this.OpenConnection())
+            {
+                var transaction = connection.BeginTransaction();
+                var matches =
+                    await
+                    connection.QueryAsync<User>(
+                        "SELECT * FROM Users WHERE UserName = @UserName",
+                        new { UserName = username },
+                        transaction);
+                var user = matches.FirstOrDefault();
+
+                if (user != null)
+                {
+                    var principal =
+                        new SentinelPrincipal(
+                            new SentinelIdentity(
+                                AuthenticationType.OAuth,
+                                new SentinelClaim(ClaimTypes.Name, user.Username),
+                                new SentinelClaim(ClaimTypes.GivenName, user.FirstName),
+                                new SentinelClaim(ClaimTypes.Surname, user.LastName)));
+
+                    // Update last login date
+                    await
+                        connection.ExecuteAsync(
+                            "UPDATE Users SET LastLogin = @LastLogin WHERE Username = @Username",
+                            new { LastLogin = DateTime.UtcNow, Username = user.Username },
+                            transaction);
+
+                    return principal;
+                }
+
+                return SentinelPrincipal.Anonymous;
+            }
+        }
+
         /// <summary>Opens the connection.</summary>
         /// <returns>A SqlConnection.</returns>
         private SqlConnection OpenConnection()

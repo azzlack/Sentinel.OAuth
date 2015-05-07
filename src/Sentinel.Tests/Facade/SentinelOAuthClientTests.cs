@@ -2,7 +2,6 @@
 {
     using System;
     using System.Configuration;
-    using System.Net.Http;
 
     using Moq;
 

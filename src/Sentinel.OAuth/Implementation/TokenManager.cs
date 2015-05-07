@@ -10,6 +10,7 @@
 
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
+    using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.Core.Managers;
@@ -22,17 +23,19 @@
         /// <summary>The logger.</summary>
         private readonly ILog logger;
 
-        /// <summary>
-        /// Initializes a new instance of the TokenManager class.
-        /// </summary>
+        /// <summary>Manager for user.</summary>
+        private readonly IUserManager userManager;
+
+        /// <summary>Initializes a new instance of the TokenManager class.</summary>
         /// <exception cref="ArgumentNullException">
         /// Thrown when one or more required arguments are null.
         /// </exception>
         /// <param name="logger">The logger.</param>
+        /// <param name="userManager">Manager for users.</param>
         /// <param name="principalProvider">The principal provider.</param>
         /// <param name="cryptoProvider">The crypto provider.</param>
         /// <param name="tokenRepository">The token repository.</param>
-        public TokenManager(ILog logger, IPrincipalProvider principalProvider, ICryptoProvider cryptoProvider, ITokenRepository tokenRepository)
+        public TokenManager(ILog logger, IUserManager userManager, IPrincipalProvider principalProvider, ICryptoProvider cryptoProvider, ITokenRepository tokenRepository)
             : base(principalProvider, cryptoProvider, tokenRepository)
         {
             if (logger == null)
@@ -41,6 +44,7 @@
             }
             
             this.logger = logger;
+            this.userManager = userManager;
         }
 
         /// <summary>Authenticates the authorization code.</summary>
@@ -63,8 +67,6 @@
                 await this.TokenRepository.DeleteAuthorizationCode(entity);
 
                 var storedPrincipal = this.PrincipalProvider.Decrypt(entity.Ticket, authorizationCode);
-
-                this.logger.DebugFormat("Client '{0}' was given the following claims from the IPrincipalFactory: '{1}'", storedPrincipal.Identity.Name, JsonConvert.SerializeObject(storedPrincipal.Identity.Claims));
 
                 // Set correct authentication method and return new principal
                 return this.PrincipalProvider.Create(AuthenticationType.OAuth, storedPrincipal.Identity.Claims.ToArray());
@@ -120,13 +122,14 @@
                 // Delete refresh token to prevent it being used again
                 await this.TokenRepository.DeleteRefreshToken(entity);
 
-                var storedPrincipal = this.PrincipalProvider.Decrypt(entity.Ticket, refreshToken);
+                // Re-authenticate user to get new claims
+                var user = await this.userManager.AuthenticateUserAsync(entity.Subject);
 
-                // TODO: Must get new claims from user database so any changes in permissions are updated
+                // Make sure the user has the correct client claim
+                user.Identity.RemoveClaim(x => x.Type == ClaimType.Client);
+                user.Identity.AddClaim(ClaimType.Client, entity.ClientId);
 
-                this.logger.DebugFormat("Client '{0}' was given the following claims from the IPrincipalFactory: '{1}'", storedPrincipal.Identity.Name, JsonConvert.SerializeObject(storedPrincipal.Identity.Claims));
-
-                return this.PrincipalProvider.Create(AuthenticationType.OAuth, storedPrincipal.Identity.Claims.ToArray());
+                return this.PrincipalProvider.Create(AuthenticationType.OAuth, user.Identity.Claims.ToArray());
             }
 
             this.logger.WarnFormat("Refresh token '{0}' is not valid", refreshToken);
@@ -279,7 +282,6 @@
                                         ValidTo = DateTime.UtcNow.Add(expire),
                                         ClientId = clientId,
                                         Subject = userPrincipal.Identity.Name,
-                                        Ticket = this.PrincipalProvider.Encrypt(userPrincipal, token),
                                         RedirectUri = redirectUri
                                     };
 

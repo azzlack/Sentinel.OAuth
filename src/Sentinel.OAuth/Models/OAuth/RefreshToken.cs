@@ -25,12 +25,6 @@
         public string ClientId { get; set; }
 
         /// <summary>
-        /// Gets or sets the ticket.
-        /// </summary>
-        /// <value>The ticket.</value>
-        public string Ticket { get; set; }
-
-        /// <summary>
         /// Gets or sets the token.
         /// </summary>
         /// <value>The token.</value>

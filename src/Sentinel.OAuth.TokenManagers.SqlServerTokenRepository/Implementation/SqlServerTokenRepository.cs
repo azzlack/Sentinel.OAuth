@@ -269,14 +269,13 @@
                 var id =
                     await
                     connection.ExecuteAsync(
-                        "INSERT INTO RefreshTokens (ClientId, RedirectUri, Subject, Token, Ticket, ValidTo, Created) VALUES (@ClientId, @RedirectUri, @Subject, @Token, @Ticket, @ValidTo, @Created); SELECT CAST(SCOPE_IDENTITY() as bigint);",
+                        "INSERT INTO RefreshTokens (ClientId, RedirectUri, Subject, Token, ValidTo, Created) VALUES (@ClientId, @RedirectUri, @Subject, @Token, @ValidTo, @Created); SELECT CAST(SCOPE_IDENTITY() as bigint);",
                         new
                         {
                             refreshToken.ClientId,
                             refreshToken.RedirectUri,
                             refreshToken.Subject,
                             refreshToken.Token,
-                            refreshToken.Ticket,
                             refreshToken.ValidTo,
                             Created = DateTime.UtcNow
                         });

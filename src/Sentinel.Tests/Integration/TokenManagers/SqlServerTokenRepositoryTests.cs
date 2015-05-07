@@ -9,6 +9,8 @@
 
     using Dapper;
 
+    using Moq;
+
     using NUnit.Framework;
 
     using Sentinel.OAuth.Core.Constants.Identity;
@@ -63,7 +65,7 @@
                     connection.Execute("CREATE DATABASE " + this.databaseName);
                     connection.Execute("USE " + this.databaseName);
                     connection.Execute("CREATE TABLE AccessTokens (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Ticket VARCHAR(MAX) NOT NULL, Token VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, RedirectUri VARCHAR(MAX), ValidTo DATETIME2, Created DATETIME2)");
-                    connection.Execute("CREATE TABLE RefreshTokens (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Ticket VARCHAR(MAX) NOT NULL, Token VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, RedirectUri VARCHAR(MAX), ValidTo DATETIME2, Created DATETIME2)");
+                    connection.Execute("CREATE TABLE RefreshTokens (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Token VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, RedirectUri VARCHAR(MAX), ValidTo DATETIME2, Created DATETIME2)");
                     connection.Execute("CREATE TABLE AuthorizationCodes (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Ticket VARCHAR(MAX) NOT NULL, Code VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, Scope NVARCHAR(MAX), RedirectUri VARCHAR(MAX), ValidTo DATETIME2, Created DATETIME2)");
                 }
                 finally
@@ -76,8 +78,17 @@
         [SetUp]
         public void SetUp()
         {
+            var userManager = new Mock<IUserManager>();
+            userManager.Setup(x => x.AuthenticateUserAsync(It.IsAny<string>()))
+                .ReturnsAsync(new SentinelPrincipal(
+                        new SentinelIdentity(
+                            AuthenticationType.OAuth,
+                            new SentinelClaim(ClaimTypes.Name, "azzlack"),
+                            new SentinelClaim(ClaimType.Client, "NUnit"))));
+
             this.tokenManager = new TokenManager(
                 LogManager.GetLogger(typeof(SqlServerTokenRepositoryTests)),
+                userManager.Object,
                 new PrincipalProvider(new PBKDF2CryptoProvider()),
                 new PBKDF2CryptoProvider(),
                 new SqlServerTokenRepository(

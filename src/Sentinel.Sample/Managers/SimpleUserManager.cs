@@ -24,5 +24,16 @@
 
             return SentinelPrincipal.Anonymous;
         }
+
+        /// <summary>
+        /// Authenticates the user using username only. This method is used to get new user claims after
+        /// a refresh token has been used. You can therefore assume that the user is already logged in.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <returns>The user principal.</returns>
+        public async Task<ISentinelPrincipal> AuthenticateUserAsync(string username)
+        {
+            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, username)));
+        }
     }
 }
