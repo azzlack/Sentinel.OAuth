@@ -176,7 +176,7 @@ There is also a demo using `Dapper` and a vanilla SQL database in the [SqlServer
 
 ### Custom Client Manager
 There is a sample implementation using `Dapper` and SQL Server [here](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.ClientManagers.SqlServerClientManager).
-You can also use `NoSQL` databases for storing clients. You can find a sample [using RavenDB here](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.ClientManagers.RavenDbClientManager).
+You can also use `NoSQL` databases for storing clients. 
 
 ### Custom Token Manager
 - [Using `Dapper` and `SQL Server`](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.TokenManagers.SqlServerTokenRepository)
