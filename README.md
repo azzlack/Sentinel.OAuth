@@ -30,13 +30,18 @@ app.UseSentinelAuthorizationServer(
 In addition, you need to implement a `IUserManager` and a `IClientManager` for validating users and clients:
 
 ```csharp
-public class SimpleUserManager : IUserManager
+public class SimpleUserManager : BaseUserManager
 {
+    public SimpleUserManager(ICryptoProvider cryptoProvider)
+        : base(cryptoProvider)
+    {
+    }
+    
     /// <summary>Authenticates the user using username and password.</summary>
     /// <param name="username">The username.</param>
     /// <param name="password">The password.</param>
     /// <returns>The client principal.</returns>
-    public async Task<ISentinelPrincipal> AuthenticateUserWithPasswordAsync(string username, string password)
+    public async override Task<ISentinelPrincipal> AuthenticateUserWithPasswordAsync(string username, string password)
     {
         // Just return an authenticated principal with the username as name if the username matches the password
         if (username == password)
@@ -53,21 +58,26 @@ public class SimpleUserManager : IUserManager
     /// </summary>
     /// <param name="username">The username.</param>
     /// <returns>The user principal.</returns>
-    public async Task<ISentinelPrincipal> AuthenticateUserAsync(string username)
+    public async override Task<ISentinelPrincipal> AuthenticateUserAsync(string username)
     {
         return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, username)));
     }
 }
 
-public class SimpleClientManager : IClientManager 
+public class SimpleClientManager : BaseClientManager 
 {
+    public SimpleClientManager(ICryptoProvider cryptoProvider)
+        : base(cryptoProvider)
+    {
+    }
+    
     /// <summary>
     ///     Authenticates the client. Used when authenticating with the authorization_code grant type.
     /// </summary>
     /// <param name="clientId">The client id.</param>
     /// <param name="redirectUri">The redirect URI.</param>
     /// <returns>The client principal.</returns>
-    public async Task<ISentinelPrincipal> AuthenticateClientAsync(string clientId, string redirectUri)
+    public async override Task<ISentinelPrincipal> AuthenticateClientAsync(string clientId, string redirectUri)
     {
         // Just return an authenticated principal with the client id as name (allows all clients)
         return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
@@ -79,7 +89,7 @@ public class SimpleClientManager : IClientManager
     /// <param name="clientId">The client id.</param>
     /// <param name="scope">The redirect URI.</param>
     /// <returns>The client principal.</returns>
-    public async Task<ISentinelPrincipal> AuthenticateClientAsync(string clientId, IEnumerable<string> scope)
+    public async override Task<ISentinelPrincipal> AuthenticateClientAsync(string clientId, IEnumerable<string> scope)
     {
         // Just return an authenticated principal with the client id as name (allows all clients)
         return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
@@ -89,7 +99,7 @@ public class SimpleClientManager : IClientManager
     /// <param name="clientId">The client id.</param>
     /// <param name="clientSecret">The client secret.</param>
     /// <returns>The client principal.</returns>
-    public async Task<ISentinelPrincipal> AuthenticateClientCredentialsAsync(string clientId, string clientSecret)
+    public async override Task<ISentinelPrincipal> AuthenticateClientCredentialsAsync(string clientId, string clientSecret)
     {
         // Return an authenticated principal if the client secret matches the client id
         if (clientId == clientSecret)
@@ -166,9 +176,9 @@ There is also a demo using `Dapper` and a vanilla SQL database in the [SqlServer
 
 ### Custom Client Manager
 There is a sample implementation using `Dapper` and SQL Server [here](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.ClientManagers.SqlServerClientManager).
-You can also use `NoSQL` databases for storing clients. You can find a sample [using RavenDB here](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.ClientManagers.RavenDbClientManager).
+You can also use `NoSQL` databases for storing clients. 
 
-### Customer Token Manager
+### Custom Token Manager
 - [Using `Dapper` and `SQL Server`](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.TokenManagers.SqlServerTokenRepository)
 - [Using `RavenDb`](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.TokenManagers.RavenDbTokenRepository)
 - [Using `Redis`](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.TokenManagers.RedisTokenRepository)
