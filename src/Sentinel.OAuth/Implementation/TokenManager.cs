@@ -219,7 +219,7 @@
             }
 
             // Delete all expired access tokens as well as access tokens for the specified client id, user and redirect uri to prevent exploitation
-            await this.TokenRepository.DeleteAccessTokens(clientId, redirectUri, userPrincipal.Identity.Name);
+            await this.TokenRepository.DeleteAccessToken(clientId, redirectUri, userPrincipal.Identity.Name);
             await this.TokenRepository.DeleteAccessTokens(DateTime.UtcNow);
 
             // Remove unnecessary claims from principal
@@ -266,7 +266,7 @@
             }
 
             // Delete all expired refresh tokens as well as refresh tokens for the specified client id, user and redirect uri to prevent exploitation
-            await this.TokenRepository.DeleteRefreshTokens(clientId, redirectUri, userPrincipal.Identity.Name);
+            await this.TokenRepository.DeleteRefreshToken(clientId, redirectUri, userPrincipal.Identity.Name);
             await this.TokenRepository.DeleteRefreshTokens(DateTime.UtcNow);
 
             // Remove unnecessary claims from principal

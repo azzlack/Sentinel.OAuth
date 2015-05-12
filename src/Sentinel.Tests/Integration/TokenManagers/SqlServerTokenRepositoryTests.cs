@@ -140,7 +140,7 @@
         }
 
         [Test]
-        public async void AuthenticateAccessToken_WhenGivenUsingExpiredToken_ReturnsNotAuthenticatedIdentity()
+        public async void AuthenticateAccessToken_WhenUsingExpiredToken_ReturnsNotAuthenticatedIdentity()
         {
             var token =
                 await
@@ -203,7 +203,7 @@
         }
 
         [Test]
-        public async void AuthenticateRefreshToken_WhenGivenUsingExpiredToken_ReturnsNotAuthenticatedIdentity()
+        public async void AuthenticateRefreshToken_WhenUsingExpiredToken_ReturnsNotAuthenticatedIdentity()
         {
             var token =
                 await

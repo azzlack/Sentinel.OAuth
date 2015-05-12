@@ -63,7 +63,7 @@
         }
 
         /// <summary>
-        /// Deletes the authorization codes that belongs to the specified client, redirect uri and user
+        /// Deletes the authorization code that belongs to the specified client, redirect uri and user
         /// combination. Called when creating an authorization code to prevent duplicate authorization
         /// codes.
         /// </summary>
@@ -71,7 +71,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="userId">Identifier for the user.</param>
         /// <returns>The number of deleted codes.</returns>
-        public async Task<int> DeleteAuthorizationCodes(string clientId, string redirectUri, string userId)
+        public async Task<bool> DeleteAuthorizationCodes(string clientId, string redirectUri, string userId)
         {
             using (var session = this.OpenAsyncSession())
             {
@@ -89,7 +89,7 @@
                     await session.SaveChangesAsync();
                 }
 
-                return i;
+                return i == 1;
             }
         }
 
@@ -176,14 +176,14 @@
         }
 
         /// <summary>
-        /// Deletes the access tokens that belongs to the specified client, redirect uri and user
+        /// Deletes the access token that belongs to the specified client, redirect uri and user
         /// combination. Called when creating an access token to prevent duplicate access tokens.
         /// </summary>
         /// <param name="clientId">Identifier for the client.</param>
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteAccessTokens(string clientId, string redirectUri, string userId)
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteAccessToken(string clientId, string redirectUri, string userId)
         {
             using (var session = this.OpenAsyncSession())
             {
@@ -201,7 +201,7 @@
                     await session.SaveChangesAsync();
                 }
 
-                return i;
+                return i == 1;
             }
         }
 
@@ -264,14 +264,14 @@
         }
 
         /// <summary>
-        /// Deletes the refresh tokens that belongs to the specified client, redirect uri and user
+        /// Deletes the refresh token that belongs to the specified client, redirect uri and user
         /// combination. Called when creating a refresh token to prevent duplicate refresh tokens.
         /// </summary>
         /// <param name="clientId">Identifier for the client.</param>
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteRefreshTokens(string clientId, string redirectUri, string userId)
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteRefreshToken(string clientId, string redirectUri, string userId)
         {
             using (var session = this.OpenAsyncSession())
             {
@@ -289,7 +289,7 @@
                     await session.SaveChangesAsync();
                 }
 
-                return i;
+                return i == 1;
             }
         }
 

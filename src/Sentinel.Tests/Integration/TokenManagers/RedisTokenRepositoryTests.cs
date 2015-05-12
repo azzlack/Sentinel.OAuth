@@ -2,6 +2,7 @@
 {
     using System;
     using System.Configuration;
+    using System.Diagnostics;
     using System.Security.Claims;
     using System.Threading.Tasks;
 
@@ -40,7 +41,7 @@
                 userManager.Object,
                 new PrincipalProvider(new PBKDF2CryptoProvider()), 
                 new PBKDF2CryptoProvider(), 
-                new RedisTokenRepository(new RedisTokenRepositoryConfiguration(ConfigurationManager.AppSettings["RedisHost"], 4)));
+                new RedisTokenRepository(new RedisTokenRepositoryConfiguration(ConfigurationManager.AppSettings["RedisHost"], 4, "sentinel.oauth")));
         }
 
         [Test]
@@ -66,6 +67,12 @@
         [Test]
         public async void AuthenticateAuthorizationCode_WhenGivenUsingCodeTwice_ReturnsNotAuthenticatedIdentity()
         {
+            await
+                this.tokenManager.CreateAuthorizationCodeAsync(
+                    new SentinelPrincipal(
+                    new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "this one is expired"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                    TimeSpan.FromMinutes(-5),
+                    "http://localhost");
             var code =
                 await
                 this.tokenManager.CreateAuthorizationCodeAsync(
@@ -85,6 +92,8 @@
         [Test]
         public async void AuthenticateAccessToken_WhenGivenValidIdentity_ReturnsAuthenticatedIdentity()
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             var token =
                 await
                 this.tokenManager.CreateAccessTokenAsync(
@@ -94,17 +103,24 @@
                     "NUnit", 
                     "http://localhost");
 
+            stopwatch.Stop();
+            Console.WriteLine("##teamcity[buildStatisticValue key='Redis.CreateAccessTokenAsync' value='{0}']", stopwatch.ElapsedMilliseconds);
+
             Console.WriteLine("Token: {0}", token);
 
             Assert.IsNotNullOrEmpty(token);
 
+            stopwatch.Restart();
             var user = await this.tokenManager.AuthenticateAccessTokenAsync(token);
+
+            stopwatch.Stop();
+            Console.WriteLine("##teamcity[buildStatisticValue key='Redis.AuthenticateAccessTokenAsync' value='{0}']", stopwatch.ElapsedMilliseconds);
 
             Assert.IsTrue(user.Identity.IsAuthenticated);
         }
 
         [Test]
-        public async void AuthenticateAccessToken_WhenGivenUsingExpiredToken_ReturnsNotAuthenticatedIdentity()
+        public async void AuthenticateAccessToken_WhenUsingExpiredToken_ReturnsNotAuthenticatedIdentity()
         {
             var token =
                 await
@@ -146,7 +162,7 @@
         }
 
         [Test]
-        public async void AuthenticateRefreshToken_WhenGivenUsingExpiredToken_ReturnsNotAuthenticatedIdentity()
+        public async void AuthenticateRefreshToken_WhenUsingExpiredToken_ReturnsNotAuthenticatedIdentity()
         {
             var token =
                 await

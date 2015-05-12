@@ -83,7 +83,7 @@
         }
 
         /// <summary>
-        /// Deletes the authorization codes that belongs to the specified client, redirect uri and user
+        /// Deletes the authorization code that belongs to the specified client, redirect uri and user
         /// combination. Called when creating an authorization code to prevent duplicate authorization
         /// codes.
         /// </summary>
@@ -91,7 +91,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="userId">Identifier for the user.</param>
         /// <returns>The number of deleted codes.</returns>
-        public async Task<int> DeleteAuthorizationCodes(string clientId, string redirectUri, string userId)
+        public async Task<bool> DeleteAuthorizationCodes(string clientId, string redirectUri, string userId)
         {
             using (var connection = this.OpenConnection())
             {
@@ -101,7 +101,7 @@
                         "DELETE FROM AuthorizationCodes WHERE ClientId = @ClientId AND RedirectUri = @RedirectUri AND Subject = @Subject",
                         new { ClientId = clientId, RedirectUri = redirectUri, Subject = userId });
 
-                return rows;
+                return rows == 1;
             }
         }
 
@@ -196,14 +196,14 @@
         }
 
         /// <summary>
-        /// Deletes the access tokens that belongs to the specified client, redirect uri and user
+        /// Deletes the access token that belongs to the specified client, redirect uri and user
         /// combination. Called when creating an access token to prevent duplicate access tokens.
         /// </summary>
         /// <param name="clientId">Identifier for the client.</param>
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="userId">Identifier for the user.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteAccessTokens(string clientId, string redirectUri, string userId)
+        public async Task<bool> DeleteAccessToken(string clientId, string redirectUri, string userId)
         {
             using (var connection = this.OpenConnection())
             {
@@ -213,7 +213,7 @@
                         "DELETE FROM AccessTokens WHERE ClientId = @ClientId AND RedirectUri = @RedirectUri AND Subject = @Subject",
                         new { ClientId = clientId, RedirectUri = redirectUri, Subject = userId });
 
-                return rows;
+                return rows == 1;
             }
         }
 
@@ -287,14 +287,14 @@
         }
 
         /// <summary>
-        /// Deletes the refresh tokens that belongs to the specified client, redirect uri and user
+        /// Deletes the refresh token that belongs to the specified client, redirect uri and user
         /// combination. Called when creating a refresh token to prevent duplicate refresh tokens.
         /// </summary>
         /// <param name="clientId">Identifier for the client.</param>
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="userId">Identifier for the user.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteRefreshTokens(string clientId, string redirectUri, string userId)
+        public async Task<bool> DeleteRefreshToken(string clientId, string redirectUri, string userId)
         {
             using (var connection = this.OpenConnection())
             {
@@ -304,7 +304,7 @@
                         "DELETE FROM RefreshTokens WHERE ClientId = @ClientId AND RedirectUri = @RedirectUri AND Subject = @Subject",
                         new { ClientId = clientId, RedirectUri = redirectUri, Subject = userId });
 
-                return rows;
+                return rows == 1;
             }
         }
 

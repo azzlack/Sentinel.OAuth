@@ -62,10 +62,10 @@
             var token1 = await this.tokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost" });
             var token2 = await this.tokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit2", RedirectUri = "http://localhost" });
 
-            var deleteResult = await this.tokenRepository.DeleteAccessTokens(token1.ClientId, token1.RedirectUri, token1.Subject);
+            var deleteResult = await this.tokenRepository.DeleteAccessToken(token1.ClientId, token1.RedirectUri, token1.Subject);
             var accessTokens = await this.tokenRepository.GetAccessTokens(DateTime.UtcNow.AddMinutes(1));
 
-            Assert.Greater(deleteResult, 0);
+            Assert.IsTrue(deleteResult);
             Assert.AreEqual(0, accessTokens.Count());
         }
 
