@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Sentinel.OAuth.TokenManagers.Redis</id>
+    <version>1.0.0</version>
+    <title>Redis Token Manager for Sentinel</title>
+    <authors>Ove Andersen</authors>
+    <owners>EyeCatch</owners>
+    <licenseUrl>http://www.eyecatch.no/licenses/apache-20/</licenseUrl>
+    <projectUrl>https://github.com/azzlack/Sentinel.OAuth</projectUrl>
+    <iconUrl>http://www.eyecatch.no/favicon.ico</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A token manager for Sentinel based on Redis.</description>
+    <summary>A token manager for Sentinel based on Redis.</summary>
+	<releaseNotes></releaseNotes>
+    <copyright>Copyright EyeCatch 2015</copyright>
+    <language>en-US</language>
+    <tags>oauth webapi security authentication authorization eyecatch redis tokens</tags>
+    <dependencies>
+      <dependency id="StackExchange.Redis" version="1.0.0" />
+      <dependency id="FastMember" version="1.0.0" />
+      <dependency id="Newtonsoft.Json" version="6.0.0" />
+      <dependency id="Sentinel.OAuth" version="1.1.0" />
+    </dependencies> 
+  </metadata>
+  <files>
+	<file src="..\..\src\Sentinel.OAuth.TokenManagers.RedisTokenRepository\bin\Release\Sentinel.OAuth.TokenManagers.RedisTokenRepository.dll" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.TokenManagers.RedisTokenRepository\bin\Release\Sentinel.OAuth.TokenManagers.RedisTokenRepository.pdb" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.TokenManagers.RedisTokenRepository\**\*.cs" exclude="**\obj\**\*.*" target="src" />
+  </files>
+</package>

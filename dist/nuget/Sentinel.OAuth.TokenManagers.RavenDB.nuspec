@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Sentinel.OAuth.TokenManagers.RavenDB</id>
+    <version>1.0.0</version>
+    <title>RavenDB Token Manager for Sentinel</title>
+    <authors>Ove Andersen</authors>
+    <owners>EyeCatch</owners>
+    <licenseUrl>http://www.eyecatch.no/licenses/apache-20/</licenseUrl>
+    <projectUrl>https://github.com/azzlack/Sentinel.OAuth</projectUrl>
+    <iconUrl>http://www.eyecatch.no/favicon.ico</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A token manager for Sentinel based on RavenDB.</description>
+    <summary>A token manager for Sentinel based on RavenDB.</summary>
+	<releaseNotes></releaseNotes>
+    <copyright>Copyright EyeCatch 2015</copyright>
+    <language>en-US</language>
+    <tags>oauth webapi security authentication authorization eyecatch ravendb tokens</tags>
+    <dependencies>
+      <dependency id="RavenDB.Client" version="3.0.0" />
+      <dependency id="Sentinel.OAuth" version="1.1.0" />
+    </dependencies> 
+  </metadata>
+  <files>
+	<file src="..\..\src\Sentinel.OAuth.TokenManagers.RavenDbTokenRepository\bin\Release\Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.dll" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.TokenManagers.RavenDbTokenRepository\bin\Release\Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.pdb" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.TokenManagers.RavenDbTokenRepository\**\*.cs" exclude="**\obj\**\*.*" target="src" />
+  </files>
+</package>
