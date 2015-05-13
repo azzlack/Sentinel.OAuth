@@ -34,7 +34,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="userId">Identifier for the user.</param>
         /// <returns>The number of deleted codes.</returns>
-        Task<bool> DeleteAuthorizationCodes(string clientId, string redirectUri, string userId);
+        Task<bool> DeleteAuthorizationCode(string clientId, string redirectUri, string userId);
 
         /// <summary>
         /// Deletes the authorization codes that expires before the specified expire date.

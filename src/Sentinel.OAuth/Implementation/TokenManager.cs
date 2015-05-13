@@ -163,7 +163,7 @@
             }
 
             // Delete all authorization codes for the specified user, client id, redirect uri to prevent exploitation
-            await this.TokenRepository.DeleteAuthorizationCodes(client.Value, redirectUri, userPrincipal.Identity.Name);
+            await this.TokenRepository.DeleteAuthorizationCode(client.Value, redirectUri, userPrincipal.Identity.Name);
             await this.TokenRepository.DeleteAuthorizationCodes(DateTime.UtcNow);
 
             // Remove unnecessary claims from principal

@@ -83,7 +83,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="userId">Identifier for the user.</param>
         /// <returns>The number of deleted codes.</returns>
-        public async Task<bool> DeleteAuthorizationCodes(string clientId, string redirectUri, string userId)
+        public async Task<bool> DeleteAuthorizationCode(string clientId, string redirectUri, string userId)
         {
             var i = 0;
             var tokens = this.authorizationCodes.Where(x => x.Value.ClientId == clientId && x.Value.RedirectUri == redirectUri && x.Value.Subject == userId).ToList();
