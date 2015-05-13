@@ -15,6 +15,9 @@ This project aims to simplify the work with setting up OAuth on a WebAPI applica
 - Supports authorization codes and refresh tokens out of the box
 - Easy to extend and configure
 
+## Contributing
+To make contributions to this project, please fork the `develop` branch and make your pull request against the `develop` branch.
+
 ## Setting up
 ### The easy way
 In its simplest form `Sentinel` only requires the following code in your OWIN Startup class to work:
