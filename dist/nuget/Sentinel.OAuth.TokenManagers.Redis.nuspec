@@ -20,7 +20,7 @@
       <dependency id="StackExchange.Redis" version="1.0.0" />
       <dependency id="FastMember" version="1.0.0" />
       <dependency id="Newtonsoft.Json" version="6.0.0" />
-      <dependency id="Sentinel.OAuth" version="1.1.0" />
+      <dependency id="Sentinel.OAuth" version="1.2.0" />
     </dependencies> 
   </metadata>
   <files>
