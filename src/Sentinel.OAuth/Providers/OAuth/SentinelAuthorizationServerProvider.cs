@@ -261,8 +261,15 @@
         {
             this.options.Logger.DebugFormat("Authenticating resource owner flow for user '{0}'", context.UserName);
 
-            // Enable cors on authenticate requests
-            context.OwinContext.Response.Headers.Add("Access-Control-Allow-Origin", new[] { "*" });
+            // Enable cors on authenticate requests, as they will always be from another server
+            if (context.OwinContext.Response.Headers["Access-Control-Allow-Origin"] == null)
+            {
+                context.OwinContext.Response.Headers.Add("Access-Control-Allow-Origin", new[] { "*" });
+            }
+            else
+            {
+                context.OwinContext.Response.Headers.Set("Access-Control-Allow-Origin", "*");
+            }
 
             var user = await this.options.UserManager.AuthenticateUserWithPasswordAsync(context.UserName, context.Password);
 
