@@ -10,7 +10,6 @@
     using Newtonsoft.Json;
 
     using Sentinel.OAuth.Client.Interfaces;
-    using Sentinel.OAuth.Core.Constants.OAuth;
     using Sentinel.OAuth.Core.Models.OAuth;
 
     /// <summary>OAuth client for Sentinel.</summary>
@@ -30,11 +29,6 @@
         private readonly HttpClientHandler handler;
 
         /// <summary>
-        /// The http client
-        /// </summary>
-        private readonly HttpClient client;
-
-        /// <summary>
         ///     Initializes a new instance of the Sentinel.OAuth.Client.SentinelOAuthClient class.
         /// </summary>
         /// <param name="settings">Options for controlling the operation.</param>
@@ -49,13 +43,18 @@
                 UseCookies = true,
                 AllowAutoRedirect = false
             };
-            this.client = new HttpClient(this.handler) { BaseAddress = settings.Url };
+            this.Client = new HttpClient(this.handler) { BaseAddress = settings.Url };
         }
+
+        /// <summary>
+        /// Gets the http client
+        /// </summary>
+        public HttpClient Client { get; private set; }
 
         /// <summary>Authenticates the current client and returns an access token.</summary>
         /// <exception cref="Exception">Thrown when an exception error condition occurs.</exception>
         /// <returns>The access token.</returns>
-        public async Task<AccessTokenResponse> Authenticate()
+        public virtual async Task<AccessTokenResponse> Authenticate()
         {
             // Get access token. 
             var accessTokenRequest = new AccessTokenRequest()
@@ -70,7 +69,7 @@
                               };
             request.Headers.Authorization = new BasicAuthenticationHeaderValue(this.settings.ClientId, this.settings.ClientSecret);
 
-            var response = await this.client.SendAsync(request);
+            var response = await this.Client.SendAsync(request);
 
             if (response.IsSuccessStatusCode) 
             {
@@ -85,7 +84,7 @@
         /// <param name="userName">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>The access token.</returns>
-        public async Task<AccessTokenResponse> Authenticate(string userName, string password)
+        public virtual async Task<AccessTokenResponse> Authenticate(string userName, string password)
         {
             // Get access token
             var accessTokenRequest = new AccessTokenRequest()
@@ -102,7 +101,7 @@
             };
             accessTokenRequestMessage.Headers.Authorization = new BasicAuthenticationHeaderValue(this.settings.ClientId, this.settings.ClientSecret);
 
-            var accessTokenResponseMessage = await this.client.SendAsync(accessTokenRequestMessage);
+            var accessTokenResponseMessage = await this.Client.SendAsync(accessTokenRequestMessage);
 
             if (accessTokenResponseMessage.IsSuccessStatusCode)
             {
@@ -118,7 +117,7 @@
         /// <exception cref="Exception">Thrown when an exception error condition occurs.</exception>
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns>The access token.</returns>
-        public async Task<AccessTokenResponse> RefreshAuthentication(string refreshToken)
+        public virtual async Task<AccessTokenResponse> RefreshAuthentication(string refreshToken)
         {
             // Get access token
             var accessTokenRequest = new AccessTokenRequest()
@@ -137,7 +136,7 @@
                 Convert.ToBase64String(
                     Encoding.UTF8.GetBytes(string.Format("{0}:{1}", this.settings.ClientId, this.settings.ClientSecret))));
 
-            var response = await this.client.SendAsync(request);
+            var response = await this.Client.SendAsync(request);
 
             if (response.IsSuccessStatusCode)
             {
@@ -149,19 +148,19 @@
 
         /// <summary>Gets the cookies.</summary>
         /// <returns>A list of cookies.</returns>
-        public async Task<CookieCollection> GetCookies()
+        public virtual async Task<CookieCollection> GetCookies()
         {
-            return this.cookieContainer.GetCookies(this.client.BaseAddress);
+            return this.cookieContainer.GetCookies(this.Client.BaseAddress);
         }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         /// <filterpriority>2</filterpriority>
-        public void Dispose()
+        public virtual void Dispose()
         {
             this.handler.Dispose();
-            this.client.Dispose();
+            this.Client.Dispose();
         }
     }
 }
