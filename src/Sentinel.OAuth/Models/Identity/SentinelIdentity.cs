@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Linq.Expressions;
     using System.Security.Claims;
     using System.Security.Principal;
 
@@ -258,11 +257,11 @@
 
         /// <summary>Removes the claim matching the expression.</summary>
         /// <param name="expression">The expression.</param>
-        public void RemoveClaim(Expression<Func<ISentinelClaim, bool>> expression)
+        public void RemoveClaim(Func<ISentinelClaim, bool> expression)
         {
             lock (this.locker)
             {
-                var claim = this.Claims.FirstOrDefault(expression.Compile());
+                var claim = this.Claims.FirstOrDefault(expression);
 
                 if (claim != null)
                 {
@@ -274,12 +273,19 @@
             }
         }
 
+        /// <summary>Converts this object to a JSON string.</summary>
+        /// <returns>This object as a JSON string.</returns>
+        public string ToJson()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+
         /// <summary>Runs the specified expression against the claimset and returns true if it contains a claim matching the predicate.</summary>
         /// <param name="expression">The expression.</param>
         /// <returns><c>true</c> if the claim exists, <c>false</c> if not.</returns>
-        public bool HasClaim(Expression<Func<ISentinelClaim, bool>> expression)
+        public bool HasClaim(Func<ISentinelClaim, bool> expression)
         {
-            return this.Claims.Any(expression.Compile());
+            return this.Claims.Any(expression);
         }
 
         /// <summary>

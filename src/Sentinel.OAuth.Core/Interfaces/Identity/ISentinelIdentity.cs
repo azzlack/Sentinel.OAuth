@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using System.Security.Principal;
 
     /// <summary>Defines basic funcitonality for an Identity object.</summary>
@@ -15,7 +14,7 @@
         /// <summary>Runs the specified expression against the claimset and returns true if it contains a claim matching the predicate.</summary>
         /// <param name="expression">The expression.</param>
         /// <returns><c>true</c> if the claim exists, <c>false</c> if not.</returns>
-        bool HasClaim(Expression<Func<ISentinelClaim, bool>> expression);
+        bool HasClaim(Func<ISentinelClaim, bool> expression);
 
         /// <summary>
         /// Checks if this identity contains any claims matching the specified type and value.
@@ -36,6 +35,10 @@
 
         /// <summary>Removes the claim matching the expression.</summary>
         /// <param name="expression">The expression.</param>
-        void RemoveClaim(Expression<Func<ISentinelClaim, bool>> expression);
+        void RemoveClaim(Func<ISentinelClaim, bool> expression);
+
+        /// <summary>Converts this object to a JSON string.</summary>
+        /// <returns>This object as a JSON string.</returns>
+        string ToJson();
     }
 }
