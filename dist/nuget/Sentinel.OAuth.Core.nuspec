@@ -19,6 +19,7 @@ Use this if you want to develop an extension.</description>
     <language>en-US</language>
     <tags>oauth webapi security authentication authorization eyecatch</tags>
     <dependencies>
+	  <dependency id="Common.Logging.Core" version="3.1.0" />
       <dependency id="Newtonsoft.Json" version="6.0.0" />
     </dependencies> 
   </metadata>
