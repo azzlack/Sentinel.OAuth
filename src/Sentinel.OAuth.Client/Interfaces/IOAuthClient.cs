@@ -3,7 +3,6 @@
     using System.Net;
     using System.Threading.Tasks;
 
-    using Sentinel.OAuth.Core.Constants.OAuth;
     using Sentinel.OAuth.Core.Models.OAuth;
 
     /// <summary>Interface for OAuth clients.</summary>

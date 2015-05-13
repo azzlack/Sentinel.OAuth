@@ -15,9 +15,6 @@
     /// <summary>OAuth client for Sentinel.</summary>
     public class SentinelOAuthClient : IOAuthClient, IDisposable
     {
-        /// <summary>Options for controlling the operation.</summary>
-        private readonly ISentinelClientSettings settings;
-
         /// <summary>
         /// The cookie container
         /// </summary>
@@ -34,7 +31,7 @@
         /// <param name="settings">Options for controlling the operation.</param>
         public SentinelOAuthClient(ISentinelClientSettings settings)
         {
-            this.settings = settings;
+            this.Settings = settings;
 
             this.cookieContainer = new CookieContainer();
             this.handler = new HttpClientHandler()
@@ -51,6 +48,10 @@
         /// </summary>
         public HttpClient Client { get; private set; }
 
+        /// <summary>Gets the settings.</summary>
+        /// <value>The settings.</value>
+        public ISentinelClientSettings Settings { get; private set; }
+
         /// <summary>Authenticates the current client and returns an access token.</summary>
         /// <exception cref="Exception">Thrown when an exception error condition occurs.</exception>
         /// <returns>The access token.</returns>
@@ -59,7 +60,7 @@
             // Get access token. 
             var accessTokenRequest = new AccessTokenRequest()
             {
-                Scope = this.settings.RedirectUri,
+                Scope = this.Settings.RedirectUri,
                 GrantType = "client_credentials"
             };
 
@@ -67,7 +68,7 @@
                               {
                                   Content = new FormUrlEncodedContent(accessTokenRequest.Properties)
                               };
-            request.Headers.Authorization = new BasicAuthenticationHeaderValue(this.settings.ClientId, this.settings.ClientSecret);
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue(this.Settings.ClientId, this.Settings.ClientSecret);
 
             var response = await this.Client.SendAsync(request);
 
@@ -91,7 +92,7 @@
             {
                 Username = userName,
                 Password = password,
-                RedirectUri = this.settings.RedirectUri,
+                RedirectUri = this.Settings.RedirectUri,
                 GrantType = "password"
             };
 
@@ -99,7 +100,7 @@
             {
                 Content = new FormUrlEncodedContent(accessTokenRequest.Properties)
             };
-            accessTokenRequestMessage.Headers.Authorization = new BasicAuthenticationHeaderValue(this.settings.ClientId, this.settings.ClientSecret);
+            accessTokenRequestMessage.Headers.Authorization = new BasicAuthenticationHeaderValue(this.Settings.ClientId, this.Settings.ClientSecret);
 
             var accessTokenResponseMessage = await this.Client.SendAsync(accessTokenRequestMessage);
 
@@ -123,7 +124,7 @@
             var accessTokenRequest = new AccessTokenRequest()
             {
                 RefreshToken = refreshToken,
-                RedirectUri = this.settings.RedirectUri,
+                RedirectUri = this.Settings.RedirectUri,
                 GrantType = "refresh_token"
             };
 
@@ -134,7 +135,7 @@
             request.Headers.Authorization = new AuthenticationHeaderValue(
                 "Basic",
                 Convert.ToBase64String(
-                    Encoding.UTF8.GetBytes(string.Format("{0}:{1}", this.settings.ClientId, this.settings.ClientSecret))));
+                    Encoding.UTF8.GetBytes(string.Format("{0}:{1}", this.Settings.ClientId, this.Settings.ClientSecret))));
 
             var response = await this.Client.SendAsync(request);
 
