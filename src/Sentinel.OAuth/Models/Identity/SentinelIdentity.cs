@@ -26,15 +26,6 @@
         /// <summary>The claims.</summary>
         private IEnumerable<ISentinelClaim> claims;
 
-        /// <summary>
-        ///     Prevents a default instance of the Sentinel.OAuth.Core.Models.Identity.SentinelIdentity
-        ///     class from being created.
-        /// </summary>
-        [JsonConstructor]
-        private SentinelIdentity()
-        {
-        }
-
         /// <summary>Initializes a new instance of the <see cref="SentinelIdentity"/> class.</summary>
         /// <param name="authenticationType">The type of the authentication.</param>
         public SentinelIdentity(string authenticationType)
@@ -43,11 +34,13 @@
             this.Claims = new List<ISentinelClaim>();
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SentinelIdentity"/> class.
-        /// </summary>
+        /// <summary>Initializes a new instance of the <see cref="SentinelIdentity"/> class.</summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when one or more required arguments are null.
+        /// </exception>
+        /// <param name="authenticationType">The type of the authentication.</param>
         /// <param name="identity">The identity.</param>
-        public SentinelIdentity(IIdentity identity)
+        public SentinelIdentity(string authenticationType, IIdentity identity)
         {
             if (identity == null)
             {
@@ -55,7 +48,7 @@
             }
 
             this.Name = identity.Name;
-            this.AuthenticationType = identity.AuthenticationType;
+            this.AuthenticationType = authenticationType;
 
             var claimsIdentity = identity as ClaimsIdentity;
 
@@ -66,10 +59,29 @@
                     this.AddClaim(claim);
                 }
             }
+
+            var sentinelIdentity = identity as SentinelIdentity;
+
+            if (sentinelIdentity != null)
+            {
+                foreach (var claim in sentinelIdentity.Claims)
+                {
+                    this.AddClaim(claim);
+                }
+            }
         }
 
         /// <summary>
-        ///     Initializes a new instance of the Sentinel.OAuth.Core.Models.Identity.JsonIdentity class.
+        /// Initializes a new instance of the <see cref="SentinelIdentity"/> class.
+        /// </summary>
+        /// <param name="identity">The identity.</param>
+        public SentinelIdentity(IIdentity identity)
+            : this(identity.AuthenticationType, identity)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the SentinelIdentity class.
         /// </summary>
         /// <exception cref="System.ArgumentNullException">
         ///     Thrown when one or more required arguments are null.
@@ -93,14 +105,56 @@
         }
 
         /// <summary>
-        /// Gets or sets the type of the authentication.
+        ///     Initializes a new instance of the SentinelIdentity class.
+        /// </summary>
+        /// <exception cref="System.ArgumentNullException">
+        ///     Thrown when one or more required arguments are null.
+        /// </exception>
+        /// <param name="authenticationType">The type of the authentication.</param>
+        /// <param name="claims">The claims.</param>
+        public SentinelIdentity(string authenticationType, IEnumerable<ISentinelClaim> claims)
+            : this(authenticationType, claims.ToArray())
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the SentinelIdentity class.
+        /// </summary>
+        /// <param name="authenticationType">The type of the authentication.</param>
+        /// <param name="claims">The claims.</param>
+        public SentinelIdentity(string authenticationType, IEnumerable<Claim> claims)
+            : this(authenticationType, claims.Select(x => new SentinelClaim(x)))
+        {
+        }
+
+        /// <summary>
+        /// Prevents a default instance of the SentinelIdentity
+        /// class from being created.
+        /// </summary>
+        [JsonConstructor]
+        private SentinelIdentity()
+        {
+        }
+
+        /// <summary>Gets an unauthorized/anonymous Sentinel identity object.</summary>
+        /// <value>An unauthorized/anonymous Sentinel identity object.</value>
+        public static ISentinelIdentity Anonymous
+        {
+            get
+            {
+                return new SentinelIdentity();
+            }
+        }
+
+        /// <summary>
+        /// Gets the type of the authentication.
         /// </summary>
         /// <value>The type of the authentication.</value>
         [JsonProperty]
         public string AuthenticationType { get; private set; }
 
         /// <summary>
-        /// Gets or sets the claims.
+        /// Gets the claims.
         /// </summary>
         /// <value>The claims.</value>
         [JsonProperty]
@@ -119,8 +173,8 @@
         }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether this instance is authenticated.
-        ///     For this value to be true, both AuthenticationType and Name must set to a non-null value.
+        /// Gets a value indicating whether this instance is authenticated.
+        /// For this value to be true, both AuthenticationType and Name must set to a non-null value.
         /// </summary>
         /// <value><c>true</c> if this instance is authenticated; otherwise, <c>false</c>.</value>
         public bool IsAuthenticated
@@ -132,7 +186,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the name.
+        /// Gets the name.
         /// </summary>
         /// <value>The name.</value>
         [JsonProperty]
@@ -157,16 +211,6 @@
             private set
             {
                 this.name = value;
-            }
-        }
-
-        /// <summary>Gets an unauthorized/anonymous Sentinel identity object.</summary>
-        /// <value>An unauthorized/anonymous Sentinel identity object.</value>
-        public static ISentinelIdentity Anonymous
-        {
-            get
-            {
-                return new SentinelIdentity();
             }
         }
 
@@ -236,6 +280,17 @@
         public bool HasClaim(Expression<Func<ISentinelClaim, bool>> expression)
         {
             return this.Claims.Any(expression.Compile());
+        }
+
+        /// <summary>
+        /// Checks if this identity contains any claims matching the specified type and value.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="value">The value.</param>
+        /// <returns><c>true</c> if the claim exists, <c>false</c> if not.</returns>
+        public bool HasClaim(string type, string value)
+        {
+            return this.Claims.Any(x => x.Type == type && x.Value == value);
         }
 
         /// <summary>
