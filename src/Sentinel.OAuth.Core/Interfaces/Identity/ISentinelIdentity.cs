@@ -17,6 +17,14 @@
         /// <returns><c>true</c> if the claim exists, <c>false</c> if not.</returns>
         bool HasClaim(Expression<Func<ISentinelClaim, bool>> expression);
 
+        /// <summary>
+        /// Checks if this identity contains any claims matching the specified type and value.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="value">The value.</param>
+        /// <returns><c>true</c> if the claim exists, <c>false</c> if not.</returns>
+        bool HasClaim(string type, string value);
+
         /// <summary>Adds a claim.</summary>
         /// <param name="type">The type.</param>
         /// <param name="value">The value.</param>
