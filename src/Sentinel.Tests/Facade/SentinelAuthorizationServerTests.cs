@@ -18,6 +18,7 @@
 
     using Sentinel.OAuth.Client;
     using Sentinel.OAuth.Core.Constants.OAuth;
+    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Models.Identity;
 
     public class SentinelAuthorizationServerTests

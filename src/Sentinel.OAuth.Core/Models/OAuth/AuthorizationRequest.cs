@@ -1,4 +1,4 @@
-﻿namespace Sentinel.OAuth.Core.Constants.OAuth
+﻿namespace Sentinel.OAuth.Core.Models.OAuth
 {
     using System.Diagnostics;
 

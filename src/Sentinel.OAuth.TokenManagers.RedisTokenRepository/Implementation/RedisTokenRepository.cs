@@ -7,11 +7,8 @@
     using System.Text;
     using System.Threading.Tasks;
 
-    using Newtonsoft.Json;
-
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.Models.OAuth;
     using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Extensions;
     using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models;
 

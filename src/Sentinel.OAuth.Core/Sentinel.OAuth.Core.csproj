@@ -84,12 +84,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants\Identity\ClaimType.cs" />
-    <Compile Include="Constants\OAuth\AccessTokenRequest.cs" />
-    <Compile Include="Constants\OAuth\AccessTokenResponse.cs" />
+    <Compile Include="Models\OAuth\AccessTokenRequest.cs" />
+    <Compile Include="Models\OAuth\AccessTokenResponse.cs" />
     <Compile Include="Constants\Identity\AuthenticationType.cs" />
-    <Compile Include="Constants\OAuth\AuthorizationRequest.cs" />
-    <Compile Include="Constants\OAuth\AuthorizationResponse.cs" />
-    <Compile Include="Constants\OAuth\ErrorResponse.cs" />
+    <Compile Include="Models\OAuth\AuthorizationRequest.cs" />
+    <Compile Include="Models\OAuth\AuthorizationResponse.cs" />
+    <Compile Include="Models\OAuth\ErrorResponse.cs" />
     <Compile Include="Constants\OAuth\GrantType.cs" />
     <Compile Include="Interfaces\Identity\ISentinelClaim.cs" />
     <Compile Include="Interfaces\Identity\ISentinelIdentity.cs" />

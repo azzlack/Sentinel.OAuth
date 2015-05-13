@@ -1,7 +1,6 @@
-﻿namespace Sentinel.OAuth.Core.Constants.OAuth
+﻿namespace Sentinel.OAuth.Core.Models.OAuth
 {
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.Diagnostics;
     using System.Linq;
 
