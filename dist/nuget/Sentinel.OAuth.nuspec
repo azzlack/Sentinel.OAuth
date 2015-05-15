@@ -19,10 +19,10 @@ This package lets you add OAuth authentication to your API quickly and securely.
     <language>en-US</language>
     <tags>oauth webapi security authentication authorization eyecatch</tags>
     <dependencies>
-      <dependency id="Common.Logging" version="3.0.0" />
+      <dependency id="Common.Logging" version="3.1.0" />
       <dependency id="Microsoft.Owin.Security.OAuth" version="3.0.0" />
       <dependency id="Newtonsoft.Json" version="6.0.0" />
-      <dependency id="Sentinel.OAuth.Core" version="1.2.0" />
+      <dependency id="Sentinel.OAuth.Core" version="1.2.32" />
     </dependencies> 
   </metadata>
   <files>
