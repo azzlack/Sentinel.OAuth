@@ -37,12 +37,5 @@
         /// <value>The number of seconds until the token expires.</value>
         [JsonProperty("expires_in")]
         public double ExpiresIn { get; set; }
-
-        /// <summary>
-        /// Gets or sets the API key.
-        /// </summary>
-        /// <value>The API key.</value>
-        [JsonProperty("api_key", NullValueHandling = NullValueHandling.Ignore)]
-        public string ApiKey { get; set; }
     }
 }
