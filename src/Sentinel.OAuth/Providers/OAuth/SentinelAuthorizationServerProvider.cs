@@ -192,7 +192,7 @@
             {
                 this.options.Logger.DebugFormat("Authenticating token request using custom grant type");
 
-                this.options.Events.UnknownGrantTypeReceived(new UnknownGrantTypeReceivedEventArgs(context));
+                await this.options.Events.UnknownGrantTypeReceived(new UnknownGrantTypeReceivedEventArgs(context));
             }
 
             await base.GrantCustomExtension(context);
@@ -289,7 +289,7 @@
             {
                 var args = new PrincipalCreatedEventArgs(user, context);
 
-                this.options.Events.PrincipalCreated(args);
+                await this.options.Events.PrincipalCreated(args);
 
                 user = new SentinelPrincipal(args.Principal);
             } 
@@ -354,7 +354,7 @@
         {
             if (context.TokenIssued && this.options.Events.TokenIssued != null)
             {
-                this.options.Events.TokenIssued(new TokenIssuedEventArgs(context));
+                await this.options.Events.TokenIssued(new TokenIssuedEventArgs(context));
             }
 
             await base.TokenEndpointResponse(context);
