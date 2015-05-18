@@ -2,6 +2,7 @@
 {
     using System;
     using System.Security.Principal;
+    using System.Threading.Tasks;
 
     public class SentinelAuthorizationServerEvents
     {
@@ -10,19 +11,19 @@
         /// Use this event to do any special handling after the user has authenticated.
         /// </summary>
         /// <example>Set an authentication cookie to log in with token and cookie at the same time.</example>
-        public Action<TokenIssuedEventArgs> TokenIssued;
+        public Func<TokenIssuedEventArgs, Task> TokenIssued;
 
         /// <summary>
         /// Activated when the user is logged in and the principal is created. Use this event to add any
         /// custom claims to the user before the token is created.
         /// </summary>
-        public Action<PrincipalCreatedEventArgs> PrincipalCreated;
+        public Func<PrincipalCreatedEventArgs, Task> PrincipalCreated;
 
         /// <summary>
         /// Activated when the token endpoint receives a request for authorization with a non-standard grant_type.
         /// </summary>
         /// <example>Handle application password grant types for applications that doesnt have a GUI.</example>
-        public Action<UnknownGrantTypeReceivedEventArgs> UnknownGrantTypeReceived;
+        public Func<UnknownGrantTypeReceivedEventArgs, Task> UnknownGrantTypeReceived;
     }
 
     public class UnknownGrantTypeReceivedEventArgs : EventArgs
