@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
     using Microsoft.Owin.Security;
@@ -10,6 +11,7 @@
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Extensions;
+    using Sentinel.OAuth.Models.Identity;
 
     public class SentinelAuthorizationServerProvider : OAuthAuthorizationServerProvider
     {
@@ -53,9 +55,7 @@
         ///             validated client credentials, should continue processing. An application may add any additional constraints.
         /// </summary>
         /// <param name="context">The context of the event carries information in and results out.</param>
-        /// <returns>
-        /// Task to enable asynchronous execution
-        /// </returns>
+        /// <returns>Task to enable asynchronous execution</returns>
         public override async Task ValidateTokenRequest(OAuthValidateTokenRequestContext context)
         {
             this.options.Logger.Debug("Token request is valid");
@@ -100,7 +100,7 @@
                 return;
             }
 
-            this.options.Logger.DebugFormat("Client '{0}' and redirect uri '{1}' was successfuly authenticated", context.ClientId, context.RedirectUri);
+            this.options.Logger.DebugFormat("Client '{0}' and redirect uri '{1}' was successfully authenticated", context.ClientId, context.RedirectUri);
 
             context.OwinContext.GetOAuthContext().ClientId = context.ClientId;
             context.OwinContext.GetOAuthContext().RedirectUri = context.RedirectUri;
@@ -131,7 +131,7 @@
             {
                 context.SetError("invalid_request");
 
-                this.options.Logger.ErrorFormat("Redirect URI was not speficied, the token request is not valid");
+                this.options.Logger.ErrorFormat("Redirect URI was not specified, the token request is not valid");
 
                 return;
             }
@@ -172,7 +172,7 @@
             context.OwinContext.GetOAuthContext().ClientId = context.ClientId;
             context.OwinContext.GetOAuthContext().RedirectUri = context.Parameters["redirect_uri"];
 
-            this.options.Logger.DebugFormat("Client '{0}' was successfuly authenticated", clientId);
+            this.options.Logger.DebugFormat("Client '{0}' was successfully authenticated", clientId);
 
             context.Validated(clientId);
         }
@@ -185,14 +185,15 @@
         ///             See also http://tools.ietf.org/html/rfc6749#section-4.5
         /// </summary>
         /// <param name="context">The context of the event carries information in and results out.</param>
-        /// <returns>
-        /// Task to enable asynchronous execution
-        /// </returns>
+        /// <returns>Task to enable asynchronous execution</returns>
         public override async Task GrantCustomExtension(OAuthGrantCustomExtensionContext context)
         {
-            this.options.Logger.DebugFormat("Authenticating token request using custom grant type");
+            if (this.options.Events.UnknownGrantTypeReceived != null)
+            {
+                this.options.Logger.DebugFormat("Authenticating token request using custom grant type");
 
-            // TODO: Add support for custom extensions using options.Events
+                this.options.Events.UnknownGrantTypeReceived(new UnknownGrantTypeReceivedEventArgs(context));
+            }
 
             await base.GrantCustomExtension(context);
         }
@@ -207,9 +208,7 @@
         ///             See also http://tools.ietf.org/html/rfc6749#section-4.4.2
         /// </summary>
         /// <param name="context">The context of the event carries information in and results out.</param>
-        /// <returns>
-        /// Task to enable asynchronous execution
-        /// </returns>
+        /// <returns>Task to enable asynchronous execution</returns>
         public override async Task GrantClientCredentials(OAuthGrantClientCredentialsContext context)
         {
             this.options.Logger.DebugFormat("Authenticating client credentials flow for application '{0}'", context.ClientId);
@@ -235,7 +234,7 @@
 
                 context.Validated(ticket);
                 
-                this.options.Logger.DebugFormat("Client '{0}' was successfuly authenticated", context.ClientId);
+                this.options.Logger.DebugFormat("Client '{0}' was successfully authenticated", context.ClientId);
 
                 return;
             }
@@ -277,7 +276,7 @@
             {
                 context.Rejected();
 
-                this.options.Logger.WarnFormat("User '{0}' was not authenticated", context.UserName);
+                this.options.Logger.WarnFormat("User '{0}' was not authenticated", Regex.Escape(context.UserName));
 
                 return;
             }
@@ -288,7 +287,11 @@
             // Activate event if subscribed to
             if (this.options.Events.PrincipalCreated != null)
             {
-                this.options.Events.PrincipalCreated(this, new PrincipalCreatedEventArgs(user, context));
+                var args = new PrincipalCreatedEventArgs(user, context);
+
+                this.options.Events.PrincipalCreated(args);
+
+                user = new SentinelPrincipal(args.Principal);
             } 
 
             // Convert to proper authentication type
@@ -299,7 +302,7 @@
 
             context.Validated(ticket);
 
-            this.options.Logger.DebugFormat("User '{0}' was successfuly authenticated", context.UserName);
+            this.options.Logger.DebugFormat("User '{0}' was successfully authenticated", Regex.Escape(context.UserName));
         }
 
         /// <summary>
@@ -344,17 +347,14 @@
             context.Validated();
         }
 
-        /// <summary>
-        /// 
-        /// Called before the TokenEndpoint redirects its response to the caller. 
-        /// </summary>
-        /// <param name="context"/>
-        /// <returns/>
+        /// <summary>Called before the TokenEndpoint redirects its response to the caller.</summary>
+        /// <param name="context">.</param>
+        /// <returns>Task to enable asynchronous execution</returns>
         public override async Task TokenEndpointResponse(OAuthTokenEndpointResponseContext context)
         {
             if (context.TokenIssued && this.options.Events.TokenIssued != null)
             {
-                this.options.Events.TokenIssued(this, new TokenIssuedEventArgs(context));
+                this.options.Events.TokenIssued(new TokenIssuedEventArgs(context));
             }
 
             await base.TokenEndpointResponse(context);
