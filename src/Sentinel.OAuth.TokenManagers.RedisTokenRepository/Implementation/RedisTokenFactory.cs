@@ -56,6 +56,7 @@
                            Subject = userId,
                            Token = token,
                            ValidTo = validTo
+                           Created = DateTime.UtcNow
                        };
         }
 
