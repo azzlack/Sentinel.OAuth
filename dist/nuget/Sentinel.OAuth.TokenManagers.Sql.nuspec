@@ -22,8 +22,8 @@
     </dependencies> 
   </metadata>
   <files>
-	<file src="..\..\src\Sentinel.OAuth.TokenManagers.RedisTokenRepository\bin\Release\Sentinel.OAuth.TokenManagers.RedisTokenRepository.dll" target="lib\net45" />
-	<file src="..\..\src\Sentinel.OAuth.TokenManagers.RedisTokenRepository\bin\Release\Sentinel.OAuth.TokenManagers.RedisTokenRepository.pdb" target="lib\net45" />
-	<file src="..\..\src\Sentinel.OAuth.TokenManagers.RedisTokenRepository\**\*.cs" exclude="**\obj\**\*.*" target="src" />
+	<file src="..\..\src\Sentinel.OAuth.TokenManagers.SqlServerTokenRepository\bin\Release\Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.dll" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.TokenManagers.SqlServerTokenRepository\bin\Release\Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.pdb" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.TokenManagers.SqlServerTokenRepository\**\*.cs" exclude="**\obj\**\*.*" target="src" />
   </files>
 </package>
