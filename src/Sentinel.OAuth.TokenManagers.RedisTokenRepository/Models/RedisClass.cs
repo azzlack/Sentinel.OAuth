@@ -14,12 +14,13 @@
     /// <typeparam name="T">The real type.</typeparam>
     public abstract class RedisClass<T>
     {
+        /// <summary>The type key.</summary>
+        public const string TypeKey = "__type";
+
         /// <summary>Initializes a new instance of the <see cref="RedisClass{T}"/> class.</summary>
-        /// <param name="typeKey">The type key.</param>
         /// <param name="item">The item.</param>
-        protected RedisClass(string typeKey, T item)
+        protected RedisClass(T item)
         {
-            this.TypeKey = typeKey;
             this.Type = item.GetType();
             this.Item = item;
         }
@@ -31,13 +32,13 @@
         /// Thrown when one or more arguments have unsupported or illegal values.
         /// </exception>
         /// <param name="hashEntries">The hash entries.</param>
-        protected RedisClass(string typeKey, HashEntry[] hashEntries)
+        protected RedisClass(HashEntry[] hashEntries)
         {
-            var typeEntry = hashEntries.FirstOrDefault(x => x.Name == typeKey);
+            var typeEntry = hashEntries.FirstOrDefault(x => x.Name == TypeKey);
 
             if (typeEntry == null)
             {
-                throw new ArgumentException("Unable to read the implementation type. Make sure the {0} parameter is set.", typeKey);
+                throw new ArgumentException("Unable to read the implementation type. Make sure the {0} parameter is set.", TypeKey);
             }
 
             var type = Type.GetType(typeEntry.Value);
@@ -75,7 +76,6 @@
                 }
             }
 
-            this.TypeKey = typeKey;
             this.Type = type;
             this.Item = (T)item;
         }
@@ -88,15 +88,11 @@
         /// <value>The item.</value>
         public T Item { get; private set; }
 
-        /// <summary>Gets the type key.</summary>
-        /// <value>The type key.</value>
-        private string TypeKey { get; set; }
-
         /// <summary>Converts this object to a list of hash entries.</summary>
         /// <returns>This object as a Redis hash.</returns>
         public HashEntry[] ToHashEntries()
         {
-            var entries = new List<HashEntry>() { new HashEntry(this.TypeKey, this.Type.AssemblyQualifiedName) };
+            var entries = new List<HashEntry>() { new HashEntry(TypeKey, this.Type.AssemblyQualifiedName) };
 
             var accessor = TypeAccessor.Create(this.Item.GetType());
 

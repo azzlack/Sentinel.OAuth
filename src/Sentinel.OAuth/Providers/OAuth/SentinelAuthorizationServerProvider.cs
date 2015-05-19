@@ -258,7 +258,7 @@
         /// <returns>Task to enable asynchronous execution</returns>
         public override async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
         {
-            this.options.Logger.DebugFormat("Authenticating resource owner flow for user '{0}'", context.UserName);
+            this.options.Logger.DebugFormat("Authenticating resource owner flow for user '{0}'", Regex.Escape(context.UserName));
 
             // Enable cors on authenticate requests, as they will always be from another server
             if (context.OwinContext.Response.Headers["Access-Control-Allow-Origin"] == null)
