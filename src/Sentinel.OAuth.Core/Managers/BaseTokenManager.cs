@@ -3,8 +3,10 @@
     using System;
     using System.Threading.Tasks;
 
+    using Sentinel.OAuth.Core.Interfaces.Factories;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
 
@@ -16,11 +18,13 @@
         /// <summary>Initializes a new instance of the BaseTokenManager class.</summary>
         /// <param name="principalProvider">The principal provider.</param>
         /// <param name="cryptoProvider">The crypto provider.</param>
+        /// <param name="tokenFactory">The token factory.</param>
         /// <param name="tokenRepository">The token repository.</param>
-        protected BaseTokenManager(IPrincipalProvider principalProvider, ICryptoProvider cryptoProvider, ITokenRepository tokenRepository)
+        protected BaseTokenManager(IPrincipalProvider principalProvider, ICryptoProvider cryptoProvider, ITokenFactory tokenFactory, ITokenRepository tokenRepository)
         {
             this.CryptoProvider = cryptoProvider;
             this.PrincipalProvider = principalProvider;
+            this.TokenFactory = tokenFactory;
             this.tokenRepository = tokenRepository;
         }
 
@@ -41,6 +45,10 @@
         /// <summary>Gets the crypto provider.</summary>
         /// <value>The crypto provider.</value>
         protected ICryptoProvider CryptoProvider { get; private set; }
+
+        /// <summary>Gets the token factory.</summary>
+        /// <value>The token factory.</value>
+        protected ITokenFactory TokenFactory {get; private set; }
 
         /// <summary>Authenticates the authorization code.</summary>
         /// <param name="redirectUri">The redirect URI.</param>

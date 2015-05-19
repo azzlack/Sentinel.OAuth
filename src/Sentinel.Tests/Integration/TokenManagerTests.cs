@@ -34,7 +34,7 @@
                             new SentinelClaim(ClaimTypes.Name, "azzlack"),
                             new SentinelClaim(ClaimType.Client, "NUnit"))));
 
-            this.tokenManager = new TokenManager(LogManager.GetLogger<TokenManagerTests>(), userManager.Object, new PrincipalProvider(new PBKDF2CryptoProvider()), new PBKDF2CryptoProvider(), new MemoryTokenRepository());
+            this.tokenManager = new TokenManager(LogManager.GetLogger<TokenManagerTests>(), userManager.Object, new PrincipalProvider(new PBKDF2CryptoProvider()), new PBKDF2CryptoProvider(), new TokenFactory(), new MemoryTokenRepository());
         }
 
         [TestCase("NUnit", "http://localhost")]

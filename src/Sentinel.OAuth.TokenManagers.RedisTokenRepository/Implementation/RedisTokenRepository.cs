@@ -59,9 +59,9 @@
 
                     if (hashEntries.Any())
                     {
-                        var code = new RedisAuthorizationCode(hashEntries);
+                        var code = new RedisAuthorizationCode(hashEntries) { Id = hashedId };
 
-                        codes.Add(code.Item);
+                        codes.Add(code);
                     }
                 }
             }
@@ -78,15 +78,16 @@
         /// </returns>
         public async Task<IAuthorizationCode> InsertAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            var key = this.GenerateKey(authorizationCode);
+            var code = (RedisAuthorizationCode)authorizationCode;
+
+            var key = this.GenerateKey(code);
 
             var db = this.GetDatabase();
             
             try 
             {
                 // Add hash to key
-                var entity = new RedisAuthorizationCode(authorizationCode);
-                await db.HashSetAsync(key, entity.ToHashEntries());
+                await db.HashSetAsync(key, code.ToHashEntries());
 
                 // Add key to sorted set for future reference. The score is the expire time in seconds since epoch.
                 await db.SortedSetAddAsync(this.configuration.AuthorizationCodePrefix, key, authorizationCode.ValidTo.ToUnixTime());
@@ -102,25 +103,6 @@
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Deletes the authorization code that belongs to the specified client, redirect uri and user
-        /// combination. Called when creating an authorization code to prevent duplicate authorization
-        /// codes.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The number of deleted codes.</returns>
-        public async Task<bool> DeleteAuthorizationCode(string clientId, string redirectUri, string userId)
-        {
-            var key = this.GenerateAuthorizationCodeKey(clientId, redirectUri, userId);
-
-            var db = this.GetDatabase();
-            var success = await db.KeyDeleteAsync(key);
-
-            return success;
         }
 
         /// <summary>
@@ -148,7 +130,9 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            var key = this.GenerateKey(authorizationCode);
+            var code = (RedisAuthorizationCode)authorizationCode;
+
+            var key = this.GenerateKey(code);
 
             var db = this.GetDatabase();
 
@@ -172,13 +156,15 @@
 
             foreach (var key in keys)
             {
+                var hashedId = key.ToString().Substring(this.configuration.AccessTokenPrefix.Length + 1);
+
                 var hashEntries = await db.HashGetAllAsync(key.ToString());
 
                 if (hashEntries.Any())
                 {
-                    var token = new RedisAccessToken(hashEntries);
+                    var token = new RedisAccessToken(hashEntries) { Id = hashedId };
 
-                    tokens.Add(token.Item);
+                    tokens.Add(token);
                 }
             }
 
@@ -190,15 +176,16 @@
         /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<IAccessToken> InsertAccessToken(IAccessToken accessToken)
         {
-            var key = this.GenerateKey(accessToken);
+            var token = (RedisAccessToken)accessToken;
+
+            var key = this.GenerateKey(token);
 
             var db = this.GetDatabase();
 
             try
             {
                 // Add hash to key
-                var entity = new RedisAccessToken(accessToken);
-                await db.HashSetAsync(key, entity.ToHashEntries());
+                await db.HashSetAsync(key, token.ToHashEntries());
 
                 // Add key to sorted set for future reference. The score is the expire time in seconds since epoch.
                 await db.SortedSetAddAsync(this.configuration.AccessTokenPrefix, key, accessToken.ValidTo.ToUnixTime());
@@ -217,23 +204,6 @@
         }
 
         /// <summary>
-        /// Deletes the access token that belongs to the specified client, redirect uri and user
-        /// combination. Called when creating an access token to prevent duplicate access tokens.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAccessToken(string clientId, string redirectUri, string userId)
-        {
-            var key = this.GenerateAccessTokenKey(clientId, redirectUri, userId);
-
-            var db = this.GetDatabase();
-
-            return await db.KeyDeleteAsync(key);
-        }
-
-        /// <summary>
         /// Deletes the access tokens that expires before the specified expire date. Called when creating
         /// an access token to cleanup.
         /// </summary>
@@ -248,6 +218,20 @@
             var i = await db.SortedSetRemoveRangeByScoreAsync(this.configuration.AccessTokenPrefix, 0, expires.ToUnixTime());
 
             return (int)i;
+        }
+
+        /// <summary>Deletes the specified access token.</summary>
+        /// <param name="accessToken">The access token.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
+        {
+            var token = (RedisAccessToken)accessToken;
+
+            var key = this.GenerateKey(token);
+
+            var db = this.GetDatabase();
+
+            return await db.KeyDeleteAsync(key);
         }
 
         /// <summary>
@@ -269,13 +253,15 @@
 
             foreach (var key in keys)
             {
+                var hashedId = key.ToString().Substring(this.configuration.AccessTokenPrefix.Length + 1);
+
                 var hashEntries = await db.HashGetAllAsync(key.ToString());
 
                 if (hashEntries.Any())
                 {
-                    var token = new RedisRefreshToken(hashEntries);
+                    var token = new RedisRefreshToken(hashEntries) { Id = hashedId };
 
-                    tokens.Add(token.Item);
+                    tokens.Add(token);
                 }
             }
 
@@ -287,15 +273,16 @@
         /// <returns>The inserted refresh token. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<IRefreshToken> InsertRefreshToken(IRefreshToken refreshToken)
         {
-            var key = this.GenerateKey(refreshToken);
+            var token = (RedisRefreshToken)refreshToken;
+
+            var key = this.GenerateKey(token);
 
             var db = this.GetDatabase();
 
             try
             {
                 // Add hash to key
-                var entity = new RedisRefreshToken(refreshToken);
-                await db.HashSetAsync(key, entity.ToHashEntries());
+                await db.HashSetAsync(key, token.ToHashEntries());
 
                 // Add key to sorted set for future reference. The score is the expire time in seconds since epoch.
                 await db.SortedSetAddAsync(this.configuration.RefreshTokenPrefix, key, refreshToken.ValidTo.ToUnixTime());
@@ -338,24 +325,9 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteRefreshToken(IRefreshToken refreshToken)
         {
-            var key = this.GenerateKey(refreshToken);
+            var token = (RedisRefreshToken)refreshToken;
 
-            var db = this.GetDatabase();
-
-            return await db.KeyDeleteAsync(key);
-        }
-        
-        /// <summary>
-        /// Deletes the refresh token that belongs to the specified client, redirect uri and user
-        /// combination. Called when creating a refresh token to prevent duplicate refresh tokens.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The number of deleted tokens.</returns>
-        public async Task<bool> DeleteRefreshToken(string clientId, string redirectUri, string userId)
-        {
-            var key = this.GenerateRefreshTokenKey(clientId, redirectUri, userId);
+            var key = this.GenerateKey(token);
 
             var db = this.GetDatabase();
 
@@ -365,64 +337,25 @@
         /// <summary>Generates a key.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns>The key.</returns>
-        private string GenerateKey(IAccessToken accessToken)
+        private string GenerateKey(RedisAccessToken accessToken)
         {
-            return this.GenerateAccessTokenKey(
-                accessToken.ClientId,
-                accessToken.RedirectUri,
-                accessToken.Subject);
+            return this.configuration.AccessTokenPrefix + ":" + accessToken.Id;
         }
 
         /// <summary>Generates a key.</summary>
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns>The key.</returns>
-        private string GenerateKey(IRefreshToken refreshToken)
+        private string GenerateKey(RedisRefreshToken refreshToken)
         {
-            return this.GenerateRefreshTokenKey(
-                refreshToken.ClientId,
-                refreshToken.RedirectUri,
-                refreshToken.Subject);
+            return this.configuration.RefreshTokenPrefix + ":" + refreshToken.Id;
         }
 
         /// <summary>Generates a key.</summary>
         /// <param name="authorizationCode">The authorization code.</param>
         /// <returns>The key.</returns>
-        private string GenerateKey(IAuthorizationCode authorizationCode)
+        private string GenerateKey(RedisAuthorizationCode authorizationCode)
         {
-            return this.GenerateAuthorizationCodeKey(
-                authorizationCode.ClientId,
-                authorizationCode.RedirectUri,
-                authorizationCode.Subject);
-        }
-
-        /// <summary>Generates a key.</summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The key.</returns>
-        private string GenerateAuthorizationCodeKey(string clientId, string redirectUri, string userId)
-        {
-            return this.configuration.AuthorizationCodePrefix + ":" + Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + userId));
-        }
-
-        /// <summary>Generates the access token key.</summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The access token key.</returns>
-        private string GenerateAccessTokenKey(string clientId, string redirectUri, string userId)
-        {
-            return this.configuration.AccessTokenPrefix + ":" + Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + userId));
-        }
-
-        /// <summary>Generates a refresh token key.</summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The refresh token key.</returns>
-        private string GenerateRefreshTokenKey(string clientId, string redirectUri, string userId)
-        {
-            return this.configuration.RefreshTokenPrefix + ":" + Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + userId));
+            return this.configuration.AuthorizationCodePrefix + ":" + authorizationCode.Id;
         }
 
         /// <summary>Gets a reference to the database.</summary>

@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
 
     using Sentinel.OAuth.Core.Models.OAuth;
+    using Sentinel.OAuth.Core.Models.OAuth.Http;
 
     /// <summary>Interface for OAuth clients.</summary>
     public interface IOAuthClient

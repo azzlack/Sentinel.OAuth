@@ -6,8 +6,8 @@
     using NUnit.Framework;
 
     using Sentinel.OAuth.Core.Interfaces.Repositories;
+    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Implementation;
-    using Sentinel.OAuth.Models.OAuth;
 
     [TestFixture]
     [Category("Unit")]
@@ -62,7 +62,7 @@
             var token1 = await this.tokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost" });
             var token2 = await this.tokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit2", RedirectUri = "http://localhost" });
 
-            var deleteResult = await this.tokenRepository.DeleteAccessToken(token1.ClientId, token1.RedirectUri, token1.Subject);
+            var deleteResult = await this.tokenRepository.DeleteAccessToken(token1);
             var accessTokens = await this.tokenRepository.GetAccessTokens(DateTime.UtcNow.AddMinutes(1));
 
             Assert.IsTrue(deleteResult);

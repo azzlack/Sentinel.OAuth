@@ -94,6 +94,7 @@
                 userManager.Object,
                 new PrincipalProvider(new PBKDF2CryptoProvider()),
                 new PBKDF2CryptoProvider(),
+                new SqlTokenFactory(), 
                 new SqlServerTokenRepository(
                     new SqlServerTokenRepositoryConfiguration(
                         this.instance.CreateConnectionStringBuilder().ToString(),

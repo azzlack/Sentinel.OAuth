@@ -27,16 +27,6 @@
         Task<IAuthorizationCode> InsertAuthorizationCode(IAuthorizationCode authorizationCode);
 
         /// <summary>
-        /// Deletes the authorization code that belongs to the specified client, redirect uri and user combination.
-        /// Called when creating an authorization code to prevent duplicate authorization codes.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The number of deleted codes.</returns>
-        Task<bool> DeleteAuthorizationCode(string clientId, string redirectUri, string userId);
-
-        /// <summary>
         /// Deletes the authorization codes that expires before the specified expire date.
         /// Called when creating an authorization code to cleanup.
         /// </summary>
@@ -77,14 +67,11 @@
         Task<int> DeleteAccessTokens(DateTime expires);
 
         /// <summary>
-        /// Deletes the access token that belongs to the specified client, redirect uri and user combination.
-        /// Called when creating an access token to prevent duplicate access tokens.
+        /// Deletes the specified access token.
         /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
+        /// <param name="accessToken">The access token.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        Task<bool> DeleteAccessToken(string clientId, string redirectUri, string userId);
+        Task<bool> DeleteAccessToken(IAccessToken accessToken);
 
         /// <summary>
         /// Gets all refresh tokens that matches the specified redirect uri and expires after the specified date.
@@ -118,15 +105,5 @@
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         Task<bool> DeleteRefreshToken(IRefreshToken refreshToken);
-
-        /// <summary>
-        /// Deletes the refresh token that belongs to the specified client, redirect uri and user combination.
-        /// Called when creating a refresh token to prevent duplicate refresh tokens.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        Task<bool> DeleteRefreshToken(string clientId, string redirectUri, string userId);
     }
 }

@@ -10,7 +10,6 @@
 
     using NUnit.Framework;
 
-    using Raven.Client;
     using Raven.Client.Embedded;
 
     using Sentinel.OAuth.Core.Constants.Identity;
@@ -41,7 +40,8 @@
                 LogManager.GetLogger(typeof(RavenDbTokenRepositoryTests)), 
                 userManager.Object,
                 new PrincipalProvider(new PBKDF2CryptoProvider()), 
-                new PBKDF2CryptoProvider(), 
+                new PBKDF2CryptoProvider(),
+                new RavenTokenFactory(), 
                 new RavenDbTokenRepository(
                     new RavenDbTokenRepositoryConfiguration(new EmbeddableDocumentStore() { RunInMemory = true })));
         }

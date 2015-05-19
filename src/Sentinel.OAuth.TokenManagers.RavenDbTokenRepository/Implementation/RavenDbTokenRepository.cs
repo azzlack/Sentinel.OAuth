@@ -9,8 +9,8 @@
 
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.Models.OAuth;
     using Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Models;
+    using Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Models.OAuth;
 
     /// <summary>A token repository using RavenDB for storage.</summary>
     public class RavenDbTokenRepository : ITokenRepository
@@ -40,7 +40,7 @@
         {
             using (var session = this.OpenAsyncSession())
             {
-                return await session.Query<AuthorizationCode>().Where(x => x.RedirectUri == redirectUri && x.ValidTo > expires).Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).ToListAsync();
+                return await session.Query<RavenAuthorizationCode>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.RedirectUri == redirectUri && x.ValidTo > expires).ToListAsync();
             }
         }
 
@@ -53,43 +53,14 @@
         /// </returns>
         public async Task<IAuthorizationCode> InsertAuthorizationCode(IAuthorizationCode authorizationCode)
         {
+            var code = (RavenAuthorizationCode)authorizationCode;
+
             using (var session = this.OpenAsyncSession())
             {
-                await session.StoreAsync(authorizationCode);
+                await session.StoreAsync(code);
                 await session.SaveChangesAsync();
 
                 return authorizationCode;
-            }
-        }
-
-        /// <summary>
-        /// Deletes the authorization code that belongs to the specified client, redirect uri and user
-        /// combination. Called when creating an authorization code to prevent duplicate authorization
-        /// codes.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The number of deleted codes.</returns>
-        public async Task<bool> DeleteAuthorizationCode(string clientId, string redirectUri, string userId)
-        {
-            using (var session = this.OpenAsyncSession())
-            {
-                var i = 0;
-                var matches = await session.Query<AuthorizationCode>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ClientId == clientId && x.RedirectUri == redirectUri && x.Subject == userId).ToListAsync();
-
-                foreach (var match in matches)
-                {
-                    session.Delete(match);
-                    i++;
-                }
-
-                if (i > 0)
-                {
-                    await session.SaveChangesAsync();
-                }
-
-                return i == 1;
             }
         }
 
@@ -104,7 +75,7 @@
             using (var session = this.OpenAsyncSession())
             {
                 var i = 0;
-                var matches = await session.Query<AuthorizationCode>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo < expires).ToListAsync();
+                var matches = await session.Query<RavenAuthorizationCode>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo < expires).ToListAsync();
 
                 foreach (var match in matches)
                 {
@@ -129,22 +100,17 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            var code = (AuthorizationCode)authorizationCode;
+            var code = (RavenAuthorizationCode)authorizationCode;
 
             using (var session = this.OpenAsyncSession())
             {
-                var match = await session.LoadAsync<AuthorizationCode>("AuthorizationCodes/" + code.Id);
+                var match = await session.LoadAsync<RavenAuthorizationCode>(code.Id);
 
-                if (match != null)
-                {
-                    session.Delete(match);
-                    await session.SaveChangesAsync();
+                session.Delete(match);
+                await session.SaveChangesAsync();
 
-                    return true;
-                }
+                return true;
             }
-
-            return false;
         }
 
         /// <summary>
@@ -157,7 +123,7 @@
         {
             using (var session = this.OpenAsyncSession())
             {
-                return await session.Query<AccessToken>().Where(x => x.ValidTo > expires).Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).ToListAsync();
+                return await session.Query<RavenAccessToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo > expires).ToListAsync();
             }
         }
 
@@ -166,42 +132,14 @@
         /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<IAccessToken> InsertAccessToken(IAccessToken accessToken)
         {
+            var token = (RavenAccessToken)accessToken;
+
             using (var session = this.OpenAsyncSession())
             {
-                await session.StoreAsync(accessToken);
+                await session.StoreAsync(token);
                 await session.SaveChangesAsync();
 
                 return accessToken;
-            }
-        }
-
-        /// <summary>
-        /// Deletes the access token that belongs to the specified client, redirect uri and user
-        /// combination. Called when creating an access token to prevent duplicate access tokens.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAccessToken(string clientId, string redirectUri, string userId)
-        {
-            using (var session = this.OpenAsyncSession())
-            {
-                var i = 0;
-                var matches = await session.Query<AccessToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ClientId == clientId && x.RedirectUri == redirectUri && x.Subject == userId).ToListAsync();
-
-                foreach (var match in matches)
-                {
-                    session.Delete(match);
-                    i++;
-                }
-
-                if (i > 0)
-                {
-                    await session.SaveChangesAsync();
-                }
-
-                return i == 1;
             }
         }
 
@@ -216,7 +154,7 @@
             using (var session = this.OpenAsyncSession())
             {
                 var i = 0;
-                var matches = await session.Query<AccessToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo < expires).ToListAsync();
+                var matches = await session.Query<RavenAccessToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo < expires).ToListAsync();
 
                 foreach (var match in matches)
                 {
@@ -233,6 +171,24 @@
             }
         }
 
+        /// <summary>Deletes the specified access token.</summary>
+        /// <param name="accessToken">The access token.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
+        {
+            var token = (RavenAccessToken)accessToken;
+
+            using (var session = this.OpenAsyncSession())
+            {
+                var match = await session.LoadAsync<RavenAccessToken>(token.Id);
+
+                session.Delete(match);
+                await session.SaveChangesAsync();
+
+                return true;
+            }
+        }
+
         /// <summary>
         /// Gets all refresh tokens that matches the specified redirect uri and expires after the
         /// specified date. Called when authentication a refresh token to limit the number of tokens to
@@ -245,7 +201,7 @@
         {
             using (var session = this.OpenAsyncSession())
             {
-                return await session.Query<RefreshToken>().Where(x => x.ValidTo > expires).Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).ToListAsync();
+                return await session.Query<RavenRefreshToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo > expires).ToListAsync();
             }
         }
 
@@ -254,42 +210,14 @@
         /// <returns>The inserted refresh token. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<IRefreshToken> InsertRefreshToken(IRefreshToken refreshToken)
         {
+            var token = (RavenRefreshToken)refreshToken;
+
             using (var session = this.OpenAsyncSession())
             {
-                await session.StoreAsync(refreshToken);
+                await session.StoreAsync(token);
                 await session.SaveChangesAsync();
 
                 return refreshToken;
-            }
-        }
-
-        /// <summary>
-        /// Deletes the refresh token that belongs to the specified client, redirect uri and user
-        /// combination. Called when creating a refresh token to prevent duplicate refresh tokens.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteRefreshToken(string clientId, string redirectUri, string userId)
-        {
-            using (var session = this.OpenAsyncSession())
-            {
-                var i = 0;
-                var matches = await session.Query<RefreshToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ClientId == clientId && x.RedirectUri == redirectUri && x.Subject == userId).ToListAsync();
-
-                foreach (var match in matches)
-                {
-                    session.Delete(match);
-                    i++;
-                }
-
-                if (i > 0)
-                {
-                    await session.SaveChangesAsync();
-                }
-
-                return i == 1;
             }
         }
 
@@ -304,7 +232,7 @@
             using (var session = this.OpenAsyncSession())
             {
                 var i = 0;
-                var matches = await session.Query<RefreshToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo < expires).ToListAsync();
+                var matches = await session.Query<RavenRefreshToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo < expires).ToListAsync();
 
                 foreach (var match in matches)
                 {
@@ -329,22 +257,17 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteRefreshToken(IRefreshToken refreshToken)
         {
-            var token = (RefreshToken)refreshToken;
+            var token = (RavenRefreshToken)refreshToken;
 
             using (var session = this.OpenAsyncSession())
             {
-                var match = await session.LoadAsync<RefreshToken>("RefreshTokens/" + token.Id);
+                var match = await session.LoadAsync<RavenRefreshToken>(token.Id);
 
-                if (match != null)
-                {
-                    session.Delete(match);
-                    await session.SaveChangesAsync();
+                session.Delete(match);
+                await session.SaveChangesAsync();
 
-                    return true;
-                }
+                return true;
             }
-
-            return false;
         }
 
         /// <summary>

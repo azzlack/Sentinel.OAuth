@@ -84,12 +84,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants\Identity\ClaimType.cs" />
-    <Compile Include="Models\OAuth\AccessTokenRequest.cs" />
-    <Compile Include="Models\OAuth\AccessTokenResponse.cs" />
+    <Compile Include="Interfaces\Factories\ITokenFactory.cs" />
+    <Compile Include="Models\OAuth\AccessToken.cs" />
     <Compile Include="Constants\Identity\AuthenticationType.cs" />
-    <Compile Include="Models\OAuth\AuthorizationRequest.cs" />
-    <Compile Include="Models\OAuth\AuthorizationResponse.cs" />
-    <Compile Include="Models\OAuth\ErrorResponse.cs" />
+    <Compile Include="Models\OAuth\AuthorizationCode.cs" />
     <Compile Include="Constants\OAuth\GrantType.cs" />
     <Compile Include="Interfaces\Identity\ISentinelClaim.cs" />
     <Compile Include="Interfaces\Identity\ISentinelIdentity.cs" />
@@ -108,6 +106,12 @@
     <Compile Include="Managers\BaseTokenManager.cs" />
     <Compile Include="Managers\BaseUserManager.cs" />
     <Compile Include="Managers\BaseClientManager.cs" />
+    <Compile Include="Models\OAuth\Http\AccessTokenRequest.cs" />
+    <Compile Include="Models\OAuth\Http\AccessTokenResponse.cs" />
+    <Compile Include="Models\OAuth\Http\AuthorizationRequest.cs" />
+    <Compile Include="Models\OAuth\Http\AuthorizationResponse.cs" />
+    <Compile Include="Models\OAuth\Http\ErrorResponse.cs" />
+    <Compile Include="Models\OAuth\RefreshToken.cs" />
     <Compile Include="Models\SentinelAuthorizationServerEvents.cs" />
     <Compile Include="Models\SentinelAuthorizationServerOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

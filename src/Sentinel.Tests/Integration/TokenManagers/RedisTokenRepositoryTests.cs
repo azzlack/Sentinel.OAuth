@@ -39,8 +39,9 @@
             this.tokenManager = new TokenManager(
                 LogManager.GetLogger(typeof(RedisTokenRepositoryTests)), 
                 userManager.Object,
-                new PrincipalProvider(new PBKDF2CryptoProvider()), 
-                new PBKDF2CryptoProvider(), 
+                new PrincipalProvider(new PBKDF2CryptoProvider()),
+                new PBKDF2CryptoProvider(),
+                new RedisTokenFactory(), 
                 new RedisTokenRepository(new RedisTokenRepositoryConfiguration(ConfigurationManager.AppSettings["RedisHost"], 4, "sentinel.oauth")));
         }
 

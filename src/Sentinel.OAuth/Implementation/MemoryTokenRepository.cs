@@ -9,27 +9,27 @@
 
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.Models.OAuth;
+    using Sentinel.OAuth.Core.Models.OAuth;
 
     public class MemoryTokenRepository : ITokenRepository
     {
         /// <summary>The authorization codes.</summary>
-        private readonly ConcurrentDictionary<long, AuthorizationCode> authorizationCodes;
+        private readonly ConcurrentDictionary<Guid, AuthorizationCode> authorizationCodes;
 
         /// <summary>The refresh tokens.</summary>
-        private readonly ConcurrentDictionary<long, RefreshToken> refreshTokens;
+        private readonly ConcurrentDictionary<Guid, RefreshToken> refreshTokens;
 
         /// <summary>The access tokens.</summary>
-        private readonly ConcurrentDictionary<long, AccessToken> accessTokens;
+        private readonly ConcurrentDictionary<Guid, AccessToken> accessTokens;
 
         /// <summary>
         /// Initializes a new instance of the Sentinel.OAuth.Implementation.MemoryTokenRepository class.
         /// </summary>
         public MemoryTokenRepository()
         {
-            this.authorizationCodes = new ConcurrentDictionary<long, AuthorizationCode>();
-            this.refreshTokens = new ConcurrentDictionary<long, RefreshToken>();
-            this.accessTokens = new ConcurrentDictionary<long, AccessToken>();
+            this.authorizationCodes = new ConcurrentDictionary<Guid, AuthorizationCode>();
+            this.refreshTokens = new ConcurrentDictionary<Guid, RefreshToken>();
+            this.accessTokens = new ConcurrentDictionary<Guid, AccessToken>();
         }
 
         /// <summary>
@@ -63,41 +63,13 @@
         public async Task<IAuthorizationCode> InsertAuthorizationCode(IAuthorizationCode authorizationCode)
         {
             var code = (AuthorizationCode)authorizationCode;
-            
-            // Autogenerate id 
-            code.Id = this.authorizationCodes.Any() ? this.authorizationCodes.Max(x => x.Key) + 1 : 1;
 
-            if (this.authorizationCodes.TryAdd(code.Id, code))
+            if (this.authorizationCodes.TryAdd(Guid.NewGuid(), code))
             {
                 return authorizationCode;
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Deletes the authorization code that belongs to the specified client, redirect uri and user
-        /// combination.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The number of deleted codes.</returns>
-        public async Task<bool> DeleteAuthorizationCode(string clientId, string redirectUri, string userId)
-        {
-            var i = 0;
-            var tokens = this.authorizationCodes.Where(x => x.Value.ClientId == clientId && x.Value.RedirectUri == redirectUri && x.Value.Subject == userId).ToList();
-
-            foreach (var token in tokens)
-            {
-                AuthorizationCode removedCode;
-                if (this.authorizationCodes.TryRemove(token.Key, out removedCode))
-                {
-                    i++;
-                }
-            }
-
-            return i == 1;
         }
 
         /// <summary>
@@ -165,40 +137,12 @@
         {
             var token = (AccessToken)accessToken;
 
-            // Autogenerate id 
-            token.Id = this.accessTokens.Any() ? this.accessTokens.Max(x => x.Key) + 1 : 1;
-
-            if (this.accessTokens.TryAdd(token.Id, token))
+            if (this.accessTokens.TryAdd(Guid.NewGuid(), token))
             {
                 return accessToken;
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Deletes the access token that belongs to the specified client, redirect uri and user
-        /// combination.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAccessToken(string clientId, string redirectUri, string userId)
-        {
-            var i = 0;
-            var tokens = this.accessTokens.Where(x => x.Value.ClientId == clientId && x.Value.RedirectUri == redirectUri && x.Value.Subject == userId).ToList();
-
-            foreach (var token in tokens)
-            {
-                AccessToken removedToken;
-                if (this.accessTokens.TryRemove(token.Key, out removedToken))
-                {
-                    i++;
-                }
-            }
-
-            return i == 1;
         }
 
         /// <summary>
@@ -223,6 +167,26 @@
             return i;
         }
 
+        /// <summary>Deletes the specified access token.</summary>
+        /// <param name="accessToken">The access token.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
+        {
+            var i = 0;
+            var tokens = this.accessTokens.Where(x => x.Value.ClientId == accessToken.ClientId && x.Value.RedirectUri == accessToken.RedirectUri && x.Value.Subject == accessToken.Subject).ToList();
+
+            foreach (var token in tokens)
+            {
+                AccessToken removedToken;
+                if (this.accessTokens.TryRemove(token.Key, out removedToken))
+                {
+                    i++;
+                }
+            }
+
+            return i == 1;
+        }
+
         /// <summary>
         /// Gets all refresh tokens that matches the specified redirect uri and expires after the
         /// specified date.
@@ -244,40 +208,12 @@
         {
             var token = (RefreshToken)refreshToken;
 
-            // Autogenerate id 
-            token.Id = this.refreshTokens.Any() ? this.refreshTokens.Max(x => x.Key) + 1 : 1;
-
-            if (this.refreshTokens.TryAdd(token.Id, token))
+            if (this.refreshTokens.TryAdd(Guid.NewGuid(), token))
             {
                 return refreshToken;
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Deletes the refresh token that belongs to the specified client, redirect uri and user
-        /// combination.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The number of deleted tokens.</returns>
-        public async Task<bool> DeleteRefreshToken(string clientId, string redirectUri, string userId)
-        {
-            var i = 0;
-            var tokens = this.refreshTokens.Where(x => x.Value.ClientId == clientId && x.Value.RedirectUri == redirectUri && x.Value.Subject == userId).ToList();
-
-            foreach (var token in tokens)
-            {
-                RefreshToken removedToken;
-                if (this.refreshTokens.TryRemove(token.Key, out removedToken))
-                {
-                    i++;
-                }
-            }
-
-            return i == 1;
         }
 
         /// <summary>

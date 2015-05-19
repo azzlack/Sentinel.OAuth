@@ -11,6 +11,7 @@
 
     using Sentinel.OAuth.Client.Interfaces;
     using Sentinel.OAuth.Core.Models.OAuth;
+    using Sentinel.OAuth.Core.Models.OAuth.Http;
 
     /// <summary>OAuth client for Sentinel.</summary>
     public class SentinelOAuthClient : IOAuthClient, IDisposable

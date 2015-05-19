@@ -45,6 +45,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Implementation\SqlServerTokenRepository.cs" />
+    <Compile Include="Implementation\SqlTokenFactory.cs" />
+    <Compile Include="Models\OAuth\SqlAccessToken.cs" />
+    <Compile Include="Models\OAuth\SqlAuthorizationCode.cs" />
+    <Compile Include="Models\OAuth\SqlRefreshToken.cs" />
     <Compile Include="Models\SqlServerTokenRepositoryConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

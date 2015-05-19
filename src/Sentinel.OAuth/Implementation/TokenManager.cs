@@ -6,16 +6,16 @@
 
     using Common.Logging;
 
-    using Newtonsoft.Json;
-
     using Sentinel.OAuth.Core.Constants.Identity;
+    using Sentinel.OAuth.Core.Interfaces.Factories;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.Core.Managers;
+    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Models.Identity;
-    using Sentinel.OAuth.Models.OAuth;
 
     /// <summary>A universal token manager. Takes care of processing the tokens without caring where and how they are stored.</summary>
     public class TokenManager : BaseTokenManager
@@ -34,9 +34,10 @@
         /// <param name="userManager">Manager for users.</param>
         /// <param name="principalProvider">The principal provider.</param>
         /// <param name="cryptoProvider">The crypto provider.</param>
+        /// <param name="tokenFactory">The token factory.</param>
         /// <param name="tokenRepository">The token repository.</param>
-        public TokenManager(ILog logger, IUserManager userManager, IPrincipalProvider principalProvider, ICryptoProvider cryptoProvider, ITokenRepository tokenRepository)
-            : base(principalProvider, cryptoProvider, tokenRepository)
+        public TokenManager(ILog logger, IUserManager userManager, IPrincipalProvider principalProvider, ICryptoProvider cryptoProvider, ITokenFactory tokenFactory, ITokenRepository tokenRepository)
+            : base(principalProvider, cryptoProvider, tokenFactory, tokenRepository)
         {
             if (logger == null)
             {
@@ -162,8 +163,7 @@
                 throw new ArgumentException("The specified principal does not have a valid client identifier", "userPrincipal");
             }
 
-            // Delete all authorization codes for the specified user, client id, redirect uri to prevent exploitation
-            await this.TokenRepository.DeleteAuthorizationCode(client.Value, redirectUri, userPrincipal.Identity.Name);
+            // Delete all expired authorization codes
             await this.TokenRepository.DeleteAuthorizationCodes(DateTime.UtcNow);
 
             // Remove unnecessary claims from principal
@@ -175,22 +175,20 @@
                 userPrincipal.Identity.AddClaim(scope.Select(x => new SentinelClaim(ClaimType.Scope, x)).ToArray());
             }
 
-            // Create and store authorization code fur future use
+            // Create and store authorization code for future use
             this.logger.DebugFormat("Creating authorization code for '{0}' and redirect uri '{1}'", userPrincipal.Identity.Name, redirectUri);
 
             string code;
             var hashedCode = this.CryptoProvider.CreateHash(out code, 256);
 
-            var authorizationCode = new AuthorizationCode
-                                        {
-                                            Code = hashedCode,
-                                            ValidTo = DateTime.UtcNow.Add(expire),
-                                            ClientId = client.Value,
-                                            Subject = userPrincipal.Identity.Name,
-                                            Ticket = this.PrincipalProvider.Encrypt(userPrincipal, code),
-                                            RedirectUri = redirectUri,
-                                            Scope = scope ?? new string[0]
-                                        };
+            var authorizationCode = this.TokenFactory.CreateAuthorizationCode(
+                client.Value,
+                redirectUri,
+                userPrincipal.Identity.Name,
+                scope ?? new string[0],
+                hashedCode,
+                this.PrincipalProvider.Encrypt(userPrincipal, code),
+                DateTime.UtcNow.Add(expire));
 
             // Add authorization code to database
             var result = await this.TokenRepository.InsertAuthorizationCode(authorizationCode);
@@ -218,8 +216,7 @@
                 return string.Empty;
             }
 
-            // Delete all expired access tokens as well as access tokens for the specified client id, user and redirect uri to prevent exploitation
-            await this.TokenRepository.DeleteAccessToken(clientId, redirectUri, userPrincipal.Identity.Name);
+            // Delete all expired access tokens
             await this.TokenRepository.DeleteAccessTokens(DateTime.UtcNow);
 
             // Remove unnecessary claims from principal
@@ -229,15 +226,13 @@
             string token;
             var hashedToken = this.CryptoProvider.CreateHash(out token, 2048);
 
-            var accessToken = new AccessToken
-                                    {
-                                        Token = hashedToken,
-                                        ValidTo = DateTime.UtcNow.Add(expire),
-                                        ClientId = clientId,
-                                        Subject = userPrincipal.Identity.Name,
-                                        Ticket = this.PrincipalProvider.Encrypt(userPrincipal, token),
-                                        RedirectUri = redirectUri
-                                    };
+            var accessToken = this.TokenFactory.CreateAccessToken(
+                clientId,
+                redirectUri,
+                userPrincipal.Identity.Name,
+                hashedToken,
+                this.PrincipalProvider.Encrypt(userPrincipal, token),
+                DateTime.UtcNow.Add(expire));
 
             // Add refresh token to database
             var result = await this.TokenRepository.InsertAccessToken(accessToken);
@@ -265,8 +260,7 @@
                 return string.Empty;
             }
 
-            // Delete all expired refresh tokens as well as refresh tokens for the specified client id, user and redirect uri to prevent exploitation
-            await this.TokenRepository.DeleteRefreshToken(clientId, redirectUri, userPrincipal.Identity.Name);
+            // Delete all expired refresh tokens
             await this.TokenRepository.DeleteRefreshTokens(DateTime.UtcNow);
 
             // Remove unnecessary claims from principal
@@ -276,14 +270,7 @@
             string token;
             var hashedToken = this.CryptoProvider.CreateHash(out token, 2048);
 
-            var refreshToken = new RefreshToken
-                                    {
-                                        Token = hashedToken,
-                                        ValidTo = DateTime.UtcNow.Add(expire),
-                                        ClientId = clientId,
-                                        Subject = userPrincipal.Identity.Name,
-                                        RedirectUri = redirectUri
-                                    };
+            var refreshToken = this.TokenFactory.CreateRefreshToken(clientId, redirectUri, userPrincipal.Identity.Name, hashedToken, DateTime.UtcNow.Add(expire));
 
             // Add refresh token to database
             var result = await this.TokenRepository.InsertRefreshToken(refreshToken);

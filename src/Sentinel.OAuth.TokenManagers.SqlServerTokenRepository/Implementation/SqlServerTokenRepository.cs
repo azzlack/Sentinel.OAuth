@@ -10,8 +10,9 @@
 
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.Models.OAuth;
+    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models;
+    using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models.OAuth;
 
     /// <summary>A token repository using a SQL server for storage.</summary>
     public class SqlServerTokenRepository : ITokenRepository
@@ -41,7 +42,7 @@
             {
                 var codes =
                     await
-                    connection.QueryAsync<AuthorizationCode>(
+                    connection.QueryAsync<SqlAuthorizationCode>(
                         "SELECT * FROM AuthorizationCodes WHERE RedirectUri = @RedirectUri AND ValidTo > @Expires",
                         new { RedirectUri = redirectUri, Expires = expires });
 
@@ -76,32 +77,9 @@
                                 Created = DateTime.UtcNow
                             });
 
-                var entities = await connection.QueryAsync<AuthorizationCode>("SELECT * FROM AuthorizationCodes WHERE Id = @Id", new { Id = id });
+                var entities = await connection.QueryAsync<SqlAuthorizationCode>("SELECT * FROM AuthorizationCodes WHERE Id = @Id", new { Id = id });
 
                 return entities.FirstOrDefault();
-            }
-        }
-
-        /// <summary>
-        /// Deletes the authorization code that belongs to the specified client, redirect uri and user
-        /// combination. Called when creating an authorization code to prevent duplicate authorization
-        /// codes.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The number of deleted codes.</returns>
-        public async Task<bool> DeleteAuthorizationCode(string clientId, string redirectUri, string userId)
-        {
-            using (var connection = this.OpenConnection())
-            {
-                var rows =
-                    await
-                    connection.ExecuteAsync(
-                        "DELETE FROM AuthorizationCodes WHERE ClientId = @ClientId AND RedirectUri = @RedirectUri AND Subject = @Subject",
-                        new { ClientId = clientId, RedirectUri = redirectUri, Subject = userId });
-
-                return rows == 1;
             }
         }
 
@@ -133,7 +111,7 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            var code = (AuthorizationCode)authorizationCode;
+            var code = (SqlAuthorizationCode)authorizationCode;
 
             using (var connection = this.OpenConnection())
             {
@@ -159,7 +137,7 @@
             {
                 var tokens =
                     await
-                    connection.QueryAsync<AccessToken>(
+                    connection.QueryAsync<SqlAccessToken>(
                         "SELECT * FROM AccessTokens WHERE ValidTo > @Expires",
                         new { Expires = expires });
 
@@ -172,6 +150,8 @@
         /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<IAccessToken> InsertAccessToken(IAccessToken accessToken)
         {
+            var token = (SqlAccessToken)accessToken;
+            
             using (var connection = this.OpenConnection())
             {
                 var id =
@@ -180,40 +160,18 @@
                         "INSERT INTO AccessTokens (ClientId, RedirectUri, Subject, Token, Ticket, ValidTo, Created) VALUES (@ClientId, @RedirectUri, @Subject, @Token, @Ticket, @ValidTo, @Created); SELECT CAST(SCOPE_IDENTITY() as bigint);",
                         new
                         {
-                            accessToken.ClientId,
-                            accessToken.RedirectUri,
-                            accessToken.Subject,
-                            accessToken.Token,
-                            accessToken.Ticket,
-                            accessToken.ValidTo,
-                            Created = DateTime.UtcNow
+                            token.ClientId,
+                            token.RedirectUri,
+                            token.Subject,
+                            token.Token,
+                            token.Ticket,
+                            token.ValidTo,
+                            token.Created
                         });
 
-                var entities = await connection.QueryAsync<AccessToken>("SELECT * FROM AccessTokens WHERE Id = @Id", new { Id = id });
+                var entities = await connection.QueryAsync<SqlAccessToken>("SELECT * FROM AccessTokens WHERE Id = @Id", new { Id = id });
 
                 return entities.FirstOrDefault();
-            }
-        }
-
-        /// <summary>
-        /// Deletes the access token that belongs to the specified client, redirect uri and user
-        /// combination. Called when creating an access token to prevent duplicate access tokens.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The number of deleted tokens.</returns>
-        public async Task<bool> DeleteAccessToken(string clientId, string redirectUri, string userId)
-        {
-            using (var connection = this.OpenConnection())
-            {
-                var rows =
-                    await
-                    connection.ExecuteAsync(
-                        "DELETE FROM AccessTokens WHERE ClientId = @ClientId AND RedirectUri = @RedirectUri AND Subject = @Subject",
-                        new { ClientId = clientId, RedirectUri = redirectUri, Subject = userId });
-
-                return rows == 1;
             }
         }
 
@@ -237,6 +195,25 @@
             }
         }
 
+        /// <summary>Deletes the specified access token.</summary>
+        /// <param name="accessToken">The access token.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
+        {
+            var token = (SqlAccessToken)accessToken;
+
+            using (var connection = this.OpenConnection())
+            {
+                var rows =
+                    await
+                    connection.ExecuteAsync(
+                        "DELETE FROM AccessTokens WHERE Id = @Id",
+                        new { Id = token.Id });
+
+                return rows == 1;
+            }
+        }
+
         /// <summary>
         /// Gets all refresh tokens that matches the specified redirect uri and expires after the
         /// specified date. Called when authentication a refresh token to limit the number of tokens to
@@ -251,7 +228,7 @@
             {
                 var tokens =
                     await
-                    connection.QueryAsync<RefreshToken>(
+                    connection.QueryAsync<SqlRefreshToken>(
                         "SELECT * FROM RefreshTokens WHERE RedirectUri = @RedirectUri AND ValidTo > @Expires",
                         new { RedirectUri = redirectUri, Expires = expires });
 
@@ -280,31 +257,9 @@
                             Created = DateTime.UtcNow
                         });
 
-                var entities = await connection.QueryAsync<RefreshToken>("SELECT * FROM RefreshTokens WHERE Id = @Id", new { Id = id });
+                var entities = await connection.QueryAsync<SqlRefreshToken>("SELECT * FROM RefreshTokens WHERE Id = @Id", new { Id = id });
 
                 return entities.FirstOrDefault();
-            }
-        }
-
-        /// <summary>
-        /// Deletes the refresh token that belongs to the specified client, redirect uri and user
-        /// combination. Called when creating a refresh token to prevent duplicate refresh tokens.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The number of deleted tokens.</returns>
-        public async Task<bool> DeleteRefreshToken(string clientId, string redirectUri, string userId)
-        {
-            using (var connection = this.OpenConnection())
-            {
-                var rows =
-                    await
-                    connection.ExecuteAsync(
-                        "DELETE FROM RefreshTokens WHERE ClientId = @ClientId AND RedirectUri = @RedirectUri AND Subject = @Subject",
-                        new { ClientId = clientId, RedirectUri = redirectUri, Subject = userId });
-
-                return rows == 1;
             }
         }
 
@@ -336,7 +291,7 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteRefreshToken(IRefreshToken refreshToken)
         {
-            var code = (RefreshToken)refreshToken;
+            var token = (SqlRefreshToken)refreshToken;
 
             using (var connection = this.OpenConnection())
             {
@@ -344,7 +299,7 @@
                     await
                     connection.ExecuteAsync(
                         "DELETE FROM RefreshTokens WHERE Id = @Id",
-                        new { Id = code.Id });
+                        new { Id = token.Id });
 
                 return rows == 1;
             }

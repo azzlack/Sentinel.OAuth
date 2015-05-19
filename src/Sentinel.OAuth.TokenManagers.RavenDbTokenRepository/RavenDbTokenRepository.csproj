@@ -50,6 +50,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Implementation\RavenDbTokenRepository.cs" />
+    <Compile Include="Implementation\RavenTokenFactory.cs" />
+    <Compile Include="Models\OAuth\RavenRefreshToken.cs" />
+    <Compile Include="Models\OAuth\RavenAccessToken.cs" />
+    <Compile Include="Models\OAuth\RavenAuthorizationCode.cs" />
     <Compile Include="Models\RavenDbTokenRepositoryConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
