@@ -136,7 +136,9 @@
 
             var db = this.GetDatabase();
 
-            return await db.KeyDeleteAsync(key);
+            // Remove items from set
+            // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
+            return await db.SortedSetRemoveAsync(this.configuration.AuthorizationCodePrefix, key);
         }
 
         /// <summary>
@@ -231,7 +233,9 @@
 
             var db = this.GetDatabase();
 
-            return await db.KeyDeleteAsync(key);
+            // Remove items from set
+            // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
+            return await db.SortedSetRemoveAsync(this.configuration.AccessTokenPrefix, key);
         }
 
         /// <summary>
@@ -331,7 +335,9 @@
 
             var db = this.GetDatabase();
 
-            return await db.KeyDeleteAsync(key);
+            // Remove items from set
+            // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
+            return await db.SortedSetRemoveAsync(this.configuration.RefreshTokenPrefix, key);
         }
 
         /// <summary>Generates a key.</summary>

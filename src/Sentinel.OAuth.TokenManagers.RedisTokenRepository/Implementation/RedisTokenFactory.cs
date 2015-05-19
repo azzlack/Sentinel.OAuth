@@ -55,7 +55,7 @@
                            RedirectUri = redirectUri,
                            Subject = userId,
                            Token = token,
-                           ValidTo = validTo
+                           ValidTo = validTo,
                            Created = DateTime.UtcNow
                        };
         }
