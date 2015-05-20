@@ -78,7 +78,7 @@
         /// <returns>The hash of the the text.</returns>
         public string CreateHash(string text)
         {
-            this.log.DebugFormat("Creating hash for '{0}'", text);
+            this.log.Debug("Creating hash");
 
             // Generate a random salt
             var salt = this.GenerateSalt();
