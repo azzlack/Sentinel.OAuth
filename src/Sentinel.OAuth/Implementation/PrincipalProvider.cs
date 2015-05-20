@@ -1,12 +1,10 @@
 ﻿namespace Sentinel.OAuth.Implementation
 {
     using System;
-    using System.Linq;
     using System.Security.Claims;
 
     using Newtonsoft.Json;
 
-    using Sentinel.OAuth.Converters;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Models.Identity;

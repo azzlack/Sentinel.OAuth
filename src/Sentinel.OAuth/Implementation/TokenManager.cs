@@ -43,7 +43,7 @@
             {
                 throw new ArgumentNullException("logger");
             }
-            
+
             this.logger = logger;
             this.userManager = userManager;
         }
@@ -57,6 +57,8 @@
             this.logger.DebugFormat("Authenticating authorization code '{0}' for redirect uri '{1}'", authorizationCode, redirectUri);
 
             var authorizationCodes = await this.TokenRepository.GetAuthorizationCodes(redirectUri, DateTime.UtcNow);
+
+            this.logger.DebugFormat("Got {0} authorization codes expiring after {1}", authorizationCodes.Count(), DateTime.UtcNow.ToString("s"));
 
             var entity = authorizationCodes.FirstOrDefault(x => this.CryptoProvider.ValidateHash(authorizationCode, x.Code));
 
@@ -87,6 +89,8 @@
 
             var accessTokens = await this.TokenRepository.GetAccessTokens(DateTime.UtcNow);
 
+            this.logger.DebugFormat("Got {0} access tokens expiring after {1}", accessTokens.Count(), DateTime.UtcNow.ToString("s"));
+
             var entity = accessTokens.FirstOrDefault(x => this.CryptoProvider.ValidateHash(accessToken, x.Token));
 
             if (entity != null)
@@ -113,6 +117,8 @@
             this.logger.DebugFormat("Authenticating refresh token for client '{0}' and redirect uri '{1}'", clientId, redirectUri);
 
             var refreshTokens = await this.TokenRepository.GetRefreshTokens(redirectUri, DateTime.UtcNow);
+
+            this.logger.DebugFormat("Got {0} refresh tokens expiring after {1}", refreshTokens.Count(), DateTime.UtcNow.ToString("s"));
 
             var entity = refreshTokens.FirstOrDefault(x => this.CryptoProvider.ValidateHash(refreshToken, x.Token));
 
@@ -168,7 +174,7 @@
 
             // Remove unnecessary claims from principal
             userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
-            
+
             // Add scope claims
             if (scope != null)
             {
@@ -176,7 +182,7 @@
             }
 
             // Create and store authorization code for future use
-            this.logger.DebugFormat("Creating authorization code for '{0}' and redirect uri '{1}'", userPrincipal.Identity.Name, redirectUri);
+            this.logger.DebugFormat("Creating authorization code for client '{0}', redirect uri '{1}' and user '{2}'", client, redirectUri, userPrincipal.Identity.Name);
 
             string code;
             var hashedCode = this.CryptoProvider.CreateHash(out code, 256);
@@ -195,8 +201,12 @@
 
             if (result != null)
             {
+                this.logger.DebugFormat("Successfully created and stored authorization code");
+
                 return code;
             }
+
+            this.logger.ErrorFormat("Unable to create and/or store authorization code");
 
             return string.Empty;
         }
@@ -222,6 +232,8 @@
             // Remove unnecessary claims from principal
             userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
 
+            this.logger.DebugFormat("Creating access token for client '{0}', redirect uri '{1}' and user '{2}'", clientId, redirectUri, userPrincipal.Identity.Name);
+
             // Create new access token
             string token;
             var hashedToken = this.CryptoProvider.CreateHash(out token, 2048);
@@ -239,8 +251,12 @@
 
             if (result != null)
             {
+                this.logger.DebugFormat("Successfully created and stored access token");
+
                 return token;
             }
+
+            this.logger.ErrorFormat("Unable to create and/or store access token");
 
             return string.Empty;
         }
@@ -266,6 +282,8 @@
             // Remove unnecessary claims from principal
             userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
 
+            this.logger.DebugFormat("Creating refresh token for client '{0}', redirect uri '{1}' and user '{2}'", clientId, redirectUri, userPrincipal.Identity.Name);
+
             // Create new refresh token
             string token;
             var hashedToken = this.CryptoProvider.CreateHash(out token, 2048);
@@ -277,8 +295,12 @@
 
             if (result != null)
             {
+                this.logger.DebugFormat("Successfully created and stored refresh token");
+
                 return token;
             }
+
+            this.logger.ErrorFormat("Unable to create and/or store refresh token");
 
             return string.Empty;
         }

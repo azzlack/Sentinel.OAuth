@@ -5,14 +5,12 @@
     using System.Security.Cryptography;
     using System.Text;
 
-    using Newtonsoft.Json;
-
     using Sentinel.OAuth.Core.Interfaces.Providers;
 
     /// <summary>A <c>PBKDF2</c> crypto provider for creating and validating hashes.</summary>
     public class PBKDF2CryptoProvider : ICryptoProvider
     {
-         /// <summary>
+        /// <summary>
         /// The salt size.
         /// </summary>
         private readonly int saltByteSize;
@@ -49,7 +47,7 @@
             this.saltByteSize = saltByteSize;
             this.hashByteSize = hashByteSize;
             this.iterations = iterations;
-            this.delimiter = delimiter ?? new [] {':'};
+            this.delimiter = delimiter ?? new[] { ':' };
 
             this.rng = new RNGCryptoServiceProvider();
         }
