@@ -163,6 +163,7 @@
     <Compile Include="Integration\UserManagers\SqlServerUserManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Unit\MemoryTokenRepositoryTests.cs" />
+    <Compile Include="Unit\SHA2CryptoProviderTests.cs" />
     <Compile Include="Unit\PBKDF2CryptoProviderTests.cs" />
   </ItemGroup>
   <ItemGroup />

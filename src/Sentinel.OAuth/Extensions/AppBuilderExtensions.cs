@@ -41,7 +41,7 @@
 
             if (options.CryptoProvider == null)
             {
-                options.CryptoProvider = new PBKDF2CryptoProvider();
+                options.CryptoProvider = new SHA2CryptoProvider();
             }
 
             if (options.PrincipalProvider == null)

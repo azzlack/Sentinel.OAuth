@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
 
@@ -9,53 +10,31 @@
 
     using Sentinel.OAuth.Core.Interfaces.Providers;
 
-    /// <summary>A <c>PBKDF2</c> crypto provider for creating and validating hashes.</summary>
-    public class PBKDF2CryptoProvider : ICryptoProvider
+    /// <summary>A <c>SHA-2</c> crypto provider for creating and validating hashes.</summary>
+    public class SHA2CryptoProvider : ICryptoProvider
     {
-        /// <summary>
-        /// The salt size.
-        /// </summary>
+        /// <summary>The hash size.</summary>
+        private const int HashByteSize = 64; // 512 bits
+
+        /// <summary>The salt size.</summary>
         private readonly int saltByteSize;
 
-        /// <summary>
-        /// The hash size.
-        /// </summary>
-        private readonly int hashByteSize;
-
-        /// <summary>
-        /// The number of iterations used by the PBKDF2 algorithm.
-        /// </summary>
-        private readonly int iterations;
-
-        /// <summary>
-        /// The hash components delimiter.
-        /// </summary>
-        private readonly char[] delimiter;
-
-        /// <summary>
-        /// The random number generator.
-        /// </summary>
+        /// <summary>The random number generator.</summary>
         private readonly RandomNumberGenerator rng;
 
         /// <summary>The log.</summary>
         private readonly ILog log;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PBKDF2CryptoProvider" /> class.
+        /// Initializes a new instance of the <see cref="SHA2CryptoProvider" /> class.
         /// </summary>
-        /// <param name="saltByteSize">The salt size. Defaults to 24.</param>
-        /// <param name="hashByteSize">The hash size. Defaults to 24.</param>
-        /// <param name="iterations">The number of iterations used by the algorithm. Defaults to 10000.</param>
-        /// <param name="delimiter">The hash components delimiter. Defaults to ':'.</param>
-        public PBKDF2CryptoProvider(int saltByteSize = 128, int hashByteSize = 128, int iterations = 10000, char[] delimiter = null)
+        /// <param name="saltByteSize">The salt size. Defaults to 64.</param>
+        public SHA2CryptoProvider(int saltByteSize = 64)
         {
             this.saltByteSize = saltByteSize;
-            this.hashByteSize = hashByteSize;
-            this.iterations = iterations;
-            this.delimiter = delimiter ?? new[] { ':' };
 
             this.rng = new RNGCryptoServiceProvider();
-            this.log = LogManager.GetLogger("Sentinel.OAuth.PBKDF2CryptoProvider");
+            this.log = LogManager.GetLogger("Sentinel.OAuth.SHA2CryptoProvider");
         }
 
         /// <summary>
@@ -84,9 +63,9 @@
             var salt = this.GenerateSalt();
 
             // Hash the password and encode the parameters
-            var hash = this.Compute(text, salt, this.iterations, this.hashByteSize);
+            var hash = this.Compute(Encoding.UTF8.GetBytes(text), salt);
 
-            var result = string.Format("{1}{0}{2}{0}{3}", string.Join("", this.delimiter), this.iterations, Convert.ToBase64String(salt), Convert.ToBase64String(hash));
+            var result = Convert.ToBase64String(hash);
 
             this.log.Debug("Finished creating hash");
 
@@ -103,21 +82,18 @@
         {
             this.log.DebugFormat("Validating the hash '{0}'", text);
 
-            var components = correctHash.Split(this.delimiter);
+            var saltedHash = Convert.FromBase64String(correctHash);
 
-            // Dont bother validating if the number of components doesnt match up
-            if (components.Length != 3)
-            {
-                return false;
-            }
+            // Get salt from the end of the hash
+            var offset = saltedHash.Length - this.saltByteSize;
+            var saltBytes = new byte[this.saltByteSize];
+            Buffer.BlockCopy(saltedHash, offset, saltBytes, 0, this.saltByteSize);
 
-            var iterations = Int32.Parse(components[0]);
-            var salt = Convert.FromBase64String(components[1]);
-            var hash = Convert.FromBase64String(components[2]);
+            // Compute new hash from the supplied text and the extracted salt
+            var newHash = this.Compute(Encoding.UTF8.GetBytes(text), saltBytes);
 
-            var testHash = this.Compute(text, salt, iterations, hash.Length);
-
-            var result = this.SlowEquals(hash, testHash);
+            // If the hashes match, the text is valid
+            var result = saltedHash.SequenceEqual(newHash);
 
             if (result)
             {
@@ -239,38 +215,30 @@
         }
 
         /// <summary>
-        /// Compares two byte arrays in length-constant time. This comparison
-        /// method is used so that password hashes cannot be extracted from
-        /// on-line systems using a timing attack and then attacked off-line.
-        /// </summary>
-        /// <param name="a">The first byte array.</param>
-        /// <param name="b">The second byte array.</param>
-        /// <returns>True if both byte arrays are equal. False otherwise.</returns>
-        private bool SlowEquals(byte[] a, byte[] b)
-        {
-            var diff = (uint)a.Length ^ (uint)b.Length;
-
-            for (var i = 0; i < a.Length && i < b.Length; i++)
-            {
-                diff |= (uint)(a[i] ^ b[i]);
-            }
-
-            return diff == 0;
-        }
-
-        /// <summary>
         /// Computes the PBKDF2-SHA1 hash of a text.
         /// </summary>
         /// <param name="text">The text to hash.</param>
         /// <param name="salt">The salt.</param>
-        /// <param name="iterations">The iteration count.</param>
-        /// <param name="outputBytes">The length of the hash to generate, in bytes.</param>
         /// <returns>A hash of the text.</returns>
-        private byte[] Compute(string text, byte[] salt, int iterations, int outputBytes)
+        private byte[] Compute(byte[] text, byte[] salt)
         {
-            var pbkdf2 = new Rfc2898DeriveBytes(text, salt, iterations);
+            using (var sha = new SHA512CryptoServiceProvider())
+            {
+                // Prepend salt to text
+                var saltedText = new byte[salt.Length + text.Length];
+                Buffer.BlockCopy(salt, 0, saltedText, 0, salt.Length);
+                Buffer.BlockCopy(text, 0, saltedText, salt.Length, text.Length);
 
-            return pbkdf2.GetBytes(outputBytes);
+                // Create hash
+                var hash = sha.ComputeHash(saltedText);
+
+                // Append salt to hash
+                var saltedHash = new byte[hash.Length + salt.Length];
+                Buffer.BlockCopy(hash, 0, saltedHash, 0, hash.Length);
+                Buffer.BlockCopy(salt, 0, saltedHash, hash.Length, salt.Length);
+
+                return saltedHash;
+            }
         }
 
         /// <summary>

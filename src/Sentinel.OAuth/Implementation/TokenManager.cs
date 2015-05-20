@@ -10,11 +10,9 @@
     using Sentinel.OAuth.Core.Interfaces.Factories;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
-    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.Core.Managers;
-    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Models.Identity;
 
     /// <summary>A universal token manager. Takes care of processing the tokens without caring where and how they are stored.</summary>

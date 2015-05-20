@@ -90,6 +90,7 @@
     <Compile Include="Extensions\AppBuilderExtensions.cs" />
     <Compile Include="Extensions\PrincipalExtensions.cs" />
     <Compile Include="Extensions\OwinContextExtensions.cs" />
+    <Compile Include="Implementation\SHA2CryptoProvider.cs" />
     <Compile Include="Implementation\TokenFactory.cs" />
     <Compile Include="Models\Identity\SentinelClaim.cs" />
     <Compile Include="Models\Identity\SentinelIdentity.cs" />
