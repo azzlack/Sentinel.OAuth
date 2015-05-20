@@ -5,6 +5,8 @@
     using System.Security.Cryptography;
     using System.Text;
 
+    using Common.Logging;
+
     using Sentinel.OAuth.Core.Interfaces.Providers;
 
     /// <summary>A <c>PBKDF2</c> crypto provider for creating and validating hashes.</summary>
@@ -35,6 +37,9 @@
         /// </summary>
         private readonly RandomNumberGenerator rng;
 
+        /// <summary>The log.</summary>
+        private readonly ILog log;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PBKDF2CryptoProvider" /> class.
         /// </summary>
@@ -50,6 +55,7 @@
             this.delimiter = delimiter ?? new[] { ':' };
 
             this.rng = new RNGCryptoServiceProvider();
+            this.log = LogManager.GetLogger(typeof(PBKDF2CryptoProvider));
         }
 
         /// <summary>
@@ -112,6 +118,8 @@
         /// <returns>The encrypted text.</returns>
         public string Encrypt(string text, string key)
         {
+            this.log.DebugFormat("Encrypting '{0}'", text);
+
             // Create random key generator
             var pdb = new Rfc2898DeriveBytes(key, Encoding.UTF8.GetBytes(key));
 
@@ -136,6 +144,8 @@
                 }
             }
 
+            this.log.Debug("Encryption complete");
+
             return Convert.ToBase64String(encrypted);
         }
 
@@ -145,6 +155,8 @@
         /// <returns>The principal.</returns>
         public string Decrypt(string ticket, string key)
         {
+            this.log.DebugFormat("Decrypting '{0}'", ticket);
+
             string decryptedText;
 
             // Create random key generator
@@ -165,6 +177,8 @@
                     }
                 }
             }
+
+            this.log.Debug("Decryption complete");
 
             return decryptedText;
         }
