@@ -79,7 +79,17 @@
         {
             this.log.DebugFormat("Validating the hash '{0}'", text);
 
-            var saltedHash = Convert.FromBase64String(correctHash);
+            byte[] saltedHash;
+
+            try
+            {
+                saltedHash = Convert.FromBase64String(correctHash);
+            }
+            catch (FormatException ex)
+            {
+                this.log.Error("The hash is not a valid base64 encoded string", ex);
+                return false;
+            }
 
             // Get salt from the end of the hash
             var offset = saltedHash.Length - this.saltByteSize;
