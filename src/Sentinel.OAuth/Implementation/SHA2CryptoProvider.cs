@@ -13,9 +13,6 @@
     /// <summary>A <c>SHA-2</c> crypto provider for creating and validating hashes.</summary>
     public class SHA2CryptoProvider : ICryptoProvider
     {
-        /// <summary>The hash size.</summary>
-        private const int HashByteSize = 64; // 512 bits
-
         /// <summary>The salt size.</summary>
         private readonly int saltByteSize;
 
