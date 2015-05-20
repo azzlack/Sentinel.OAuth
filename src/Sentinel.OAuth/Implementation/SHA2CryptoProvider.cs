@@ -64,7 +64,7 @@
 
             var result = Convert.ToBase64String(hash);
 
-            this.log.Debug("Finished creating hash");
+            this.log.Debug("Successfully created hash");
 
             return result;
         }
@@ -77,7 +77,7 @@
         /// <returns><c>true</c> if the text can be converted into the correct hash, <c>false</c> otherwise.</returns>
         public bool ValidateHash(string text, string correctHash)
         {
-            this.log.DebugFormat("Validating the hash '{0}'", text);
+            this.log.Debug("Validating hash");
 
             byte[] saltedHash;
 
@@ -87,7 +87,7 @@
             }
             catch (FormatException ex)
             {
-                this.log.Error("The hash is not a valid base64 encoded string", ex);
+                this.log.Error(string.Format("The hash '{0}' is not a valid base64 encoded string", correctHash), ex);
                 return false;
             }
 
