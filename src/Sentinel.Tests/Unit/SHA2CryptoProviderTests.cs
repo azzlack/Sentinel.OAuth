@@ -92,7 +92,7 @@
         }
 
         [TestCase("aabbccddee", "JsSAQQiINCmefez0E1vt9VLEwd6kMPD/M3/qwDOpuIw2WupF77UkJIYwzabp2G0CVhYPgDs+craqGzYX9anXShTePNfni5gJ79it0LnjiIng9A5guQ4wEwn+OCPgWZI+a7n7Uy2rNLd+0wTkYX/JX+dU+rgh0xhefIs1Gq5Vxuc=")]
-        public void Validate_WhenGivenValidCorrectTextAndHashCombination_ReturnsTrue(string text, string correctHash)
+        public void Validate_WhenGivenValidTextAndHashCombination_ReturnsTrue(string text, string correctHash)
         {
             var valid = this.provider.ValidateHash(text, correctHash);
 
@@ -100,7 +100,8 @@
         }
 
         [TestCase("aabbccddee", "JsSAQQiINCmefez0E1vt9VLEwd6kMPD/M3/qwDOpuIw2WupF77UkJIYwzabp2G0CVhYPgDs+craqGzYX9anabcTePNfni5gJ79it0LnjiIng9A5guQ4wEwn+OCPgWZI+a7n7Uy2rNLd+0wTkYX/JX+dU+rgh0xhefIs1Gq5Vxuc=")]
-        public void Validate_WhenGivenValidIncorrectTextAndHashCombination_ReturnsFalse(string text, string correctHash)
+        [TestCase("aabbccddee", "bdsbgdsnkjlnkls")]
+        public void Validate_WhenGivenIncorrectTextAndHashCombination_ReturnsFalse(string text, string correctHash)
         {
             var valid = this.provider.ValidateHash(text, correctHash);
 

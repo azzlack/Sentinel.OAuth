@@ -122,7 +122,7 @@
 
         [TestCase("aabbccddee", "9000:WDkTBrCC3uuglikSwDwjkuSNrZ6b3IYs:c81j3L+oWFzzZ1kBt6BCbRhL48dNdBL6")]
         [TestCase("aabbccddee", "10000:E+nmwGCEObvreQhlrV4clrfkiUYu877i:szblNYoQohlabb31BDMdt2KFJCRtUtp8")]
-        public void Validate_WhenGivenValidIncorrectTextAndHashCombination_ReturnsFalse(string text, string correctHash)
+        public void Validate_WhenGivenIncorrectTextAndHashCombination_ReturnsFalse(string text, string correctHash)
         {
             var valid = this.provider.ValidateHash(text, correctHash);
 
@@ -132,7 +132,7 @@
 
         [TestCase(64, 64, 25000, new[] { ':' }, "aabbccddee", "9000:WDkTBrCC3uuglikSwDwjkuSNrZ6b3IYs:c81j3L+oWFzzZ1kBt6BCbRhL48dNdBL6")]
         [TestCase(64, 64, 25000, new[] { '|' }, "aabbccddee", "10000|E+nmwGCEObwreQhlrV4clrekiUYu877i|szblNYoQohlabb31BDMdt2KFJCRtUtp8")]
-        public void Validate_WhenGivenValidIncorrectTextAndHashCombination_ReturnsFalse(int saltByteSize, int hashByteSize, int iterations, char[] delimiter, string text, string correctHash)
+        public void Validate_WhenGivenIncorrectTextAndHashCombination_ReturnsFalse(int saltByteSize, int hashByteSize, int iterations, char[] delimiter, string text, string correctHash)
         {
             var p = new PBKDF2CryptoProvider(saltByteSize, hashByteSize, iterations, delimiter);
 
@@ -183,7 +183,7 @@
         {
             var c1 = new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack")));
             var s = JsonConvert.SerializeObject(c1);
- 
+
             var e = this.provider.Encrypt(s, key);
 
             Console.WriteLine("Original: {0}", s);
