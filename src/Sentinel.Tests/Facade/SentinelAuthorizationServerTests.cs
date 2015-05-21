@@ -8,7 +8,6 @@
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
-    using System.Runtime.Remoting.Messaging;
     using System.Threading.Tasks;
 
     using Coypu;
@@ -335,7 +334,7 @@
 
                 var identity = await this.PrintIdentity(token.AccessToken);
 
-                Assert.IsTrue(identity.HasClaim(ClaimType.Scope, Scope.Read));
+                Assert.IsTrue(identity.HasClaim(ClaimType.Scope, "http://localhost"));
             }
 
             [Test]
