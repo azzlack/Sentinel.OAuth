@@ -59,8 +59,9 @@
             var entries = new List<HashEntry>();
 
             entries.Add(new HashEntry("ClientId", this.ClientId));
-            entries.Add(new HashEntry("RedirectUri", this.RedirectUri));
+            entries.Add(new HashEntry("RedirectUri", this.RedirectUri ?? string.Empty));
             entries.Add(new HashEntry("Subject", this.Subject));
+            entries.Add(new HashEntry("Scope", JsonConvert.SerializeObject(this.Scope ?? new string[0])));
             entries.Add(new HashEntry("Token", this.Token));
             entries.Add(new HashEntry("ValidTo", JsonConvert.SerializeObject(this.ValidTo)));
             entries.Add(new HashEntry("Created", JsonConvert.SerializeObject(this.Created)));
