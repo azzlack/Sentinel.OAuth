@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Data;
     using System.Data.SqlClient;
     using System.Linq;
     using System.Threading.Tasks;
@@ -40,11 +41,26 @@
         {
             using (var connection = this.OpenConnection())
             {
-                var codes =
+                var data =
                     await
-                    connection.QueryAsync<SqlAuthorizationCode>(
+                    connection.QueryAsync(
                         "SELECT * FROM AuthorizationCodes WHERE RedirectUri = @RedirectUri AND ValidTo > @Expires",
                         new { RedirectUri = redirectUri, Expires = expires });
+                var codes =
+                    data.Select(
+                        x =>
+                        new SqlAuthorizationCode()
+                            {
+                                ClientId = x.ClientId,
+                                Code = x.Code,
+                                Created = x.Created,
+                                Id = x.Id,
+                                RedirectUri = x.RedirectUri,
+                                Subject = x.Subject,
+                                Ticket = x.Ticket,
+                                ValidTo = x.ValidTo,
+                                Scope = x.Scope != null ? x.Scope.ToString().Split(' ') : new string[0]
+                            });
 
                 return codes;
             }
@@ -71,13 +87,28 @@
                                 authorizationCode.RedirectUri,
                                 authorizationCode.Subject,
                                 authorizationCode.Code,
-                                authorizationCode.Scope,
+                                Scope = string.Join(" ", authorizationCode.Scope),
                                 authorizationCode.Ticket,
                                 authorizationCode.ValidTo,
                                 Created = DateTime.UtcNow
                             });
 
-                var entities = await connection.QueryAsync<SqlAuthorizationCode>("SELECT * FROM AuthorizationCodes WHERE Id = @Id", new { Id = id });
+                var data = await connection.QueryAsync("SELECT * FROM AuthorizationCodes WHERE Id = @Id", new { Id = id });
+                var entities =
+                    data.Select(
+                        x =>
+                        new SqlAuthorizationCode()
+                        {
+                            ClientId = x.ClientId,
+                            Code = x.Code,
+                            Created = x.Created,
+                            Id = x.Id,
+                            RedirectUri = x.RedirectUri,
+                            Subject = x.Subject,
+                            Ticket = x.Ticket,
+                            ValidTo = x.ValidTo,
+                            Scope = x.Scope != null ? x.Scope.ToString().Split(' ') : new string[0]
+                        });
 
                 return entities.FirstOrDefault();
             }
@@ -135,11 +166,27 @@
         {
             using (var connection = this.OpenConnection())
             {
-                var tokens =
+                var data =
                     await
-                    connection.QueryAsync<SqlAccessToken>(
+                    connection.QueryAsync(
                         "SELECT * FROM AccessTokens WHERE ValidTo > @Expires",
                         new { Expires = expires });
+
+                var tokens =
+                    data.Select(
+                        x =>
+                        new SqlAccessToken()
+                        {
+                            ClientId = x.ClientId,
+                            Created = x.Created,
+                            Id = x.Id,
+                            RedirectUri = x.RedirectUri,
+                            Subject = x.Subject,
+                            Token = x.Token,
+                            Ticket = x.Ticket,
+                            ValidTo = x.ValidTo,
+                            Scope = x.Scope != null ? x.Scope.ToString().Split(' ') : new string[0]
+                        });
 
                 return tokens;
             }
@@ -151,25 +198,41 @@
         public async Task<IAccessToken> InsertAccessToken(IAccessToken accessToken)
         {
             var token = (SqlAccessToken)accessToken;
-            
+
             using (var connection = this.OpenConnection())
             {
                 var id =
                     await
                     connection.QueryAsync<long>(
-                        "INSERT INTO AccessTokens (ClientId, RedirectUri, Subject, Token, Ticket, ValidTo, Created) VALUES (@ClientId, @RedirectUri, @Subject, @Token, @Ticket, @ValidTo, @Created); SELECT CAST(SCOPE_IDENTITY() as bigint);",
+                        "INSERT INTO AccessTokens (ClientId, RedirectUri, Subject, Scope, Token, Ticket, ValidTo, Created) VALUES (@ClientId, @RedirectUri, @Subject, @Scope, @Token, @Ticket, @ValidTo, @Created); SELECT CAST(SCOPE_IDENTITY() as bigint);",
                         new
                         {
                             token.ClientId,
                             token.RedirectUri,
                             token.Subject,
+                            Scope = string.Join(" ", token.Scope),
                             token.Token,
                             token.Ticket,
                             token.ValidTo,
                             token.Created
                         });
 
-                var entities = await connection.QueryAsync<SqlAccessToken>("SELECT * FROM AccessTokens WHERE Id = @Id", new { Id = id });
+                var data = await connection.QueryAsync("SELECT * FROM AccessTokens WHERE Id = @Id", new { Id = id });
+                var entities =
+                    data.Select(
+                        x =>
+                        new SqlAccessToken()
+                        {
+                            ClientId = x.ClientId,
+                            Created = x.Created,
+                            Id = x.Id,
+                            RedirectUri = x.RedirectUri,
+                            Subject = x.Subject,
+                            Token = x.Token,
+                            Ticket = x.Ticket,
+                            ValidTo = x.ValidTo,
+                            Scope = x.Scope != null ? x.Scope.ToString().Split(' ') : new string[0]
+                        });
 
                 return entities.FirstOrDefault();
             }
@@ -226,11 +289,26 @@
         {
             using (var connection = this.OpenConnection())
             {
-                var tokens =
+                var data =
                     await
-                    connection.QueryAsync<SqlRefreshToken>(
+                    connection.QueryAsync(
                         "SELECT * FROM RefreshTokens WHERE RedirectUri = @RedirectUri AND ValidTo > @Expires",
                         new { RedirectUri = redirectUri, Expires = expires });
+
+                var tokens =
+                    data.Select(
+                        x =>
+                        new SqlRefreshToken()
+                        {
+                            ClientId = x.ClientId,
+                            Created = x.Created,
+                            Id = x.Id,
+                            RedirectUri = x.RedirectUri,
+                            Subject = x.Subject,
+                            Token = x.Token,
+                            ValidTo = x.ValidTo,
+                            Scope = x.Scope != null ? x.Scope.ToString().Split(' ') : new string[0]
+                        });
 
                 return tokens;
             }
@@ -241,23 +319,41 @@
         /// <returns>The inserted refresh token. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<IRefreshToken> InsertRefreshToken(IRefreshToken refreshToken)
         {
+            var token = (SqlRefreshToken)refreshToken;
+
             using (var connection = this.OpenConnection())
             {
                 var id =
                     await
                     connection.QueryAsync<long>(
-                        "INSERT INTO RefreshTokens (ClientId, RedirectUri, Subject, Token, ValidTo, Created) VALUES (@ClientId, @RedirectUri, @Subject, @Token, @ValidTo, @Created); SELECT CAST(SCOPE_IDENTITY() as bigint);",
+                        "INSERT INTO RefreshTokens (ClientId, RedirectUri, Subject, Scope, Token, ValidTo, Created) VALUES (@ClientId, @RedirectUri, @Subject, @Scope, @Token, @ValidTo, @Created); SELECT CAST(SCOPE_IDENTITY() as bigint);",
                         new
                         {
                             refreshToken.ClientId,
                             refreshToken.RedirectUri,
                             refreshToken.Subject,
+                            Scope = string.Join(" ", token.Scope),
                             refreshToken.Token,
                             refreshToken.ValidTo,
                             Created = DateTime.UtcNow
                         });
 
-                var entities = await connection.QueryAsync<SqlRefreshToken>("SELECT * FROM RefreshTokens WHERE Id = @Id", new { Id = id });
+                var data = await connection.QueryAsync("SELECT * FROM RefreshTokens WHERE Id = @Id", new { Id = id });
+
+                var entities =
+                    data.Select(
+                        x =>
+                        new SqlRefreshToken()
+                        {
+                            ClientId = x.ClientId,
+                            Created = x.Created,
+                            Id = x.Id,
+                            RedirectUri = x.RedirectUri,
+                            Subject = x.Subject,
+                            Token = x.Token,
+                            ValidTo = x.ValidTo,
+                            Scope = x.Scope != null ? x.Scope.ToString().Split(' ') : new string[0]
+                        });
 
                 return entities.FirstOrDefault();
             }
