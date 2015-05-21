@@ -14,8 +14,9 @@
         public Func<TokenIssuedEventArgs, Task> TokenIssued;
 
         /// <summary>
-        /// Activated when the user is logged in and the principal is created. Use this event to add any
-        /// custom claims to the user before the token is created.
+        /// Activated when the user is logged in (either via a username and password, or a refresh token)
+        /// and the principal is created. Use this event to add any custom claims to the user before the
+        /// token is created.
         /// </summary>
         public Func<PrincipalCreatedEventArgs, Task> PrincipalCreated;
 

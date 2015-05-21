@@ -345,7 +345,19 @@
         {
             this.options.Logger.Debug("Authenticating refresh token flow");
 
-            context.Validated();
+            var user = new SentinelPrincipal(context.Ticket.Identity);
+
+            // Activate event if subscribed to
+            if (this.options.Events.PrincipalCreated != null)
+            {
+                var args = new PrincipalCreatedEventArgs(user, context);
+
+                await this.options.Events.PrincipalCreated(args);
+
+                user = new SentinelPrincipal(args.Principal);
+            }
+
+            context.Validated(user.Identity.AsClaimsIdentity());
         }
 
         /// <summary>Called before the TokenEndpoint redirects its response to the caller.</summary>
