@@ -2,10 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+
+    using Newtonsoft.Json;
 
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
@@ -83,23 +84,39 @@
             var key = this.GenerateKey(code);
 
             var db = this.GetDatabase();
-            
-            try 
+
+            try
             {
+                if (code.ClientId == null || code.RedirectUri == null || code.Subject == null
+                    || code.Code == null || code.Ticket == null
+                    || code.Created == DateTime.MinValue
+                    || code.ValidTo == DateTime.MinValue)
+                {
+                    throw new ArgumentException(string.Format("The authorization code is invalid: {0}", JsonConvert.SerializeObject(code)), "authorizationCode");
+                }
+
+                this.configuration.Log.DebugFormat("Inserting access token hash in key {0}", key);
+
                 // Add hash to key
                 await db.HashSetAsync(key, code.ToHashEntries());
 
+                var expires = authorizationCode.ValidTo.ToUnixTime();
+
+                this.configuration.Log.DebugFormat("Inserting key {0} to authorization code set with score {1}", key, expires);
+
                 // Add key to sorted set for future reference. The score is the expire time in seconds since epoch.
-                await db.SortedSetAddAsync(this.configuration.AuthorizationCodePrefix, key, authorizationCode.ValidTo.ToUnixTime());
+                await db.SortedSetAddAsync(this.configuration.AuthorizationCodePrefix, key, expires);
+
+                this.configuration.Log.DebugFormat("Making key {0} expire at {1}", key, authorizationCode.ValidTo);
 
                 // Make the key expire when the code times out
                 await db.KeyExpireAsync(key, authorizationCode.ValidTo);
 
                 return authorizationCode;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                this.configuration.Log.Error("Error when inserting authorization code", ex);
             }
 
             return null;
@@ -186,11 +203,27 @@
 
             try
             {
+                if (token.ClientId == null || token.RedirectUri == null || token.Subject == null
+                    || token.Token == null || token.Ticket == null
+                    || token.Created == DateTime.MinValue
+                    || token.ValidTo == DateTime.MinValue)
+                {
+                    throw new ArgumentException(string.Format("The access token is invalid: {0}", JsonConvert.SerializeObject(token)), "accessToken");
+                }
+
+                this.configuration.Log.DebugFormat("Inserting access token hash in key {0}", key);
+
                 // Add hash to key
                 await db.HashSetAsync(key, token.ToHashEntries());
 
+                var expires = accessToken.ValidTo.ToUnixTime();
+
+                this.configuration.Log.DebugFormat("Inserting key {0} to access token set with score {1}", key, expires);
+
                 // Add key to sorted set for future reference. The score is the expire time in seconds since epoch.
-                await db.SortedSetAddAsync(this.configuration.AccessTokenPrefix, key, accessToken.ValidTo.ToUnixTime());
+                await db.SortedSetAddAsync(this.configuration.AccessTokenPrefix, key, expires);
+
+                this.configuration.Log.DebugFormat("Making key {0} expire at {1}", key, accessToken.ValidTo);
 
                 // Make the key expire when the code times out
                 await db.KeyExpireAsync(key, accessToken.ValidTo);
@@ -199,7 +232,7 @@
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                this.configuration.Log.Error("Error when inserting access token", ex);
             }
 
             return null;
@@ -285,11 +318,27 @@
 
             try
             {
+                if (token.ClientId == null || token.RedirectUri == null || token.Subject == null
+                    || token.Token == null
+                    || token.Created == DateTime.MinValue
+                    || token.ValidTo == DateTime.MinValue)
+                {
+                    throw new ArgumentException(string.Format("The refresh token is invalid: {0}", JsonConvert.SerializeObject(token)), "refreshToken");
+                }
+
+                this.configuration.Log.DebugFormat("Inserting refresh token hash in key {0}", key);
+
                 // Add hash to key
                 await db.HashSetAsync(key, token.ToHashEntries());
 
+                var expires = refreshToken.ValidTo.ToUnixTime();
+
+                this.configuration.Log.DebugFormat("Inserting key {0} to refresh token set with score {1}", key, expires);
+
                 // Add key to sorted set for future reference. The score is the expire time in seconds since epoch.
-                await db.SortedSetAddAsync(this.configuration.RefreshTokenPrefix, key, refreshToken.ValidTo.ToUnixTime());
+                await db.SortedSetAddAsync(this.configuration.RefreshTokenPrefix, key, expires);
+
+                this.configuration.Log.DebugFormat("Making key {0} expire at {1}", key, refreshToken.ValidTo);
 
                 // Make the key expire when the code times out
                 await db.KeyExpireAsync(key, refreshToken.ValidTo);
@@ -298,7 +347,7 @@
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                this.configuration.Log.Error("Error when inserting refresh token", ex);
             }
 
             return null;

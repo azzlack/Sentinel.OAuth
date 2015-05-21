@@ -16,6 +16,7 @@
     using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.Implementation;
     using Sentinel.OAuth.Models.Identity;
+    using Sentinel.Tests.Constants;
 
     [TestFixture]
     [Category("Integration")]
@@ -41,7 +42,7 @@
         public async void AuthenticateAuthorizationCode_WhenGivenValidAuthorizationCode_ReturnsAuthenticatedPrincipal(string clientId, string redirectUri)
         {
             var a = this.CreateAuthenticatedPrincipal(clientId, AuthenticationType.OAuth);
-            var t = await this.tokenManager.CreateAuthorizationCodeAsync(a, TimeSpan.FromMinutes(5), redirectUri);
+            var t = await this.tokenManager.CreateAuthorizationCodeAsync(a, TimeSpan.FromMinutes(5), redirectUri, null);
             var r = await this.tokenManager.AuthenticateAuthorizationCodeAsync(redirectUri, t);
 
             Console.WriteLine("Authorization Code: {0}", t);
@@ -66,9 +67,9 @@
         public async void AuthenticateRefreshToken_WhenGivenValidRefreshTokens_ReturnsAuthenticatedPrincipal(string clientId, string redirectUri)
         {
             var a = this.CreateAuthenticatedPrincipal(clientId, AuthenticationType.OAuth);
-            var t = await this.tokenManager.CreateAuthorizationCodeAsync(a, TimeSpan.FromMinutes(5), redirectUri);
+            var t = await this.tokenManager.CreateAuthorizationCodeAsync(a, TimeSpan.FromMinutes(5), redirectUri, new[] { Scope.Read });
             var r = await this.tokenManager.AuthenticateAuthorizationCodeAsync(redirectUri, t);
-            var y = await this.tokenManager.CreateRefreshTokenAsync(r, TimeSpan.FromMinutes(5), clientId, redirectUri);
+            var y = await this.tokenManager.CreateRefreshTokenAsync(r, TimeSpan.FromMinutes(5), clientId, redirectUri, new[] { Scope.Read });
             var x = await this.tokenManager.AuthenticateRefreshTokenAsync(clientId, y, redirectUri);
 
             Console.WriteLine("Authorization Code: {0}", t);
@@ -88,9 +89,9 @@
         public async void AuthenticateRefreshToken_WhenGivenInvalidRefreshToken_ReturnsNotAuthenticatedPrincipal(string clientId, string redirectUri)
         {
             var a = this.CreateAuthenticatedPrincipal(clientId, AuthenticationType.OAuth);
-            var t = await this.tokenManager.CreateAuthorizationCodeAsync(a, TimeSpan.FromMinutes(5), redirectUri);
+            var t = await this.tokenManager.CreateAuthorizationCodeAsync(a, TimeSpan.FromMinutes(5), redirectUri, new[] { Scope.Read });
             var r = await this.tokenManager.AuthenticateAuthorizationCodeAsync(redirectUri, t);
-            var y = await this.tokenManager.CreateRefreshTokenAsync(r, TimeSpan.FromMinutes(5), clientId, redirectUri);
+            var y = await this.tokenManager.CreateRefreshTokenAsync(r, TimeSpan.FromMinutes(5), clientId, redirectUri, new[] { Scope.Read });
 
             var tamperedToken = this.TamperWithToken(y);
 
@@ -105,9 +106,9 @@
         public async void AuthenticateAccessToken_WhenGivenValidAccessTokens_ReturnsAuthenticatedPrincipal(string clientId, string redirectUri)
         {
             var a = this.CreateAuthenticatedPrincipal(clientId, AuthenticationType.OAuth);
-            var t = await this.tokenManager.CreateAuthorizationCodeAsync(a, TimeSpan.FromMinutes(5), redirectUri);
+            var t = await this.tokenManager.CreateAuthorizationCodeAsync(a, TimeSpan.FromMinutes(5), redirectUri, new[] { Scope.Read });
             var r = await this.tokenManager.AuthenticateAuthorizationCodeAsync(redirectUri, t);
-            var y = await this.tokenManager.CreateAccessTokenAsync(r, TimeSpan.FromHours(1), clientId, redirectUri);
+            var y = await this.tokenManager.CreateAccessTokenAsync(r, TimeSpan.FromHours(1), clientId, redirectUri, new[] { Scope.Read });
             var x = await this.tokenManager.AuthenticateAccessTokenAsync(y);
 
             Console.WriteLine("Authorization Code: {0}", t);
@@ -127,9 +128,9 @@
         public async void AuthenticateAccessToken_WhenGivenInvalidAccessToken_ReturnsNotAuthenticatedPrincipal(string clientId, string redirectUri)
         {
             var a = this.CreateAuthenticatedPrincipal(clientId, AuthenticationType.OAuth);
-            var t = await this.tokenManager.CreateAuthorizationCodeAsync(a, TimeSpan.FromMinutes(5), redirectUri);
+            var t = await this.tokenManager.CreateAuthorizationCodeAsync(a, TimeSpan.FromMinutes(5), redirectUri, new[] { Scope.Read });
             var r = await this.tokenManager.AuthenticateAuthorizationCodeAsync(redirectUri, t);
-            var y = await this.tokenManager.CreateAccessTokenAsync(r, TimeSpan.FromHours(1), clientId, redirectUri);
+            var y = await this.tokenManager.CreateAccessTokenAsync(r, TimeSpan.FromHours(1), clientId, redirectUri, new[] { Scope.Read });
 
             var tamperedToken = this.TamperWithToken(y);
 

@@ -18,6 +18,7 @@
     using Sentinel.OAuth.Models.Identity;
     using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Implementation;
     using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models;
+    using Sentinel.Tests.Constants;
 
     [TestFixture]
     [Category("Integration")]
@@ -37,12 +38,12 @@
                             new SentinelClaim(ClaimType.Client, "NUnit"))));
 
             this.tokenManager = new TokenManager(
-                LogManager.GetLogger(typeof(RedisTokenRepositoryTests)), 
+                LogManager.GetLogger(typeof(RedisTokenRepositoryTests)),
                 userManager.Object,
                 new PrincipalProvider(new PBKDF2CryptoProvider()),
                 new PBKDF2CryptoProvider(),
-                new RedisTokenFactory(), 
-                new RedisTokenRepository(new RedisTokenRepositoryConfiguration(ConfigurationManager.AppSettings["RedisHost"], 4, "sentinel.oauth")));
+                new RedisTokenFactory(),
+                new RedisTokenRepository(new RedisTokenRepositoryConfiguration(ConfigurationManager.AppSettings["RedisHost"], 4, "sentinel.oauth", LogManager.GetLogger(typeof(RedisTokenRepositoryTests)))));
         }
 
         [Test]
@@ -55,9 +56,10 @@
                 await
                 this.tokenManager.CreateAuthorizationCodeAsync(
                     new SentinelPrincipal(
-                    new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))), 
+                    new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                     TimeSpan.FromMinutes(5),
-                    "http://localhost");
+                    "http://localhost",
+                    null);
 
             Console.WriteLine("##teamcity[buildStatisticValue key='Redis.CreateAuthorizationCodeAsync' value='{0}']", stopwatch.ElapsedMilliseconds);
 
@@ -84,7 +86,8 @@
                     new SentinelPrincipal(
                     new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "this one is expired"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                     TimeSpan.FromMinutes(-5),
-                    "http://localhost");
+                    "http://localhost",
+                    new[] { Scope.Read });
 
             Console.WriteLine("##teamcity[buildStatisticValue key='Redis.CreateAuthorizationCodeAsync' value='{0}']", stopwatch.ElapsedMilliseconds);
 
@@ -94,7 +97,8 @@
                     new SentinelPrincipal(
                     new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                     TimeSpan.FromMinutes(5),
-                    "http://localhost");
+                    "http://localhost",
+                    new[] { Scope.Read });
 
             Console.WriteLine("Code: {0}", code);
 
@@ -118,10 +122,11 @@
                 await
                 this.tokenManager.CreateAccessTokenAsync(
                     new SentinelPrincipal(
-                    new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))), 
-                    TimeSpan.FromHours(1), 
-                    "NUnit", 
-                    "http://localhost");
+                    new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                    TimeSpan.FromHours(1),
+                    "NUnit",
+                    "http://localhost",
+                    new[] { Scope.Read });
 
             Console.WriteLine("##teamcity[buildStatisticValue key='Redis.CreateAccessTokenAsync' value='{0}']", stopwatch.ElapsedMilliseconds);
 
@@ -150,14 +155,15 @@
                     new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                     TimeSpan.FromSeconds(10),
                     "NUnit",
-                    "http://localhost");
+                    "http://localhost",
+                    new[] { Scope.Read });
 
             Console.WriteLine("##teamcity[buildStatisticValue key='Redis.CreateAccessTokenAsync' value='{0}']", stopwatch.ElapsedMilliseconds);
 
             Console.WriteLine("Token: {0}", token);
 
             await Task.Delay(TimeSpan.FromSeconds(10));
-            
+
             stopwatch.Restart();
             var user = await this.tokenManager.AuthenticateAccessTokenAsync(token);
 
@@ -176,10 +182,11 @@
                 await
                 this.tokenManager.CreateRefreshTokenAsync(
                     new SentinelPrincipal(
-                    new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))), 
-                    TimeSpan.FromDays(90), 
+                    new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                    TimeSpan.FromDays(90),
                     "NUnit",
-                    "http://localhost");
+                    "http://localhost",
+                    new[] { Scope.Read });
 
             Console.WriteLine("##teamcity[buildStatisticValue key='Redis.CreateRefreshTokenAsync' value='{0}']", stopwatch.ElapsedMilliseconds);
 
@@ -208,7 +215,8 @@
                     new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                     TimeSpan.FromSeconds(10),
                     "NUnit",
-                    "http://localhost");
+                    "http://localhost",
+                    new[] { Scope.Read });
 
             Console.WriteLine("##teamcity[buildStatisticValue key='Redis.CreateRefreshTokenAsync' value='{0}']", stopwatch.ElapsedMilliseconds);
 
@@ -224,5 +232,5 @@
             Assert.IsFalse(user.Identity.IsAuthenticated, "The token is possible to use after expiration");
         }
 
-    } 
+    }
 }

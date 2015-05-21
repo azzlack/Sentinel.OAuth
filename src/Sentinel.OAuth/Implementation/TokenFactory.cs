@@ -1,6 +1,7 @@
 ﻿namespace Sentinel.OAuth.Implementation
 {
     using System;
+    using System.Collections.Generic;
 
     using Sentinel.OAuth.Core.Interfaces.Factories;
     using Sentinel.OAuth.Core.Interfaces.Models;
@@ -13,11 +14,12 @@
         /// <param name="clientId">Identifier for the client.</param>
         /// <param name="redirectUri">URI of the redirect.</param>
         /// <param name="userId">Identifier for the user.</param>
+        /// <param name="scope">The scope.</param>
         /// <param name="token">The token.</param>
         /// <param name="ticket">The ticket.</param>
         /// <param name="validTo">The valid to Date/Time.</param>
         /// <returns>The new access token.</returns>
-        public IAccessToken CreateAccessToken(string clientId, string redirectUri, string userId, string token, string ticket, DateTime validTo)
+        public IAccessToken CreateAccessToken(string clientId, string redirectUri, string userId, IEnumerable<string> scope, string token, string ticket, DateTime validTo)
         {
             return new AccessToken
                        {
@@ -25,6 +27,7 @@
                            ValidTo = validTo,
                            ClientId = clientId,
                            Subject = userId,
+                           Scope = scope,
                            Ticket = ticket,
                            RedirectUri = redirectUri
                        };
@@ -34,16 +37,18 @@
         /// <param name="clientId">Identifier for the client.</param>
         /// <param name="redirectUri">URI of the redirect.</param>
         /// <param name="userId">Identifier for the user.</param>
+        /// <param name="scope">The scope.</param>
         /// <param name="token">The token.</param>
         /// <param name="validTo">The valid to Date/Time.</param>
         /// <returns>The new refresh token.</returns>
-        public IRefreshToken CreateRefreshToken(string clientId, string redirectUri, string userId, string token, DateTime validTo)
+        public IRefreshToken CreateRefreshToken(string clientId, string redirectUri, string userId, IEnumerable<string> scope, string token, DateTime validTo)
         {
             return new RefreshToken()
                        {
                            ClientId = clientId,
                            RedirectUri = redirectUri,
                            Subject = userId,
+                           Scope = scope,
                            Token = token,
                            ValidTo = validTo
                        };
@@ -58,7 +63,7 @@
         /// <param name="ticket">The ticket.</param>
         /// <param name="validTo">The valid to Date/Time.</param>
         /// <returns>The new authorization code.</returns>
-        public IAuthorizationCode CreateAuthorizationCode(string clientId, string redirectUri, string userId, string[] scope, string code, string ticket, DateTime validTo)
+        public IAuthorizationCode CreateAuthorizationCode(string clientId, string redirectUri, string userId, IEnumerable<string> scope, string code, string ticket, DateTime validTo)
         {
             return new AuthorizationCode()
                        {

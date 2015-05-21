@@ -1,5 +1,7 @@
 ﻿namespace Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models
 {
+    using Common.Logging;
+
     using StackExchange.Redis;
 
     public class RedisTokenRepositoryConfiguration
@@ -11,10 +13,12 @@
         /// <param name="connectionString">The connection string.</param>
         /// <param name="database">The database.</param>
         /// <param name="prefix">The prefix.</param>
-        public RedisTokenRepositoryConfiguration(string connectionString, int database, string prefix)
+        /// <param name="log">The log.</param>
+        public RedisTokenRepositoryConfiguration(string connectionString, int database, string prefix, ILog log)
         {
             this.Connection = ConnectionMultiplexer.Connect(connectionString);
             this.Database = database;
+            this.Log = log;
 
             this.AccessTokenPrefix = string.Format("{0}:accesstokens", prefix);
             this.RefreshTokenPrefix = string.Format("{0}:refreshtokens", prefix);
@@ -40,5 +44,9 @@
         /// <summary>Gets the authorization code prefix.</summary>
         /// <value>The authorization code prefix.</value>
         public string AuthorizationCodePrefix { get; private set; }
+
+        /// <summary>Gets the log.</summary>
+        /// <value>The log.</value>
+        public ILog Log { get; private set; }
     }
 }

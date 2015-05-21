@@ -47,12 +47,39 @@
         /// <returns/>
         private void CreateAccessToken(AuthenticationTokenCreateContext context)
         {
+            string accessToken;
+
             if (context.OwinContext.GetOAuthContext().GrantType == GrantType.ClientCredentials)
             {
                 this.options.Logger.DebugFormat(
                     "Creating access token for client '{0}' and scope '{1}'",
                     context.Ticket.Identity.Name,
                     string.Join(", ", context.OwinContext.GetOAuthContext().Scope));
+
+                var tcs = new TaskCompletionSource<string>();
+                Task.Run(
+                    async () =>
+                    {
+                        try
+                        {
+                            var token =
+                                await
+                                this.options.TokenManager.CreateAccessTokenAsync(
+                                    context.Ticket.Identity.AsSentinelPrincipal(),
+                                    this.options.AccessTokenLifetime,
+                                    context.OwinContext.GetOAuthContext().ClientId,
+                                    context.OwinContext.GetOAuthContext().RedirectUri,
+                                    context.OwinContext.GetOAuthContext().Scope);
+
+                            tcs.SetResult(token);
+                        }
+                        catch (Exception ex)
+                        {
+                            tcs.SetException(ex);
+                        }
+                    }).ConfigureAwait(false);
+
+                accessToken = tcs.Task.Result;
             }
             else
             {
@@ -61,31 +88,32 @@
                     context.Ticket.Identity.Name,
                     context.OwinContext.GetOAuthContext().ClientId,
                     context.OwinContext.GetOAuthContext().RedirectUri);
+
+                var tcs = new TaskCompletionSource<string>();
+                Task.Run(
+                    async () =>
+                    {
+                        try
+                        {
+                            var token =
+                                await
+                                this.options.TokenManager.CreateAccessTokenAsync(
+                                    context.Ticket.Identity.AsSentinelPrincipal(),
+                                    this.options.AccessTokenLifetime,
+                                    context.OwinContext.GetOAuthContext().ClientId,
+                                    context.OwinContext.GetOAuthContext().RedirectUri,
+                                    context.OwinContext.GetOAuthContext().Scope);
+
+                            tcs.SetResult(token);
+                        }
+                        catch (Exception ex)
+                        {
+                            tcs.SetException(ex);
+                        }
+                    }).ConfigureAwait(false);
+
+                accessToken = tcs.Task.Result;
             }
-
-            var tcs = new TaskCompletionSource<string>();
-            Task.Run(
-                async () =>
-                {
-                    try
-                    {
-                        var token =
-                            await
-                            this.options.TokenManager.CreateAccessTokenAsync(
-                                context.Ticket.Identity.AsSentinelPrincipal(),
-                                this.options.AccessTokenLifetime,
-                                context.OwinContext.GetOAuthContext().ClientId,
-                                context.OwinContext.GetOAuthContext().RedirectUri);
-
-                        tcs.SetResult(token);
-                    }
-                    catch (Exception ex)
-                    {
-                        tcs.SetException(ex);
-                    }
-                }).ConfigureAwait(false);
-
-            var accessToken = tcs.Task.Result;
 
             context.Ticket.Identity.AddClaim(new Claim(ClaimType.AccessToken, accessToken));
 

@@ -1,6 +1,7 @@
 ﻿namespace Sentinel.OAuth.TokenManagers.RedisTokenRepository.Implementation
 {
     using System;
+    using System.Collections.Generic;
     using System.Text;
 
     using Sentinel.OAuth.Core.Interfaces.Factories;
@@ -14,6 +15,7 @@
         /// <param name="clientId">The client identifier.</param>
         /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="userId">The user identifier.</param>
+        /// <param name="scope">The scope.</param>
         /// <param name="token">The hashed token.</param>
         /// <param name="ticket">The encrypted principal.</param>
         /// <param name="validTo">The point in time where the token expires.</param>
@@ -22,6 +24,7 @@
             string clientId,
             string redirectUri,
             string userId,
+            IEnumerable<string> scope,
             string token,
             string ticket,
             DateTime validTo)
@@ -35,7 +38,8 @@
                            Token = token,
                            Ticket = ticket,
                            ValidTo = validTo,
-                           Created = DateTime.UtcNow
+                           Created = DateTime.UtcNow,
+                           Scope = scope
                        };
         }
 
@@ -43,10 +47,11 @@
         /// <param name="clientId">The client identifier.</param>
         /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="userId">The user identifier.</param>
+        /// <param name="scope">The scope.</param>
         /// <param name="token">The hashed token.</param>
         /// <param name="validTo">The point in time where the token expires.</param>
         /// <returns>The new refresh token.</returns>
-        public IRefreshToken CreateRefreshToken(string clientId, string redirectUri, string userId, string token, DateTime validTo)
+        public IRefreshToken CreateRefreshToken(string clientId, string redirectUri, string userId, IEnumerable<string> scope, string token, DateTime validTo)
         {
             return new RedisRefreshToken()
                        {
@@ -56,7 +61,8 @@
                            Subject = userId,
                            Token = token,
                            ValidTo = validTo,
-                           Created = DateTime.UtcNow
+                           Created = DateTime.UtcNow,
+                           Scope = scope
                        };
         }
 
@@ -73,7 +79,7 @@
             string clientId,
             string redirectUri,
             string userId,
-            string[] scope,
+            IEnumerable<string> scope,
             string code,
             string ticket,
             DateTime validTo)

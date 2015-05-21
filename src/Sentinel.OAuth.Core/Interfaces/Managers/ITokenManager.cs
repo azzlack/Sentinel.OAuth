@@ -1,6 +1,7 @@
 ﻿namespace Sentinel.OAuth.Core.Interfaces.Managers
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     using Sentinel.OAuth.Core.Interfaces.Identity;
@@ -43,24 +44,24 @@
         /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="scope">The scope.</param>
         /// <returns>An authorization code.</returns>
-        Task<string> CreateAuthorizationCodeAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string redirectUri, string[] scope = null);
+        Task<string> CreateAuthorizationCodeAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string redirectUri, IEnumerable<string> scope);
 
         /// <summary>Creates an access token.</summary>
         /// <param name="userPrincipal">The user principal.</param>
         /// <param name="expire">The expire time.</param>
         /// <param name="clientId">The client id.</param>
         /// <param name="redirectUri">The redirect URI.</param>
+        /// <param name="scope">The scope.</param>
         /// <returns>An access token.</returns>
-        Task<string> CreateAccessTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri);
+        Task<string> CreateAccessTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri, IEnumerable<string> scope);
 
-        /// <summary>
-        /// Creates a refresh token.
-        /// </summary>
+        /// <summary>Creates a refresh token.</summary>
         /// <param name="userPrincipal">The principal.</param>
         /// <param name="expire">The expire time.</param>
         /// <param name="clientId">The client id.</param>
         /// <param name="redirectUri">The redirect URI.</param>
+        /// <param name="scope">The scope.</param>
         /// <returns>A refresh token.</returns>
-        Task<string> CreateRefreshTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri);
+        Task<string> CreateRefreshTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri, IEnumerable<string> scope);
     }
 }

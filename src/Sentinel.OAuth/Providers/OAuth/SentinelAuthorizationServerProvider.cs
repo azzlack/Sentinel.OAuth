@@ -62,7 +62,7 @@
 
             // Store grant type in context
             context.OwinContext.GetOAuthContext().GrantType = context.TokenRequest.GrantType;
-            
+
             context.Validated();
         }
 
@@ -121,7 +121,7 @@
         public override async Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
         {
             this.options.Logger.DebugFormat("Validating client id and secret");
-            
+
             string clientId;
             string clientSecret;
 
@@ -171,6 +171,7 @@
 
             context.OwinContext.GetOAuthContext().ClientId = context.ClientId;
             context.OwinContext.GetOAuthContext().RedirectUri = context.Parameters["redirect_uri"];
+            context.OwinContext.GetOAuthContext().Scope = context.Parameters["scope"] != null ? context.Parameters["scope"].Split(' ') : null;
 
             this.options.Logger.DebugFormat("Client '{0}' was successfully authenticated", clientId);
 
@@ -233,7 +234,7 @@
                 var ticket = new AuthenticationTicket(client.Identity.AsClaimsIdentity(), new AuthenticationProperties());
 
                 context.Validated(ticket);
-                
+
                 this.options.Logger.DebugFormat("Client '{0}' was successfully authenticated", context.ClientId);
 
                 return;
@@ -292,7 +293,7 @@
                 await this.options.Events.PrincipalCreated(args);
 
                 user = new SentinelPrincipal(args.Principal);
-            } 
+            }
 
             // Convert to proper authentication type
             var principal = this.options.PrincipalProvider.Create(context.Options.AuthenticationType, user.Identity.Claims.ToArray());

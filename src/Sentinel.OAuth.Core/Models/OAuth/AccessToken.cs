@@ -1,6 +1,7 @@
 ﻿namespace Sentinel.OAuth.Core.Models.OAuth
 {
     using System;
+    using System.Collections.Generic;
 
     using Sentinel.OAuth.Core.Interfaces.Models;
 
@@ -35,6 +36,10 @@
         /// </summary>
         /// <value>The redirect URI.</value>
         public string RedirectUri { get; set; }
+
+        /// <summary>Gets or sets the scope.</summary>
+        /// <value>The scope.</value>
+        public IEnumerable<string> Scope { get; set; }
 
         /// <summary>
         /// Gets or sets the expiration time.

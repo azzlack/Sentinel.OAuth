@@ -73,7 +73,8 @@
                                 context.Ticket.Identity.AsSentinelPrincipal(), 
                                 this.options.RefreshTokenLifetime,
                                 context.OwinContext.GetOAuthContext().ClientId,
-                                context.OwinContext.GetOAuthContext().RedirectUri);
+                                context.OwinContext.GetOAuthContext().RedirectUri,
+                                context.OwinContext.GetOAuthContext().Scope);
 
                         tcs.SetResult(token);
                     }

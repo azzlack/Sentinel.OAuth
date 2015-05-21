@@ -20,6 +20,7 @@
     using Sentinel.OAuth.Models.Identity;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Implementation;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models;
+    using Sentinel.Tests.Constants;
 
     [TestFixture]
     [Category("Integration")]
@@ -94,7 +95,7 @@
                 userManager.Object,
                 new PrincipalProvider(new PBKDF2CryptoProvider()),
                 new PBKDF2CryptoProvider(),
-                new SqlTokenFactory(), 
+                new SqlTokenFactory(),
                 new SqlServerTokenRepository(
                     new SqlServerTokenRepositoryConfiguration(
                         this.instance.CreateConnectionStringBuilder().ToString(),
@@ -110,7 +111,8 @@
                     new SentinelPrincipal(
                     new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                     TimeSpan.FromMinutes(5),
-                    "http://localhost");
+                    "http://localhost",
+                    new[] { Scope.Read });
 
             Console.WriteLine("Code: {0}", code);
 
@@ -130,7 +132,8 @@
                     new SentinelPrincipal(
                     new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                     TimeSpan.FromMinutes(5),
-                    "http://localhost");
+                    "http://localhost",
+                    new[] { Scope.Read });
 
             Console.WriteLine("Code: {0}", code);
 
@@ -150,7 +153,8 @@
                     new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                     TimeSpan.FromSeconds(10),
                     "NUnit",
-                    "http://localhost");
+                    "http://localhost",
+                    new[] { Scope.Read });
 
             Console.WriteLine("Token: {0}", token);
 
@@ -171,7 +175,8 @@
                     new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                     TimeSpan.FromHours(1),
                     "NUnit",
-                    "http://localhost");
+                    "http://localhost",
+                    new[] { Scope.Read });
 
             Console.WriteLine("Code: {0}", token);
 
@@ -192,7 +197,8 @@
                     new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                     TimeSpan.FromDays(90),
                     "NUnit",
-                    "http://localhost");
+                    "http://localhost",
+                    new[] { Scope.Read });
 
             Console.WriteLine("Code: {0}", token);
 
@@ -213,7 +219,8 @@
                     new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                     TimeSpan.FromSeconds(10),
                     "NUnit",
-                    "http://localhost");
+                    "http://localhost",
+                    new[] { Scope.Read });
 
             Console.WriteLine("Token: {0}", token);
 
@@ -250,5 +257,5 @@
                 this.instance.Stop();
             }
         }
-    } 
+    }
 }

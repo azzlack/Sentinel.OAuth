@@ -1,6 +1,7 @@
 ﻿namespace Sentinel.OAuth.Core.Interfaces.Models
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>Interface for an OAuth 2 refresh token.</summary>
     public interface IRefreshToken : IEquatable<IRefreshToken>
@@ -16,6 +17,10 @@
         /// </summary>
         /// <value>The token.</value>
         string Token { get; set; }
+
+        /// <summary>Gets or sets the scope.</summary>
+        /// <value>The scope.</value>
+        IEnumerable<string> Scope { get; set; }
 
         /// <summary>
         /// Gets or sets the subject.

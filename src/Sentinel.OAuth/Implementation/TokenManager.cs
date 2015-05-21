@@ -1,6 +1,7 @@
 ﻿namespace Sentinel.OAuth.Implementation
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -151,7 +152,7 @@
         /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="scope">The scope.</param>
         /// <returns>An authorization code.</returns>
-        public override async Task<string> CreateAuthorizationCodeAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string redirectUri, string[] scope)
+        public override async Task<string> CreateAuthorizationCodeAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string redirectUri, IEnumerable<string> scope)
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
@@ -189,7 +190,7 @@
                 client.Value,
                 redirectUri,
                 userPrincipal.Identity.Name,
-                scope ?? new string[0],
+                scope,
                 hashedCode,
                 this.PrincipalProvider.Encrypt(userPrincipal, code),
                 DateTime.UtcNow.Add(expire));
@@ -214,8 +215,9 @@
         /// <param name="expire">The expire time.</param>
         /// <param name="clientId">The client identifier.</param>
         /// <param name="redirectUri">The redirect URI.</param>
+        /// <param name="scope">The scope.</param>
         /// <returns>An access token.</returns>
-        public override async Task<string> CreateAccessTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri)
+        public override async Task<string> CreateAccessTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri, IEnumerable<string> scope)
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
@@ -230,6 +232,12 @@
             // Remove unnecessary claims from principal
             userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
 
+            // Add scope claims
+            if (scope != null)
+            {
+                userPrincipal.Identity.AddClaim(scope.Select(x => new SentinelClaim(ClaimType.Scope, x)).ToArray());
+            }
+
             this.logger.DebugFormat("Creating access token for client '{0}', redirect uri '{1}' and user '{2}'", clientId, redirectUri, userPrincipal.Identity.Name);
 
             // Create new access token
@@ -240,11 +248,12 @@
                 clientId,
                 redirectUri,
                 userPrincipal.Identity.Name,
+                scope,
                 hashedToken,
                 this.PrincipalProvider.Encrypt(userPrincipal, token),
                 DateTime.UtcNow.Add(expire));
 
-            // Add refresh token to database
+            // Add access token to database
             var result = await this.TokenRepository.InsertAccessToken(accessToken);
 
             if (result != null)
@@ -264,8 +273,9 @@
         /// <param name="expire">The expire time.</param>
         /// <param name="clientId">The client identifier.</param>
         /// <param name="redirectUri">The redirect URI.</param>
+        /// <param name="scope">The scope.</param>
         /// <returns>A refresh token.</returns>
-        public override async Task<string> CreateRefreshTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri)
+        public override async Task<string> CreateRefreshTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri, IEnumerable<string> scope)
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
@@ -280,13 +290,19 @@
             // Remove unnecessary claims from principal
             userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
 
+            // Add scope claims
+            if (scope != null)
+            {
+                userPrincipal.Identity.AddClaim(scope.Select(x => new SentinelClaim(ClaimType.Scope, x)).ToArray());
+            }
+
             this.logger.DebugFormat("Creating refresh token for client '{0}', redirect uri '{1}' and user '{2}'", clientId, redirectUri, userPrincipal.Identity.Name);
 
             // Create new refresh token
             string token;
             var hashedToken = this.CryptoProvider.CreateHash(out token, 2048);
 
-            var refreshToken = this.TokenFactory.CreateRefreshToken(clientId, redirectUri, userPrincipal.Identity.Name, hashedToken, DateTime.UtcNow.Add(expire));
+            var refreshToken = this.TokenFactory.CreateRefreshToken(clientId, redirectUri, userPrincipal.Identity.Name, scope, hashedToken, DateTime.UtcNow.Add(expire));
 
             // Add refresh token to database
             var result = await this.TokenRepository.InsertRefreshToken(refreshToken);

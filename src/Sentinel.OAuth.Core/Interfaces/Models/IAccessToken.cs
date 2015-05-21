@@ -1,6 +1,7 @@
 ﻿namespace Sentinel.OAuth.Core.Interfaces.Models
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>Interface for an OAuth 2 access token.</summary>
     public interface IAccessToken : IEquatable<IAccessToken>
@@ -34,6 +35,10 @@
         /// </summary>
         /// <value>The redirect URI.</value>
         string RedirectUri { get; set; }
+
+        /// <summary>Gets or sets the scope.</summary>
+        /// <value>The scope.</value>
+        IEnumerable<string> Scope { get; set; }
 
         /// <summary>
         /// Gets or sets the expiration time.
