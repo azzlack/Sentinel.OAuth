@@ -8,6 +8,7 @@
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
+    using System.Runtime.Remoting.Messaging;
     using System.Threading.Tasks;
 
     using Coypu;
@@ -17,10 +18,13 @@
     using NUnit.Framework;
 
     using Sentinel.OAuth.Client;
+    using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Constants.OAuth;
-    using Sentinel.OAuth.Core.Models.OAuth;
+    using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Models.OAuth.Http;
     using Sentinel.OAuth.Models.Identity;
+
+    using Scope = Sentinel.Tests.Constants.Scope;
 
     public class SentinelAuthorizationServerTests
     {
@@ -51,7 +55,7 @@
                 // Get authorization code
                 using (var browser = new BrowserSession())
                 {
-                    browser.Visit(string.Format("{0}oauth/authorize?response_type=code&client_id={1}&state=&scope=&redirect_uri={2}", this.client.BaseAddress, clientId, redirectUri));
+                    browser.Visit(string.Format("{0}oauth/authorize?response_type=code&client_id={1}&state=&scope={2}&redirect_uri={3}", this.client.BaseAddress, clientId, Scope.Read, redirectUri));
 
                     Console.WriteLine("Opened authorize page");
 
@@ -93,6 +97,10 @@
                 Console.WriteLine("Response: [{0} {1}] {2}", (int)response.StatusCode, response.StatusCode, await response.Content.ReadAsStringAsync());
 
                 Assert.IsNotNullOrEmpty(content.AccessToken, "No access token returned");
+
+                var identity = await this.PrintIdentity(content.AccessToken);
+
+                Assert.IsTrue(identity.HasClaim(ClaimType.Scope, Scope.Read));
             }
 
             [TestCase("NUnit", "NUnit")]
@@ -176,6 +184,7 @@
                                                             {
                                                                 { "grant_type", GrantType.Password },
                                                                 { "redirect_uri", "http://localhost" },
+                                                                { "scope", string.Join(" ", Scope.Read, Scope.Write) },
                                                                 { "username", username },
                                                                 { "password", password }
                                                             });
@@ -195,7 +204,10 @@
 
                 Assert.IsNotNullOrEmpty(content.AccessToken, "No access token returned");
 
-                await this.PrintIdentity(content.AccessToken);
+                var identity = await this.PrintIdentity(content.AccessToken);
+
+                Assert.IsTrue(identity.HasClaim(ClaimType.Scope, Scope.Read));
+                Assert.IsTrue(identity.HasClaim(ClaimType.Scope, Scope.Write));
             }
 
             [TestCase("user", "pass")]
@@ -321,7 +333,9 @@
 
                 Assert.IsNotNullOrEmpty(token.AccessToken, "No access token returned");
 
-                await this.PrintIdentity(token.AccessToken);
+                var identity = await this.PrintIdentity(token.AccessToken);
+
+                Assert.IsTrue(identity.HasClaim(ClaimType.Scope, Scope.Read));
             }
 
             [Test]
@@ -398,7 +412,7 @@
                 Assert.AreEqual("Bearer", response.Headers.First(x => x.Key == "WWW-Authenticate").Value.First());
             }
 
-            private async Task PrintIdentity(string accessToken)
+            private async Task<ISentinelIdentity> PrintIdentity(string accessToken)
             {
                 Console.WriteLine();
                 Console.WriteLine("Using access token: {0}", accessToken);
@@ -426,7 +440,9 @@
                 {
                     Console.WriteLine("{0}: {1}", claim.Type, claim.Value);
                 }
+
+                return identity;
             }
-        } 
+        }
     }
 }
