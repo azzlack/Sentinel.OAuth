@@ -196,7 +196,7 @@ Below you can find an overview of claims with explanations.
 | Claim | Explanation |
 | --- | --- |
 | `urn:oauth:client` | The client that was used to authenticate the user |
-| `urn:oauth:scope` | The scope that was set when asking for an authorization code |
+| `urn:oauth:scope` | The scope that was set when asking for an authorization code or access token |
 | `urn:oauth:accesstoken` | The access token for the current user object |
 | `urn:oauth:refreshtoken` | The refresh token for the current user object |
 
