@@ -133,7 +133,7 @@ The above setup will configure the OAuth server with the default settings, which
 | Refresh Token Lifetime | 3 months (90 days) |
 | Token Endpoint | `/oauth/token` |
 | Authorization Code Endpoint | `/oauth/authorize` |
-| Token Format | `Sentinel` (A `PBKDF2` hasher with 256-bit key length) |
+| Token Format | `Sentinel` (A custom format using a `SHA-512` hashing algorithm to encrypt the token) |
 
 ### The advanced way
 The easy way is not always the best way, and `Sentinel` supports customization of user and client management, as well as custom token stores.
