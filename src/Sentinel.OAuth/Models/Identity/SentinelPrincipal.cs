@@ -109,7 +109,7 @@
         /// </returns>
         public bool IsInRole(string role)
         {
-            return this.Identity.Claims.Any(x => x.Type == ClaimType.Role && x.Value == role);
+            return this.Identity.Claims.Any(x => x.Type == ClaimTypes.Role && x.Value == role);
         }
 
         /// <summary>

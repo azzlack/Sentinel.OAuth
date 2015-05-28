@@ -13,8 +13,5 @@
 
         /// <summary>The client claim type.</summary>
         public const string Client = "urn:oauth:client";
-
-        /// <summary>The role claim type.</summary>
-        public const string Role = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
     }
 }
