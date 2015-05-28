@@ -24,7 +24,7 @@
         [Test]
         public async void InsertAndGet_WhenGivenValidAuthorizationCodes_ReturnsAuthorizationCodes()
         {
-            await this.tokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username"});
+            await this.tokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username" });
             await this.tokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit2", RedirectUri = "http://localhost", Subject = "Username" });
 
             var authorizationCodes = await this.tokenRepository.GetAuthorizationCodes("http://localhost", DateTime.UtcNow);
@@ -73,9 +73,9 @@
         public async void InsertAndGet_WhenGivenValidRefreshTokens_ReturnsRefreshTokens()
         {
             await this.tokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost" });
-            await this.tokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit2", RedirectUri = "http://localhost" });
+            await this.tokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost" });
 
-            var refreshTokens = await this.tokenRepository.GetRefreshTokens("http://localhost", DateTime.UtcNow);
+            var refreshTokens = await this.tokenRepository.GetRefreshTokens("NUnit", "http://localhost", DateTime.UtcNow);
 
             Assert.AreEqual(2, refreshTokens.Count());
         }
@@ -87,7 +87,7 @@
             var token2 = await this.tokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit2", RedirectUri = "http://localhost" });
 
             var deleteResult = await this.tokenRepository.DeleteRefreshToken(token1);
-            var refreshTokens = await this.tokenRepository.GetRefreshTokens("http://localhost", DateTime.UtcNow);
+            var refreshTokens = await this.tokenRepository.GetRefreshTokens("NUnit2", "http://localhost", DateTime.UtcNow);
 
             Assert.IsTrue(deleteResult);
             Assert.AreEqual(1, refreshTokens.Count());

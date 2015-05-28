@@ -191,12 +191,13 @@
         /// Gets all refresh tokens that matches the specified redirect uri and expires after the
         /// specified date.
         /// </summary>
+        /// <param name="clientId">Identifier for the client.</param>
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string redirectUri, DateTime expires)
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTime expires)
         {
-            return this.refreshTokens.Select(x => x.Value).Where(x => x.RedirectUri == redirectUri && x.ValidTo > expires);
+            return this.refreshTokens.Select(x => x.Value).Where(x => x.ClientId == clientId && x.RedirectUri == redirectUri && x.ValidTo > expires);
         }
 
         /// <summary>Inserts the specified refresh token.</summary>

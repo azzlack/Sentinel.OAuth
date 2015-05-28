@@ -282,18 +282,19 @@
         /// specified date. Called when authentication a refresh token to limit the number of tokens to
         /// go through when validating the hash.
         /// </summary>
+        /// <param name="clientId">Identifier for the client.</param>
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string redirectUri, DateTime expires)
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTime expires)
         {
             using (var connection = this.OpenConnection())
             {
                 var data =
                     await
                     connection.QueryAsync(
-                        "SELECT * FROM RefreshTokens WHERE RedirectUri = @RedirectUri AND ValidTo > @Expires",
-                        new { RedirectUri = redirectUri, Expires = expires });
+                        "SELECT * FROM RefreshTokens WHERE ClientId = @ClientId AND RedirectUri = @RedirectUri AND ValidTo > @Expires",
+                        new { ClientId = clientId, RedirectUri = redirectUri, Expires = expires });
 
                 var tokens =
                     data.Select(

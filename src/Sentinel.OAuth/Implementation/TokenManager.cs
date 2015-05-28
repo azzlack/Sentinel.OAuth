@@ -115,7 +115,7 @@
         {
             this.logger.DebugFormat("Authenticating refresh token for client '{0}' and redirect uri '{1}'", clientId, redirectUri);
 
-            var refreshTokens = await this.TokenRepository.GetRefreshTokens(redirectUri, DateTime.UtcNow);
+            var refreshTokens = await this.TokenRepository.GetRefreshTokens(clientId, redirectUri, DateTime.UtcNow);
 
             this.logger.DebugFormat("Got {0} refresh tokens expiring after {1}", refreshTokens.Count(), DateTime.UtcNow.ToString("s"));
 

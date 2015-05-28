@@ -276,10 +276,11 @@
         /// specified date. Called when authentication a refresh token to limit the number of tokens to
         /// go through when validating the hash.
         /// </summary>
+        /// <param name="clientId">Identifier for the client.</param>
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string redirectUri, DateTime expires)
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTime expires)
         {
             var db = this.GetDatabase();
 
@@ -298,7 +299,10 @@
                 {
                     var token = new RedisRefreshToken(hashEntries) { Id = hashedId };
 
-                    tokens.Add(token);
+                    if (token.ClientId == clientId && token.RedirectUri == redirectUri)
+                    {
+                        tokens.Add(token);
+                    }
                 }
             }
 
