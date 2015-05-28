@@ -15,9 +15,6 @@
     /// <summary>A token repository using RavenDB for storage.</summary>
     public class RavenDbTokenRepository : ITokenRepository
     {
-        /// <summary>The configuration.</summary>
-        private readonly RavenDbTokenRepositoryConfiguration configuration;
-
         /// <summary>
         /// Initializes a new instance of the
         /// Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Implementation.RavenDbTokenRepository
@@ -26,8 +23,12 @@
         /// <param name="configuration">The configuration.</param>
         public RavenDbTokenRepository(RavenDbTokenRepositoryConfiguration configuration)
         {
-            this.configuration = configuration;
+            this.Configuration = configuration;
         }
+
+        /// <summary>Gets the configuration.</summary>
+        /// <value>The configuration.</value>
+        protected RavenDbTokenRepositoryConfiguration Configuration { get; private set; }
 
         /// <summary>
         /// Gets all authorization codes that matches the specified redirect uri and expires after the
@@ -275,14 +276,14 @@
         /// Opens a document session.
         /// </summary>
         /// <returns>The document session.</returns>
-        public IAsyncDocumentSession OpenAsyncSession()
+        protected virtual IAsyncDocumentSession OpenAsyncSession()
         {
-            if (this.configuration.DocumentStore.GetType().Name == "EmbeddableDocumentStore")
+            if (this.Configuration.DocumentStore.GetType().Name == "EmbeddableDocumentStore")
             {
-                return this.configuration.DocumentStore.OpenAsyncSession();
+                return this.Configuration.DocumentStore.OpenAsyncSession();
             }
 
-            return this.configuration.DocumentStore.OpenAsyncSession("Sentinel.OAuth");
+            return this.Configuration.DocumentStore.OpenAsyncSession("Sentinel.OAuth");
         }
     }
 }

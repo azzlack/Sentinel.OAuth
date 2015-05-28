@@ -21,17 +21,18 @@
         /// <summary>The date time maximum.</summary>
         private const double DateTimeMax = 253402300800.0;
 
-        /// <summary>The configuration.</summary>
-        private readonly RedisTokenRepositoryConfiguration configuration;
-
         /// <summary>
         /// Initializes a new instance of the RedisTokenRepository class.
         /// </summary>
         /// <param name="configuration">The configuration.</param>
         public RedisTokenRepository(RedisTokenRepositoryConfiguration configuration)
         {
-            this.configuration = configuration;
+            this.Configuration = configuration;
         }
+
+        /// <summary>Gets the configuration.</summary>
+        /// <value>The configuration.</value>
+        protected RedisTokenRepositoryConfiguration Configuration { get; private set; }
 
         /// <summary>
         /// Gets all authorization codes that matches the specified redirect uri and expires after the
@@ -47,11 +48,11 @@
             var min = expires.ToUnixTime();
             var codes = new List<IAuthorizationCode>();
 
-            var keys = db.SortedSetRangeByScore(this.configuration.AuthorizationCodePrefix, min, DateTimeMax);
+            var keys = db.SortedSetRangeByScore(this.Configuration.AuthorizationCodePrefix, min, DateTimeMax);
 
             foreach (var key in keys)
             {
-                var hashedId = key.ToString().Substring(this.configuration.AuthorizationCodePrefix.Length + 1);
+                var hashedId = key.ToString().Substring(this.Configuration.AuthorizationCodePrefix.Length + 1);
                 var id = Encoding.UTF8.GetString(Convert.FromBase64String(hashedId));
 
                 if (id.Contains(redirectUri))
@@ -95,19 +96,19 @@
                     throw new ArgumentException(string.Format("The authorization code is invalid: {0}", JsonConvert.SerializeObject(code)), "authorizationCode");
                 }
 
-                this.configuration.Log.DebugFormat("Inserting access token hash in key {0}", key);
+                this.Configuration.Log.DebugFormat("Inserting access token hash in key {0}", key);
 
                 // Add hash to key
                 await db.HashSetAsync(key, code.ToHashEntries());
 
                 var expires = authorizationCode.ValidTo.ToUnixTime();
 
-                this.configuration.Log.DebugFormat("Inserting key {0} to authorization code set with score {1}", key, expires);
+                this.Configuration.Log.DebugFormat("Inserting key {0} to authorization code set with score {1}", key, expires);
 
                 // Add key to sorted set for future reference. The score is the expire time in seconds since epoch.
-                await db.SortedSetAddAsync(this.configuration.AuthorizationCodePrefix, key, expires);
+                await db.SortedSetAddAsync(this.Configuration.AuthorizationCodePrefix, key, expires);
 
-                this.configuration.Log.DebugFormat("Making key {0} expire at {1}", key, authorizationCode.ValidTo);
+                this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, authorizationCode.ValidTo);
 
                 // Make the key expire when the code times out
                 await db.KeyExpireAsync(key, authorizationCode.ValidTo);
@@ -116,7 +117,7 @@
             }
             catch (Exception ex)
             {
-                this.configuration.Log.Error("Error when inserting authorization code", ex);
+                this.Configuration.Log.Error("Error when inserting authorization code", ex);
             }
 
             return null;
@@ -134,7 +135,7 @@
 
             // Remove items from set
             // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
-            var i = await db.SortedSetRemoveRangeByScoreAsync(this.configuration.AuthorizationCodePrefix, 0, expires.ToUnixTime());
+            var i = await db.SortedSetRemoveRangeByScoreAsync(this.Configuration.AuthorizationCodePrefix, 0, expires.ToUnixTime());
 
             return (int)i;
         }
@@ -155,7 +156,7 @@
 
             // Remove items from set
             // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
-            return await db.SortedSetRemoveAsync(this.configuration.AuthorizationCodePrefix, key);
+            return await db.SortedSetRemoveAsync(this.Configuration.AuthorizationCodePrefix, key);
         }
 
         /// <summary>
@@ -171,11 +172,11 @@
             var min = expires.ToUnixTime();
             var tokens = new List<IAccessToken>();
 
-            var keys = db.SortedSetRangeByScore(this.configuration.AccessTokenPrefix, min, DateTimeMax);
+            var keys = db.SortedSetRangeByScore(this.Configuration.AccessTokenPrefix, min, DateTimeMax);
 
             foreach (var key in keys)
             {
-                var hashedId = key.ToString().Substring(this.configuration.AccessTokenPrefix.Length + 1);
+                var hashedId = key.ToString().Substring(this.Configuration.AccessTokenPrefix.Length + 1);
 
                 var hashEntries = await db.HashGetAllAsync(key.ToString());
 
@@ -211,19 +212,19 @@
                     throw new ArgumentException(string.Format("The access token is invalid: {0}", JsonConvert.SerializeObject(token)), "accessToken");
                 }
 
-                this.configuration.Log.DebugFormat("Inserting access token hash in key {0}", key);
+                this.Configuration.Log.DebugFormat("Inserting access token hash in key {0}", key);
 
                 // Add hash to key
                 await db.HashSetAsync(key, token.ToHashEntries());
 
                 var expires = accessToken.ValidTo.ToUnixTime();
 
-                this.configuration.Log.DebugFormat("Inserting key {0} to access token set with score {1}", key, expires);
+                this.Configuration.Log.DebugFormat("Inserting key {0} to access token set with score {1}", key, expires);
 
                 // Add key to sorted set for future reference. The score is the expire time in seconds since epoch.
-                await db.SortedSetAddAsync(this.configuration.AccessTokenPrefix, key, expires);
+                await db.SortedSetAddAsync(this.Configuration.AccessTokenPrefix, key, expires);
 
-                this.configuration.Log.DebugFormat("Making key {0} expire at {1}", key, accessToken.ValidTo);
+                this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, accessToken.ValidTo);
 
                 // Make the key expire when the code times out
                 await db.KeyExpireAsync(key, accessToken.ValidTo);
@@ -232,7 +233,7 @@
             }
             catch (Exception ex)
             {
-                this.configuration.Log.Error("Error when inserting access token", ex);
+                this.Configuration.Log.Error("Error when inserting access token", ex);
             }
 
             return null;
@@ -250,7 +251,7 @@
 
             // Remove items from set
             // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
-            var i = await db.SortedSetRemoveRangeByScoreAsync(this.configuration.AccessTokenPrefix, 0, expires.ToUnixTime());
+            var i = await db.SortedSetRemoveRangeByScoreAsync(this.Configuration.AccessTokenPrefix, 0, expires.ToUnixTime());
 
             return (int)i;
         }
@@ -268,7 +269,7 @@
 
             // Remove items from set
             // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
-            return await db.SortedSetRemoveAsync(this.configuration.AccessTokenPrefix, key);
+            return await db.SortedSetRemoveAsync(this.Configuration.AccessTokenPrefix, key);
         }
 
         /// <summary>
@@ -287,11 +288,11 @@
             var min = expires.ToUnixTime();
             var tokens = new List<IRefreshToken>();
 
-            var keys = db.SortedSetRangeByScore(this.configuration.RefreshTokenPrefix, min, DateTimeMax);
+            var keys = db.SortedSetRangeByScore(this.Configuration.RefreshTokenPrefix, min, DateTimeMax);
 
             foreach (var key in keys)
             {
-                var hashedId = key.ToString().Substring(this.configuration.AccessTokenPrefix.Length + 1);
+                var hashedId = key.ToString().Substring(this.Configuration.AccessTokenPrefix.Length + 1);
 
                 var hashEntries = await db.HashGetAllAsync(key.ToString());
 
@@ -330,19 +331,19 @@
                     throw new ArgumentException(string.Format("The refresh token is invalid: {0}", JsonConvert.SerializeObject(token)), "refreshToken");
                 }
 
-                this.configuration.Log.DebugFormat("Inserting refresh token hash in key {0}", key);
+                this.Configuration.Log.DebugFormat("Inserting refresh token hash in key {0}", key);
 
                 // Add hash to key
                 await db.HashSetAsync(key, token.ToHashEntries());
 
                 var expires = refreshToken.ValidTo.ToUnixTime();
 
-                this.configuration.Log.DebugFormat("Inserting key {0} to refresh token set with score {1}", key, expires);
+                this.Configuration.Log.DebugFormat("Inserting key {0} to refresh token set with score {1}", key, expires);
 
                 // Add key to sorted set for future reference. The score is the expire time in seconds since epoch.
-                await db.SortedSetAddAsync(this.configuration.RefreshTokenPrefix, key, expires);
+                await db.SortedSetAddAsync(this.Configuration.RefreshTokenPrefix, key, expires);
 
-                this.configuration.Log.DebugFormat("Making key {0} expire at {1}", key, refreshToken.ValidTo);
+                this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, refreshToken.ValidTo);
 
                 // Make the key expire when the code times out
                 await db.KeyExpireAsync(key, refreshToken.ValidTo);
@@ -351,7 +352,7 @@
             }
             catch (Exception ex)
             {
-                this.configuration.Log.Error("Error when inserting refresh token", ex);
+                this.Configuration.Log.Error("Error when inserting refresh token", ex);
             }
 
             return null;
@@ -369,7 +370,7 @@
 
             // Remove items from set
             // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
-            var i = await db.SortedSetRemoveRangeByScoreAsync(this.configuration.RefreshTokenPrefix, 0, expires.ToUnixTime());
+            var i = await db.SortedSetRemoveRangeByScoreAsync(this.Configuration.RefreshTokenPrefix, 0, expires.ToUnixTime());
 
             return (int)i;
         }
@@ -390,38 +391,38 @@
 
             // Remove items from set
             // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
-            return await db.SortedSetRemoveAsync(this.configuration.RefreshTokenPrefix, key);
+            return await db.SortedSetRemoveAsync(this.Configuration.RefreshTokenPrefix, key);
         }
 
         /// <summary>Generates a key.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns>The key.</returns>
-        private string GenerateKey(RedisAccessToken accessToken)
+        protected string GenerateKey(RedisAccessToken accessToken)
         {
-            return this.configuration.AccessTokenPrefix + ":" + accessToken.Id;
+            return this.Configuration.AccessTokenPrefix + ":" + accessToken.Id;
         }
 
         /// <summary>Generates a key.</summary>
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns>The key.</returns>
-        private string GenerateKey(RedisRefreshToken refreshToken)
+        protected string GenerateKey(RedisRefreshToken refreshToken)
         {
-            return this.configuration.RefreshTokenPrefix + ":" + refreshToken.Id;
+            return this.Configuration.RefreshTokenPrefix + ":" + refreshToken.Id;
         }
 
         /// <summary>Generates a key.</summary>
         /// <param name="authorizationCode">The authorization code.</param>
         /// <returns>The key.</returns>
-        private string GenerateKey(RedisAuthorizationCode authorizationCode)
+        protected string GenerateKey(RedisAuthorizationCode authorizationCode)
         {
-            return this.configuration.AuthorizationCodePrefix + ":" + authorizationCode.Id;
+            return this.Configuration.AuthorizationCodePrefix + ":" + authorizationCode.Id;
         }
 
         /// <summary>Gets a reference to the database.</summary>
         /// <returns>A reference to database.</returns>
-        private IDatabase GetDatabase()
+        protected virtual IDatabase GetDatabase()
         {
-            return this.configuration.Connection.GetDatabase(this.configuration.Database);
+            return this.Configuration.Connection.GetDatabase(this.Configuration.Database);
         }
     }
 }

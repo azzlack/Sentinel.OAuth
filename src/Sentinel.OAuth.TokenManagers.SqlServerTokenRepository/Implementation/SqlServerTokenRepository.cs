@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Data;
     using System.Data.SqlClient;
     using System.Linq;
     using System.Threading.Tasks;
@@ -11,24 +10,24 @@
 
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models.OAuth;
 
     /// <summary>A token repository using a SQL server for storage.</summary>
     public class SqlServerTokenRepository : ITokenRepository
     {
-        /// <summary>The configuration.</summary>
-        private readonly SqlServerTokenRepositoryConfiguration configuration;
-
         /// <summary>
         /// Initializes a new instance of the SqlServerTokenRepository class.
         /// </summary>
         /// <param name="configuration">The configuration.</param>
         public SqlServerTokenRepository(SqlServerTokenRepositoryConfiguration configuration)
         {
-            this.configuration = configuration;
+            this.Configuration = configuration;
         }
+
+        /// <summary>Gets the configuration.</summary>
+        /// <value>The configuration.</value>
+        protected SqlServerTokenRepositoryConfiguration Configuration { get; private set; }
 
         /// <summary>
         /// Gets all authorization codes that matches the specified redirect uri and expires after the
@@ -404,12 +403,12 @@
 
         /// <summary>Opens the connection.</summary>
         /// <returns>A SqlConnection.</returns>
-        private SqlConnection OpenConnection()
+        protected virtual SqlConnection OpenConnection()
         {
-            var connection = new SqlConnection(this.configuration.ConnectionString);
+            var connection = new SqlConnection(this.Configuration.ConnectionString);
             connection.Open();
 
-            connection.Execute("USE " + this.configuration.DatabaseName);
+            connection.Execute("USE " + this.Configuration.DatabaseName);
 
             return connection;
         }
