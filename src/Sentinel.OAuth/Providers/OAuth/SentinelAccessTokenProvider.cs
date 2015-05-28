@@ -116,6 +116,7 @@
             }
 
             context.Ticket.Identity.AddClaim(new Claim(ClaimType.AccessToken, accessToken));
+            context.Ticket.Identity.AddClaim(new Claim(ClaimTypes.Expiration, DateTime.UtcNow.Add(this.options.AccessTokenLifetime).ToString("O")));
 
             context.SetToken(accessToken);
 
