@@ -292,7 +292,7 @@
 
             foreach (var key in keys)
             {
-                var hashedId = key.ToString().Substring(this.Configuration.AccessTokenPrefix.Length + 1);
+                var hashedId = key.ToString().Substring(this.Configuration.RefreshTokenPrefix.Length + 1);
 
                 var hashEntries = await db.HashGetAllAsync(key.ToString());
 
