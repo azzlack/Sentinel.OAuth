@@ -19,12 +19,14 @@
     <dependencies>
       <dependency id="Microsoft.Net.Http" version="2.2.29" />
       <dependency id="Newtonsoft.Json" version="6.0.0" />
-      <dependency id="Sentinel.OAuth.Core" version="1.4.0" />
+      <dependency id="Sentinel.OAuth.Core" version="1.4.2" />
     </dependencies> 
   </metadata>
   <files>
-	<file src="..\..\src\Sentinel.OAuth.Client\bin\Release\Sentinel.OAuth.Client.dll" target="lib\net45" />
-	<file src="..\..\src\Sentinel.OAuth.Client\bin\Release\Sentinel.OAuth.Client.pdb" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.Client\bin\Release\Sentinel.OAuth.Client.dll" target="lib\portable-net45+netcore45+wpa81+wp8" />
+	<file src="..\..\src\Sentinel.OAuth.Client\bin\Release\Sentinel.OAuth.Client.dll" target="lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />
+	<file src="..\..\src\Sentinel.OAuth.Client\bin\Release\Sentinel.OAuth.Client.pdb" target="lib\portable-net45+netcore45+wpa81+wp8" />
+	<file src="..\..\src\Sentinel.OAuth.Client\bin\Release\Sentinel.OAuth.Client.pdb" target="lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />
 	<file src="..\..\src\Sentinel.OAuth.Client\**\*.cs" exclude="**\obj\**\*.*" target="src" />
   </files>
 </package>

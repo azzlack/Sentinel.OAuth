@@ -24,8 +24,10 @@ Use this if you want to develop an extension.</description>
     </dependencies> 
   </metadata>
   <files>
-	<file src="..\..\src\Sentinel.OAuth.Core\bin\Release\Sentinel.OAuth.Core.dll" target="lib\net45" />
-	<file src="..\..\src\Sentinel.OAuth.Core\bin\Release\Sentinel.OAuth.Core.pdb" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.Core\bin\Release\Sentinel.OAuth.Core.dll" target="lib\portable-net45+netcore45+wpa81+wp8" />
+	<file src="..\..\src\Sentinel.OAuth.Core\bin\Release\Sentinel.OAuth.Core.dll" target="lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />
+	<file src="..\..\src\Sentinel.OAuth.Core\bin\Release\Sentinel.OAuth.Core.pdb" target="lib\portable-net45+netcore45+wpa81+wp8" />
+	<file src="..\..\src\Sentinel.OAuth.Core\bin\Release\Sentinel.OAuth.Core.pdb" target="lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />
 	<file src="..\..\src\Sentinel.OAuth.Core\**\*.cs" exclude="**\obj\**\*.*" target="src" />
   </files>
 </package>
