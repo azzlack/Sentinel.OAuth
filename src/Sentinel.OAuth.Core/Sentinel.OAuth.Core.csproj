@@ -85,6 +85,7 @@
   <ItemGroup>
     <Compile Include="Constants\Identity\ClaimType.cs" />
     <Compile Include="Interfaces\Factories\ITokenFactory.cs" />
+    <Compile Include="Interfaces\Models\IToken.cs" />
     <Compile Include="Models\OAuth\AccessToken.cs" />
     <Compile Include="Constants\Identity\AuthenticationType.cs" />
     <Compile Include="Models\OAuth\AuthorizationCode.cs" />
