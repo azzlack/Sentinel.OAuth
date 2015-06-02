@@ -13,5 +13,8 @@
 
         /// <summary>The client claim type.</summary>
         public const string Client = "urn:oauth:client";
+
+        /// <summary>The grant type claim type.</summary>
+        public const string GrantType = "urn:oauth:granttype";
     }
 }

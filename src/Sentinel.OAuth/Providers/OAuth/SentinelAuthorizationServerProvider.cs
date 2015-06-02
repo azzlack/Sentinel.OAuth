@@ -9,6 +9,7 @@
     using Microsoft.Owin.Security.OAuth;
 
     using Sentinel.OAuth.Core.Constants.Identity;
+    using Sentinel.OAuth.Core.Constants.OAuth;
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.Models.Identity;
@@ -229,6 +230,10 @@
             // Authenticate client
             var client = await this.options.ClientManager.AuthenticateClientAsync(context.ClientId, context.Scope);
 
+            // Add grant type claim
+            client.Identity.RemoveClaim(x => x.Type == ClaimType.GrantType);
+            client.Identity.AddClaim(ClaimType.GrantType, GrantType.ClientCredentials);
+
             if (client.Identity.IsAuthenticated)
             {
                 var ticket = new AuthenticationTicket(client.Identity.AsClaimsIdentity(), new AuthenticationProperties());
@@ -282,8 +287,10 @@
                 return;
             }
 
-            // Add client claim
+            // Add oauth claims
             user.Identity.AddClaim(ClaimType.Client, context.ClientId);
+            user.Identity.RemoveClaim(x => x.Type == ClaimType.GrantType);
+            user.Identity.AddClaim(ClaimType.GrantType, GrantType.Password);
 
             // Activate event if subscribed to
             if (this.options.Events.PrincipalCreated != null)
@@ -323,7 +330,13 @@
         {
             this.options.Logger.Debug("Authenticating authorization code flow");
 
-            context.Validated();
+            var user = new SentinelPrincipal(context.Ticket.Identity);
+
+            // Add grant type claim
+            user.Identity.RemoveClaim(x => x.Type == ClaimType.GrantType);
+            user.Identity.AddClaim(ClaimType.GrantType, GrantType.AuthorizationCode);
+
+            context.Validated(user.Identity.AsClaimsIdentity());
         }
 
         /// <summary>
@@ -347,6 +360,10 @@
 
             var user = new SentinelPrincipal(context.Ticket.Identity);
 
+            // Add grant type claim
+            user.Identity.RemoveClaim(x => x.Type == ClaimType.GrantType);
+            user.Identity.AddClaim(ClaimType.GrantType, GrantType.RefreshToken);
+
             // Activate event if subscribed to
             if (this.options.Events.PrincipalCreated != null)
             {
@@ -361,8 +378,8 @@
         }
 
         /// <summary>Called before the TokenEndpoint redirects its response to the caller.</summary>
-        /// <param name="context">.</param>
-        /// <returns>Task to enable asynchronous execution</returns>
+        /// <param name="context">The context of the event carries information in and results out.</param>
+        /// <returns>Task to enable asynchronous execution.</returns>
         public override async Task TokenEndpointResponse(OAuthTokenEndpointResponseContext context)
         {
             if (context.TokenIssued && this.options.Events.TokenIssued != null)
