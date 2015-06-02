@@ -204,7 +204,7 @@
 
             try
             {
-                if (token.ClientId == null || token.RedirectUri == null || token.Subject == null
+                if (token.ClientId == null || (token.RedirectUri == null && token.Scope == null) || token.Subject == null
                     || token.Token == null || token.Ticket == null
                     || token.Created == DateTime.MinValue
                     || token.ValidTo == DateTime.MinValue)
@@ -323,7 +323,7 @@
 
             try
             {
-                if (token.ClientId == null || token.RedirectUri == null || token.Subject == null
+                if (token.ClientId == null || (token.RedirectUri == null && token.Scope == null) || token.Subject == null
                     || token.Token == null
                     || token.Created == DateTime.MinValue
                     || token.ValidTo == DateTime.MinValue)
