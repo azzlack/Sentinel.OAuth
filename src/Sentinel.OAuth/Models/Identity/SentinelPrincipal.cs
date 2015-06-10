@@ -5,12 +5,14 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Security;
     using System.Security.Claims;
     using System.Security.Principal;
     using System.Threading;
 
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
+    using Sentinel.OAuth.Extensions;
 
     /// <summary>A JSON-serializable principal.</summary>
     [DebuggerDisplay("Identity: {Identity}")]
@@ -61,7 +63,7 @@
         {
             if (identity == null)
             {
-                throw new ArgumentNullException("principal", "Supplied Principal does not contain an identity");
+                throw new ArgumentNullException("identity");
             }
 
             this.Identity = new SentinelIdentity(identity);
@@ -105,10 +107,10 @@
             {
                 var expireClaim = this.Identity.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Expiration);
 
-                DateTime expires;
-                if (expireClaim != null && DateTime.TryParseExact(expireClaim.Value, "O", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out expires))
+                long unixTime;
+                if (expireClaim != null && long.TryParse(expireClaim.Value, out unixTime))
                 {
-                    return expires;
+                    return unixTime.FromUnixTime();
                 }
 
                 return DateTime.MinValue;

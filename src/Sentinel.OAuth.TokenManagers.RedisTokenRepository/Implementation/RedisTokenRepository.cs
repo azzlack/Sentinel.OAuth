@@ -10,7 +10,7 @@
 
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Extensions;
+    using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models;
 
     using StackExchange.Redis;
