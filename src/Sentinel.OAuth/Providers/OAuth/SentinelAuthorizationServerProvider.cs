@@ -5,6 +5,7 @@
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
+    using Microsoft.Owin;
     using Microsoft.Owin.Security;
     using Microsoft.Owin.Security.OAuth;
 
@@ -267,14 +268,24 @@
             this.options.Logger.DebugFormat("Authenticating resource owner flow for user '{0}'", Regex.Escape(context.UserName));
 
             // Enable cors on authenticate requests, as they will always be from another server
-            if (context.OwinContext.Response.Headers["Access-Control-Allow-Origin"] == null)
-            {
-                context.OwinContext.Response.Headers.Add("Access-Control-Allow-Origin", new[] { "*" });
-            }
-            else
-            {
-                context.OwinContext.Response.Headers.Set("Access-Control-Allow-Origin", "*");
-            }
+            context.OwinContext.Response.OnSendingHeaders(
+                state =>
+                {
+                    var response = state as OwinResponse;
+
+                    if (response != null && !response.Headers.IsReadOnly)
+                    {
+                        if (response.Headers.ContainsKey("Access-Control-Allow-Origin"))
+                        {
+                            response.Headers.Set("Access-Control-Allow-Origin", "*");
+                        }
+                        else
+                        {
+                            response.Headers.Append("Access-Control-Allow-Origin", "*");
+                        }
+                    }
+                },
+                context.OwinContext.Response);
 
             var user = await this.options.UserManager.AuthenticateUserWithPasswordAsync(context.UserName, context.Password);
 
