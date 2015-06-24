@@ -10,7 +10,6 @@
     using Newtonsoft.Json;
 
     using Sentinel.OAuth.Client.Interfaces;
-    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Core.Models.OAuth.Http;
 
     /// <summary>OAuth client for Sentinel.</summary>
@@ -41,6 +40,12 @@
                 UseCookies = true,
                 AllowAutoRedirect = false
             };
+
+            if (this.handler.SupportsAutomaticDecompression)
+            {
+                this.handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            }
+
             this.Client = new HttpClient(this.handler) { BaseAddress = settings.Url };
         }
 
@@ -73,7 +78,7 @@
 
             var response = await this.Client.SendAsync(request);
 
-            if (response.IsSuccessStatusCode) 
+            if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<AccessTokenResponse>(await response.Content.ReadAsStringAsync());
             }
