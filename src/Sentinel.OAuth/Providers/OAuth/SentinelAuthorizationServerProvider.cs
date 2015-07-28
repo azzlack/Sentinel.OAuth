@@ -267,26 +267,6 @@
         {
             this.options.Logger.DebugFormat("Authenticating resource owner flow for user '{0}'", Regex.Escape(context.UserName));
 
-            // Enable cors on authenticate requests, as they will always be from another server
-            context.OwinContext.Response.OnSendingHeaders(
-                state =>
-                {
-                    var response = state as OwinResponse;
-
-                    if (response != null && !response.Headers.IsReadOnly)
-                    {
-                        if (response.Headers.ContainsKey("Access-Control-Allow-Origin"))
-                        {
-                            response.Headers.Set("Access-Control-Allow-Origin", "*");
-                        }
-                        else
-                        {
-                            response.Headers.Append("Access-Control-Allow-Origin", "*");
-                        }
-                    }
-                },
-                context.OwinContext.Response);
-
             var user = await this.options.UserManager.AuthenticateUserWithPasswordAsync(context.UserName, context.Password);
 
             if (!user.Identity.IsAuthenticated)

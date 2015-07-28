@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sentinel.OAuth.Core", "Sentinel.OAuth.Core\Sentinel.OAuth.Core.csproj", "{3590E38C-F48F-4DC6-BB12-06EB919A70E3}"
 EndProject
@@ -138,5 +138,8 @@ Global
 		{2A880295-CD2F-45C7-B592-0595318292CB} = {31250A89-D108-47EB-9018-098700350493}
 		{7D33D993-B9BE-463D-8942-CC5D0B99C06D} = {6BD98182-1F1F-4DFD-A4B3-04988672ECF7}
 		{3FD81FAB-932D-4592-B325-EC190D8E0C03} = {6BD98182-1F1F-4DFD-A4B3-04988672ECF7}
+	EndGlobalSection
+	GlobalSection(CodealikeProperties) = postSolution
+		SolutionGuid = 546275ee-2d82-4d6c-b0f1-f202497728dc
 	EndGlobalSection
 EndGlobal
