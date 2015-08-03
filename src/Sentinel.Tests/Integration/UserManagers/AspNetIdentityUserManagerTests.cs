@@ -24,7 +24,7 @@
 
         private IUserManager userManager;
 
-        private ISqlLocalDbInstance instance;
+        private TemporarySqlLocalDbInstance instance;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
@@ -36,11 +36,7 @@
                 throw new Exception("LocalDB is not installed!");
             }
 
-            var provider = new SqlLocalDbProvider();
-
-            // Create test instance
-            this.instance = provider.GetOrCreateInstance("AspNetIdentityUserManager");
-            this.instance.Start();
+            this.instance = TemporarySqlLocalDbInstance.Create(deleteFiles: true);
 
             // Initialize database
             var strategy = new DropCreateDatabaseAlways<SentinelContext>();
@@ -119,7 +115,7 @@
         {
             if (this.instance != null)
             {
-                this.instance.Stop();
+                this.instance.Dispose();
             }
         }
     }
