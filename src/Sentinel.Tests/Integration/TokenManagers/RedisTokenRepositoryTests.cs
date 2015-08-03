@@ -153,7 +153,7 @@
                 this.tokenManager.CreateAccessTokenAsync(
                     new SentinelPrincipal(
                     new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
-                    TimeSpan.FromSeconds(10),
+                    TimeSpan.FromSeconds(5),
                     "NUnit",
                     "http://localhost",
                     new[] { Scope.Read });
@@ -213,7 +213,7 @@
                 this.tokenManager.CreateRefreshTokenAsync(
                     new SentinelPrincipal(
                     new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
-                    TimeSpan.FromSeconds(10),
+                    TimeSpan.FromSeconds(5),
                     "NUnit",
                     "http://localhost",
                     new[] { Scope.Read });
