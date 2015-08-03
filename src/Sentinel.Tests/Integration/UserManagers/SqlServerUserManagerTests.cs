@@ -17,7 +17,7 @@
     [Category("Integration")]
     public class SqlServerUserManagerTests
     {
-        private ISqlLocalDbInstance instance;
+        private TemporarySqlLocalDbInstance instance;
 
         private string databaseName;
 
@@ -26,14 +26,10 @@
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            var localDb = new SqlLocalDbApiWrapper();
-
-            if (!localDb.IsLocalDBInstalled())
+            if (!SqlLocalDbApi.IsLocalDBInstalled())
             {
                 throw new Exception("LocalDB is not installed!");
             }
-
-            var provider = new SqlLocalDbProvider();
 
             this.databaseName = "SqlServerUserManagerTests_" + Guid.NewGuid().ToString("N");
 
@@ -41,8 +37,7 @@
             SqlMapper.AddTypeMap(typeof(DateTime), DbType.DateTime2);
 
             // Create test instance
-            this.instance = provider.GetOrCreateInstance("SqlServerUserManager");
-            this.instance.Start();
+            this.instance = TemporarySqlLocalDbInstance.Create();
 
             // Seed test data
             using (var connection = this.instance.CreateConnection())
@@ -133,7 +128,7 @@
                     }
                 }
                 
-                this.instance.Stop();
+                this.instance.Dispose();
             }
         }
     }
