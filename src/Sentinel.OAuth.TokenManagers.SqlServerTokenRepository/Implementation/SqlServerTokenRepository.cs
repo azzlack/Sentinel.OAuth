@@ -84,7 +84,7 @@
                             authorizationCode.RedirectUri,
                             authorizationCode.Subject,
                             authorizationCode.Code,
-                            Scope = string.Join(" ", authorizationCode.Scope),
+                            Scope = authorizationCode.Scope != null ? string.Join(" ", authorizationCode.Scope) : null,
                             authorizationCode.Ticket,
                             authorizationCode.ValidTo,
                             Created = DateTime.UtcNow
