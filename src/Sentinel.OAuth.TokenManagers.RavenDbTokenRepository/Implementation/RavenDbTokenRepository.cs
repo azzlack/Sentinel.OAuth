@@ -1,16 +1,14 @@
 ﻿namespace Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Implementation
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-
     using Raven.Client;
     using Raven.Client.Linq;
-
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Models;
     using Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Models.OAuth;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     /// <summary>A token repository using RavenDB for storage.</summary>
     public class RavenDbTokenRepository : ITokenRepository
@@ -128,6 +126,21 @@
             }
         }
 
+        /// <summary>
+        /// Gets all access tokens for the specified user that expires **after** the specified date. 
+        /// Called when authenticating an access token to limit the number of tokens to go through when validating the hash.
+        /// </summary>
+        /// <param name="subject">The subject.</param>
+        /// <param name="expires">The expire date.</param>
+        /// <returns>The access tokens.</returns>
+        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTime expires)
+        {
+            using (var session = this.OpenAsyncSession())
+            {
+                return await session.Query<RavenAccessToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo > expires && x.Subject == subject).ToListAsync();
+            }
+        }
+
         /// <summary>Inserts the specified access token. Called when creating an access token.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessful.</returns>
@@ -155,7 +168,44 @@
             using (var session = this.OpenAsyncSession())
             {
                 var i = 0;
-                var matches = await session.Query<RavenAccessToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo < expires).ToListAsync();
+                var matches =
+                    await
+                    session.Query<RavenAccessToken>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.ValidTo < expires)
+                        .ToListAsync();
+
+                foreach (var match in matches)
+                {
+                    session.Delete(match);
+                    i++;
+                }
+
+                if (i > 0)
+                {
+                    await session.SaveChangesAsync();
+                }
+
+                return i;
+            }
+        }
+
+        /// <summary>Deletes the access tokens belonging to the specified client, redirect uri and subject.</summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="subject">The subject.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        public async Task<int> DeleteAccessTokens(string clientId, string redirectUri, string subject)
+        {
+            using (var session = this.OpenAsyncSession())
+            {
+                var i = 0;
+                var matches =
+                    await
+                    session.Query<RavenAccessToken>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.ClientId == clientId && x.RedirectUri == redirectUri && x.Subject == subject)
+                        .ToListAsync();
 
                 foreach (var match in matches)
                 {

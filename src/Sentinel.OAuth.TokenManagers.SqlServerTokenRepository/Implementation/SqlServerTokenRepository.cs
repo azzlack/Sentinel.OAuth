@@ -1,17 +1,15 @@
 ﻿namespace Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Implementation
 {
+    using Dapper;
+    using Sentinel.OAuth.Core.Interfaces.Models;
+    using Sentinel.OAuth.Core.Interfaces.Repositories;
+    using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models;
+    using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models.OAuth;
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
     using System.Linq;
     using System.Threading.Tasks;
-
-    using Dapper;
-
-    using Sentinel.OAuth.Core.Interfaces.Models;
-    using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models;
-    using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models.OAuth;
 
     /// <summary>A token repository using a SQL server for storage.</summary>
     public class SqlServerTokenRepository : ITokenRepository
@@ -49,17 +47,17 @@
                     data.Select(
                         x =>
                         new SqlAuthorizationCode()
-                            {
-                                ClientId = x.ClientId,
-                                Code = x.Code,
-                                Created = x.Created,
-                                Id = x.Id,
-                                RedirectUri = x.RedirectUri,
-                                Subject = x.Subject,
-                                Ticket = x.Ticket,
-                                ValidTo = x.ValidTo,
-                                Scope = x.Scope != null ? x.Scope.ToString().Split(' ') : new string[0]
-                            });
+                        {
+                            ClientId = x.ClientId,
+                            Code = x.Code,
+                            Created = x.Created,
+                            Id = x.Id,
+                            RedirectUri = x.RedirectUri,
+                            Subject = x.Subject,
+                            Ticket = x.Ticket,
+                            ValidTo = x.ValidTo,
+                            Scope = x.Scope != null ? x.Scope.ToString().Split(' ') : new string[0]
+                        });
 
                 return codes;
             }
@@ -81,16 +79,16 @@
                     connection.QueryAsync<long>(
                         "INSERT INTO AuthorizationCodes (ClientId, RedirectUri, Subject, Code, Scope, Ticket, ValidTo, Created) VALUES (@ClientId, @RedirectUri, @Subject, @Code, @Scope, @Ticket, @ValidTo, @Created); SELECT CAST(SCOPE_IDENTITY() as bigint);",
                         new
-                            {
-                                authorizationCode.ClientId,
-                                authorizationCode.RedirectUri,
-                                authorizationCode.Subject,
-                                authorizationCode.Code,
-                                Scope = string.Join(" ", authorizationCode.Scope),
-                                authorizationCode.Ticket,
-                                authorizationCode.ValidTo,
-                                Created = DateTime.UtcNow
-                            });
+                        {
+                            authorizationCode.ClientId,
+                            authorizationCode.RedirectUri,
+                            authorizationCode.Subject,
+                            authorizationCode.Code,
+                            Scope = string.Join(" ", authorizationCode.Scope),
+                            authorizationCode.Ticket,
+                            authorizationCode.ValidTo,
+                            Created = DateTime.UtcNow
+                        });
 
                 var data = await connection.QueryAsync("SELECT * FROM AuthorizationCodes WHERE Id = @Id", new { Id = id });
                 var entities =
@@ -191,6 +189,43 @@
             }
         }
 
+        /// <summary>
+        /// Gets all access tokens for the specified user that expires **after** the specified date. 
+        /// Called when authenticating an access token to limit the number of tokens to go through when validating the hash.
+        /// </summary>
+        /// <param name="subject">The subject.</param>
+        /// <param name="expires">The expire date.</param>
+        /// <returns>The access tokens.</returns>
+        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTime expires)
+        {
+            using (var connection = this.OpenConnection())
+            {
+                var data =
+                    await
+                    connection.QueryAsync(
+                        "SELECT * FROM AccessTokens WHERE ValidTo > @Expires AND Subject == @Subject",
+                        new { Expires = expires, Subject = subject });
+
+                var tokens =
+                    data.Select(
+                        x =>
+                        new SqlAccessToken()
+                        {
+                            ClientId = x.ClientId,
+                            Created = x.Created,
+                            Id = x.Id,
+                            RedirectUri = x.RedirectUri,
+                            Subject = x.Subject,
+                            Token = x.Token,
+                            Ticket = x.Ticket,
+                            ValidTo = x.ValidTo,
+                            Scope = x.Scope != null ? x.Scope.ToString().Split(' ') : new string[0]
+                        });
+
+                return tokens;
+            }
+        }
+
         /// <summary>Inserts the specified access token. Called when creating an access token.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessful.</returns>
@@ -252,6 +287,25 @@
                     connection.ExecuteAsync(
                         "DELETE FROM AccessTokens WHERE ValidTo < @ValidTo",
                         new { ValidTo = expires });
+
+                return rows;
+            }
+        }
+
+        /// <summary>Deletes the access tokens belonging to the specified client, redirect uri and subject.</summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="subject">The subject.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        public async Task<int> DeleteAccessTokens(string clientId, string redirectUri, string subject)
+        {
+            using (var connection = this.OpenConnection())
+            {
+                var rows =
+                    await
+                    connection.ExecuteAsync(
+                        "DELETE FROM AccessTokens WHERE ClientId = @ClientId AND RedirectUri = @RedirectUri AND Subject = @Subject",
+                        new { ClientId = clientId, RedirectUri = redirectUri, Subject = subject });
 
                 return rows;
             }

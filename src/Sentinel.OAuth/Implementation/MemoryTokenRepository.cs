@@ -1,15 +1,14 @@
 ﻿namespace Sentinel.OAuth.Implementation
 {
+    using Sentinel.OAuth.Core.Interfaces.Models;
+    using Sentinel.OAuth.Core.Interfaces.Repositories;
+    using Sentinel.OAuth.Core.Models.OAuth;
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading.Tasks;
-
-    using Sentinel.OAuth.Core.Interfaces.Models;
-    using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.Core.Models.OAuth;
 
     public class MemoryTokenRepository : ITokenRepository
     {
@@ -120,6 +119,18 @@
             return this.accessTokens.Select(x => x.Value).Where(x => x.ValidTo > expires);
         }
 
+        /// <summary>
+        /// Gets all access tokens for the specified user that expires **after** the specified date. 
+        /// Called when authenticating an access token to limit the number of tokens to go through when validating the hash.
+        /// </summary>
+        /// <param name="subject">The subject.</param>
+        /// <param name="expires">The expire date.</param>
+        /// <returns>The access tokens.</returns>
+        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTime expires)
+        {
+            return this.accessTokens.Select(x => x.Value).Where(x => x.ValidTo > expires && x.Subject == subject);
+        }
+
         /// <summary>Gets access tokens matching the specified predicate.</summary>
         /// <param name="predicate">
         ///     The predicate expression for reducing the access token collection.
@@ -165,6 +176,16 @@
             }
 
             return i;
+        }
+
+        /// <summary>Deletes the access tokens belonging to the specified client, redirect uri and subject.</summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="subject">The subject.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        public Task<int> DeleteAccessTokens(string clientId, string redirectUri, string subject)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>Deletes the specified access token.</summary>

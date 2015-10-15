@@ -1,10 +1,9 @@
 ﻿namespace Sentinel.OAuth.Core.Interfaces.Repositories
 {
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-
-    using Sentinel.OAuth.Core.Interfaces.Models;
 
     /// <summary>Interface for token repository.</summary>
     public interface ITokenRepository
@@ -51,6 +50,15 @@
         Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTime expires);
 
         /// <summary>
+        /// Gets all access tokens for the specified user that expires **after** the specified date. 
+        /// Called when authenticating an access token to limit the number of tokens to go through when validating the hash.
+        /// </summary>
+        /// <param name="subject">The subject.</param>
+        /// <param name="expires">The expire date.</param>
+        /// <returns>The access tokens.</returns>
+        Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTime expires);
+
+        /// <summary>
         /// Inserts the specified access token.
         /// Called when creating an access token.
         /// </summary>
@@ -65,6 +73,13 @@
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted tokens.</returns>
         Task<int> DeleteAccessTokens(DateTime expires);
+
+        /// <summary>Deletes the access tokens belonging to the specified client, redirect uri and subject.</summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="subject">The subject.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        Task<int> DeleteAccessTokens(string clientId, string redirectUri, string subject);
 
         /// <summary>
         /// Deletes the specified access token.
