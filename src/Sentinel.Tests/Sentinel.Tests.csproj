@@ -159,6 +159,7 @@
     <Compile Include="Integration\TokenManagers\RedisTokenRepositoryTests.cs" />
     <Compile Include="Integration\TokenManagers\RavenDbTokenRepositoryTests.cs" />
     <Compile Include="Integration\TokenManagers\SqlServerTokenRepositoryTests.cs" />
+    <Compile Include="Integration\TokenManagers\TokenRepositoryTests.cs" />
     <Compile Include="Integration\TokenManagerTests.cs" />
     <Compile Include="Integration\UserManagers\AspNetIdentityUserManagerTests.cs" />
     <Compile Include="Integration\UserManagers\SqlServerUserManagerTests.cs" />
