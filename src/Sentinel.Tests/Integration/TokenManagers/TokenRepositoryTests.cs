@@ -8,7 +8,6 @@
     using System;
     using System.Diagnostics;
     using System.Security.Claims;
-    using System.Threading.Tasks;
 
     public abstract class TokenRepositoryTests
     {
@@ -76,9 +75,6 @@
         [Test]
         public async void AuthenticateAuthorizationCode_WhenGivenUsingCodeTwice_ReturnsNotAuthenticatedIdentity()
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
             await
                 this.TokenManager.CreateAuthorizationCodeAsync(
                     new SentinelPrincipal(
@@ -96,11 +92,17 @@
                     "http://localhost",
                     new[] { Scope.Read });
 
+            Console.WriteLine();
+            var createAuthorizationCodeElapsed = this.testStopwatch.Elapsed;
+            Console.WriteLine($"Creating access token took {createAuthorizationCodeElapsed} seconds");
+
             Console.WriteLine("Code: {0}", code);
 
-            var user = await this.TokenManager.AuthenticateAuthorizationCodeAsync("http://localhost", code);
+            var user1 = await this.TokenManager.AuthenticateAuthorizationCodeAsync("http://localhost", code);
 
-            stopwatch.Restart();
+            Console.WriteLine();
+            Console.WriteLine($"Authenticating authorization code took {this.testStopwatch.Elapsed - createAuthorizationCodeElapsed} seconds");
+
             var user2 = await this.TokenManager.AuthenticateAuthorizationCodeAsync("http://localhost", code);
 
             Assert.IsFalse(user2.Identity.IsAuthenticated, "The code is possible to use twice");
@@ -109,9 +111,6 @@
         [Test]
         public async void AuthenticateAccessToken_WhenGivenValidIdentity_ReturnsAuthenticatedIdentity()
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
             var token =
                 await
                 this.TokenManager.CreateAccessTokenAsync(
@@ -122,12 +121,18 @@
                     "http://localhost",
                     new[] { Scope.Read });
 
+            Console.WriteLine();
+            var createAccessTokenElapsed = this.testStopwatch.Elapsed;
+            Console.WriteLine($"Creating access token took {createAccessTokenElapsed} seconds");
+
             Console.WriteLine("Token: {0}", token);
 
             Assert.IsNotNullOrEmpty(token);
 
-            stopwatch.Restart();
             var user = await this.TokenManager.AuthenticateAccessTokenAsync(token);
+
+            Console.WriteLine();
+            Console.WriteLine($"Authenticating access token took {this.testStopwatch.Elapsed - createAccessTokenElapsed} seconds");
 
             Assert.IsTrue(user.Identity.IsAuthenticated);
         }
@@ -135,25 +140,26 @@
         [Test]
         public async void AuthenticateAccessToken_WhenUsingExpiredToken_ReturnsNotAuthenticatedIdentity()
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
             var token =
                 await
                 this.TokenManager.CreateAccessTokenAsync(
                     new SentinelPrincipal(
                     new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
-                    TimeSpan.FromSeconds(5),
+                    TimeSpan.FromSeconds(0),
                     "NUnit",
                     "http://localhost",
                     new[] { Scope.Read });
 
+            Console.WriteLine();
+            var createAccessTokenElapsed = this.testStopwatch.Elapsed;
+            Console.WriteLine($"Creating access token took {createAccessTokenElapsed} seconds");
+
             Console.WriteLine("Token: {0}", token);
 
-            await Task.Delay(TimeSpan.FromSeconds(10));
-
-            stopwatch.Restart();
             var user = await this.TokenManager.AuthenticateAccessTokenAsync(token);
+
+            Console.WriteLine();
+            Console.WriteLine($"Authenticating access token took {this.testStopwatch.Elapsed - createAccessTokenElapsed} seconds");
 
             Assert.IsFalse(user.Identity.IsAuthenticated, "The token is possible to use after expiration");
         }
@@ -161,9 +167,6 @@
         [Test]
         public async void AuthenticateRefreshToken_WhenGivenValidIdentity_ReturnsAuthenticatedIdentity()
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
             var token =
                 await
                 this.TokenManager.CreateRefreshTokenAsync(
@@ -174,12 +177,18 @@
                     "http://localhost",
                     new[] { Scope.Read });
 
+            Console.WriteLine();
+            var createRefreshTokenElapsed = this.testStopwatch.Elapsed;
+            Console.WriteLine($"Creating access token took {createRefreshTokenElapsed} seconds");
+
             Console.WriteLine("Token: {0}", token);
 
             Assert.IsNotNullOrEmpty(token);
 
-            stopwatch.Restart();
             var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", token, "http://localhost");
+
+            Console.WriteLine();
+            Console.WriteLine($"Authenticating refresh token took {this.testStopwatch.Elapsed - createRefreshTokenElapsed} seconds");
 
             Assert.IsTrue(user.Identity.IsAuthenticated);
         }
@@ -187,9 +196,6 @@
         [Test]
         public async void AuthenticateRefreshToken_WhenUsingExpiredToken_ReturnsNotAuthenticatedIdentity()
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
             var token =
                 await
                 this.TokenManager.CreateRefreshTokenAsync(
@@ -200,12 +206,16 @@
                     "http://localhost",
                     new[] { Scope.Read });
 
+            Console.WriteLine();
+            var createRefreshTokenElapsed = this.testStopwatch.Elapsed;
+            Console.WriteLine($"Creating access token took {createRefreshTokenElapsed} seconds");
+
             Console.WriteLine("Token: {0}", token);
 
-            await Task.Delay(TimeSpan.FromSeconds(10));
-
-            stopwatch.Restart();
             var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", "https://localhost", token);
+
+            Console.WriteLine();
+            Console.WriteLine($"Authenticating refresh token took {this.testStopwatch.Elapsed - createRefreshTokenElapsed} seconds");
 
             Assert.IsFalse(user.Identity.IsAuthenticated, "The token is possible to use after expiration");
         }

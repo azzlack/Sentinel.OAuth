@@ -17,7 +17,7 @@
 
     [TestFixture]
     [Category("Integration")]
-    public class SqlServerTokenRepositoryTests : TokenRepositoryTests
+    public class SqlServerTokenManagerTests : TokenRepositoryTests
     {
         /// <summary>The instance.</summary>
         private TemporarySqlLocalDbInstance instance;
@@ -79,7 +79,7 @@
                             new SentinelClaim(ClaimType.Client, "NUnit"))));
 
             this.TokenManager = new TokenManager(
-                LogManager.GetLogger(typeof(SqlServerTokenRepositoryTests)),
+                LogManager.GetLogger(typeof(SqlServerTokenManagerTests)),
                 userManager.Object,
                 new PrincipalProvider(new PBKDF2CryptoProvider()),
                 new SHA2CryptoProvider(),

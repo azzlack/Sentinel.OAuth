@@ -1,12 +1,6 @@
 ﻿namespace Sentinel.OAuth.Implementation
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-
     using Common.Logging;
-
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Factories;
     using Sentinel.OAuth.Core.Interfaces.Identity;
@@ -15,6 +9,10 @@
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.Core.Managers;
     using Sentinel.OAuth.Models.Identity;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
 
     /// <summary>A universal token manager. Takes care of processing the tokens without caring where and how they are stored.</summary>
     public class TokenManager : BaseTokenManager
@@ -165,7 +163,7 @@
 
             if (client == null || string.IsNullOrEmpty(client.Value))
             {
-                throw new ArgumentException("The specified principal does not have a valid client identifier", "userPrincipal");
+                throw new ArgumentException("The specified principal does not have a valid client identifier", nameof(userPrincipal));
             }
 
             // Delete all expired authorization codes

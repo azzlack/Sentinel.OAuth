@@ -3,18 +3,18 @@
     using Common.Logging;
     using Moq;
     using NUnit.Framework;
-    using Raven.Client.Embedded;
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Implementation;
     using Sentinel.OAuth.Models.Identity;
-    using Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Implementation;
-    using Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Models;
+    using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Implementation;
+    using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models;
+    using System.Configuration;
     using System.Security.Claims;
 
     [TestFixture]
     [Category("Integration")]
-    public class RavenDbTokenRepositoryTests : TokenRepositoryTests
+    public class RedisTokenManagerTests : TokenRepositoryTests
     {
         [SetUp]
         public override void SetUp()
@@ -28,13 +28,12 @@
                             new SentinelClaim(ClaimType.Client, "NUnit"))));
 
             this.TokenManager = new TokenManager(
-                LogManager.GetLogger(typeof(RavenDbTokenRepositoryTests)),
+                LogManager.GetLogger(typeof(RedisTokenManagerTests)),
                 userManager.Object,
                 new PrincipalProvider(new PBKDF2CryptoProvider()),
                 new PBKDF2CryptoProvider(),
-                new RavenTokenFactory(),
-                new RavenDbTokenRepository(
-                    new RavenDbTokenRepositoryConfiguration(new EmbeddableDocumentStore() { RunInMemory = true })));
+                new RedisTokenFactory(),
+                new RedisTokenRepository(new RedisTokenRepositoryConfiguration(ConfigurationManager.AppSettings["RedisHost"], 4, "sentinel.oauth", LogManager.GetLogger(typeof(RedisTokenManagerTests)))));
 
             base.SetUp();
         }

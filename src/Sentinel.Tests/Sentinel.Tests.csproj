@@ -156,9 +156,9 @@
     <Compile Include="Integration\ClientManagers\SqlServerClientManagerTests.cs" />
     <Compile Include="Integration\PrincipalProviderTests.cs" />
     <Compile Include="Facade\SentinelOAuthClientTests.cs" />
-    <Compile Include="Integration\TokenManagers\RedisTokenRepositoryTests.cs" />
-    <Compile Include="Integration\TokenManagers\RavenDbTokenRepositoryTests.cs" />
-    <Compile Include="Integration\TokenManagers\SqlServerTokenRepositoryTests.cs" />
+    <Compile Include="Integration\TokenManagers\RedisTokenManagerTests.cs" />
+    <Compile Include="Integration\TokenManagers\RavenDbTokenManagerTests.cs" />
+    <Compile Include="Integration\TokenManagers\SqlServerTokenManagerTests.cs" />
     <Compile Include="Integration\TokenManagers\TokenRepositoryTests.cs" />
     <Compile Include="Integration\TokenManagerTests.cs" />
     <Compile Include="Integration\UserManagers\AspNetIdentityUserManagerTests.cs" />
