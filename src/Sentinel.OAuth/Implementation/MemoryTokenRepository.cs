@@ -1,5 +1,6 @@
 ﻿namespace Sentinel.OAuth.Implementation
 {
+    using Newtonsoft.Json;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.Core.Models.OAuth;
@@ -62,6 +63,11 @@
         public async Task<IAuthorizationCode> InsertAuthorizationCode(IAuthorizationCode authorizationCode)
         {
             var code = (AuthorizationCode)authorizationCode;
+
+            if (!code.IsValid())
+            {
+                throw new ArgumentException($"The authorization code is invalid: {JsonConvert.SerializeObject(code)}", nameof(authorizationCode));
+            }
 
             if (this.authorizationCodes.TryAdd(Guid.NewGuid(), code))
             {
@@ -148,6 +154,11 @@
         {
             var token = (AccessToken)accessToken;
 
+            if (!token.IsValid())
+            {
+                throw new ArgumentException($"The access token is invalid: {JsonConvert.SerializeObject(token)}", nameof(accessToken));
+            }
+
             if (this.accessTokens.TryAdd(Guid.NewGuid(), token))
             {
                 return accessToken;
@@ -230,6 +241,11 @@
         {
             var token = (RefreshToken)refreshToken;
 
+            if (!token.IsValid())
+            {
+                throw new ArgumentException($"The refresh token is invalid: {JsonConvert.SerializeObject(token)}", nameof(refreshToken));
+            }
+
             if (this.refreshTokens.TryAdd(Guid.NewGuid(), token))
             {
                 return refreshToken;
@@ -276,6 +292,17 @@
             }
 
             return false;
+        }
+
+        /// <summary>Deletes all access tokens, refresh tokens and authorization codes.</summary>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> Purge()
+        {
+            this.authorizationCodes.Clear();
+            this.refreshTokens.Clear();
+            this.accessTokens.Clear();
+
+            return true;
         }
     }
 }

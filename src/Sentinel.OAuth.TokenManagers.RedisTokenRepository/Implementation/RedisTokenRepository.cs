@@ -45,7 +45,7 @@
             var min = expires.ToUnixTime();
             var codes = new List<IAuthorizationCode>();
 
-            var keys = db.SortedSetRangeByScore(this.Configuration.AuthorizationCodePrefix, min, DateTimeMax);
+            var keys = db.SortedSetRangeByScore($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", min, DateTimeMax);
 
             foreach (var key in keys)
             {
@@ -77,38 +77,38 @@
         /// </returns>
         public async Task<IAuthorizationCode> InsertAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            var code = (RedisAuthorizationCode)authorizationCode;
+            var code = new RedisAuthorizationCode(authorizationCode);
+
+            if (!code.IsValid())
+            {
+                throw new ArgumentException($"The authorization code is invalid: {JsonConvert.SerializeObject(code)}", nameof(authorizationCode));
+            }
 
             var key = this.GenerateKey(code);
 
             var db = this.GetDatabase();
+            var tran = db.CreateTransaction();
 
             try
             {
-                if (code.ClientId == null || code.RedirectUri == null || code.Subject == null
-                    || code.Code == null || code.Ticket == null
-                    || code.Created == DateTime.MinValue
-                    || code.ValidTo == DateTime.MinValue)
-                {
-                    throw new ArgumentException(string.Format("The authorization code is invalid: {0}", JsonConvert.SerializeObject(code)), "authorizationCode");
-                }
-
                 this.Configuration.Log.DebugFormat("Inserting access token hash in key {0}", key);
 
                 // Add hash to key
-                await db.HashSetAsync(key, code.ToHashEntries());
+                tran.HashSetAsync(key, code.ToHashEntries());
 
                 var expires = authorizationCode.ValidTo.ToUnixTime();
 
                 this.Configuration.Log.DebugFormat("Inserting key {0} to authorization code set with score {1}", key, expires);
 
                 // Add key to sorted set for future reference. The score is the expire time in seconds since epoch.
-                await db.SortedSetAddAsync(this.Configuration.AuthorizationCodePrefix, key, expires);
+                tran.SortedSetAddAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", key, expires);
 
                 this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, authorizationCode.ValidTo);
 
                 // Make the key expire when the code times out
-                await db.KeyExpireAsync(key, authorizationCode.ValidTo);
+                tran.KeyExpireAsync(key, authorizationCode.ValidTo);
+
+                await tran.ExecuteAsync();
 
                 return authorizationCode;
             }
@@ -129,12 +129,22 @@
         public async Task<int> DeleteAuthorizationCodes(DateTime expires)
         {
             var db = this.GetDatabase();
+            var tran = db.CreateTransaction();
 
-            // Remove items from set
-            // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
-            var i = await db.SortedSetRemoveRangeByScoreAsync(this.Configuration.AuthorizationCodePrefix, 0, expires.ToUnixTime());
+            var keysToDelete = await db.SortedSetRangeByScoreAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", 0, expires.ToUnixTime());
 
-            return (int)i;
+            // Remove items from index
+            var expireTask = tran.SortedSetRemoveRangeByScoreAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", 0, expires.ToUnixTime());
+
+            // Remove keys
+            foreach (var key in keysToDelete)
+            {
+                tran.KeyDeleteAsync(key.ToString());
+            }
+
+            await tran.ExecuteAsync(CommandFlags.HighPriority);
+
+            return (int)expireTask.Result;
         }
 
         /// <summary>
@@ -145,15 +155,20 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            var code = (RedisAuthorizationCode)authorizationCode;
+            var code = new RedisAuthorizationCode(authorizationCode);
 
             var key = this.GenerateKey(code);
 
             var db = this.GetDatabase();
+            var tran = db.CreateTransaction();
 
-            // Remove items from set
-            // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
-            return await db.SortedSetRemoveAsync(this.Configuration.AuthorizationCodePrefix, key);
+            // Remove items from index
+            tran.SortedSetRemoveAsync(this.Configuration.AuthorizationCodePrefix, key);
+
+            // Remove key
+            tran.KeyDeleteAsync(key);
+
+            return await tran.ExecuteAsync(CommandFlags.HighPriority);
         }
 
         /// <summary>
@@ -229,43 +244,44 @@
         /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<IAccessToken> InsertAccessToken(IAccessToken accessToken)
         {
-            var token = (RedisAccessToken)accessToken;
+            var token = new RedisAccessToken(accessToken);
+
+            // Validate token
+            if (!token.IsValid())
+            {
+                throw new ArgumentException($"The access token is invalid: {JsonConvert.SerializeObject(token)}", nameof(accessToken));
+            }
 
             var key = this.GenerateKey(token);
 
             var db = this.GetDatabase();
+            var tran = db.CreateTransaction();
 
             try
             {
-                if (token.ClientId == null || (token.RedirectUri == null && token.Scope == null) || token.Subject == null
-                    || token.Token == null || token.Ticket == null
-                    || token.Created == DateTime.MinValue
-                    || token.ValidTo == DateTime.MinValue)
-                {
-                    throw new ArgumentException(string.Format("The access token is invalid: {0}", JsonConvert.SerializeObject(token)), "accessToken");
-                }
-
                 this.Configuration.Log.DebugFormat("Inserting access token hash in key {0}", key);
 
                 // Add hash to key
-                await db.HashSetAsync(key, token.ToHashEntries());
+                tran.HashSetAsync(key, token.ToHashEntries());
 
                 var expires = accessToken.ValidTo.ToUnixTime();
 
                 this.Configuration.Log.DebugFormat("Inserting key {0} to access token set with score {1}", key, expires);
 
                 // Add key to sorted set for future reference by expire time. The score is the expire time in seconds since epoch.
-                await db.SortedSetAddAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", key, expires);
+                tran.SortedSetAddAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", key, expires);
 
-                // Add key to hashed set for future reference by client id, redirect uri or subject. The score is the expire time in seconds since epoch.
-                await db.HashSetAsync($"{this.Configuration.AccessTokenPrefix}:_index:client:{token.ClientId}", key, expires);
-                await db.HashSetAsync($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{token.RedirectUri}", key, expires);
-                await db.HashSetAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{token.Subject}", key, expires);
+                // Add key to hashed set for future reference by client id, redirect uri or subject. The value is the expire time in seconds since epoch.
+                tran.HashSetAsync($"{this.Configuration.AccessTokenPrefix}:_index:client:{token.ClientId}", key, expires);
+                tran.HashSetAsync($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{token.RedirectUri}", key, expires);
+                tran.HashSetAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{token.Subject}", key, expires);
 
                 this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, accessToken.ValidTo);
 
                 // Make the keys expire when the code times out
-                await db.KeyExpireAsync(key, accessToken.ValidTo);
+                tran.KeyExpireAsync(key, accessToken.ValidTo);
+
+                await tran.ExecuteAsync();
 
                 return accessToken;
             }
@@ -286,19 +302,28 @@
         public async Task<int> DeleteAccessTokens(DateTime expires)
         {
             var db = this.GetDatabase();
+            var tran = db.CreateTransaction();
 
-            var keysToDelete = await db.SortedSetRangeByScoreAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", expires.ToUnixTime(), DateTimeMax);
+            var keysToDelete = await db.SortedSetRangeByScoreAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", 0, expires.ToUnixTime());
 
-            // Remove items from sets
-            // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
-            var i = await db.SortedSetRemoveRangeByScoreAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", 0, expires.ToUnixTime());
+            // Remove items from indexes
+            tran.SortedSetRemoveRangeByScoreAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", 0, expires.ToUnixTime());
 
+            // Remove items
             foreach (var key in keysToDelete)
             {
-                await db.KeyDeleteAsync(key.ToString());
+                var data = await db.HashGetAllAsync(key.ToString());
+                var token = new RedisAccessToken(data);
+
+                tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:client:{token.ClientId}", key);
+                tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{token.RedirectUri}", key);
+                tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{token.Subject}", key);
+                tran.KeyDeleteAsync(key.ToString());
             }
 
-            return (int)i;
+            await tran.ExecuteAsync(CommandFlags.HighPriority);
+
+            return keysToDelete.Length;
         }
 
         /// <summary>
@@ -311,8 +336,7 @@
         public async Task<int> DeleteAccessTokens(string clientId, string redirectUri, string subject)
         {
             var db = this.GetDatabase();
-
-            var removedKeys = new List<string>();
+            var tran = db.CreateTransaction();
 
             var clientKeys = db.HashGetAll($"{this.Configuration.AccessTokenPrefix}:_index:client:{clientId}");
             var redirectUriKeys = db.HashGetAll($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{redirectUri}");
@@ -327,21 +351,22 @@
             // Remove keys
             foreach (var key in unionKeys)
             {
-                var expires = (long)key.Value;
+                var data = await db.HashGetAllAsync(key.ToString());
+                var token = new RedisAccessToken(data);
 
-                // Remove items from set
-                // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
-                var keyDeleteResult = await db.KeyDeleteAsync(key.ToString());
-                var i = await db.SortedSetRemoveRangeByScoreAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", 0, expires);
+                // Remove items from indexes
+                tran.SortedSetRemoveAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", key.ToString());
+                tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:client:{token.ClientId}", key.ToString());
+                tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{token.RedirectUri}", key.ToString());
+                tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{token.Subject}", key.ToString());
 
-                if (keyDeleteResult && i > 0)
-                {
-                    removedKeys.Add(key.ToString());
-                }
+                // Remove key
+                tran.KeyDeleteAsync(key.ToString());
             }
 
+            await tran.ExecuteAsync(CommandFlags.HighPriority);
 
-            return removedKeys.Count;
+            return unionKeys.Count();
         }
 
         /// <summary>Deletes the specified access token.</summary>
@@ -349,20 +374,25 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
         {
-            var token = (RedisAccessToken)accessToken;
+            var token = new RedisAccessToken(accessToken);
 
             var key = this.GenerateKey(token);
 
             var db = this.GetDatabase();
+            var tran = db.CreateTransaction();
 
-            // Remove items from set
-            // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
-            var clientDeleteResult = await db.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:client:{token.ClientId}", key);
-            var redirectUriDeleteResult = await db.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{token.RedirectUri}", key);
-            var subjectDeleteResult = await db.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{token.Subject}", key);
-            var i = await db.SortedSetRemoveAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", key);
+            // Remove items from indexes
+            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:client:{token.ClientId}", key);
+            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{token.RedirectUri}", key);
+            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{token.Subject}", key);
+            tran.SortedSetRemoveAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", key);
 
-            return clientDeleteResult && redirectUriDeleteResult && subjectDeleteResult && i;
+            // Remove key
+            tran.KeyDeleteAsync(key, CommandFlags.HighPriority);
+
+            var commited = await tran.ExecuteAsync(CommandFlags.HighPriority);
+
+            return commited;
         }
 
         /// <summary>
@@ -408,38 +438,43 @@
         /// <returns>The inserted refresh token. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<IRefreshToken> InsertRefreshToken(IRefreshToken refreshToken)
         {
-            var token = (RedisRefreshToken)refreshToken;
+            var token = new RedisRefreshToken(refreshToken);
+
+            if (!token.IsValid())
+            {
+                throw new ArgumentException($"The refresh token is invalid: {JsonConvert.SerializeObject(token)}", nameof(refreshToken));
+            }
 
             var key = this.GenerateKey(token);
 
             var db = this.GetDatabase();
+            var tran = db.CreateTransaction();
 
             try
             {
-                if (token.ClientId == null || (token.RedirectUri == null && token.Scope == null) || token.Subject == null
-                    || token.Token == null
-                    || token.Created == DateTime.MinValue
-                    || token.ValidTo == DateTime.MinValue)
-                {
-                    throw new ArgumentException($"The refresh token is invalid: {JsonConvert.SerializeObject(token)}", nameof(refreshToken));
-                }
-
                 this.Configuration.Log.DebugFormat("Inserting refresh token hash in key {0}", key);
 
                 // Add hash to key
-                await db.HashSetAsync(key, token.ToHashEntries());
+                tran.HashSetAsync(key, token.ToHashEntries());
 
                 var expires = refreshToken.ValidTo.ToUnixTime();
 
                 this.Configuration.Log.DebugFormat("Inserting key {0} to refresh token set with score {1}", key, expires);
 
-                // Add key to sorted set for future reference. The score is the expire time in seconds since epoch.
-                await db.SortedSetAddAsync(this.Configuration.RefreshTokenPrefix, key, expires);
+                // Add key to index for future reference. The score is the expire time in seconds since epoch.
+                tran.SortedSetAddAsync(this.Configuration.RefreshTokenPrefix, key, expires);
+
+                // Add key to hashed set for future reference by client id, redirect uri or subject. The value is the expire time in seconds since epoch.
+                tran.HashSetAsync($"{this.Configuration.RefreshTokenPrefix}:_index:client:{token.ClientId}", key, expires);
+                tran.HashSetAsync($"{this.Configuration.RefreshTokenPrefix}:_index:redirecturi:{token.RedirectUri}", key, expires);
+                tran.HashSetAsync($"{this.Configuration.RefreshTokenPrefix}:_index:subject:{token.Subject}", key, expires);
 
                 this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, refreshToken.ValidTo);
 
                 // Make the key expire when the code times out
-                await db.KeyExpireAsync(key, refreshToken.ValidTo);
+                tran.KeyExpireAsync(key, refreshToken.ValidTo);
+
+                await tran.ExecuteAsync();
 
                 return refreshToken;
             }
@@ -460,12 +495,28 @@
         public async Task<int> DeleteRefreshTokens(DateTime expires)
         {
             var db = this.GetDatabase();
+            var tran = db.CreateTransaction();
 
-            // Remove items from set
-            // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
-            var i = await db.SortedSetRemoveRangeByScoreAsync(this.Configuration.RefreshTokenPrefix, 0, expires.ToUnixTime());
+            var keysToDelete = await db.SortedSetRangeByScoreAsync($"{this.Configuration.RefreshTokenPrefix}:_index:expires", 0, expires.ToUnixTime());
 
-            return (int)i;
+            // Remove items from indexes
+            tran.SortedSetRemoveRangeByScoreAsync($"{this.Configuration.RefreshTokenPrefix}:_index:expires", 0, expires.ToUnixTime());
+
+            // Remove items
+            foreach (var key in keysToDelete)
+            {
+                var data = await db.HashGetAllAsync(key.ToString());
+                var token = new RedisRefreshToken(data);
+
+                tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:client:{token.ClientId}", key);
+                tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:redirecturi:{token.RedirectUri}", key);
+                tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:subject:{token.Subject}", key);
+                tran.KeyDeleteAsync(key.ToString());
+            }
+
+            await tran.ExecuteAsync(CommandFlags.HighPriority);
+
+            return keysToDelete.Length;
         }
 
         /// <summary>
@@ -476,15 +527,34 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteRefreshToken(IRefreshToken refreshToken)
         {
-            var token = (RedisRefreshToken)refreshToken;
+            var token = new RedisRefreshToken(refreshToken);
 
             var key = this.GenerateKey(token);
 
             var db = this.GetDatabase();
+            var tran = db.CreateTransaction();
 
-            // Remove items from set
-            // We don't need to remove the keys themselves, as Redis will remove them for us because we set the EXPIRE parameter.
-            return await db.SortedSetRemoveAsync(this.Configuration.RefreshTokenPrefix, key);
+            // Remove items from indexes
+            tran.SortedSetRemoveAsync($"{this.Configuration.RefreshTokenPrefix}:_index:expires", key);
+            tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:client:{token.ClientId}", key);
+            tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:redirecturi:{token.RedirectUri}", key);
+            tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:subject:{token.Subject}", key);
+
+            // Remove keys
+            tran.KeyDeleteAsync(key);
+
+            return await tran.ExecuteAsync(CommandFlags.HighPriority);
+        }
+
+        /// <summary>Deletes all access tokens, refresh tokens and authorization codes.</summary>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> Purge()
+        {
+            var server = this.Configuration.Connection.GetServer(this.Configuration.Connection.GetEndPoints().First());
+
+            await server.FlushDatabaseAsync();
+
+            return true;
         }
 
         /// <summary>Generates a key.</summary>

@@ -14,7 +14,7 @@
 
     [TestFixture]
     [Category("Integration")]
-    public class RavenDbTokenManagerTests : TokenRepositoryTests
+    public class RavenDbTokenManagerTests : TokenManagerTests
     {
         [SetUp]
         public override void SetUp()

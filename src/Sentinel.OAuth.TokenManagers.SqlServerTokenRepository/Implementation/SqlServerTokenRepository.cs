@@ -455,6 +455,18 @@
             }
         }
 
+        /// <summary>Deletes all access tokens, refresh tokens and authorization codes.</summary>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> Purge()
+        {
+            using (var connection = this.OpenConnection())
+            {
+                await connection.ExecuteAsync("TRUNCATE TABLE AuthorizationCodes;TRUNCATE TABLE AccessTokens;TRUNCATE TABLE RefreshTokens");
+
+                return true;
+            }
+        }
+
         /// <summary>Opens the connection.</summary>
         /// <returns>A SqlConnection.</returns>
         protected virtual SqlConnection OpenConnection()

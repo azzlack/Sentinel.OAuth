@@ -7,14 +7,11 @@
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Implementation;
     using Sentinel.OAuth.Models.Identity;
-    using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Implementation;
-    using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models;
-    using System.Configuration;
     using System.Security.Claims;
 
     [TestFixture]
     [Category("Integration")]
-    public class RedisTokenManagerTests : TokenManagerTests
+    public class MemoryTokenManagerTests : TokenManagerTests
     {
         [SetUp]
         public override void SetUp()
@@ -28,17 +25,12 @@
                             new SentinelClaim(ClaimType.Client, "NUnit"))));
 
             this.TokenManager = new TokenManager(
-                LogManager.GetLogger(typeof(RedisTokenManagerTests)),
+                LogManager.GetLogger(typeof(MemoryTokenManagerTests)),
                 userManager.Object,
                 new PrincipalProvider(new PBKDF2CryptoProvider()),
                 new PBKDF2CryptoProvider(),
-                new RedisTokenFactory(),
-                new RedisTokenRepository(
-                    new RedisTokenRepositoryConfiguration(
-                        ConfigurationManager.AppSettings["RedisHost"],
-                        4,
-                        "sentinel.oauth.RedisTokenManagerTests",
-                        LogManager.GetLogger(typeof(RedisTokenManagerTests)))));
+                new TokenFactory(),
+                new MemoryTokenRepository());
 
             base.SetUp();
         }

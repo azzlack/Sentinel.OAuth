@@ -1,23 +1,16 @@
-﻿namespace Sentinel.Tests.Integration.TokenManagers
+﻿namespace Sentinel.Tests.Unit
 {
-    using Common.Logging;
     using Dapper;
-    using Moq;
     using NUnit.Framework;
-    using Sentinel.OAuth.Core.Constants.Identity;
-    using Sentinel.OAuth.Core.Interfaces.Managers;
-    using Sentinel.OAuth.Implementation;
-    using Sentinel.OAuth.Models.Identity;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Implementation;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models;
     using System;
     using System.Data;
     using System.Data.SqlLocalDb;
-    using System.Security.Claims;
 
     [TestFixture]
-    [Category("Integration")]
-    public class SqlServerTokenManagerTests : TokenManagerTests
+    [Category("Unit")]
+    public class SqlTokenRepositoryTests : TokenRepositoryTests
     {
         /// <summary>The instance.</summary>
         private TemporarySqlLocalDbInstance instance;
@@ -37,7 +30,7 @@
                 throw new Exception("LocalDB is not installed!");
             }
 
-            this.databaseName = "SqlServerTokenManagerTests" + Guid.NewGuid().ToString("N");
+            this.databaseName = "SqlTokenRepositoryTests" + Guid.NewGuid().ToString("N");
 
             // Configure dapper to support datetime2
             SqlMapper.AddTypeMap(typeof(DateTime), DbType.DateTime2);
@@ -70,24 +63,11 @@
         [SetUp]
         public override void SetUp()
         {
-            var userManager = new Mock<IUserManager>();
-            userManager.Setup(x => x.AuthenticateUserAsync(It.IsAny<string>()))
-                .ReturnsAsync(new SentinelPrincipal(
-                        new SentinelIdentity(
-                            AuthenticationType.OAuth,
-                            new SentinelClaim(ClaimTypes.Name, "azzlack"),
-                            new SentinelClaim(ClaimType.Client, "NUnit"))));
-
-            this.TokenManager = new TokenManager(
-                LogManager.GetLogger(typeof(SqlServerTokenManagerTests)),
-                userManager.Object,
-                new PrincipalProvider(new PBKDF2CryptoProvider()),
-                new SHA2CryptoProvider(),
-                new SqlTokenFactory(),
+            this.TokenRepository =
                 new SqlServerTokenRepository(
                     new SqlServerTokenRepositoryConfiguration(
                         this.instance.CreateConnectionStringBuilder().ToString(),
-                        this.databaseName)));
+                        this.databaseName));
 
             base.SetUp();
         }

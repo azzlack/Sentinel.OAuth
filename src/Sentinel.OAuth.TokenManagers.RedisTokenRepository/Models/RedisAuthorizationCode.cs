@@ -1,14 +1,13 @@
 ﻿namespace Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models
 {
+    using Newtonsoft.Json;
+    using Sentinel.OAuth.Core.Interfaces.Models;
+    using Sentinel.OAuth.Core.Models.OAuth;
+    using StackExchange.Redis;
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
-    using Newtonsoft.Json;
-
-    using Sentinel.OAuth.Core.Models.OAuth;
-
-    using StackExchange.Redis;
+    using System.Text;
 
     public class RedisAuthorizationCode : AuthorizationCode
     {
@@ -18,6 +17,13 @@
         /// </summary>
         public RedisAuthorizationCode()
         {
+        }
+
+        public RedisAuthorizationCode(IAuthorizationCode authorizationCode)
+            : base(authorizationCode)
+        {
+            this.Id = Convert.ToBase64String(Encoding.UTF8.GetBytes(authorizationCode.ClientId + authorizationCode.RedirectUri + authorizationCode.Subject + authorizationCode.ValidTo.Ticks));
+            this.Created = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -53,6 +59,13 @@
         /// </summary>
         /// <value>The created date.</value>
         public DateTime Created { get; set; }
+
+        /// <summary>Check if this object is valid.</summary>
+        /// <returns><c>true</c> if valid, <c>false</c> if not.</returns>
+        public override bool IsValid()
+        {
+            return base.IsValid() && this.Created != DateTime.MinValue;
+        }
 
         /// <summary>Converts this object to a list of hash entries.</summary>
         /// <returns>This object as a Redis hash.</returns>

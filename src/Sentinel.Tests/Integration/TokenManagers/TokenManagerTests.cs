@@ -9,7 +9,7 @@
     using System.Diagnostics;
     using System.Security.Claims;
 
-    public abstract class TokenRepositoryTests
+    public abstract class TokenManagerTests
     {
         private Stopwatch testFixtureStopwatch;
 

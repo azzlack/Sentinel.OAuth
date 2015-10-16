@@ -1,12 +1,28 @@
 ﻿namespace Sentinel.OAuth.Core.Models.OAuth
 {
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using System;
     using System.Collections.Generic;
 
-    using Sentinel.OAuth.Core.Interfaces.Models;
-
     public class RefreshToken : IRefreshToken
     {
+        /// <summary>Initializes a new instance of the Sentinel.OAuth.Core.Models.OAuth.RefreshToken class.</summary>
+        public RefreshToken()
+        {
+        }
+
+        /// <summary>Initializes a new instance of the Sentinel.OAuth.Core.Models.OAuth.RefreshToken class.</summary>
+        /// <param name="refreshToken">The refresh token.</param>
+        public RefreshToken(IRefreshToken refreshToken)
+        {
+            this.ClientId = refreshToken.ClientId;
+            this.RedirectUri = refreshToken.RedirectUri;
+            this.Subject = refreshToken.Subject;
+            this.Token = refreshToken.Token;
+            this.ValidTo = refreshToken.ValidTo;
+            this.Scope = refreshToken.Scope;
+        }
+
         /// <summary>
         /// Gets or sets the id.
         /// </summary>
@@ -40,6 +56,22 @@
         /// </summary>
         /// <value>The expiration time.</value>
         public DateTime ValidTo { get; set; }
+
+        /// <summary>Check if this object is valid.</summary>
+        /// <returns><c>true</c> if valid, <c>false</c> if not.</returns>
+        public virtual bool IsValid()
+        {
+            if (this.ClientId == null
+                || (this.RedirectUri == null && this.Scope == null)
+                || this.Subject == null
+                || this.Token == null
+                || this.ValidTo == DateTime.MinValue)
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         /// <summary>Tests if this IRefreshToken is considered equal to another.</summary>
         /// <param name="other">The i refresh token to compare to this object.</param>

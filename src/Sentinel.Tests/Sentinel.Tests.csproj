@@ -156,15 +156,20 @@
     <Compile Include="Integration\ClientManagers\SqlServerClientManagerTests.cs" />
     <Compile Include="Integration\PrincipalProviderTests.cs" />
     <Compile Include="Facade\SentinelOAuthClientTests.cs" />
+    <Compile Include="Integration\TokenManagers\MemoryTokenManagerTests.cs" />
     <Compile Include="Integration\TokenManagers\RedisTokenManagerTests.cs" />
     <Compile Include="Integration\TokenManagers\RavenDbTokenManagerTests.cs" />
     <Compile Include="Integration\TokenManagers\SqlServerTokenManagerTests.cs" />
-    <Compile Include="Integration\TokenManagers\TokenRepositoryTests.cs" />
+    <Compile Include="Integration\TokenManagers\TokenManagerTests.cs" />
     <Compile Include="Integration\TokenManagerTests.cs" />
     <Compile Include="Integration\UserManagers\AspNetIdentityUserManagerTests.cs" />
     <Compile Include="Integration\UserManagers\SqlServerUserManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Unit\SqlTokenRepositoryTests.cs" />
+    <Compile Include="Unit\RedisTokenRepositoryTests.cs" />
+    <Compile Include="Unit\RavenDbTokenRepositoryTests.cs" />
     <Compile Include="Unit\MemoryTokenRepositoryTests.cs" />
+    <Compile Include="Unit\TokenRepositoryTests.cs" />
     <Compile Include="Unit\SHA2CryptoProviderTests.cs" />
     <Compile Include="Unit\PBKDF2CryptoProviderTests.cs" />
   </ItemGroup>

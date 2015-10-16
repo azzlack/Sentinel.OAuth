@@ -1,12 +1,11 @@
 ﻿namespace Sentinel.OAuth.TokenManagers.RedisTokenRepository.Implementation
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-
     using Sentinel.OAuth.Core.Interfaces.Factories;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models;
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
 
     /// <summary>A token factory for Redis entities.</summary>
     public class RedisTokenFactory : ITokenFactory
@@ -30,17 +29,17 @@
             DateTime validTo)
         {
             return new RedisAccessToken()
-                       {
-                           Id = Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + userId + validTo.ToString("O"))),
-                           ClientId = clientId,
-                           RedirectUri = redirectUri,
-                           Subject = userId,
-                           Token = token,
-                           Ticket = ticket,
-                           ValidTo = validTo,
-                           Created = DateTime.UtcNow,
-                           Scope = scope
-                       };
+            {
+                Id = Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + userId + validTo.Ticks)),
+                ClientId = clientId,
+                RedirectUri = redirectUri,
+                Subject = userId,
+                Token = token,
+                Ticket = ticket,
+                ValidTo = validTo,
+                Created = DateTime.UtcNow,
+                Scope = scope
+            };
         }
 
         /// <summary>Creates a refresh token.</summary>
@@ -54,16 +53,16 @@
         public IRefreshToken CreateRefreshToken(string clientId, string redirectUri, string userId, IEnumerable<string> scope, string token, DateTime validTo)
         {
             return new RedisRefreshToken()
-                       {
-                           Id = Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + userId + validTo.Ticks)),
-                           ClientId = clientId,
-                           RedirectUri = redirectUri,
-                           Subject = userId,
-                           Token = token,
-                           ValidTo = validTo,
-                           Created = DateTime.UtcNow,
-                           Scope = scope
-                       };
+            {
+                Id = Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + userId + validTo.Ticks)),
+                ClientId = clientId,
+                RedirectUri = redirectUri,
+                Subject = userId,
+                Token = token,
+                ValidTo = validTo,
+                Created = DateTime.UtcNow,
+                Scope = scope
+            };
         }
 
         /// <summary>Creates an authorization code.</summary>
@@ -85,17 +84,17 @@
             DateTime validTo)
         {
             return new RedisAuthorizationCode()
-                       {
-                           Id = Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + userId + validTo.Ticks)),
-                           ClientId = clientId,
-                           RedirectUri = redirectUri,
-                           Subject = userId,
-                           Scope = scope,
-                           Code = code,
-                           Ticket = ticket,
-                           ValidTo = validTo,
-                           Created = DateTime.UtcNow
-                       };
+            {
+                Id = Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + userId + validTo.Ticks)),
+                ClientId = clientId,
+                RedirectUri = redirectUri,
+                Subject = userId,
+                Scope = scope,
+                Code = code,
+                Ticket = ticket,
+                ValidTo = validTo,
+                Created = DateTime.UtcNow
+            };
         }
     }
 }

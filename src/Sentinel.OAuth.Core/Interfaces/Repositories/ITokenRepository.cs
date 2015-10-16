@@ -122,5 +122,9 @@
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         Task<bool> DeleteRefreshToken(IRefreshToken refreshToken);
+
+        /// <summary>Deletes all access tokens, refresh tokens and authorization codes.</summary>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        Task<bool> Purge();
     }
 }

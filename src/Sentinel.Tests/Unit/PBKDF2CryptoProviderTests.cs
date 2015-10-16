@@ -1,19 +1,15 @@
 ﻿namespace Sentinel.Tests.Unit
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Security.Claims;
-    using System.Security.Cryptography;
-    using System.Text;
-
     using Newtonsoft.Json;
-
     using NUnit.Framework;
-
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Implementation;
     using Sentinel.OAuth.Models.Identity;
+    using System;
+    using System.Security.Claims;
+    using System.Security.Cryptography;
+    using System.Text;
 
     [TestFixture]
     [Category("Unit")]

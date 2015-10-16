@@ -1,7 +1,9 @@
 ﻿namespace Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Implementation
 {
+    using Raven.Abstractions.Data;
     using Raven.Client;
     using Raven.Client.Linq;
+    using Raven.Imports.Newtonsoft.Json;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Models;
@@ -52,7 +54,7 @@
         /// </returns>
         public async Task<IAuthorizationCode> InsertAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            var code = (RavenAuthorizationCode)authorizationCode;
+            var code = new RavenAuthorizationCode(authorizationCode);
 
             using (var session = this.OpenAsyncSession())
             {
@@ -99,7 +101,7 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            var code = (RavenAuthorizationCode)authorizationCode;
+            var code = new RavenAuthorizationCode(authorizationCode);
 
             using (var session = this.OpenAsyncSession())
             {
@@ -146,7 +148,13 @@
         /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<IAccessToken> InsertAccessToken(IAccessToken accessToken)
         {
-            var token = (RavenAccessToken)accessToken;
+            var token = new RavenAccessToken(accessToken);
+
+            // Validate token
+            if (!token.IsValid())
+            {
+                throw new ArgumentException($"The access token is invalid: {JsonConvert.SerializeObject(token)}", nameof(accessToken));
+            }
 
             using (var session = this.OpenAsyncSession())
             {
@@ -227,7 +235,7 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
         {
-            var token = (RavenAccessToken)accessToken;
+            var token = new RavenAccessToken(accessToken);
 
             using (var session = this.OpenAsyncSession())
             {
@@ -262,7 +270,7 @@
         /// <returns>The inserted refresh token. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<IRefreshToken> InsertRefreshToken(IRefreshToken refreshToken)
         {
-            var token = (RavenRefreshToken)refreshToken;
+            var token = new RavenRefreshToken(refreshToken);
 
             using (var session = this.OpenAsyncSession())
             {
@@ -309,7 +317,7 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteRefreshToken(IRefreshToken refreshToken)
         {
-            var token = (RavenRefreshToken)refreshToken;
+            var token = new RavenRefreshToken(refreshToken);
 
             using (var session = this.OpenAsyncSession())
             {
@@ -320,6 +328,33 @@
 
                 return true;
             }
+        }
+
+        /// <summary>Deletes all access tokens, refresh tokens and authorization codes.</summary>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> Purge()
+        {
+            using (var session = this.OpenAsyncSession())
+            {
+                try
+                {
+                    session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
+                        "Raven/DocumentsByEntityName",
+                        new IndexQuery { Query = "Tag:RavenAuthorizationCode" });
+                    session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
+                        "Raven/DocumentsByEntityName",
+                        new IndexQuery { Query = "Tag:RavenAccessToken" });
+                    session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
+                        "Raven/DocumentsByEntityName",
+                        new IndexQuery { Query = "Tag:RavenRefreshToken" });
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
