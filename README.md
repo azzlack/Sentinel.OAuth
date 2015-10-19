@@ -172,8 +172,8 @@ There is nothing special with `Sentinel` as an OAuth 2 provider, you can use a n
 These are the average performance results for the included storage providers in the current version.  
 Please note that these tests may not be fair. The tests are equal, but the connection is not. In addition, I currently do not have a lot of statistics history so the averages might be off by quite a lot.
 
-| `v1.5.0` | Memory | SQL (LocalDb) | Redis | RavenDB |
-| Action | --- | --- | --- | --- |
+| Action | Memory | SQL (LocalDb) | Redis | RavenDB |
+| --- | --- | --- | --- | --- |
 | Create Authorization Code | 442ms | 21ms | 474ms | 456ms |
 | Authenticate Authorization Code | 469ms | 40ms | 615ms | 583ms |
 | Create Access Token | 451ms | 23ms | 486ms | 468ms |
