@@ -375,8 +375,10 @@
                             new BulkOperationOptions() { AllowStale = false }).WaitForCompletionAsync();
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    this.Configuration.Log.Error(ex);
+
                     return false;
                 }
             }

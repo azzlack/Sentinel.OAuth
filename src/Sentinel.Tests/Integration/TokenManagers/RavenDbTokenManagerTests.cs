@@ -34,7 +34,7 @@
                 new PBKDF2CryptoProvider(),
                 new RavenTokenFactory(),
                 new RavenDbTokenRepository(
-                    new RavenDbTokenRepositoryConfiguration(new EmbeddableDocumentStore() { RunInMemory = true })));
+                    new RavenDbTokenRepositoryConfiguration(new EmbeddableDocumentStore() { RunInMemory = true }, LogManager.GetLogger<RavenDbTokenManagerTests>())));
 
             base.SetUp();
         }
