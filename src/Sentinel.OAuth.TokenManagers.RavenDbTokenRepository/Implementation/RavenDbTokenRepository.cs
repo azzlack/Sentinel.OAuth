@@ -82,7 +82,7 @@
             using (var session = this.OpenAsyncSession())
             {
                 var i = 0;
-                var matches = await session.Query<RavenAuthorizationCode>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo < expires).ToListAsync();
+                var matches = await session.Query<RavenAuthorizationCode>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo <= expires).ToListAsync();
 
                 foreach (var match in matches)
                 {
@@ -186,7 +186,7 @@
                     await
                     session.Query<RavenAccessToken>()
                         .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
-                        .Where(x => x.ValidTo < expires)
+                        .Where(x => x.ValidTo <= expires)
                         .ToListAsync();
 
                 foreach (var match in matches)
@@ -304,7 +304,7 @@
             using (var session = this.OpenAsyncSession())
             {
                 var i = 0;
-                var matches = await session.Query<RavenRefreshToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo < expires).ToListAsync();
+                var matches = await session.Query<RavenRefreshToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo <= expires).ToListAsync();
 
                 foreach (var match in matches)
                 {

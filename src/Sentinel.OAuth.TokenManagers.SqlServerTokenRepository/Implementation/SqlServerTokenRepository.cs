@@ -132,7 +132,7 @@
                 var rows =
                     await
                     connection.ExecuteAsync(
-                        "DELETE FROM AuthorizationCodes WHERE ValidTo > @ValidTo",
+                        "DELETE FROM AuthorizationCodes WHERE ValidTo <= @ValidTo",
                         new { ValidTo = expires });
 
                 return rows;
@@ -299,7 +299,7 @@
                 var rows =
                     await
                     connection.ExecuteAsync(
-                        "DELETE FROM AccessTokens WHERE ValidTo < @ValidTo",
+                        "DELETE FROM AccessTokens WHERE ValidTo <= @ValidTo",
                         new { ValidTo = expires });
 
                 return rows;
@@ -446,7 +446,7 @@
                 var rows =
                     await
                     connection.ExecuteAsync(
-                        "DELETE FROM RefreshTokens WHERE ValidTo < @ValidTo",
+                        "DELETE FROM RefreshTokens WHERE ValidTo <= @ValidTo",
                         new { ValidTo = expires });
 
                 return rows;

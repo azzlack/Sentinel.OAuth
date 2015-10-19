@@ -71,7 +71,7 @@
         public async Task<int> DeleteAuthorizationCodes(DateTime expires)
         {
             var i = 0;
-            var tokens = this.authorizationCodes.Where(x => x.Value.ValidTo < expires).ToList();
+            var tokens = this.authorizationCodes.Where(x => x.Value.ValidTo <= expires).ToList();
 
             foreach (var token in tokens)
             {

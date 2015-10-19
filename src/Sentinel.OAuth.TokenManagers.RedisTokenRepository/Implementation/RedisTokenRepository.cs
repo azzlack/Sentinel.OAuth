@@ -60,7 +60,7 @@
                     {
                         var code = new RedisAuthorizationCode(hashEntries) { Id = hashedId };
 
-                        if (code.ValidTo >= expires)
+                        if (code.ValidTo > expires)
                         {
                             codes.Add(code);
                         }
@@ -199,7 +199,7 @@
                 {
                     var token = new RedisAccessToken(hashEntries) { Id = hashedId };
 
-                    if (token.ValidTo >= expires)
+                    if (token.ValidTo > expires)
                     {
                         tokens.Add(token);
                     }
@@ -238,7 +238,7 @@
                 {
                     var token = new RedisAccessToken(hashEntries) { Id = hashedId };
 
-                    if (token.ValidTo >= expires)
+                    if (token.ValidTo > expires)
                     {
                         tokens.Add(token);
                     }
@@ -430,7 +430,7 @@
                 {
                     var token = new RedisRefreshToken(hashEntries) { Id = hashedId };
 
-                    if (token.ClientId == clientId && token.RedirectUri == redirectUri && token.ValidTo >= expires)
+                    if (token.ClientId == clientId && token.RedirectUri == redirectUri && token.ValidTo > expires)
                     {
                         tokens.Add(token);
                     }
