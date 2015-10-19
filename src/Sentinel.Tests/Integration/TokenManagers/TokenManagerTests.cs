@@ -90,7 +90,7 @@
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating authorization code took {this.testStopwatch.Elapsed - createAccessTokenElapsed} seconds");
-            Console.WriteLine($"##teamcity[buildStatisticValue key='AuthenticateAuthorizationCodeAsync' value='{(this.testStopwatch.Elapsed - createAccessTokenElapsed).TotalMilliseconds}']");
+            Console.WriteLine($"##teamcity[buildStatisticValue key='{this.GetType().Name}.AuthenticateAuthorizationCodeAsync' value='{(this.testStopwatch.Elapsed - createAccessTokenElapsed).TotalMilliseconds}']");
 
             Assert.IsTrue(user.Identity.IsAuthenticated);
         }
@@ -176,7 +176,7 @@
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating access token took {this.testStopwatch.Elapsed - createAccessTokenElapsed} seconds");
-            Console.WriteLine($"##teamcity[buildStatisticValue key='AuthenticateAccessTokenAsync' value='{(this.testStopwatch.Elapsed - createAccessTokenElapsed).TotalMilliseconds}']");
+            Console.WriteLine($"##teamcity[buildStatisticValue key='{this.GetType().Name}.AuthenticateAccessTokenAsync' value='{(this.testStopwatch.Elapsed - createAccessTokenElapsed).TotalMilliseconds}']");
 
             Assert.IsTrue(user.Identity.IsAuthenticated);
         }
@@ -253,7 +253,7 @@
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating refresh token took {this.testStopwatch.Elapsed - createRefreshTokenElapsed} seconds");
-            Console.WriteLine($"##teamcity[buildStatisticValue key='AuthenticateRefreshTokenAsync' value='{(this.testStopwatch.Elapsed - createRefreshTokenElapsed).TotalMilliseconds}']");
+            Console.WriteLine($"##teamcity[buildStatisticValue key='{this.GetType().Name}.AuthenticateRefreshTokenAsync' value='{(this.testStopwatch.Elapsed - createRefreshTokenElapsed).TotalMilliseconds}']");
 
             Assert.IsTrue(user.Identity.IsAuthenticated);
         }
