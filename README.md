@@ -173,7 +173,7 @@ These are the average performance results for the included storage providers in 
 Please note that these tests may not be fair. The tests are equal, but the connection is not. In addition, I currently do not have a lot of statistics history so the averages might be off by quite a lot.
 
 | Action | Memory | SQL (LocalDb) | Redis | RavenDB |
-| --- | --- | --- | --- | --- |
+| --- | ---: | ---: | ---: | ---: |
 | Create Authorization Code | 442ms | 21ms | 474ms | 456ms |
 | Authenticate Authorization Code | 469ms | 40ms | 615ms | 583ms |
 | Create Access Token | 451ms | 23ms | 486ms | 468ms |
