@@ -172,14 +172,17 @@ There is nothing special with `Sentinel` as an OAuth 2 provider, you can use a n
 These are the average performance results for the included storage providers in the current version.  
 Please note that these tests may not be fair. The tests are equal, but the connection is not. In addition, I currently do not have a lot of statistics history so the averages might be off by quite a lot.
 
-| Action | Memory | SQL (LocalDb) | Redis | RavenDB |
+Also, you must not discard the idea that some methods need to be optimized :-)  
+The Authenticate methods for the Redis provider are too slow and should be made much faster.
+
+| Action                          | Memory | SQL (LocalDb) | Redis  | RavenDB |
 | --- | ---: | ---: | ---: | ---: |
-| Create Authorization Code | 442ms | 21ms | 474ms | 456ms |
-| Authenticate Authorization Code | 469ms | 40ms | 615ms | 583ms |
-| Create Access Token | 451ms | 23ms | 486ms | 468ms |
-| Authenticate Access Token | 544ms | 190ms | 1532ms | 3564ms |
-| Create Refresh Token | 433ms | 3ms | 472ms | 447ms |
-| Authenticate Refresh Token | 10ms | 2ms | 150ms | 19ms |
+| Create Authorization Code       | 442ms  | 21ms          | 477ms  | 488ms |
+| Authenticate Authorization Code | 445ms  | 24ms          | 702ms  | 594ms |
+| Create Access Token             | 451ms  | 23ms          | 486ms  | 468ms |
+| Authenticate Access Token       | 464ms  | 60ms          | 6244ms | 1004ms |
+| Create Refresh Token            | 433ms  | 4ms           | 472ms  | 447ms |
+| Authenticate Refresh Token      | 460ms  | 47ms          | 3424ms | 613ms |
 
 ## Extending
 The samples below can be mixed and matched to your liking. You can use `SQL Server` for storing users and clients, and then use `RavenDB` for storing tokens, or the other way around :-)
