@@ -170,7 +170,7 @@ There is nothing special with `Sentinel` as an OAuth 2 provider, you can use a n
 
 ## Performance
 These are the average performance results for the included storage providers in the current version.  
-Please note that these tests may not be fair. The tests are equal, but the connection is not. In addition, I currently do not have a lot of statistics history so the averages might be off by quite a lot.
+Please note that these tests may not be fair. The tests are equal, but the connection is not. In addition, I currently do not have a lot of [statistics history](https://teamcity.knowit.no/viewType.html?buildTypeId=External_Sentinel_SentinelOAuth_Develop&tab=buildTypeStatistics&branch_External_Sentinel_General=__all_branches__) so the averages might be off by quite a lot.
 
 Also, you must not discard the idea that some methods need to be optimized :-)  
 The Authenticate methods for the Redis provider are too slow and should be made much faster.
