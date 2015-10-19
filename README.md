@@ -42,7 +42,7 @@ public class SimpleUserManager : BaseUserManager
         : base(cryptoProvider)
     {
     }
-    
+
     /// <summary>Authenticates the user using username and password.</summary>
     /// <param name="username">The username.</param>
     /// <param name="password">The password.</param>
@@ -70,13 +70,13 @@ public class SimpleUserManager : BaseUserManager
     }
 }
 
-public class SimpleClientManager : BaseClientManager 
+public class SimpleClientManager : BaseClientManager
 {
     public SimpleClientManager(ICryptoProvider cryptoProvider)
         : base(cryptoProvider)
     {
     }
-    
+
     /// <summary>
     ///     Authenticates the client. Used when authenticating with the authorization_code grant type.
     /// </summary>
@@ -118,8 +118,8 @@ public class SimpleClientManager : BaseClientManager
 }
 ```
 You might have noticed the use if `ISentinelPrincipal`, `ISentinelIdentity` and `SentinelClaim`.  
-- `ISentinelPrincipal` is a extension of `IPrincipal`, the base interface for principals in the .NET world. `ClaimsPrincipal` also implements this interface, and the two are convertible via the included extension methods, or in the constructor of `ISentinelPrincipal`. 
-- `ISentinelIdentity` is a extension of `IIdentity`, the base interface for principals in the .NET world. `ClaimsIdentity` also implements this interface, and the two are convertible via the included extension methods, or in the constructor of `ISentinelIdentity`. 
+- `ISentinelPrincipal` is a extension of `IPrincipal`, the base interface for principals in the .NET world. `ClaimsPrincipal` also implements this interface, and the two are convertible via the included extension methods, or in the constructor of `ISentinelPrincipal`.
+- `ISentinelIdentity` is a extension of `IIdentity`, the base interface for principals in the .NET world. `ClaimsIdentity` also implements this interface, and the two are convertible via the included extension methods, or in the constructor of `ISentinelIdentity`.
 - `SentinelClaim` and its interface `ISentinelClaim` do not derive from the `System.IdentityModel.Claims.Claim`. Instead it can take in a `Claim` in its constructor and can convert back implicitly.
 
 The reason for these custom types are that the built-in `ClaimsPrincipal` is not PCL-compatible, and the `Core` and `Client` packages must be PCL-compatible. I've included a lot of conversion options, so it should not pose a problem for you.
@@ -168,6 +168,19 @@ There is nothing special with `Sentinel` as an OAuth 2 provider, you can use a n
 
 **There is one thing that must be mentioned however**. `Sentinel` requires the client redirect uri parameter to be present on the `authorize` request. Not all OAuth 2 providers do this, but it is recommended [according to the specification](https://tools.ietf.org/html/rfc6749#section-3.1.2.2).
 
+## Performance
+These are the average performance results for the included storage providers in the current version.  
+Please note that these tests may not be fair. The tests are equal, but the connection is not. In addition, I currently do not have a lot of statistics history so the averages might be off by quite a lot.
+
+| `v1.5.0` | Memory | SQL (LocalDb) | Redis | RavenDB |
+| Action | --- | --- | --- | --- |
+| Create Authorization Code | 442ms | 21ms | 474ms | 456ms |
+| Authenticate Authorization Code | 469ms | 40ms | 615ms | 583ms |
+| Create Access Token | 451ms | 23ms | 486ms | 468ms |
+| Authenticate Access Token | 544ms | 190ms | 1532ms | 3564ms |
+| Create Refresh Token | 433ms | 3ms | 472ms | 447ms |
+| Authenticate Refresh Token | 10ms | 2ms | 150ms | 19ms |
+
 ## Extending
 The samples below can be mixed and matched to your liking. You can use `SQL Server` for storing users and clients, and then use `RavenDB` for storing tokens, or the other way around :-)
 
@@ -182,12 +195,14 @@ There is also a demo using `Dapper` and a vanilla SQL database in the [SqlServer
 
 ### Custom Client Manager
 There is a sample implementation using `Dapper` and SQL Server [here](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.ClientManagers.SqlServerClientManager).
-You can also use `NoSQL` databases for storing clients. 
+You can also use `NoSQL` databases for storing clients.
 
 ### Custom Token Manager
-- [Using `Dapper` and `SQL Server`](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.TokenManagers.SqlServerTokenRepository)
-- [Using `RavenDb`](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.TokenManagers.RavenDbTokenRepository)
-- [Using `Redis`](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.TokenManagers.RedisTokenRepository)
+Guides on how to use token managers with persistent storage.
+
+- TODO: [Using `Dapper` and `SQL Server`](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.TokenManagers.SqlServerTokenRepository)
+- TODO: [Using `RavenDb`](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.TokenManagers.RavenDbTokenRepository)
+- TODO: [Using `Redis`](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.TokenManagers.RedisTokenRepository)
 
 ## Claims
 There are some claims that will be added to your user principal that are specific for `Sentinel`.  
@@ -200,7 +215,7 @@ Below you can find an overview of claims with explanations.
 | `urn:oauth:accesstoken` | The access token for the current user object |
 | `urn:oauth:refreshtoken` | The refresh token for the current user object |
 
-## TODO
+## TODO (Roadmap)
 - Add support for custom grant types
 - Add support for other token formats (I.e. JWT and the host defaults)
 - Add support and example on how to use Google, Microsoft, Facebook, Twitter accounts with Sentinel
