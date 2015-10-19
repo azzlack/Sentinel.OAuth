@@ -52,6 +52,23 @@
         }
 
         [Test]
+        public async void CreateAuthorizationCode_WhenGivenValidIdentity_ReturnsValidCode()
+        {
+            var code =
+               await
+               this.TokenManager.CreateAuthorizationCodeAsync(
+                   new SentinelPrincipal(
+                   new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   TimeSpan.FromMinutes(5),
+                   "http://localhost",
+                   null);
+
+            Console.WriteLine("Code: {0}", code);
+
+            Assert.IsNotNullOrEmpty(code);
+        }
+
+        [Test]
         public async void AuthenticateAuthorizationCode_WhenGivenValidIdentity_ReturnsAuthenticatedIdentity()
         {
             var code =
@@ -63,11 +80,17 @@
                     "http://localhost",
                     null);
 
+            Console.WriteLine();
+            var createAccessTokenElapsed = this.testStopwatch.Elapsed;
+            Console.WriteLine($"Creating authorization code took {createAccessTokenElapsed} seconds");
+
             Console.WriteLine("Code: {0}", code);
 
-            Assert.IsNotNullOrEmpty(code);
-
             var user = await this.TokenManager.AuthenticateAuthorizationCodeAsync("http://localhost", code);
+
+            Console.WriteLine();
+            Console.WriteLine($"Authenticating authorization code took {this.testStopwatch.Elapsed - createAccessTokenElapsed} seconds");
+            Console.WriteLine($"##teamcity[buildStatisticValue key='AuthenticateAuthorizationCodeAsync' value='{(this.testStopwatch.Elapsed - createAccessTokenElapsed).TotalMilliseconds}']");
 
             Assert.IsTrue(user.Identity.IsAuthenticated);
         }
@@ -109,7 +132,7 @@
         }
 
         [Test]
-        public async void AuthenticateAccessToken_WhenGivenValidIdentity_ReturnsAuthenticatedIdentity()
+        public async void CreateAccessToken_WhenGivenValidIdentity_ReturnsAccessToken()
         {
             var token =
                 await
@@ -128,11 +151,32 @@
             Console.WriteLine("Token: {0}", token);
 
             Assert.IsNotNullOrEmpty(token);
+        }
+
+        [Test]
+        public async void AuthenticateAccessToken_WhenGivenValidIdentity_ReturnsAuthenticatedIdentity()
+        {
+            var token =
+                await
+                this.TokenManager.CreateAccessTokenAsync(
+                    new SentinelPrincipal(
+                    new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                    TimeSpan.FromHours(1),
+                    "NUnit",
+                    "http://localhost",
+                    new[] { Scope.Read });
+
+            Console.WriteLine();
+            var createAccessTokenElapsed = this.testStopwatch.Elapsed;
+            Console.WriteLine($"Creating access token took {createAccessTokenElapsed} seconds");
+
+            Console.WriteLine("Token: {0}", token);
 
             var user = await this.TokenManager.AuthenticateAccessTokenAsync(token);
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating access token took {this.testStopwatch.Elapsed - createAccessTokenElapsed} seconds");
+            Console.WriteLine($"##teamcity[buildStatisticValue key='AuthenticateAccessTokenAsync' value='{(this.testStopwatch.Elapsed - createAccessTokenElapsed).TotalMilliseconds}']");
 
             Assert.IsTrue(user.Identity.IsAuthenticated);
         }
@@ -165,6 +209,28 @@
         }
 
         [Test]
+        public async void CreateRefreshToken_WhenGivenValidIdentity_ReturnsValidToken()
+        {
+            var token =
+                await
+                this.TokenManager.CreateRefreshTokenAsync(
+                    new SentinelPrincipal(
+                    new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                    TimeSpan.FromDays(90),
+                    "NUnit",
+                    "http://localhost",
+                    new[] { Scope.Read });
+
+            Console.WriteLine();
+            var createRefreshTokenElapsed = this.testStopwatch.Elapsed;
+            Console.WriteLine($"Creating refresh token took {createRefreshTokenElapsed} seconds");
+
+            Console.WriteLine("Token: {0}", token);
+
+            Assert.IsNotNullOrEmpty(token);
+        }
+
+        [Test]
         public async void AuthenticateRefreshToken_WhenGivenValidIdentity_ReturnsAuthenticatedIdentity()
         {
             var token =
@@ -183,12 +249,11 @@
 
             Console.WriteLine("Token: {0}", token);
 
-            Assert.IsNotNullOrEmpty(token);
-
             var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", token, "http://localhost");
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating refresh token took {this.testStopwatch.Elapsed - createRefreshTokenElapsed} seconds");
+            Console.WriteLine($"##teamcity[buildStatisticValue key='AuthenticateRefreshTokenAsync' value='{(this.testStopwatch.Elapsed - createRefreshTokenElapsed).TotalMilliseconds}']");
 
             Assert.IsTrue(user.Identity.IsAuthenticated);
         }
