@@ -1,6 +1,7 @@
 ﻿namespace Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Implementation
 {
     using Dapper;
+    using Newtonsoft.Json;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models;
@@ -72,6 +73,13 @@
         /// </returns>
         public async Task<IAuthorizationCode> InsertAuthorizationCode(IAuthorizationCode authorizationCode)
         {
+            var code = new SqlAuthorizationCode(authorizationCode);
+
+            if (!code.IsValid())
+            {
+                throw new ArgumentException($"The authorization code is invalid: {JsonConvert.SerializeObject(code)}", nameof(authorizationCode));
+            }
+
             using (var connection = this.OpenConnection())
             {
                 var id =
@@ -80,13 +88,13 @@
                         "INSERT INTO AuthorizationCodes (ClientId, RedirectUri, Subject, Code, Scope, Ticket, ValidTo, Created) VALUES (@ClientId, @RedirectUri, @Subject, @Code, @Scope, @Ticket, @ValidTo, @Created); SELECT CAST(SCOPE_IDENTITY() as bigint);",
                         new
                         {
-                            authorizationCode.ClientId,
-                            authorizationCode.RedirectUri,
-                            authorizationCode.Subject,
-                            authorizationCode.Code,
-                            Scope = authorizationCode.Scope != null ? string.Join(" ", authorizationCode.Scope) : null,
-                            authorizationCode.Ticket,
-                            authorizationCode.ValidTo,
+                            code.ClientId,
+                            code.RedirectUri,
+                            code.Subject,
+                            code.Code,
+                            Scope = code.Scope != null ? string.Join(" ", code.Scope) : null,
+                            code.Ticket,
+                            code.ValidTo,
                             Created = DateTime.UtcNow
                         });
 
@@ -139,7 +147,7 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            var code = (SqlAuthorizationCode)authorizationCode;
+            var code = new SqlAuthorizationCode(authorizationCode);
 
             using (var connection = this.OpenConnection())
             {
@@ -203,7 +211,7 @@
                 var data =
                     await
                     connection.QueryAsync(
-                        "SELECT * FROM AccessTokens WHERE ValidTo > @Expires AND Subject == @Subject",
+                        "SELECT * FROM AccessTokens WHERE ValidTo > @Expires AND Subject = @Subject",
                         new { Expires = expires, Subject = subject });
 
                 var tokens =
@@ -231,7 +239,13 @@
         /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<IAccessToken> InsertAccessToken(IAccessToken accessToken)
         {
-            var token = (SqlAccessToken)accessToken;
+            var token = new SqlAccessToken(accessToken);
+
+            // Validate token
+            if (!token.IsValid())
+            {
+                throw new ArgumentException($"The access token is invalid: {JsonConvert.SerializeObject(token)}", nameof(accessToken));
+            }
 
             using (var connection = this.OpenConnection())
             {
@@ -244,7 +258,7 @@
                             token.ClientId,
                             token.RedirectUri,
                             token.Subject,
-                            Scope = string.Join(" ", token.Scope),
+                            Scope = token.Scope != null ? string.Join(" ", token.Scope) : null,
                             token.Token,
                             token.Ticket,
                             token.ValidTo,
@@ -316,7 +330,7 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
         {
-            var token = (SqlAccessToken)accessToken;
+            var token = new SqlAccessToken(accessToken);
 
             using (var connection = this.OpenConnection())
             {
@@ -373,7 +387,13 @@
         /// <returns>The inserted refresh token. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<IRefreshToken> InsertRefreshToken(IRefreshToken refreshToken)
         {
-            var token = (SqlRefreshToken)refreshToken;
+            var token = new SqlRefreshToken(refreshToken);
+
+            // Validate token
+            if (!token.IsValid())
+            {
+                throw new ArgumentException($"The refresh token is invalid: {JsonConvert.SerializeObject(token)}", nameof(refreshToken));
+            }
 
             using (var connection = this.OpenConnection())
             {
@@ -386,7 +406,7 @@
                             refreshToken.ClientId,
                             refreshToken.RedirectUri,
                             refreshToken.Subject,
-                            Scope = string.Join(" ", token.Scope),
+                            Scope = token.Scope != null ? string.Join(" ", token.Scope) : null,
                             refreshToken.Token,
                             refreshToken.ValidTo,
                             Created = DateTime.UtcNow
@@ -441,7 +461,7 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteRefreshToken(IRefreshToken refreshToken)
         {
-            var token = (SqlRefreshToken)refreshToken;
+            var token = new SqlRefreshToken(refreshToken);
 
             using (var connection = this.OpenConnection())
             {

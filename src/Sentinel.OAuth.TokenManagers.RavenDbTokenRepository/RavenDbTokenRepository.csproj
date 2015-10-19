@@ -51,6 +51,9 @@
   <ItemGroup>
     <Compile Include="Implementation\RavenDbTokenRepository.cs" />
     <Compile Include="Implementation\RavenTokenFactory.cs" />
+    <Compile Include="Indexes\AuthorizationCodes_Ids.cs" />
+    <Compile Include="Indexes\RefreshTokens_Ids.cs" />
+    <Compile Include="Indexes\AccessTokens_Ids.cs" />
     <Compile Include="Models\OAuth\RavenRefreshToken.cs" />
     <Compile Include="Models\OAuth\RavenAccessToken.cs" />
     <Compile Include="Models\OAuth\RavenAuthorizationCode.cs" />

@@ -28,7 +28,7 @@
 
         /// <summary>Gets the configuration.</summary>
         /// <value>The configuration.</value>
-        protected RavenDbTokenRepositoryConfiguration Configuration { get; private set; }
+        protected RavenDbTokenRepositoryConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets all authorization codes that matches the specified redirect uri and expires after the
@@ -55,6 +55,12 @@
         public async Task<IAuthorizationCode> InsertAuthorizationCode(IAuthorizationCode authorizationCode)
         {
             var code = new RavenAuthorizationCode(authorizationCode);
+
+            // Validate token
+            if (!code.IsValid())
+            {
+                throw new ArgumentException($"The authorization code is invalid: {JsonConvert.SerializeObject(code)}", nameof(authorizationCode));
+            }
 
             using (var session = this.OpenAsyncSession())
             {
@@ -272,6 +278,12 @@
         {
             var token = new RavenRefreshToken(refreshToken);
 
+            // Validate token
+            if (!token.IsValid())
+            {
+                throw new ArgumentException($"The refresh token is invalid: {JsonConvert.SerializeObject(token)}", nameof(refreshToken));
+            }
+
             using (var session = this.OpenAsyncSession())
             {
                 await session.StoreAsync(token);
@@ -338,15 +350,30 @@
             {
                 try
                 {
-                    session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
-                        "Raven/DocumentsByEntityName",
-                        new IndexQuery { Query = "Tag:RavenAuthorizationCode" });
-                    session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
-                        "Raven/DocumentsByEntityName",
-                        new IndexQuery { Query = "Tag:RavenAccessToken" });
-                    session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
-                        "Raven/DocumentsByEntityName",
-                        new IndexQuery { Query = "Tag:RavenRefreshToken" });
+                    // If the Raven/DocumentsByEntityName index does not exist, no entities exist
+                    if (session.Advanced.DocumentStore.DatabaseCommands.GetIndex("AuthorizationCodes/Ids") != null)
+                    {
+                        await session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
+                            "AuthorizationCodes/Ids",
+                            new IndexQuery(),
+                            new BulkOperationOptions() { AllowStale = false }).WaitForCompletionAsync();
+                    }
+
+                    if (session.Advanced.DocumentStore.DatabaseCommands.GetIndex("AccessTokens/Ids") != null)
+                    {
+                        await session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
+                            "AccessTokens/Ids",
+                            new IndexQuery(),
+                            new BulkOperationOptions() { AllowStale = false }).WaitForCompletionAsync();
+                    }
+
+                    if (session.Advanced.DocumentStore.DatabaseCommands.GetIndex("RefreshTokens/Ids") != null)
+                    {
+                        await session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
+                            "RefreshTokens/Ids",
+                            new IndexQuery(),
+                            new BulkOperationOptions() { AllowStale = false }).WaitForCompletionAsync();
+                    }
                 }
                 catch (Exception)
                 {

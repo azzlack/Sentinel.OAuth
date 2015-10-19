@@ -13,6 +13,9 @@
         public RavenDbTokenRepositoryConfiguration(IDocumentStore store)
         {
             this.DocumentStore = store.Initialize();
+
+            // Make sure the required indexes are created
+            Raven.Client.Indexes.IndexCreation.CreateIndexes(this.GetType().Assembly, store);
         }
 
         /// <summary>Gets the store.</summary>

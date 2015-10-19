@@ -8,7 +8,6 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using System.Threading.Tasks;
 
     public class MemoryTokenRepository : ITokenRepository
@@ -42,19 +41,6 @@
         public async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTime expires)
         {
             return this.authorizationCodes.Where(x => x.Value.RedirectUri == redirectUri && x.Value.ValidTo > expires).Select(x => x.Value);
-        }
-
-        /// <summary>
-        /// Gets all authorization codes that matches the specified client redirect uri and user
-        /// combination.
-        /// </summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>The authorization codes.</returns>
-        public async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string clientId, string redirectUri, string userId)
-        {
-            return this.authorizationCodes.Where(x => x.Value.ClientId == clientId && x.Value.RedirectUri == redirectUri && x.Value.Subject == userId).Select(x => x.Value);
         }
 
         /// <summary>Inserts the specified authorization code.</summary>
@@ -137,16 +123,6 @@
             return this.accessTokens.Select(x => x.Value).Where(x => x.ValidTo > expires && x.Subject == subject);
         }
 
-        /// <summary>Gets access tokens matching the specified predicate.</summary>
-        /// <param name="predicate">
-        ///     The predicate expression for reducing the access token collection.
-        /// </param>
-        /// <returns>The access tokens.</returns>
-        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(Expression<Func<IAccessToken, bool>> predicate)
-        {
-            return this.accessTokens.Select(x => x.Value).Where(predicate.Compile());
-        }
-
         /// <summary>Inserts the specified access token.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessful.</returns>
@@ -194,9 +170,21 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="subject">The subject.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public Task<int> DeleteAccessTokens(string clientId, string redirectUri, string subject)
+        public async Task<int> DeleteAccessTokens(string clientId, string redirectUri, string subject)
         {
-            throw new NotImplementedException();
+            var i = 0;
+            var tokens = this.accessTokens.Where(x => x.Value.ClientId == clientId && x.Value.RedirectUri == redirectUri && x.Value.Subject == subject).ToList();
+
+            foreach (var token in tokens)
+            {
+                AccessToken removedToken;
+                if (this.accessTokens.TryRemove(token.Key, out removedToken))
+                {
+                    i++;
+                }
+            }
+
+            return i;
         }
 
         /// <summary>Deletes the specified access token.</summary>
