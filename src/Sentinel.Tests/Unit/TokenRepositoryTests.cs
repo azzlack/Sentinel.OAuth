@@ -55,14 +55,14 @@
         [Test]
         public async void GetAuthorizationCodes_WhenValidCodesExist_ReturnsAuthorizationCodes()
         {
-            var treshold = DateTime.UtcNow;
-
-            await this.TokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username" });
+            await this.TokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username" });
             await this.TokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit2", RedirectUri = "http://localhost", Subject = "Username" });
+
+            var treshold = DateTime.UtcNow;
 
             var authorizationCodes = await this.TokenRepository.GetAuthorizationCodes("http://localhost", treshold);
 
-            Assert.GreaterOrEqual(authorizationCodes.Count(), 2);
+            Assert.GreaterOrEqual(authorizationCodes.Count(), 1);
             Assert.That(authorizationCodes.All(x => x.ValidTo > treshold), "Got back code that was supposed to be expired");
         }
 
@@ -148,10 +148,10 @@
         [Test]
         public async void GetAccessTokens_WhenValidTokensExists_ReturnsAccessTokens()
         {
-            var treshold = DateTime.UtcNow;
-
             await this.TokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
             await this.TokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit2", RedirectUri = "http://localhost", Subject = "ovea" });
+
+            var treshold = DateTime.UtcNow;
 
             var accessTokens = await this.TokenRepository.GetAccessTokens(treshold);
 
@@ -162,10 +162,10 @@
         [Test]
         public async void GetAccessTokens_WhenValidTokensExistsForSubject_ReturnsAccessTokens()
         {
-            var treshold = DateTime.UtcNow;
-
             await this.TokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
             await this.TokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit2", RedirectUri = "http://localhost", Subject = "ovea2" });
+
+            var treshold = DateTime.UtcNow;
 
             var accessTokens = await this.TokenRepository.GetAccessTokens("ovea", treshold);
 
@@ -242,10 +242,10 @@
         [Test]
         public async void GetRefreshTokens_WhenValidTokensExist_ReturnsRefreshTokens()
         {
-            var treshold = DateTime.UtcNow;
-
             await this.TokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
             await this.TokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
+
+            var treshold = DateTime.UtcNow;
 
             var refreshTokens = await this.TokenRepository.GetRefreshTokens("NUnit", "http://localhost", treshold);
 
