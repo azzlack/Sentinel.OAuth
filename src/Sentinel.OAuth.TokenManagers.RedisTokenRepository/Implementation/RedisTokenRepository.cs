@@ -184,9 +184,9 @@
             var min = expires.ToUnixTime();
             var tokens = new List<IAccessToken>();
 
-            var expiresKeys = await db.SortedSetRangeByScoreAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", min, DateTimeMax);
+            var nonExpiredKeys = await db.SortedSetRangeByScoreAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", min, DateTimeMax);
 
-            foreach (var key in expiresKeys)
+            foreach (var key in nonExpiredKeys)
             {
                 var hashedId = key.ToString().Substring(this.Configuration.AccessTokenPrefix.Length + 1);
 
@@ -217,16 +217,16 @@
             var min = expires.ToUnixTime();
             var tokens = new List<IAccessToken>();
 
-            var expiresKeys = await db.SortedSetRangeByScoreAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", min, DateTimeMax);
+            var nonExpiredKeys = await db.SortedSetRangeByScoreAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", min, DateTimeMax);
             var subjectKeys = await db.HashGetAllAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{subject}");
 
-            var unionKeys = new List<string>().Join(expiresKeys, x => x, y => y.ToString(), (x, y) => x).Join(subjectKeys, x => x, y => y.Value.ToString(), (x, y) => x);
+            var unionKeys = nonExpiredKeys.Join(subjectKeys, x => x.ToString(), y => y.Name.ToString(), (x, y) => x);
 
             foreach (var key in unionKeys)
             {
-                var hashedId = key.Substring(this.Configuration.AccessTokenPrefix.Length + 1);
+                var hashedId = key.ToString().Substring(this.Configuration.AccessTokenPrefix.Length + 1);
 
-                var hashEntries = await db.HashGetAllAsync(key);
+                var hashEntries = await db.HashGetAllAsync(key.ToString());
 
                 if (hashEntries.Any())
                 {
@@ -342,9 +342,7 @@
             var redirectUriKeys = db.HashGetAll($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{redirectUri}");
             var subjectKeys = db.HashGetAll($"{this.Configuration.AccessTokenPrefix}:_index:subject:{subject}");
 
-            var unionKeys =
-                new List<HashEntry>()
-                    .Join(clientKeys, x => x.Name, y => y.Name, (x, y) => x)
+            var unionKeys = clientKeys
                     .Join(redirectUriKeys, x => x.Name, y => y.Name, (x, y) => x)
                     .Join(subjectKeys, x => x.Name, y => y.Name, (x, y) => x);
 
@@ -411,7 +409,7 @@
             var min = expires.ToUnixTime();
             var tokens = new List<IRefreshToken>();
 
-            var keys = db.SortedSetRangeByScore(this.Configuration.RefreshTokenPrefix, min, DateTimeMax);
+            var keys = db.SortedSetRangeByScore($"{this.Configuration.RefreshTokenPrefix}:_index:expires", min, DateTimeMax);
 
             foreach (var key in keys)
             {
@@ -462,7 +460,7 @@
                 this.Configuration.Log.DebugFormat("Inserting key {0} to refresh token set with score {1}", key, expires);
 
                 // Add key to index for future reference. The score is the expire time in seconds since epoch.
-                tran.SortedSetAddAsync(this.Configuration.RefreshTokenPrefix, key, expires);
+                tran.SortedSetAddAsync($"{this.Configuration.RefreshTokenPrefix}:_index:expires", key, expires);
 
                 // Add key to hashed set for future reference by client id, redirect uri or subject. The value is the expire time in seconds since epoch.
                 tran.HashSetAsync($"{this.Configuration.RefreshTokenPrefix}:_index:client:{token.ClientId}", key, expires);
