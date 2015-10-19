@@ -545,6 +545,7 @@
         }
 
         /// <summary>Deletes all access tokens, refresh tokens and authorization codes.</summary>
+        /// <remarks>Requires <c>allowAdmin=true</c> in Redis connection string.</remarks>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> Purge()
         {

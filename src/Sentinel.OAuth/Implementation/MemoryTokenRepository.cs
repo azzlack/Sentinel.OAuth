@@ -151,7 +151,7 @@
         public async Task<int> DeleteAccessTokens(DateTime expires)
         {
             var i = 0;
-            var tokens = this.accessTokens.Where(x => x.Value.ValidTo < expires).ToList();
+            var tokens = this.accessTokens.Where(x => x.Value.ValidTo <= expires).ToList();
 
             foreach (var token in tokens)
             {
@@ -250,7 +250,7 @@
         public async Task<int> DeleteRefreshTokens(DateTime expires)
         {
             var i = 0;
-            var tokens = this.refreshTokens.Where(x => x.Value.ValidTo < expires).ToList();
+            var tokens = this.refreshTokens.Where(x => x.Value.ValidTo <= expires).ToList();
 
             foreach (var token in tokens)
             {
