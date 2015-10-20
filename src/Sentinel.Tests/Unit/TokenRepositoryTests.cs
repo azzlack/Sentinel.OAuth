@@ -53,6 +53,28 @@
         }
 
         [Test]
+        public async void GetAuthorizationCode_WhenGivenValidIdentifier_ReturnsCode()
+        {
+            var insertResult = await this.TokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username" });
+
+            var getResult = await this.TokenRepository.GetAuthorizationCode(insertResult.GetIdentifier());
+
+            Assert.AreEqual(insertResult.ClientId, getResult.ClientId);
+            Assert.AreEqual(insertResult.RedirectUri, getResult.RedirectUri);
+            Assert.AreEqual(insertResult.Subject, getResult.Subject);
+            Assert.AreEqual(insertResult.Scope, getResult.Scope);
+            Assert.AreEqual(insertResult.ValidTo, getResult.ValidTo);
+            Assert.AreEqual(insertResult.Ticket, getResult.Ticket);
+            Assert.AreEqual(insertResult.Code, getResult.Code);
+        }
+
+        [Test]
+        public async void GetAuthorizationCode_WhenGivenInvalidIdentifier_ThrowsException()
+        {
+            Assert.That(async () => await this.TokenRepository.GetAuthorizationCode(null), Throws.ArgumentException);
+        }
+
+        [Test]
         public async void GetAuthorizationCodes_WhenValidCodesExist_ReturnsAuthorizationCodes()
         {
             await this.TokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username" });
@@ -158,6 +180,41 @@
         }
 
         [Test]
+        public async void GetAccessToken_WhenGivenValidIdentifier_ReturnsToken()
+        {
+            var insertResult = await this.TokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
+
+            var getResult = await this.TokenRepository.GetAccessToken(insertResult.GetIdentifier());
+
+            Assert.AreEqual(insertResult.ClientId, getResult.ClientId);
+            Assert.AreEqual(insertResult.RedirectUri, getResult.RedirectUri);
+            Assert.AreEqual(insertResult.Subject, getResult.Subject);
+            Assert.AreEqual(insertResult.Scope, getResult.Scope);
+            Assert.AreEqual(insertResult.ValidTo, getResult.ValidTo);
+            Assert.AreEqual(insertResult.Ticket, getResult.Ticket);
+            Assert.AreEqual(insertResult.Token, getResult.Token);
+        }
+
+        [Test]
+        public async void GetAccessToken_WhenGivenInvalidIdentifier_ThrowsException()
+        {
+            Assert.That(async () => await this.TokenRepository.GetAccessToken(null), Throws.ArgumentException);
+        }
+
+        [Test]
+        public async void GetAccessToken_WhenTokensExists_ReturnsAccessToken()
+        {
+            var insertResult = await this.TokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
+
+            var treshold = DateTime.UtcNow;
+
+            var accessTokens = await this.TokenRepository.GetAccessTokens(treshold);
+
+            Assert.GreaterOrEqual(accessTokens.Count(), 1);
+            Assert.That(accessTokens.All(x => x.ValidTo > treshold), "Got back token that was supposed to be expired");
+        }
+
+        [Test]
         public async void GetAccessTokens_WhenValidTokensExists_ReturnsAccessTokens()
         {
             await this.TokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
@@ -183,18 +240,6 @@
 
             Assert.GreaterOrEqual(accessTokens.Count(), 1);
             Assert.That(accessTokens.All(x => x.Subject == "ovea" && x.ValidTo > treshold));
-        }
-
-        [Test]
-        public async void DeleteAccessToken_WhenGivenValidToken_ReturnsTrue()
-        {
-            var insertResult = await this.TokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
-
-            var deleteResult = await this.TokenRepository.DeleteAccessToken(insertResult);
-            var accessTokens = await this.TokenRepository.GetAccessTokens(DateTime.UtcNow.AddMinutes(1));
-
-            Assert.IsTrue(deleteResult);
-            Assert.IsTrue(accessTokens.All(x => !x.Equals(insertResult)), "The access token was 'deleted' but is still retrievable");
         }
 
         [Test]
@@ -261,6 +306,27 @@
             Assert.AreEqual(token.Subject, result.Subject);
             Assert.AreEqual(token.Token, result.Token);
             Assert.AreEqual(token.ValidTo, result.ValidTo);
+        }
+
+        [Test]
+        public async void GetRefreshToken_WhenGivenValidIdentifier_ReturnsToken()
+        {
+            var insertResult = await this.TokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
+
+            var getResult = await this.TokenRepository.GetRefreshToken(insertResult.GetIdentifier());
+
+            Assert.AreEqual(insertResult.ClientId, getResult.ClientId);
+            Assert.AreEqual(insertResult.RedirectUri, getResult.RedirectUri);
+            Assert.AreEqual(insertResult.Subject, getResult.Subject);
+            Assert.AreEqual(insertResult.Scope, getResult.Scope);
+            Assert.AreEqual(insertResult.ValidTo, getResult.ValidTo);
+            Assert.AreEqual(insertResult.Token, getResult.Token);
+        }
+
+        [Test]
+        public async void GetRefreshToken_WhenGivenInvalidIdentifier_ThrowsException()
+        {
+            Assert.That(async () => await this.TokenRepository.GetRefreshToken(null), Throws.ArgumentException);
         }
 
         [Test]
