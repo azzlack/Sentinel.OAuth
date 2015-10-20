@@ -57,7 +57,7 @@
         public override void SetUp()
         {
             var connectionStringBuilder = this.instance.CreateConnectionStringBuilder();
-            connectionStringBuilder.SetInitialCatalogName(this.databaseName);
+            connectionStringBuilder.InitialCatalog = this.databaseName;
 
             this.TokenRepository =
                 new SqlServerTokenRepository(
@@ -75,14 +75,6 @@
         {
             if (this.instance != null)
             {
-                // Delete database
-                using (var connection = this.instance.CreateConnection())
-                {
-                    connection.Open();
-
-                    connection.Execute("DROP DATABASE " + this.databaseName);
-                }
-
                 this.instance.Dispose();
             }
 

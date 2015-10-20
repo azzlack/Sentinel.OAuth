@@ -38,7 +38,7 @@
                 throw new ArgumentException("identifier must be a long type", nameof(identifier));
             }
 
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var data =
                     await
@@ -74,7 +74,7 @@
         /// <returns>The authorization codes.</returns>
         public async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTime expires)
         {
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var data =
                     await
@@ -117,7 +117,7 @@
                 throw new ArgumentException($"The authorization code is invalid: {JsonConvert.SerializeObject(code)}", nameof(authorizationCode));
             }
 
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var id =
                     await
@@ -164,7 +164,7 @@
         /// <returns>The number of deleted codes.</returns>
         public async Task<int> DeleteAuthorizationCodes(DateTime expires)
         {
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var rows =
                     await
@@ -199,7 +199,7 @@
                 throw new ArgumentException("identifier must be a long type", nameof(identifier));
             }
 
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var rows =
                     await
@@ -221,7 +221,7 @@
                 throw new ArgumentException("identifier must be a long type", nameof(identifier));
             }
 
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var data =
                     await
@@ -256,7 +256,7 @@
         /// <returns>The access tokens.</returns>
         public async Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTime expires)
         {
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var data =
                     await
@@ -293,7 +293,7 @@
         /// <returns>The access tokens.</returns>
         public async Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTime expires)
         {
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var data =
                     await
@@ -334,7 +334,7 @@
                 throw new ArgumentException($"The access token is invalid: {JsonConvert.SerializeObject(token)}", nameof(accessToken));
             }
 
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var id =
                     await
@@ -381,7 +381,7 @@
         /// <returns>The number of deleted tokens.</returns>
         public async Task<int> DeleteAccessTokens(DateTime expires)
         {
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var rows =
                     await
@@ -400,7 +400,7 @@
         /// <returns>The number of deleted tokens.</returns>
         public async Task<int> DeleteAccessTokens(string clientId, string redirectUri, string subject)
         {
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var rows =
                     await
@@ -432,7 +432,7 @@
                 throw new ArgumentException("identifier must be a long type", nameof(identifier));
             }
 
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var rows =
                     await
@@ -454,7 +454,7 @@
                 throw new ArgumentException("identifier must be a long type", nameof(identifier));
             }
 
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var data =
                     await
@@ -491,7 +491,7 @@
         /// <returns>The refresh tokens.</returns>
         public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTime expires)
         {
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var data =
                     await
@@ -526,7 +526,7 @@
         /// <returns>The refresh tokens.</returns>
         public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTime expires)
         {
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var data =
                     await
@@ -566,7 +566,7 @@
                 throw new ArgumentException($"The refresh token is invalid: {JsonConvert.SerializeObject(token)}", nameof(refreshToken));
             }
 
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var id =
                     await
@@ -612,7 +612,7 @@
         /// <returns>The number of deleted tokens.</returns>
         public async Task<int> DeleteRefreshTokens(DateTime expires)
         {
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var rows =
                     await
@@ -631,7 +631,7 @@
         /// <returns>The number of deleted tokens.</returns>
         public async Task<int> DeleteRefreshTokens(string clientId, string redirectUri, string subject)
         {
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var rows =
                     await
@@ -666,7 +666,7 @@
                 throw new ArgumentException("identifier must be a long type", nameof(identifier));
             }
 
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 var rows =
                     await
@@ -682,7 +682,7 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> Purge()
         {
-            using (var connection = this.OpenConnection())
+            using (var connection = await this.OpenConnection())
             {
                 await connection.ExecuteAsync("TRUNCATE TABLE AuthorizationCodes;TRUNCATE TABLE AccessTokens;TRUNCATE TABLE RefreshTokens");
 
@@ -692,10 +692,10 @@
 
         /// <summary>Opens the connection.</summary>
         /// <returns>A SqlConnection.</returns>
-        protected virtual SqlConnection OpenConnection()
+        private async Task<SqlConnection> OpenConnection()
         {
             var connection = new SqlConnection(this.Configuration.ConnectionString);
-            connection.Open();
+            await connection.OpenAsync();
 
             return connection;
         }
