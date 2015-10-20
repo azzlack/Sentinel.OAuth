@@ -2,6 +2,7 @@
 {
     using Raven.Abstractions.Data;
     using Raven.Client;
+    using Raven.Client.Document;
     using Raven.Client.Linq;
     using Raven.Imports.Newtonsoft.Json;
     using Sentinel.OAuth.Core.Interfaces.Models;
@@ -481,6 +482,8 @@
         {
             using (var session = this.OpenAsyncSession())
             {
+                session.Advanced.DocumentStore.Conventions.DefaultQueryingConsistency = ConsistencyOptions.AlwaysWaitForNonStaleResultsAsOfLastWrite;
+
                 try
                 {
                     // If the Raven/DocumentsByEntityName index does not exist, no entities exist
@@ -488,24 +491,21 @@
                     {
                         await session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
                             "AuthorizationCodes/Ids",
-                            new IndexQuery(),
-                            new BulkOperationOptions() { AllowStale = false, StaleTimeout = TimeSpan.FromSeconds(1) }).WaitForCompletionAsync();
+                            new IndexQuery()).WaitForCompletionAsync();
                     }
 
                     if (session.Advanced.DocumentStore.DatabaseCommands.GetIndex("AccessTokens/Ids") != null)
                     {
                         await session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
                             "AccessTokens/Ids",
-                            new IndexQuery(),
-                            new BulkOperationOptions() { AllowStale = false, StaleTimeout = TimeSpan.FromSeconds(1) }).WaitForCompletionAsync();
+                            new IndexQuery()).WaitForCompletionAsync();
                     }
 
                     if (session.Advanced.DocumentStore.DatabaseCommands.GetIndex("RefreshTokens/Ids") != null)
                     {
                         await session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
                             "RefreshTokens/Ids",
-                            new IndexQuery(),
-                            new BulkOperationOptions() { AllowStale = false, StaleTimeout = TimeSpan.FromSeconds(1) }).WaitForCompletionAsync();
+                            new IndexQuery()).WaitForCompletionAsync();
                     }
                 }
                 catch (Exception ex)
