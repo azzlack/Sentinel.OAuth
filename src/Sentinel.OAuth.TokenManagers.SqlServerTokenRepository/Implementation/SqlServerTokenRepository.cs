@@ -697,8 +697,6 @@
             var connection = new SqlConnection(this.Configuration.ConnectionString);
             connection.Open();
 
-            connection.Execute("USE " + this.Configuration.DatabaseName);
-
             return connection;
         }
     }

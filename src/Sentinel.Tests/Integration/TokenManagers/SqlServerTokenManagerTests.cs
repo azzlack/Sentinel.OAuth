@@ -78,6 +78,9 @@
                             new SentinelClaim(ClaimTypes.Name, "azzlack"),
                             new SentinelClaim(ClaimType.Client, "NUnit"))));
 
+            var connectionStringBuilder = this.instance.CreateConnectionStringBuilder();
+            connectionStringBuilder.SetInitialCatalogName(this.databaseName);
+
             this.TokenManager = new TokenManager(
                 LogManager.GetLogger(typeof(SqlServerTokenManagerTests)),
                 userManager.Object,
@@ -85,9 +88,7 @@
                 new SHA2CryptoProvider(),
                 new SqlTokenFactory(),
                 new SqlServerTokenRepository(
-                    new SqlServerTokenRepositoryConfiguration(
-                        this.instance.CreateConnectionStringBuilder().ToString(),
-                        this.databaseName)));
+                    new SqlServerTokenRepositoryConfiguration(connectionStringBuilder.ToString())));
 
             base.SetUp();
         }

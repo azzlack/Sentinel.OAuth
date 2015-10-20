@@ -36,7 +36,7 @@
             SqlMapper.AddTypeMap(typeof(DateTime), DbType.DateTime2);
 
             // Create test instance
-            this.instance = TemporarySqlLocalDbInstance.Create(deleteFiles: true);
+            this.instance = TemporarySqlLocalDbInstance.Create(true);
 
             // Seed test data
             using (var connection = this.instance.CreateConnection())
@@ -63,11 +63,13 @@
         [SetUp]
         public override void SetUp()
         {
+            var connectionStringBuilder = this.instance.CreateConnectionStringBuilder();
+            connectionStringBuilder.SetInitialCatalogName(this.databaseName);
+
             this.TokenRepository =
                 new SqlServerTokenRepository(
                     new SqlServerTokenRepositoryConfiguration(
-                        this.instance.CreateConnectionStringBuilder().ToString(),
-                        this.databaseName));
+                        connectionStringBuilder.ToString()));
 
             base.SetUp();
         }
