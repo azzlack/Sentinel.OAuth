@@ -35,6 +35,11 @@
         /// <returns>The authorization code.</returns>
         public async Task<IAuthorizationCode> GetAuthorizationCode(object identifier)
         {
+            if (!(identifier is string))
+            {
+                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+            }
+
             using (var session = this.OpenAsyncSession())
             {
                 return await session.LoadAsync<RavenAuthorizationCode>(identifier.ToString());
@@ -78,7 +83,7 @@
                 await session.StoreAsync(code);
                 await session.SaveChangesAsync();
 
-                return authorizationCode;
+                return code;
             }
         }
 
@@ -128,6 +133,11 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(object identifier)
         {
+            if (!(identifier is string))
+            {
+                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+            }
+
             using (var session = this.OpenAsyncSession())
             {
                 var match = await session.LoadAsync<RavenAuthorizationCode>(identifier.ToString());
@@ -144,6 +154,11 @@
         /// <returns>The access token.</returns>
         public async Task<IAccessToken> GetAccessToken(object identifier)
         {
+            if (!(identifier is string))
+            {
+                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+            }
+
             using (var session = this.OpenAsyncSession())
             {
                 return await session.LoadAsync<RavenAccessToken>(identifier.ToString());
@@ -197,7 +212,7 @@
                 await session.StoreAsync(token);
                 await session.SaveChangesAsync();
 
-                return accessToken;
+                return token;
             }
         }
 
@@ -281,6 +296,11 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAccessToken(object identifier)
         {
+            if (!(identifier is string))
+            {
+                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+            }
+
             using (var session = this.OpenAsyncSession())
             {
                 var match = await session.LoadAsync<RavenAccessToken>(identifier.ToString());
@@ -297,6 +317,11 @@
         /// <returns>The refresh token.</returns>
         public async Task<IRefreshToken> GetRefreshToken(object identifier)
         {
+            if (!(identifier is string))
+            {
+                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+            }
+
             using (var session = this.OpenAsyncSession())
             {
                 return await session.LoadAsync<RavenRefreshToken>(identifier.ToString());
@@ -352,7 +377,7 @@
                 await session.StoreAsync(token);
                 await session.SaveChangesAsync();
 
-                return refreshToken;
+                return token;
             }
         }
 
@@ -434,6 +459,11 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteRefreshToken(object identifier)
         {
+            if (!(identifier is string))
+            {
+                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+            }
+
             using (var session = this.OpenAsyncSession())
             {
                 var match = await session.LoadAsync<RavenRefreshToken>(identifier.ToString());
@@ -459,7 +489,7 @@
                         await session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
                             "AuthorizationCodes/Ids",
                             new IndexQuery(),
-                            new BulkOperationOptions() { AllowStale = false }).WaitForCompletionAsync();
+                            new BulkOperationOptions() { AllowStale = false, StaleTimeout = TimeSpan.FromSeconds(1) }).WaitForCompletionAsync();
                     }
 
                     if (session.Advanced.DocumentStore.DatabaseCommands.GetIndex("AccessTokens/Ids") != null)
@@ -467,7 +497,7 @@
                         await session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
                             "AccessTokens/Ids",
                             new IndexQuery(),
-                            new BulkOperationOptions() { AllowStale = false }).WaitForCompletionAsync();
+                            new BulkOperationOptions() { AllowStale = false, StaleTimeout = TimeSpan.FromSeconds(1) }).WaitForCompletionAsync();
                     }
 
                     if (session.Advanced.DocumentStore.DatabaseCommands.GetIndex("RefreshTokens/Ids") != null)
@@ -475,7 +505,7 @@
                         await session.Advanced.DocumentStore.DatabaseCommands.DeleteByIndex(
                             "RefreshTokens/Ids",
                             new IndexQuery(),
-                            new BulkOperationOptions() { AllowStale = false }).WaitForCompletionAsync();
+                            new BulkOperationOptions() { AllowStale = false, StaleTimeout = TimeSpan.FromSeconds(1) }).WaitForCompletionAsync();
                     }
                 }
                 catch (Exception ex)

@@ -11,6 +11,9 @@
 
     public class RedisRefreshToken : RefreshToken
     {
+        /// <summary>The identifier.</summary>
+        private RedisTokenIdentifier id;
+
         /// <summary>
         /// Initializes a new instance of the
         /// Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models.RedisRefreshToken class.
@@ -24,7 +27,8 @@
         public RedisRefreshToken(IRefreshToken refreshToken)
             : base(refreshToken)
         {
-            this.Id = Convert.ToBase64String(Encoding.UTF8.GetBytes(refreshToken.ClientId + refreshToken.RedirectUri + refreshToken.Subject + refreshToken.ValidTo.Ticks));
+            this.id = this.GenerateIdentity(refreshToken.ClientId, refreshToken.RedirectUri, refreshToken.Subject, refreshToken.ValidTo);
+
             this.Created = DateTime.UtcNow;
         }
 
@@ -48,11 +52,9 @@
             this.Token = token.Value.HasValue ? token.Value.ToString() : string.Empty;
             this.ValidTo = validTo.Value.HasValue ? JsonConvert.DeserializeObject<DateTime>(validTo.Value.ToString()) : DateTime.MinValue;
             this.Created = created.Value.HasValue ? JsonConvert.DeserializeObject<DateTime>(created.Value.ToString()) : DateTime.MinValue;
-        }
 
-        /// <summary>Gets or sets the identifier.</summary>
-        /// <value>The identifier.</value>
-        public string Id { get; set; }
+            this.id = this.GenerateIdentity(this.ClientId, this.RedirectUri, this.Subject, this.ValidTo);
+        }
 
         /// <summary>
         /// Gets or sets the created date.
@@ -64,7 +66,7 @@
         /// <returns>The identifier.</returns>
         public override object GetIdentifier()
         {
-            return this.Id;
+            return this.id ?? (this.id = this.GenerateIdentity(this.ClientId, this.RedirectUri, this.Subject, this.ValidTo));
         }
 
         /// <summary>Check if this object is valid.</summary>
@@ -72,6 +74,22 @@
         public override bool IsValid()
         {
             return base.IsValid() && this.Created != DateTime.MinValue;
+        }
+
+        /// <summary>Tests if this IRefreshToken is considered equal to another.</summary>
+        /// <param name="other">The token to compare to this object.</param>
+        /// <returns>true if the objects are considered equal, false if they are not.</returns>
+        public override bool Equals(IRefreshToken other)
+        {
+            var id1 = this.GetIdentifier();
+            var id2 = other.GetIdentifier();
+
+            if (id1 is IEquatable<RedisTokenIdentifier> && id2 is IEquatable<RedisTokenIdentifier>)
+            {
+                return id1.Equals(id2);
+            }
+
+            return base.Equals(other);
         }
 
         /// <summary>Converts this object to a list of hash entries.</summary>
@@ -89,6 +107,22 @@
             entries.Add(new HashEntry("Created", JsonConvert.SerializeObject(this.Created)));
 
             return entries.ToArray();
+        }
+
+        /// <summary>Generates an identity.</summary>
+        /// <param name="clientId">The client id.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="subject">The subject.</param>
+        /// <param name="validTo">The valid to Date/Time.</param>
+        /// <returns>The identity.</returns>
+        private RedisTokenIdentifier GenerateIdentity(string clientId, string redirectUri, string subject, DateTime validTo)
+        {
+            return
+                new RedisTokenIdentifier(
+                    Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + subject + validTo.Ticks)),
+                    clientId,
+                    redirectUri,
+                    subject);
         }
     }
 }

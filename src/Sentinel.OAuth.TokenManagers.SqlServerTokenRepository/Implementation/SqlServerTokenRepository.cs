@@ -33,13 +33,18 @@
         /// <returns>The authorization code.</returns>
         public async Task<IAuthorizationCode> GetAuthorizationCode(object identifier)
         {
+            if (!(identifier is long))
+            {
+                throw new ArgumentException("identifier must be a long type", nameof(identifier));
+            }
+
             using (var connection = this.OpenConnection())
             {
                 var data =
                     await
                     connection.QueryAsync(
                         "SELECT * FROM AuthorizationCodes WHERE Id = @Id",
-                        new { Id = (int)identifier });
+                        new { Id = identifier });
                 var codes =
                     data.Select(
                         x =>
@@ -189,6 +194,11 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(object identifier)
         {
+            if (!(identifier is long))
+            {
+                throw new ArgumentException("identifier must be a long type", nameof(identifier));
+            }
+
             using (var connection = this.OpenConnection())
             {
                 var rows =
@@ -206,13 +216,18 @@
         /// <returns>The access token.</returns>
         public async Task<IAccessToken> GetAccessToken(object identifier)
         {
+            if (!(identifier is long))
+            {
+                throw new ArgumentException("identifier must be a long type", nameof(identifier));
+            }
+
             using (var connection = this.OpenConnection())
             {
                 var data =
                     await
                     connection.QueryAsync(
                         "SELECT * FROM AccessTokens WHERE Id = @Id",
-                        new { Id = (int)identifier });
+                        new { Id = identifier });
                 var tokens =
                     data.Select(
                         x =>
@@ -412,6 +427,11 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAccessToken(object identifier)
         {
+            if (!(identifier is long))
+            {
+                throw new ArgumentException("identifier must be a long type", nameof(identifier));
+            }
+
             using (var connection = this.OpenConnection())
             {
                 var rows =
@@ -429,13 +449,18 @@
         /// <returns>The refresh token.</returns>
         public async Task<IRefreshToken> GetRefreshToken(object identifier)
         {
+            if (!(identifier is long))
+            {
+                throw new ArgumentException("identifier must be a long type", nameof(identifier));
+            }
+
             using (var connection = this.OpenConnection())
             {
                 var data =
                     await
                     connection.QueryAsync(
                         "SELECT * FROM RefreshTokens WHERE Id = @Id",
-                        new { Id = (int)identifier });
+                        new { Id = identifier });
                 var tokens =
                     data.Select(
                         x =>
@@ -636,6 +661,11 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteRefreshToken(object identifier)
         {
+            if (!(identifier is long))
+            {
+                throw new ArgumentException("identifier must be a long type", nameof(identifier));
+            }
+
             using (var connection = this.OpenConnection())
             {
                 var rows =

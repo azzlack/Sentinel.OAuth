@@ -13,22 +13,22 @@
     public class MemoryTokenRepository : ITokenRepository
     {
         /// <summary>The authorization codes.</summary>
-        private readonly ConcurrentDictionary<Guid, AuthorizationCode> authorizationCodes;
+        private readonly ConcurrentDictionary<string, AuthorizationCode> authorizationCodes;
 
         /// <summary>The refresh tokens.</summary>
-        private readonly ConcurrentDictionary<Guid, RefreshToken> refreshTokens;
+        private readonly ConcurrentDictionary<string, RefreshToken> refreshTokens;
 
         /// <summary>The access tokens.</summary>
-        private readonly ConcurrentDictionary<Guid, AccessToken> accessTokens;
+        private readonly ConcurrentDictionary<string, AccessToken> accessTokens;
 
         /// <summary>
         /// Initializes a new instance of the Sentinel.OAuth.Implementation.MemoryTokenRepository class.
         /// </summary>
         public MemoryTokenRepository()
         {
-            this.authorizationCodes = new ConcurrentDictionary<Guid, AuthorizationCode>();
-            this.refreshTokens = new ConcurrentDictionary<Guid, RefreshToken>();
-            this.accessTokens = new ConcurrentDictionary<Guid, AccessToken>();
+            this.authorizationCodes = new ConcurrentDictionary<string, AuthorizationCode>();
+            this.refreshTokens = new ConcurrentDictionary<string, RefreshToken>();
+            this.accessTokens = new ConcurrentDictionary<string, AccessToken>();
         }
 
         /// <summary>Gets the specified authorization code.</summary>
@@ -36,9 +36,12 @@
         /// <returns>The authorization code.</returns>
         public async Task<IAuthorizationCode> GetAuthorizationCode(object identifier)
         {
-            var id = identifier.ToString().Split('_');
+            if (!(identifier is string))
+            {
+                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+            }
 
-            var entry = this.authorizationCodes.FirstOrDefault(x => x.Value.ClientId == id[0] && x.Value.RedirectUri == id[1] && x.Value.Subject == id[2] && x.Value.ValidTo.Ticks.ToString() == id[3]);
+            var entry = this.authorizationCodes.FirstOrDefault(x => x.Key == identifier.ToString());
 
             return entry.Value;
         }
@@ -67,7 +70,7 @@
                 throw new ArgumentException($"The authorization code is invalid: {JsonConvert.SerializeObject(code)}", nameof(authorizationCode));
             }
 
-            if (this.authorizationCodes.TryAdd(Guid.NewGuid(), code))
+            if (this.authorizationCodes.TryAdd(code.GetIdentifier().ToString(), code))
             {
                 return code;
             }
@@ -83,12 +86,12 @@
         public async Task<int> DeleteAuthorizationCodes(DateTime expires)
         {
             var i = 0;
-            var tokens = this.authorizationCodes.Where(x => x.Value.ValidTo <= expires).ToList();
+            var codes = this.authorizationCodes.Where(x => x.Value.ValidTo <= expires).ToList();
 
-            foreach (var token in tokens)
+            foreach (var code in codes)
             {
                 AuthorizationCode removedCode;
-                if (this.authorizationCodes.TryRemove(token.Key, out removedCode))
+                if (this.authorizationCodes.TryRemove(code.Key, out removedCode))
                 {
                     i++;
                 }
@@ -120,14 +123,17 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(object identifier)
         {
-            var id = (Guid)identifier;
+            if (!(identifier is string))
+            {
+                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+            }
 
-            var exists = this.authorizationCodes.Any(x => x.Key == id);
+            var exists = this.authorizationCodes.Any(x => x.Key == identifier.ToString());
 
             if (exists)
             {
                 AuthorizationCode removedCode;
-                return this.authorizationCodes.TryRemove(id, out removedCode);
+                return this.authorizationCodes.TryRemove(identifier.ToString(), out removedCode);
             }
 
             return false;
@@ -138,9 +144,12 @@
         /// <returns>The access token.</returns>
         public async Task<IAccessToken> GetAccessToken(object identifier)
         {
-            var id = identifier.ToString().Split('_');
+            if (!(identifier is string))
+            {
+                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+            }
 
-            var entry = this.accessTokens.FirstOrDefault(x => x.Value.ClientId == id[0] && x.Value.RedirectUri == id[1] && x.Value.Subject == id[2] && x.Value.ValidTo.Ticks.ToString() == id[3]);
+            var entry = this.accessTokens.FirstOrDefault(x => x.Key == identifier.ToString());
 
             return entry.Value;
         }
@@ -177,7 +186,7 @@
                 throw new ArgumentException($"The access token is invalid: {JsonConvert.SerializeObject(token)}", nameof(accessToken));
             }
 
-            if (this.accessTokens.TryAdd(Guid.NewGuid(), token))
+            if (this.accessTokens.TryAdd(token.GetIdentifier().ToString(), token))
             {
                 return accessToken;
             }
@@ -254,10 +263,13 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAccessToken(object identifier)
         {
-            var id = (Guid)identifier;
+            if (!(identifier is string))
+            {
+                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+            }
 
             var i = 0;
-            var tokens = this.accessTokens.Where(x => x.Key == id).ToList();
+            var tokens = this.accessTokens.Where(x => x.Key == identifier.ToString()).ToList();
 
             foreach (var token in tokens)
             {
@@ -276,9 +288,12 @@
         /// <returns>The refresh token.</returns>
         public async Task<IRefreshToken> GetRefreshToken(object identifier)
         {
-            var id = identifier.ToString().Split('_');
+            if (!(identifier is string))
+            {
+                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+            }
 
-            var entry = this.refreshTokens.FirstOrDefault(x => x.Value.ClientId == id[0] && x.Value.RedirectUri == id[1] && x.Value.Subject == id[2] && x.Value.ValidTo.Ticks.ToString() == id[3]);
+            var entry = this.refreshTokens.FirstOrDefault(x => x.Key == identifier.ToString());
 
             return entry.Value;
         }
@@ -321,7 +336,7 @@
                 throw new ArgumentException($"The refresh token is invalid: {JsonConvert.SerializeObject(token)}", nameof(refreshToken));
             }
 
-            if (this.refreshTokens.TryAdd(Guid.NewGuid(), token))
+            if (this.refreshTokens.TryAdd(token.GetIdentifier().ToString(), token))
             {
                 return refreshToken;
             }
@@ -396,13 +411,16 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteRefreshToken(object identifier)
         {
-            var id = (Guid)identifier;
+            if (!(identifier is string))
+            {
+                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+            }
 
-            var exists = this.refreshTokens.Any(x => x.Key.Equals(id));
+            var exists = this.refreshTokens.Any(x => x.Key == identifier.ToString());
 
             if (exists)
             {
-                var token = this.refreshTokens.First(x => x.Key.Equals(id));
+                var token = this.refreshTokens.First(x => x.Key == identifier.ToString());
 
                 RefreshToken removedToken;
                 return this.refreshTokens.TryRemove(token.Key, out removedToken);

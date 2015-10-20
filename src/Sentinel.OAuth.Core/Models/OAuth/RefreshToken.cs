@@ -3,12 +3,10 @@
     using Sentinel.OAuth.Core.Interfaces.Models;
     using System;
     using System.Collections.Generic;
+    using System.Text;
 
     public class RefreshToken : IRefreshToken
     {
-        /// <summary>The identifier.</summary>
-        private object id;
-
         /// <summary>Initializes a new instance of the Sentinel.OAuth.Core.Models.OAuth.RefreshToken class.</summary>
         public RefreshToken()
         {
@@ -18,7 +16,6 @@
         /// <param name="refreshToken">The refresh token.</param>
         public RefreshToken(IRefreshToken refreshToken)
         {
-            this.id = refreshToken.GetIdentifier();
             this.ClientId = refreshToken.ClientId;
             this.RedirectUri = refreshToken.RedirectUri;
             this.Subject = refreshToken.Subject;
@@ -65,7 +62,7 @@
         /// <returns>The identifier.</returns>
         public virtual object GetIdentifier()
         {
-            return this.id;
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(this.ClientId + this.RedirectUri + this.Subject + this.ValidTo.Ticks));
         }
 
         /// <summary>Check if this object is valid.</summary>
@@ -87,7 +84,7 @@
         /// <summary>Tests if this IRefreshToken is considered equal to another.</summary>
         /// <param name="other">The i refresh token to compare to this object.</param>
         /// <returns>true if the objects are considered equal, false if they are not.</returns>
-        public bool Equals(IRefreshToken other)
+        public virtual bool Equals(IRefreshToken other)
         {
             if (this.ClientId == other.ClientId && this.RedirectUri == other.RedirectUri && this.Subject == other.Subject && this.ValidTo == other.ValidTo)
             {

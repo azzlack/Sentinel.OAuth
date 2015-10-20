@@ -3,12 +3,10 @@
     using Sentinel.OAuth.Core.Interfaces.Models;
     using System;
     using System.Collections.Generic;
+    using System.Text;
 
     public class AuthorizationCode : IAuthorizationCode
     {
-        /// <summary>The identifier.</summary>
-        private object id;
-
         /// <summary>Initializes a new instance of the Sentinel.OAuth.Core.Models.OAuth.AuthorizationCode class.</summary>
         public AuthorizationCode()
         {
@@ -18,7 +16,6 @@
         /// <param name="authorizationCode">The authorization code.</param>
         public AuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            this.id = authorizationCode.GetIdentifier();
             this.ClientId = authorizationCode.ClientId;
             this.RedirectUri = authorizationCode.RedirectUri;
             this.Subject = authorizationCode.Subject;
@@ -74,7 +71,7 @@
         /// <returns>The identifier.</returns>
         public virtual object GetIdentifier()
         {
-            return this.id;
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(this.ClientId + this.RedirectUri + this.Subject + this.ValidTo.Ticks));
         }
 
         /// <summary>Check if this object is valid.</summary>
@@ -96,7 +93,7 @@
         /// <summary>Tests if this IAuthorizationCode is considered equal to another.</summary>
         /// <param name="other">The i authorization code to compare to this object.</param>
         /// <returns>true if the objects are considered equal, false if they are not.</returns>
-        public bool Equals(IAuthorizationCode other)
+        public virtual bool Equals(IAuthorizationCode other)
         {
             if (this.ClientId == other.ClientId && this.RedirectUri == other.RedirectUri && this.Subject == other.Subject && this.ValidTo == other.ValidTo)
             {

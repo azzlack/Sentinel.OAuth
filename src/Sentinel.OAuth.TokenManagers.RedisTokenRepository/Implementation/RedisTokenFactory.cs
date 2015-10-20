@@ -5,7 +5,6 @@
     using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models;
     using System;
     using System.Collections.Generic;
-    using System.Text;
 
     /// <summary>A token factory for Redis entities.</summary>
     public class RedisTokenFactory : ITokenFactory
@@ -30,7 +29,6 @@
         {
             return new RedisAccessToken()
             {
-                Id = Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + userId + validTo.Ticks)),
                 ClientId = clientId,
                 RedirectUri = redirectUri,
                 Subject = userId,
@@ -54,7 +52,6 @@
         {
             return new RedisRefreshToken()
             {
-                Id = Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + userId + validTo.Ticks)),
                 ClientId = clientId,
                 RedirectUri = redirectUri,
                 Subject = userId,
@@ -85,7 +82,6 @@
         {
             return new RedisAuthorizationCode()
             {
-                Id = Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + userId + validTo.Ticks)),
                 ClientId = clientId,
                 RedirectUri = redirectUri,
                 Subject = userId,

@@ -3,12 +3,10 @@
     using Sentinel.OAuth.Core.Interfaces.Models;
     using System;
     using System.Collections.Generic;
+    using System.Text;
 
     public class AccessToken : IAccessToken
     {
-        /// <summary>The identifier.</summary>
-        private object id;
-
         /// <summary>Initializes a new instance of the Sentinel.OAuth.Core.Models.OAuth.AccessToken class.</summary>
         public AccessToken()
         {
@@ -18,7 +16,6 @@
         /// <param name="accessToken">The access token.</param>
         public AccessToken(IAccessToken accessToken)
         {
-            this.id = accessToken.GetIdentifier();
             this.ClientId = accessToken.ClientId;
             this.RedirectUri = accessToken.RedirectUri;
             this.Subject = accessToken.Subject;
@@ -72,7 +69,7 @@
         /// <returns>The identifier.</returns>
         public virtual object GetIdentifier()
         {
-            return this.id;
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(this.ClientId + this.RedirectUri + this.Subject + this.ValidTo.Ticks));
         }
 
         /// <summary>Check if this object is valid.</summary>
@@ -95,7 +92,7 @@
         /// <summary>Tests if this IAccessToken is considered equal to another.</summary>
         /// <param name="other">The i access token to compare to this object.</param>
         /// <returns>true if the objects are considered equal, false if they are not.</returns>
-        public bool Equals(IAccessToken other)
+        public virtual bool Equals(IAccessToken other)
         {
             if (this.ClientId == other.ClientId && this.RedirectUri == other.RedirectUri && this.Subject == other.Subject && this.ValidTo == other.ValidTo)
             {

@@ -1,12 +1,10 @@
 ﻿namespace Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Implementation
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-
     using Sentinel.OAuth.Core.Interfaces.Factories;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Models.OAuth;
+    using System;
+    using System.Collections.Generic;
 
     /// <summary>A token factory for RavenDB entities.</summary>
     public class RavenTokenFactory : ITokenFactory
@@ -30,17 +28,16 @@
             DateTime validTo)
         {
             return new RavenAccessToken()
-                       {
-                           Id = Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + userId + validTo.ToString("O"))),
-                           ClientId = clientId,
-                           RedirectUri = redirectUri,
-                           Subject = userId,
-                           Token = token,
-                           Ticket = ticket,
-                           ValidTo = validTo,
-                           Created = DateTime.UtcNow,
-                           Scope = scope
-                       };
+            {
+                ClientId = clientId,
+                RedirectUri = redirectUri,
+                Subject = userId,
+                Token = token,
+                Ticket = ticket,
+                ValidTo = validTo,
+                Created = DateTime.UtcNow,
+                Scope = scope
+            };
         }
 
         /// <summary>Creates a refresh token.</summary>
@@ -55,7 +52,6 @@
         {
             return new RavenRefreshToken()
             {
-                Id = Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + userId + validTo.ToString("O"))),
                 ClientId = clientId,
                 RedirectUri = redirectUri,
                 Subject = userId,
@@ -85,16 +81,16 @@
             DateTime validTo)
         {
             return new RavenAuthorizationCode()
-                       {
-                           ClientId = clientId,
-                           RedirectUri = redirectUri,
-                           Subject = userId,
-                           Scope = scope,
-                           Code = code,
-                           Ticket = ticket,
-                           ValidTo = validTo,
-                           Created = DateTime.UtcNow
-                       };
+            {
+                ClientId = clientId,
+                RedirectUri = redirectUri,
+                Subject = userId,
+                Scope = scope,
+                Code = code,
+                Ticket = ticket,
+                ValidTo = validTo,
+                Created = DateTime.UtcNow
+            };
         }
     }
 }

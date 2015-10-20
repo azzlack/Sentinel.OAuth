@@ -36,17 +36,20 @@
         /// <returns>The authorization code.</returns>
         public async Task<IAuthorizationCode> GetAuthorizationCode(object identifier)
         {
-            var id = (RedisTokenIdentifier)identifier;
+            var id = identifier as RedisTokenIdentifier;
+
+            if (id == null)
+            {
+                throw new ArgumentException("identifier must be a RedisTokenIdentifier type", nameof(identifier));
+            }
 
             var db = this.GetDatabase();
 
-            var hashEntries = await db.HashGetAllAsync(id.Key);
+            var hashEntries = await db.HashGetAllAsync($"{this.Configuration.AuthorizationCodePrefix}:{id.Id}");
 
             if (hashEntries.Any())
             {
-                var hashedId = id.Key.Substring(this.Configuration.AuthorizationCodePrefix.Length + 1);
-
-                var code = new RedisAuthorizationCode(hashEntries) { Id = hashedId };
+                var code = new RedisAuthorizationCode(hashEntries);
 
                 return code;
             }
@@ -81,7 +84,7 @@
 
                     if (hashEntries.Any())
                     {
-                        var code = new RedisAuthorizationCode(hashEntries) { Id = hashedId };
+                        var code = new RedisAuthorizationCode(hashEntries);
 
                         if (code.ValidTo > expires)
                         {
@@ -110,7 +113,7 @@
                 throw new ArgumentException($"The authorization code is invalid: {JsonConvert.SerializeObject(code)}", nameof(authorizationCode));
             }
 
-            var key = this.GenerateKey(code);
+            var key = this.GenerateKeyPath(code);
 
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
@@ -122,21 +125,21 @@
                 // Add hash to key
                 tran.HashSetAsync(key, code.ToHashEntries());
 
-                var expires = authorizationCode.ValidTo.ToUnixTime();
+                var expires = code.ValidTo.ToUnixTime();
 
                 this.Configuration.Log.DebugFormat("Inserting key {0} to authorization code set with score {1}", key, expires);
 
                 // Add key to sorted set for future reference. The score is the expire time in seconds since epoch.
                 tran.SortedSetAddAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", key, expires);
 
-                this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, authorizationCode.ValidTo);
+                this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, code.ValidTo);
 
                 // Make the key expire when the code times out
-                tran.KeyExpireAsync(key, authorizationCode.ValidTo);
+                tran.KeyExpireAsync(key, code.ValidTo);
 
                 await tran.ExecuteAsync();
 
-                return authorizationCode;
+                return code;
             }
             catch (Exception ex)
             {
@@ -168,9 +171,14 @@
                 tran.KeyDeleteAsync(key.ToString());
             }
 
-            await tran.ExecuteAsync(CommandFlags.HighPriority);
+            var result = await tran.ExecuteAsync(CommandFlags.HighPriority);
 
-            return (int)expireTask.Result;
+            if (result)
+            {
+                return keysToDelete.Length;
+            }
+
+            return 0;
         }
 
         /// <summary>
@@ -183,7 +191,7 @@
         {
             var code = new RedisAuthorizationCode(authorizationCode);
 
-            var key = this.GenerateKey(code);
+            var key = this.GenerateKeyPath(code);
 
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
@@ -219,17 +227,20 @@
         /// <returns>The access token.</returns>
         public async Task<IAccessToken> GetAccessToken(object identifier)
         {
-            var id = (RedisTokenIdentifier)identifier;
+            var id = identifier as RedisTokenIdentifier;
+
+            if (id == null)
+            {
+                throw new ArgumentException("identifier must be a RedisTokenIdentifier type", nameof(identifier));
+            }
 
             var db = this.GetDatabase();
 
-            var hashEntries = await db.HashGetAllAsync(id.Key);
+            var hashEntries = await db.HashGetAllAsync($"{this.Configuration.AccessTokenPrefix}:{id.Id}");
 
             if (hashEntries.Any())
             {
-                var hashedId = id.Key.Substring(this.Configuration.AccessTokenPrefix.Length + 1);
-
-                var token = new RedisAccessToken(hashEntries) { Id = hashedId };
+                var token = new RedisAccessToken(hashEntries);
 
                 return token;
             }
@@ -260,7 +271,7 @@
 
                 if (hashEntries.Any())
                 {
-                    var token = new RedisAccessToken(hashEntries) { Id = hashedId };
+                    var token = new RedisAccessToken(hashEntries);
 
                     if (token.ValidTo > expires)
                     {
@@ -293,13 +304,11 @@
 
             foreach (var key in unionKeys)
             {
-                var hashedId = key.ToString().Substring(this.Configuration.AccessTokenPrefix.Length + 1);
-
                 var hashEntries = await db.HashGetAllAsync(key.ToString());
 
                 if (hashEntries.Any())
                 {
-                    var token = new RedisAccessToken(hashEntries) { Id = hashedId };
+                    var token = new RedisAccessToken(hashEntries);
 
                     if (token.ValidTo > expires)
                     {
@@ -324,7 +333,7 @@
                 throw new ArgumentException($"The access token is invalid: {JsonConvert.SerializeObject(token)}", nameof(accessToken));
             }
 
-            var key = this.GenerateKey(token);
+            var key = this.GenerateKeyPath(token);
 
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
@@ -336,7 +345,7 @@
                 // Add hash to key
                 tran.HashSetAsync(key, token.ToHashEntries());
 
-                var expires = accessToken.ValidTo.ToUnixTime();
+                var expires = token.ValidTo.ToUnixTime();
 
                 this.Configuration.Log.DebugFormat("Inserting key {0} to access token set with score {1}", key, expires);
 
@@ -348,14 +357,14 @@
                 tran.HashSetAsync($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{token.RedirectUri}", key, expires);
                 tran.HashSetAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{token.Subject}", key, expires);
 
-                this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, accessToken.ValidTo);
+                this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, token.ValidTo);
 
                 // Make the keys expire when the code times out
-                tran.KeyExpireAsync(key, accessToken.ValidTo);
+                tran.KeyExpireAsync(key, token.ValidTo);
 
                 await tran.ExecuteAsync();
 
-                return accessToken;
+                return token;
             }
             catch (Exception ex)
             {
@@ -393,9 +402,14 @@
                 tran.KeyDeleteAsync(key.ToString());
             }
 
-            await tran.ExecuteAsync(CommandFlags.HighPriority);
+            var result = await tran.ExecuteAsync(CommandFlags.HighPriority);
 
-            return keysToDelete.Length;
+            if (result)
+            {
+                return keysToDelete.Length;
+            }
+
+            return 0;
         }
 
         /// <summary>
@@ -434,9 +448,14 @@
                 tran.KeyDeleteAsync(key.ToString());
             }
 
-            await tran.ExecuteAsync(CommandFlags.HighPriority);
+            var result = await tran.ExecuteAsync(CommandFlags.HighPriority);
 
-            return unionKeys.Count();
+            if (result)
+            {
+                return unionKeys.Count();
+            }
+
+            return 0;
         }
 
         /// <summary>Deletes the specified access token.</summary>
@@ -446,7 +465,7 @@
         {
             var token = new RedisAccessToken(accessToken);
 
-            var key = this.GenerateKey(token);
+            var key = this.GenerateKeyPath(token);
 
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
@@ -460,9 +479,7 @@
             // Remove key
             tran.KeyDeleteAsync(key, CommandFlags.HighPriority);
 
-            var commited = await tran.ExecuteAsync(CommandFlags.HighPriority);
-
-            return commited;
+            return await tran.ExecuteAsync(CommandFlags.HighPriority);
         }
 
         /// <summary>Deletes the specified access token.</summary>
@@ -472,21 +489,24 @@
         {
             var id = identifier as RedisTokenIdentifier;
 
+            if (id == null)
+            {
+                throw new ArgumentException("identifier must be a RedisTokenIdentifier type", nameof(identifier));
+            }
+
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
 
             // Remove items from indexes
-            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:client:{id.ClientId}", id.Key);
-            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{id.RedirectUri}", id.Key);
-            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{id.Subject}", id.Key);
-            tran.SortedSetRemoveAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", id.Key);
+            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:client:{id.ClientId}", id.Id);
+            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{id.RedirectUri}", id.Id);
+            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{id.Subject}", id.Id);
+            tran.SortedSetRemoveAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", id.Id);
 
             // Remove key
             tran.KeyDeleteAsync(identifier.ToString());
 
-            var commited = await tran.ExecuteAsync(CommandFlags.HighPriority);
-
-            return commited;
+            return await tran.ExecuteAsync(CommandFlags.HighPriority);
         }
 
         /// <summary>Gets the specified refresh token.</summary>
@@ -494,17 +514,20 @@
         /// <returns>The refresh token.</returns>
         public async Task<IRefreshToken> GetRefreshToken(object identifier)
         {
-            var id = (RedisTokenIdentifier)identifier;
+            var id = identifier as RedisTokenIdentifier;
+
+            if (id == null)
+            {
+                throw new ArgumentException("identifier must be a RedisTokenIdentifier type", nameof(identifier));
+            }
 
             var db = this.GetDatabase();
 
-            var hashEntries = await db.HashGetAllAsync(id.Key);
+            var hashEntries = await db.HashGetAllAsync($"{this.Configuration.RefreshTokenPrefix}:{id.Id}");
 
             if (hashEntries.Any())
             {
-                var hashedId = id.Key.Substring(this.Configuration.RefreshTokenPrefix.Length + 1);
-
-                var token = new RedisRefreshToken(hashEntries) { Id = hashedId };
+                var token = new RedisRefreshToken(hashEntries);
 
                 return token;
             }
@@ -532,13 +555,11 @@
 
             foreach (var key in keys)
             {
-                var hashedId = key.ToString().Substring(this.Configuration.RefreshTokenPrefix.Length + 1);
-
                 var hashEntries = await db.HashGetAllAsync(key.ToString());
 
                 if (hashEntries.Any())
                 {
-                    var token = new RedisRefreshToken(hashEntries) { Id = hashedId };
+                    var token = new RedisRefreshToken(hashEntries);
 
                     if (token.ClientId == clientId && token.RedirectUri == redirectUri && token.ValidTo > expires)
                     {
@@ -567,13 +588,11 @@
 
             foreach (var key in keys)
             {
-                var hashedId = key.ToString().Substring(this.Configuration.RefreshTokenPrefix.Length + 1);
-
                 var hashEntries = await db.HashGetAllAsync(key.ToString());
 
                 if (hashEntries.Any())
                 {
-                    var token = new RedisRefreshToken(hashEntries) { Id = hashedId };
+                    var token = new RedisRefreshToken(hashEntries);
 
                     if (token.Subject == subject && token.ValidTo > expires)
                     {
@@ -597,7 +616,7 @@
                 throw new ArgumentException($"The refresh token is invalid: {JsonConvert.SerializeObject(token)}", nameof(refreshToken));
             }
 
-            var key = this.GenerateKey(token);
+            var key = this.GenerateKeyPath(token);
 
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
@@ -609,7 +628,7 @@
                 // Add hash to key
                 tran.HashSetAsync(key, token.ToHashEntries());
 
-                var expires = refreshToken.ValidTo.ToUnixTime();
+                var expires = token.ValidTo.ToUnixTime();
 
                 this.Configuration.Log.DebugFormat("Inserting key {0} to refresh token set with score {1}", key, expires);
 
@@ -621,14 +640,14 @@
                 tran.HashSetAsync($"{this.Configuration.RefreshTokenPrefix}:_index:redirecturi:{token.RedirectUri}", key, expires);
                 tran.HashSetAsync($"{this.Configuration.RefreshTokenPrefix}:_index:subject:{token.Subject}", key, expires);
 
-                this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, refreshToken.ValidTo);
+                this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, token.ValidTo);
 
                 // Make the key expire when the code times out
-                tran.KeyExpireAsync(key, refreshToken.ValidTo);
+                tran.KeyExpireAsync(key, token.ValidTo);
 
                 await tran.ExecuteAsync();
 
-                return refreshToken;
+                return token;
             }
             catch (Exception ex)
             {
@@ -666,9 +685,14 @@
                 tran.KeyDeleteAsync(key.ToString());
             }
 
-            await tran.ExecuteAsync(CommandFlags.HighPriority);
+            var result = await tran.ExecuteAsync(CommandFlags.HighPriority);
 
-            return keysToDelete.Length;
+            if (result)
+            {
+                return keysToDelete.Length;
+            }
+
+            return 0;
         }
 
         /// <summary>Deletes the refresh tokens belonging to the specified client, redirect uri and subject.</summary>
@@ -680,8 +704,6 @@
         {
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
-
-            var tokens = new List<IRefreshToken>();
 
             var clientKeys = db.HashGetAll($"{this.Configuration.RefreshTokenPrefix}:_index:client:{clientId}");
             var redirectKeys = db.HashGetAll($"{this.Configuration.RefreshTokenPrefix}:_index:redirecturi:{redirectUri}");
@@ -701,9 +723,14 @@
                 tran.KeyDeleteAsync(key.ToString());
             }
 
-            await tran.ExecuteAsync(CommandFlags.HighPriority);
+            var result = await tran.ExecuteAsync(CommandFlags.HighPriority);
 
-            return unionKeys.Count();
+            if (result)
+            {
+                return unionKeys.Count();
+            }
+
+            return 0;
         }
 
         /// <summary>
@@ -716,7 +743,7 @@
         {
             var token = new RedisRefreshToken(refreshToken);
 
-            var key = this.GenerateKey(token);
+            var key = this.GenerateKeyPath(token);
 
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
@@ -744,13 +771,13 @@
             var tran = db.CreateTransaction();
 
             // Remove items from indexes
-            tran.SortedSetRemoveAsync($"{this.Configuration.RefreshTokenPrefix}:_index:expires", id.Key);
-            tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:client:{id.ClientId}", id.Key);
-            tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:redirecturi:{id.RedirectUri}", id.Key);
-            tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:subject:{id.Subject}", id.Key);
+            tran.SortedSetRemoveAsync($"{this.Configuration.RefreshTokenPrefix}:_index:expires", id.Id);
+            tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:client:{id.ClientId}", id.Id);
+            tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:redirecturi:{id.RedirectUri}", id.Id);
+            tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:subject:{id.Subject}", id.Id);
 
             // Remove keys
-            tran.KeyDeleteAsync(id.Key);
+            tran.KeyDeleteAsync(id.Id);
 
             return await tran.ExecuteAsync(CommandFlags.HighPriority);
         }
@@ -770,25 +797,25 @@
         /// <summary>Generates a key.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns>The key.</returns>
-        protected string GenerateKey(RedisAccessToken accessToken)
+        protected string GenerateKeyPath(RedisAccessToken accessToken)
         {
-            return this.Configuration.AccessTokenPrefix + ":" + accessToken.Id;
+            return this.Configuration.AccessTokenPrefix + ":" + ((RedisTokenIdentifier)accessToken.GetIdentifier()).Id;
         }
 
         /// <summary>Generates a key.</summary>
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns>The key.</returns>
-        protected string GenerateKey(RedisRefreshToken refreshToken)
+        protected string GenerateKeyPath(RedisRefreshToken refreshToken)
         {
-            return this.Configuration.RefreshTokenPrefix + ":" + refreshToken.Id;
+            return this.Configuration.RefreshTokenPrefix + ":" + ((RedisTokenIdentifier)refreshToken.GetIdentifier()).Id;
         }
 
         /// <summary>Generates a key.</summary>
         /// <param name="authorizationCode">The authorization code.</param>
         /// <returns>The key.</returns>
-        protected string GenerateKey(RedisAuthorizationCode authorizationCode)
+        protected string GenerateKeyPath(RedisAuthorizationCode authorizationCode)
         {
-            return this.Configuration.AuthorizationCodePrefix + ":" + authorizationCode.Id;
+            return this.Configuration.AuthorizationCodePrefix + ":" + ((RedisTokenIdentifier)authorizationCode.GetIdentifier()).Id;
         }
 
         /// <summary>Gets a reference to the database.</summary>

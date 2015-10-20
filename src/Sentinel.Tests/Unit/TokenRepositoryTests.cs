@@ -29,7 +29,7 @@
 
             Console.WriteLine();
             Console.WriteLine($"Time taken for all tests: {this.testFixtureStopwatch.Elapsed.ToString("g")}");
-            Console.WriteLine($"##teamcity[buildStatisticValue key='{this.GetType().Name}' value='{this.testStopwatch.ElapsedMilliseconds}']");
+            Console.WriteLine($"##teamcity[buildStatisticValue key='{this.GetType().Name}' value='{this.testFixtureStopwatch.ElapsedMilliseconds}']");
         }
 
         [SetUp]
@@ -55,10 +55,11 @@
         [Test]
         public async void GetAuthorizationCode_WhenGivenValidIdentifier_ReturnsCode()
         {
-            var insertResult = await this.TokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username" });
+            var insertResult = await this.TokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username" });
 
             var getResult = await this.TokenRepository.GetAuthorizationCode(insertResult.GetIdentifier());
 
+            Assert.AreEqual(insertResult.GetIdentifier(), getResult.GetIdentifier());
             Assert.AreEqual(insertResult.ClientId, getResult.ClientId);
             Assert.AreEqual(insertResult.RedirectUri, getResult.RedirectUri);
             Assert.AreEqual(insertResult.Subject, getResult.Subject);
@@ -132,7 +133,7 @@
             var authorizationCodes = await this.TokenRepository.GetAuthorizationCodes("http://localhost", DateTime.UtcNow.AddMinutes(1));
 
             Assert.IsTrue(deleteResult);
-            Assert.IsTrue(authorizationCodes.All(x => !x.Equals(insertResult)), "he authorization code was 'deleted' but is still retrievable");
+            Assert.IsTrue(authorizationCodes.All(x => !x.Equals(insertResult)), "The authorization code was 'deleted' but is still retrievable");
         }
 
         [Test]
@@ -144,7 +145,7 @@
             var authorizationCodes = await this.TokenRepository.GetAuthorizationCodes("http://localhost", DateTime.UtcNow.AddMinutes(1));
 
             Assert.IsTrue(deleteResult);
-            Assert.IsTrue(authorizationCodes.All(x => !x.Equals(insertResult)), "he authorization code was 'deleted' but is still retrievable");
+            Assert.IsTrue(authorizationCodes.All(x => !x.Equals(insertResult)), "The authorization code was 'deleted' but is still retrievable");
         }
 
         [Test]
@@ -186,6 +187,7 @@
 
             var getResult = await this.TokenRepository.GetAccessToken(insertResult.GetIdentifier());
 
+            Assert.AreEqual(insertResult.GetIdentifier(), getResult.GetIdentifier());
             Assert.AreEqual(insertResult.ClientId, getResult.ClientId);
             Assert.AreEqual(insertResult.RedirectUri, getResult.RedirectUri);
             Assert.AreEqual(insertResult.Subject, getResult.Subject);
@@ -204,9 +206,9 @@
         [Test]
         public async void GetAccessToken_WhenTokensExists_ReturnsAccessToken()
         {
-            var insertResult = await this.TokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
-
             var treshold = DateTime.UtcNow;
+
+            var insertResult = await this.TokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
 
             var accessTokens = await this.TokenRepository.GetAccessTokens(treshold);
 
@@ -311,10 +313,11 @@
         [Test]
         public async void GetRefreshToken_WhenGivenValidIdentifier_ReturnsToken()
         {
-            var insertResult = await this.TokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
+            var insertResult = await this.TokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
 
             var getResult = await this.TokenRepository.GetRefreshToken(insertResult.GetIdentifier());
 
+            Assert.AreEqual(insertResult.GetIdentifier(), getResult.GetIdentifier());
             Assert.AreEqual(insertResult.ClientId, getResult.ClientId);
             Assert.AreEqual(insertResult.RedirectUri, getResult.RedirectUri);
             Assert.AreEqual(insertResult.Subject, getResult.Subject);
