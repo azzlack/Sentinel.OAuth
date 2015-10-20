@@ -114,6 +114,18 @@
         }
 
         [Test]
+        public async void DeleteAuthorizationCode_WhenGivenValidIdentifier_ReturnsTrue()
+        {
+            var insertResult = await this.TokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username" });
+
+            var deleteResult = await this.TokenRepository.DeleteAuthorizationCode(insertResult.GetIdentifier());
+            var authorizationCodes = await this.TokenRepository.GetAuthorizationCodes("http://localhost", DateTime.UtcNow.AddMinutes(1));
+
+            Assert.IsTrue(deleteResult);
+            Assert.IsTrue(authorizationCodes.All(x => !x.Equals(insertResult)), "he authorization code was 'deleted' but is still retrievable");
+        }
+
+        [Test]
         public async void InsertAccessToken_WhenGivenInvalidToken_ThrowsException()
         {
             Assert.That(async () => await this.TokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost" }), Throws.Exception.TypeOf<ArgumentException>());
@@ -186,6 +198,18 @@
         }
 
         [Test]
+        public async void DeleteAccessToken_WhenGivenValidIdentifier_ReturnsTrue()
+        {
+            var insertResult = await this.TokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
+
+            var deleteResult = await this.TokenRepository.DeleteAccessToken(insertResult.GetIdentifier());
+            var accessTokens = await this.TokenRepository.GetAccessTokens(DateTime.UtcNow.AddMinutes(1));
+
+            Assert.IsTrue(deleteResult);
+            Assert.IsTrue(accessTokens.All(x => !x.Equals(insertResult)), "The access token was 'deleted' but is still retrievable");
+        }
+
+        [Test]
         public async void DeleteAccessTokens_WhenGivenExpirationDate_ReturnsNumberOfDeletedTokens()
         {
             var insertResult = await this.TokenRepository.InsertAccessToken(new AccessToken { Token = "123456789", Ticket = "abcdef", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
@@ -240,7 +264,7 @@
         }
 
         [Test]
-        public async void GetRefreshTokens_WhenValidTokensExist_ReturnsRefreshTokens()
+        public async void GetRefreshTokens_WhenGivenValidClientIdRedirectUriExpireDate_ReturnsRefreshTokens()
         {
             await this.TokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
             await this.TokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
@@ -248,6 +272,20 @@
             var treshold = DateTime.UtcNow;
 
             var refreshTokens = await this.TokenRepository.GetRefreshTokens("NUnit", "http://localhost", treshold);
+
+            Assert.GreaterOrEqual(refreshTokens.Count(), 1);
+            Assert.That(refreshTokens.All(x => x.ValidTo > treshold), "Got back token that was supposed to be expired");
+        }
+
+        [Test]
+        public async void GetRefreshTokens_WhenGivenValidSubjectExpireDate_ReturnsRefreshTokens()
+        {
+            await this.TokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
+            await this.TokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
+
+            var treshold = DateTime.UtcNow;
+
+            var refreshTokens = await this.TokenRepository.GetRefreshTokens("ovea", treshold);
 
             Assert.GreaterOrEqual(refreshTokens.Count(), 1);
             Assert.That(refreshTokens.All(x => x.ValidTo > treshold), "Got back token that was supposed to be expired");
@@ -266,11 +304,35 @@
         }
 
         [Test]
+        public async void DeleteRefreshToken_WhenGivenValidIdentifier_ReturnsTrue()
+        {
+            var insertResult = await this.TokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
+
+            var deleteResult = await this.TokenRepository.DeleteRefreshToken(insertResult.GetIdentifier());
+            var refreshTokens = await this.TokenRepository.GetRefreshTokens("NUnit2", "http://localhost", DateTime.UtcNow.AddMinutes(1));
+
+            Assert.IsTrue(deleteResult);
+            Assert.IsTrue(refreshTokens.All(x => !x.Equals(insertResult)), "The refresh token was 'deleted' but is still retrievable");
+        }
+
+        [Test]
         public async void DeleteRefreshTokens_WhenGivenExpirationDate_ReturnsNumberOfDeletedRefreshTokens()
         {
             var insertResult = await this.TokenRepository.InsertRefreshToken(new RefreshToken() { Token = "123456789", ValidTo = DateTime.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
 
             var deleteResult = await this.TokenRepository.DeleteRefreshTokens(DateTime.UtcNow);
+            var refreshTokens = await this.TokenRepository.GetRefreshTokens(insertResult.ClientId, insertResult.RedirectUri, DateTime.UtcNow);
+
+            Assert.Greater(deleteResult, 0);
+            Assert.IsTrue(refreshTokens.All(x => !x.Equals(insertResult)), "The refresh token was 'deleted' but is still retrievable");
+        }
+
+        [Test]
+        public async void DeleteRefreshTokens_WhenGivenClientIdRedirectUriSubject_ReturnsNumberOfDeletedRefreshTokens()
+        {
+            var insertResult = await this.TokenRepository.InsertRefreshToken(new RefreshToken() { Token = "123456789", ValidTo = DateTime.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
+
+            var deleteResult = await this.TokenRepository.DeleteRefreshTokens(insertResult.ClientId, insertResult.RedirectUri, insertResult.Subject);
             var refreshTokens = await this.TokenRepository.GetRefreshTokens(insertResult.ClientId, insertResult.RedirectUri, DateTime.UtcNow);
 
             Assert.Greater(deleteResult, 0);

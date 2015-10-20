@@ -6,6 +6,9 @@
 
     public class AuthorizationCode : IAuthorizationCode
     {
+        /// <summary>The identifier.</summary>
+        private object id;
+
         /// <summary>Initializes a new instance of the Sentinel.OAuth.Core.Models.OAuth.AuthorizationCode class.</summary>
         public AuthorizationCode()
         {
@@ -15,6 +18,7 @@
         /// <param name="authorizationCode">The authorization code.</param>
         public AuthorizationCode(IAuthorizationCode authorizationCode)
         {
+            this.id = authorizationCode.GetIdentifier();
             this.ClientId = authorizationCode.ClientId;
             this.RedirectUri = authorizationCode.RedirectUri;
             this.Subject = authorizationCode.Subject;
@@ -65,6 +69,13 @@
         /// </summary>
         /// <value>The expiration time.</value>
         public DateTime ValidTo { get; set; }
+
+        /// <summary>Gets the identifier.</summary>
+        /// <returns>The identifier.</returns>
+        public virtual object GetIdentifier()
+        {
+            return this.id;
+        }
 
         /// <summary>Check if this object is valid.</summary>
         /// <returns><c>true</c> if valid, <c>false</c> if not.</returns>

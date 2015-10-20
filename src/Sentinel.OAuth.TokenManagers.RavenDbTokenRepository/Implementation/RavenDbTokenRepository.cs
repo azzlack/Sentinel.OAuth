@@ -30,6 +30,17 @@
         /// <value>The configuration.</value>
         protected RavenDbTokenRepositoryConfiguration Configuration { get; }
 
+        /// <summary>Gets the specified authorization code.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns>The authorization code.</returns>
+        public async Task<IAuthorizationCode> GetAuthorizationCode(object identifier)
+        {
+            using (var session = this.OpenAsyncSession())
+            {
+                return await session.LoadAsync<RavenAuthorizationCode>(identifier.ToString());
+            }
+        }
+
         /// <summary>
         /// Gets all authorization codes that matches the specified redirect uri and expires after the
         /// specified date. Called when authenticating an authorization code.
@@ -109,14 +120,33 @@
         {
             var code = new RavenAuthorizationCode(authorizationCode);
 
+            return await this.DeleteAuthorizationCode(code.Id);
+        }
+
+        /// <summary>Deletes the specified authorization code.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteAuthorizationCode(object identifier)
+        {
             using (var session = this.OpenAsyncSession())
             {
-                var match = await session.LoadAsync<RavenAuthorizationCode>(code.Id);
+                var match = await session.LoadAsync<RavenAuthorizationCode>(identifier.ToString());
 
                 session.Delete(match);
                 await session.SaveChangesAsync();
 
                 return true;
+            }
+        }
+
+        /// <summary>Gets the specified access token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns>The access token.</returns>
+        public async Task<IAccessToken> GetAccessToken(object identifier)
+        {
+            using (var session = this.OpenAsyncSession())
+            {
+                return await session.LoadAsync<RavenAccessToken>(identifier.ToString());
             }
         }
 
@@ -243,14 +273,33 @@
         {
             var token = new RavenAccessToken(accessToken);
 
+            return await this.DeleteAccessToken(token.Id);
+        }
+
+        /// <summary>Deletes the specified access token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteAccessToken(object identifier)
+        {
             using (var session = this.OpenAsyncSession())
             {
-                var match = await session.LoadAsync<RavenAccessToken>(token.Id);
+                var match = await session.LoadAsync<RavenAccessToken>(identifier.ToString());
 
                 session.Delete(match);
                 await session.SaveChangesAsync();
 
                 return true;
+            }
+        }
+
+        /// <summary>Gets the specified refresh token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns>The refresh token.</returns>
+        public async Task<IRefreshToken> GetRefreshToken(object identifier)
+        {
+            using (var session = this.OpenAsyncSession())
+            {
+                return await session.LoadAsync<RavenRefreshToken>(identifier.ToString());
             }
         }
 
@@ -268,6 +317,20 @@
             using (var session = this.OpenAsyncSession())
             {
                 return await session.Query<RavenRefreshToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ClientId == clientId && x.RedirectUri == redirectUri && x.ValidTo > expires).ToListAsync();
+            }
+        }
+
+        /// <summary>
+        /// Gets all refresh tokens for the specified user that expires **after** the specified date. 
+        /// </summary>
+        /// <param name="subject">The subject.</param>
+        /// <param name="expires">The expire date.</param>
+        /// <returns>The refresh tokens.</returns>
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTime expires)
+        {
+            using (var session = this.OpenAsyncSession())
+            {
+                return await session.Query<RavenRefreshToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.Subject == subject && x.ValidTo > expires).ToListAsync();
             }
         }
 
@@ -321,6 +384,38 @@
             }
         }
 
+        /// <summary>Deletes the refresh tokens belonging to the specified client, redirect uri and subject.</summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="subject">The subject.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        public async Task<int> DeleteRefreshTokens(string clientId, string redirectUri, string subject)
+        {
+            using (var session = this.OpenAsyncSession())
+            {
+                var i = 0;
+                var matches =
+                    await
+                    session.Query<RavenRefreshToken>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.ClientId == clientId && x.RedirectUri == redirectUri && x.Subject == subject)
+                        .ToListAsync();
+
+                foreach (var match in matches)
+                {
+                    session.Delete(match);
+                    i++;
+                }
+
+                if (i > 0)
+                {
+                    await session.SaveChangesAsync();
+                }
+
+                return i;
+            }
+        }
+
         /// <summary>
         /// Deletes the specified refresh token. Called when authenticating a refresh token to prevent re-
         /// use.
@@ -331,9 +426,17 @@
         {
             var token = new RavenRefreshToken(refreshToken);
 
+            return await this.DeleteRefreshToken(token.Id);
+        }
+
+        /// <summary>Deletes the specified refresh token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteRefreshToken(object identifier)
+        {
             using (var session = this.OpenAsyncSession())
             {
-                var match = await session.LoadAsync<RavenRefreshToken>(token.Id);
+                var match = await session.LoadAsync<RavenRefreshToken>(identifier.ToString());
 
                 session.Delete(match);
                 await session.SaveChangesAsync();

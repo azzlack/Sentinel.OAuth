@@ -26,7 +26,39 @@
 
         /// <summary>Gets the configuration.</summary>
         /// <value>The configuration.</value>
-        protected SqlServerTokenRepositoryConfiguration Configuration { get; private set; }
+        protected SqlServerTokenRepositoryConfiguration Configuration { get; }
+
+        /// <summary>Gets the specified authorization code.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns>The authorization code.</returns>
+        public async Task<IAuthorizationCode> GetAuthorizationCode(object identifier)
+        {
+            using (var connection = this.OpenConnection())
+            {
+                var data =
+                    await
+                    connection.QueryAsync(
+                        "SELECT * FROM AuthorizationCodes WHERE Id = @Id",
+                        new { Id = (int)identifier });
+                var codes =
+                    data.Select(
+                        x =>
+                        new SqlAuthorizationCode()
+                        {
+                            ClientId = x.ClientId,
+                            Code = x.Code,
+                            Created = x.Created,
+                            Id = x.Id,
+                            RedirectUri = x.RedirectUri,
+                            Subject = x.Subject,
+                            Ticket = x.Ticket,
+                            ValidTo = x.ValidTo,
+                            Scope = x.Scope != null ? x.Scope.ToString().Split(' ') : new string[0]
+                        });
+
+                return codes.FirstOrDefault();
+            }
+        }
 
         /// <summary>
         /// Gets all authorization codes that matches the specified redirect uri and expires after the
@@ -149,15 +181,55 @@
         {
             var code = new SqlAuthorizationCode(authorizationCode);
 
+            return await this.DeleteAuthorizationCode(code.Id);
+        }
+
+        /// <summary>Deletes the specified authorization code.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteAuthorizationCode(object identifier)
+        {
             using (var connection = this.OpenConnection())
             {
                 var rows =
                     await
                     connection.ExecuteAsync(
                         "DELETE FROM AuthorizationCodes WHERE Id = @Id",
-                        new { Id = code.Id });
+                        new { Id = identifier });
 
                 return rows == 1;
+            }
+        }
+
+        /// <summary>Gets the specified access token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns>The access token.</returns>
+        public async Task<IAccessToken> GetAccessToken(object identifier)
+        {
+            using (var connection = this.OpenConnection())
+            {
+                var data =
+                    await
+                    connection.QueryAsync(
+                        "SELECT * FROM AccessTokens WHERE Id = @Id",
+                        new { Id = (int)identifier });
+                var tokens =
+                    data.Select(
+                        x =>
+                        new SqlAccessToken()
+                        {
+                            ClientId = x.ClientId,
+                            Created = x.Created,
+                            Id = x.Id,
+                            RedirectUri = x.RedirectUri,
+                            Subject = x.Subject,
+                            Token = x.Token,
+                            Ticket = x.Ticket,
+                            ValidTo = x.ValidTo,
+                            Scope = x.Scope != null ? x.Scope.ToString().Split(' ') : new string[0]
+                        });
+
+                return tokens.FirstOrDefault();
             }
         }
 
@@ -332,15 +404,54 @@
         {
             var token = new SqlAccessToken(accessToken);
 
+            return await this.DeleteAccessToken(token.Id);
+        }
+
+        /// <summary>Deletes the specified access token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteAccessToken(object identifier)
+        {
             using (var connection = this.OpenConnection())
             {
                 var rows =
                     await
                     connection.ExecuteAsync(
                         "DELETE FROM AccessTokens WHERE Id = @Id",
-                        new { Id = token.Id });
+                        new { Id = identifier });
 
                 return rows == 1;
+            }
+        }
+
+        /// <summary>Gets the specified refresh token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns>The refresh token.</returns>
+        public async Task<IRefreshToken> GetRefreshToken(object identifier)
+        {
+            using (var connection = this.OpenConnection())
+            {
+                var data =
+                    await
+                    connection.QueryAsync(
+                        "SELECT * FROM RefreshTokens WHERE Id = @Id",
+                        new { Id = (int)identifier });
+                var tokens =
+                    data.Select(
+                        x =>
+                        new SqlRefreshToken()
+                        {
+                            ClientId = x.ClientId,
+                            Created = x.Created,
+                            Id = x.Id,
+                            RedirectUri = x.RedirectUri,
+                            Subject = x.Subject,
+                            Token = x.Token,
+                            ValidTo = x.ValidTo,
+                            Scope = x.Scope != null ? x.Scope.ToString().Split(' ') : new string[0]
+                        });
+
+                return tokens.FirstOrDefault();
             }
         }
 
@@ -362,6 +473,41 @@
                     connection.QueryAsync(
                         "SELECT * FROM RefreshTokens WHERE ClientId = @ClientId AND RedirectUri = @RedirectUri AND ValidTo > @Expires",
                         new { ClientId = clientId, RedirectUri = redirectUri, Expires = expires });
+
+                var tokens =
+                    data.Select(
+                        x =>
+                        new SqlRefreshToken()
+                        {
+                            ClientId = x.ClientId,
+                            Created = x.Created,
+                            Id = x.Id,
+                            RedirectUri = x.RedirectUri,
+                            Subject = x.Subject,
+                            Token = x.Token,
+                            ValidTo = x.ValidTo,
+                            Scope = x.Scope != null ? x.Scope.ToString().Split(' ') : new string[0]
+                        });
+
+                return tokens;
+            }
+        }
+
+        /// <summary>
+        /// Gets all refresh tokens for the specified user that expires **after** the specified date. 
+        /// </summary>
+        /// <param name="subject">The subject.</param>
+        /// <param name="expires">The expire date.</param>
+        /// <returns>The refresh tokens.</returns>
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTime expires)
+        {
+            using (var connection = this.OpenConnection())
+            {
+                var data =
+                    await
+                    connection.QueryAsync(
+                        "SELECT * FROM RefreshTokens WHERE Subject = @Subject AND ValidTo > @Expires",
+                        new { Subject = subject, Expires = expires });
 
                 var tokens =
                     data.Select(
@@ -453,6 +599,25 @@
             }
         }
 
+        /// <summary>Deletes the refresh tokens belonging to the specified client, redirect uri and subject.</summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="subject">The subject.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        public async Task<int> DeleteRefreshTokens(string clientId, string redirectUri, string subject)
+        {
+            using (var connection = this.OpenConnection())
+            {
+                var rows =
+                    await
+                    connection.ExecuteAsync(
+                        "DELETE FROM RefreshTokens WHERE ClientId = @ClientId AND RedirectUri = @RedirectUri AND Subject = @Subject",
+                        new { ClientId = clientId, RedirectUri = redirectUri, Subject = subject });
+
+                return rows;
+            }
+        }
+
         /// <summary>
         /// Deletes the specified refresh token. Called when authenticating a refresh token to prevent re-
         /// use.
@@ -463,13 +628,21 @@
         {
             var token = new SqlRefreshToken(refreshToken);
 
+            return await this.DeleteRefreshToken(token.Id);
+        }
+
+        /// <summary>Deletes the specified refresh token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteRefreshToken(object identifier)
+        {
             using (var connection = this.OpenConnection())
             {
                 var rows =
                     await
                     connection.ExecuteAsync(
                         "DELETE FROM RefreshTokens WHERE Id = @Id",
-                        new { Id = token.Id });
+                        new { Id = identifier });
 
                 return rows == 1;
             }

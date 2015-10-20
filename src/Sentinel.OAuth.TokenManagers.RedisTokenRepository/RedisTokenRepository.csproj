@@ -58,6 +58,7 @@
     <Compile Include="Models\RedisRefreshToken.cs" />
     <Compile Include="Models\RedisAccessToken.cs" />
     <Compile Include="Models\RedisAuthorizationCode.cs" />
+    <Compile Include="Models\RedisTokenIdentifier.cs" />
     <Compile Include="Models\RedisTokenRepositoryConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

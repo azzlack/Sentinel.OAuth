@@ -6,6 +6,9 @@
 
     public class RefreshToken : IRefreshToken
     {
+        /// <summary>The identifier.</summary>
+        private object id;
+
         /// <summary>Initializes a new instance of the Sentinel.OAuth.Core.Models.OAuth.RefreshToken class.</summary>
         public RefreshToken()
         {
@@ -15,6 +18,7 @@
         /// <param name="refreshToken">The refresh token.</param>
         public RefreshToken(IRefreshToken refreshToken)
         {
+            this.id = refreshToken.GetIdentifier();
             this.ClientId = refreshToken.ClientId;
             this.RedirectUri = refreshToken.RedirectUri;
             this.Subject = refreshToken.Subject;
@@ -56,6 +60,13 @@
         /// </summary>
         /// <value>The expiration time.</value>
         public DateTime ValidTo { get; set; }
+
+        /// <summary>Gets the identifier.</summary>
+        /// <returns>The identifier.</returns>
+        public virtual object GetIdentifier()
+        {
+            return this.id;
+        }
 
         /// <summary>Check if this object is valid.</summary>
         /// <returns><c>true</c> if valid, <c>false</c> if not.</returns>

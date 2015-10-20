@@ -6,6 +6,9 @@
 
     public class AccessToken : IAccessToken
     {
+        /// <summary>The identifier.</summary>
+        private object id;
+
         /// <summary>Initializes a new instance of the Sentinel.OAuth.Core.Models.OAuth.AccessToken class.</summary>
         public AccessToken()
         {
@@ -15,6 +18,7 @@
         /// <param name="accessToken">The access token.</param>
         public AccessToken(IAccessToken accessToken)
         {
+            this.id = accessToken.GetIdentifier();
             this.ClientId = accessToken.ClientId;
             this.RedirectUri = accessToken.RedirectUri;
             this.Subject = accessToken.Subject;
@@ -63,6 +67,13 @@
         /// </summary>
         /// <value>The expiration time.</value>
         public DateTime ValidTo { get; set; }
+
+        /// <summary>Gets the identifier.</summary>
+        /// <returns>The identifier.</returns>
+        public virtual object GetIdentifier()
+        {
+            return this.id;
+        }
 
         /// <summary>Check if this object is valid.</summary>
         /// <returns><c>true</c> if valid, <c>false</c> if not.</returns>

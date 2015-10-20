@@ -11,6 +11,9 @@
 
     public class RedisAccessToken : AccessToken
     {
+        /// <summary>The identifier.</summary>
+        private RedisTokenIdentifier id;
+
         /// <summary>
         /// Initializes a new instance of the
         /// Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models.RedisAccessToken class.
@@ -24,7 +27,14 @@
         public RedisAccessToken(IAccessToken accessToken)
             : base(accessToken)
         {
-            this.Id = Convert.ToBase64String(Encoding.UTF8.GetBytes(accessToken.ClientId + accessToken.RedirectUri + accessToken.Subject + accessToken.ValidTo.Ticks));
+            this.id = new RedisTokenIdentifier()
+            {
+                Key = Convert.ToBase64String(Encoding.UTF8.GetBytes(accessToken.ClientId + accessToken.RedirectUri + accessToken.Subject + accessToken.ValidTo.Ticks)),
+                ClientId = this.ClientId,
+                RedirectUri = this.RedirectUri,
+                Subject = this.Subject
+            };
+
             this.Created = DateTime.UtcNow;
         }
 
@@ -61,6 +71,13 @@
         /// </summary>
         /// <value>The created date.</value>
         public DateTime Created { get; set; }
+
+        /// <summary>Gets the identifier.</summary>
+        /// <returns>The identifier.</returns>
+        public override object GetIdentifier()
+        {
+            return this.id;
+        }
 
         /// <summary>Check if this object is valid.</summary>
         /// <returns><c>true</c> if valid, <c>false</c> if not.</returns>

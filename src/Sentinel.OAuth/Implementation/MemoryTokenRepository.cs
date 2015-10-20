@@ -31,6 +31,18 @@
             this.accessTokens = new ConcurrentDictionary<Guid, AccessToken>();
         }
 
+        /// <summary>Gets the specified authorization code.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns>The authorization code.</returns>
+        public async Task<IAuthorizationCode> GetAuthorizationCode(object identifier)
+        {
+            var id = identifier.ToString().Split('_');
+
+            var entry = this.authorizationCodes.FirstOrDefault(x => x.Value.ClientId == id[0] && x.Value.RedirectUri == id[1] && x.Value.Subject == id[2] && x.Value.ValidTo.Ticks.ToString() == id[3]);
+
+            return entry.Value;
+        }
+
         /// <summary>
         /// Gets all authorization codes that matches the specified redirect uri and expires after the
         /// specified date.
@@ -48,7 +60,7 @@
         /// <returns>The inserted authorization code. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<IAuthorizationCode> InsertAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            var code = (AuthorizationCode)authorizationCode;
+            var code = new AuthorizationCode(authorizationCode);
 
             if (!code.IsValid())
             {
@@ -57,7 +69,7 @@
 
             if (this.authorizationCodes.TryAdd(Guid.NewGuid(), code))
             {
-                return authorizationCode;
+                return code;
             }
 
             return null;
@@ -103,6 +115,36 @@
             return false;
         }
 
+        /// <summary>Deletes the specified authorization code.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteAuthorizationCode(object identifier)
+        {
+            var id = (Guid)identifier;
+
+            var exists = this.authorizationCodes.Any(x => x.Key == id);
+
+            if (exists)
+            {
+                AuthorizationCode removedCode;
+                return this.authorizationCodes.TryRemove(id, out removedCode);
+            }
+
+            return false;
+        }
+
+        /// <summary>Gets the specified access token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns>The access token.</returns>
+        public async Task<IAccessToken> GetAccessToken(object identifier)
+        {
+            var id = identifier.ToString().Split('_');
+
+            var entry = this.accessTokens.FirstOrDefault(x => x.Value.ClientId == id[0] && x.Value.RedirectUri == id[1] && x.Value.Subject == id[2] && x.Value.ValidTo.Ticks.ToString() == id[3]);
+
+            return entry.Value;
+        }
+
         /// <summary>Gets all access tokens that expires after the specified date.</summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The access tokens.</returns>
@@ -128,7 +170,7 @@
         /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessful.</returns>
         public async Task<IAccessToken> InsertAccessToken(IAccessToken accessToken)
         {
-            var token = (AccessToken)accessToken;
+            var token = new AccessToken(accessToken);
 
             if (!token.IsValid())
             {
@@ -207,6 +249,40 @@
             return i == 1;
         }
 
+        /// <summary>Deletes the specified access token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteAccessToken(object identifier)
+        {
+            var id = (Guid)identifier;
+
+            var i = 0;
+            var tokens = this.accessTokens.Where(x => x.Key == id).ToList();
+
+            foreach (var token in tokens)
+            {
+                AccessToken removedToken;
+                if (this.accessTokens.TryRemove(token.Key, out removedToken))
+                {
+                    i++;
+                }
+            }
+
+            return i == 1;
+        }
+
+        /// <summary>Gets the specified refresh token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns>The refresh token.</returns>
+        public async Task<IRefreshToken> GetRefreshToken(object identifier)
+        {
+            var id = identifier.ToString().Split('_');
+
+            var entry = this.refreshTokens.FirstOrDefault(x => x.Value.ClientId == id[0] && x.Value.RedirectUri == id[1] && x.Value.Subject == id[2] && x.Value.ValidTo.Ticks.ToString() == id[3]);
+
+            return entry.Value;
+        }
+
         /// <summary>
         /// Gets all refresh tokens that matches the specified redirect uri and expires after the
         /// specified date.
@@ -218,6 +294,17 @@
         public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTime expires)
         {
             return this.refreshTokens.Select(x => x.Value).Where(x => x.ClientId == clientId && x.RedirectUri == redirectUri && x.ValidTo > expires);
+        }
+
+        /// <summary>
+        /// Gets all refresh tokens for the specified user that expires **after** the specified date. 
+        /// </summary>
+        /// <param name="subject">The subject.</param>
+        /// <param name="expires">The expire date.</param>
+        /// <returns>The refresh tokens.</returns>
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTime expires)
+        {
+            return this.refreshTokens.Select(x => x.Value).Where(x => x.Subject == subject && x.ValidTo > expires);
         }
 
         /// <summary>Inserts the specified refresh token.</summary>
@@ -264,6 +351,28 @@
             return i;
         }
 
+        /// <summary>Deletes the refresh tokens belonging to the specified client, redirect uri and subject.</summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <param name="redirectUri">The redirect uri.</param>
+        /// <param name="subject">The subject.</param>
+        /// <returns>The number of deleted tokens.</returns>
+        public async Task<int> DeleteRefreshTokens(string clientId, string redirectUri, string subject)
+        {
+            var i = 0;
+            var tokens = this.refreshTokens.Where(x => x.Value.ClientId == clientId && x.Value.RedirectUri == redirectUri && x.Value.Subject == subject).ToList();
+
+            foreach (var token in tokens)
+            {
+                RefreshToken removedToken;
+                if (this.refreshTokens.TryRemove(token.Key, out removedToken))
+                {
+                    i++;
+                }
+            }
+
+            return i;
+        }
+
         /// <summary>Deletes the specified refresh token.</summary>
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
@@ -274,6 +383,26 @@
             if (exists)
             {
                 var token = this.refreshTokens.First(x => x.Value.Equals(refreshToken));
+
+                RefreshToken removedToken;
+                return this.refreshTokens.TryRemove(token.Key, out removedToken);
+            }
+
+            return false;
+        }
+
+        /// <summary>Deletes the specified refresh token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteRefreshToken(object identifier)
+        {
+            var id = (Guid)identifier;
+
+            var exists = this.refreshTokens.Any(x => x.Key.Equals(id));
+
+            if (exists)
+            {
+                var token = this.refreshTokens.First(x => x.Key.Equals(id));
 
                 RefreshToken removedToken;
                 return this.refreshTokens.TryRemove(token.Key, out removedToken);

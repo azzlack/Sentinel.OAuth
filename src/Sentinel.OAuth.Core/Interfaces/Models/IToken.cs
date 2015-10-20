@@ -27,5 +27,13 @@
         /// </summary>
         /// <value>The expiration time.</value>
         DateTime ValidTo { get; set; }
+
+        /// <summary>Gets the identifier.</summary>
+        /// <returns>The identifier.</returns>
+        object GetIdentifier();
+
+        /// <summary>Check if this object is valid.</summary>
+        /// <returns><c>true</c> if valid, <c>false</c> if not.</returns>
+        bool IsValid();
     }
 }
