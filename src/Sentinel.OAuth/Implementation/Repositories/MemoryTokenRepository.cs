@@ -34,13 +34,8 @@
         /// <summary>Gets the specified authorization code.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The authorization code.</returns>
-        public async Task<IAuthorizationCode> GetAuthorizationCode(object identifier)
+        public async Task<IAuthorizationCode> GetAuthorizationCode(string identifier)
         {
-            if (!(identifier is string))
-            {
-                throw new ArgumentException("identifier must be a string type", nameof(identifier));
-            }
-
             var entry = this.authorizationCodes.FirstOrDefault(x => x.Key == identifier.ToString());
 
             return entry.Value;
@@ -101,39 +96,32 @@
         }
 
         /// <summary>Deletes the specified authorization code.</summary>
-        /// <param name="authorizationCode">The authorization code.</param>
+        /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
+        public async Task<bool> DeleteAuthorizationCode(string identifier)
         {
-            var exists = this.authorizationCodes.Any(x => x.Value.Equals(authorizationCode));
+            var exists = this.authorizationCodes.Any(x => x.Key == identifier);
 
             if (exists)
             {
-                var code = this.authorizationCodes.First(x => x.Value.Equals(authorizationCode));
-
                 AuthorizationCode removedCode;
-                return this.authorizationCodes.TryRemove(code.Key, out removedCode);
+                return this.authorizationCodes.TryRemove(identifier, out removedCode);
             }
 
             return false;
         }
 
         /// <summary>Deletes the specified authorization code.</summary>
-        /// <param name="identifier">The identifier.</param>
+        /// <param name="authorizationCode">The authorization code.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAuthorizationCode(object identifier)
+        public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            if (!(identifier is string))
-            {
-                throw new ArgumentException("identifier must be a string type", nameof(identifier));
-            }
-
-            var exists = this.authorizationCodes.Any(x => x.Key == identifier.ToString());
+            var exists = this.authorizationCodes.Any(x => x.Key == authorizationCode.GetIdentifier());
 
             if (exists)
             {
                 AuthorizationCode removedCode;
-                return this.authorizationCodes.TryRemove(identifier.ToString(), out removedCode);
+                return this.authorizationCodes.TryRemove(authorizationCode.GetIdentifier(), out removedCode);
             }
 
             return false;
@@ -142,13 +130,8 @@
         /// <summary>Gets the specified access token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The access token.</returns>
-        public async Task<IAccessToken> GetAccessToken(object identifier)
+        public async Task<IAccessToken> GetAccessToken(string identifier)
         {
-            if (!(identifier is string))
-            {
-                throw new ArgumentException("identifier must be a string type", nameof(identifier));
-            }
-
             var entry = this.accessTokens.FirstOrDefault(x => x.Key == identifier.ToString());
 
             return entry.Value;
@@ -239,35 +222,10 @@
         }
 
         /// <summary>Deletes the specified access token.</summary>
-        /// <param name="accessToken">The access token.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
-        {
-            var i = 0;
-            var tokens = this.accessTokens.Where(x => x.Value.ClientId == accessToken.ClientId && x.Value.RedirectUri == accessToken.RedirectUri && x.Value.Subject == accessToken.Subject).ToList();
-
-            foreach (var token in tokens)
-            {
-                AccessToken removedToken;
-                if (this.accessTokens.TryRemove(token.Key, out removedToken))
-                {
-                    i++;
-                }
-            }
-
-            return i == 1;
-        }
-
-        /// <summary>Deletes the specified access token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAccessToken(object identifier)
+        public async Task<bool> DeleteAccessToken(string identifier)
         {
-            if (!(identifier is string))
-            {
-                throw new ArgumentException("identifier must be a string type", nameof(identifier));
-            }
-
             var i = 0;
             var tokens = this.accessTokens.Where(x => x.Key == identifier.ToString()).ToList();
 
@@ -283,16 +241,29 @@
             return i == 1;
         }
 
+        /// <summary>Deletes the specified access token.</summary>
+        /// <param name="accessToken">The access token.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
+        {
+            var exists = this.accessTokens.Any(x => x.Value.Equals(accessToken));
+
+            if (exists)
+            {
+                var token = this.accessTokens.First(x => x.Value.Equals(accessToken));
+
+                AccessToken removedToken;
+                return this.accessTokens.TryRemove(token.Key, out removedToken);
+            }
+
+            return false;
+        }
+
         /// <summary>Gets the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The refresh token.</returns>
-        public async Task<IRefreshToken> GetRefreshToken(object identifier)
+        public async Task<IRefreshToken> GetRefreshToken(string identifier)
         {
-            if (!(identifier is string))
-            {
-                throw new ArgumentException("identifier must be a string type", nameof(identifier));
-            }
-
             var entry = this.refreshTokens.FirstOrDefault(x => x.Key == identifier.ToString());
 
             return entry.Value;
@@ -409,13 +380,8 @@
         /// <summary>Deletes the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteRefreshToken(object identifier)
+        public async Task<bool> DeleteRefreshToken(string identifier)
         {
-            if (!(identifier is string))
-            {
-                throw new ArgumentException("identifier must be a string type", nameof(identifier));
-            }
-
             var exists = this.refreshTokens.Any(x => x.Key == identifier.ToString());
 
             if (exists)

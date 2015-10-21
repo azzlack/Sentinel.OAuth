@@ -34,18 +34,11 @@
         /// <summary>Gets the specified authorization code.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The authorization code.</returns>
-        public async Task<IAuthorizationCode> GetAuthorizationCode(object identifier)
+        public async Task<IAuthorizationCode> GetAuthorizationCode(string identifier)
         {
-            var id = identifier as RedisTokenIdentifier;
-
-            if (id == null)
-            {
-                throw new ArgumentException("identifier must be a RedisTokenIdentifier type", nameof(identifier));
-            }
-
             var db = this.GetDatabase();
 
-            var hashEntries = await db.HashGetAllAsync($"{this.Configuration.AuthorizationCodePrefix}:{id.Id}");
+            var hashEntries = await db.HashGetAllAsync($"{this.Configuration.AuthorizationCodePrefix}:{identifier}");
 
             if (hashEntries.Any())
             {
@@ -71,9 +64,12 @@
             var min = expires.ToUnixTime();
             var codes = new List<IAuthorizationCode>();
 
-            var keys = db.SortedSetRangeByScore($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", min, DateTimeMax);
+            var nonExpiredKeys = db.SortedSetRangeByScore($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", min, DateTimeMax);
+            var redirectUriKeys = db.HashGetAll($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{redirectUri}");
 
-            foreach (var key in keys)
+            var unionKeys = nonExpiredKeys.Join(redirectUriKeys, x => x, y => y.Name, (x, y) => x);
+
+            foreach (var key in unionKeys)
             {
                 var hashedId = key.ToString().Substring(this.Configuration.AuthorizationCodePrefix.Length + 1);
                 var id = Encoding.UTF8.GetString(Convert.FromBase64String(hashedId));
@@ -181,50 +177,36 @@
             return 0;
         }
 
-        /// <summary>
-        /// Deletes the specified authorization code. Called when authenticating an authorization code to
-        /// prevent re-use.
-        /// </summary>
-        /// <param name="authorizationCode">The authorization code.</param>
+        /// <summary>Deletes the specified authorization code.</summary>
+        /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
+        public async Task<bool> DeleteAuthorizationCode(string identifier)
         {
-            var code = new RedisAuthorizationCode(authorizationCode);
-
-            var key = this.GenerateKeyPath(code);
-
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
 
-            // Remove items from index
-            tran.SortedSetRemoveAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", key);
+            // Remove items from indexes
+            tran.SortedSetRemoveAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", $"{this.Configuration.AuthorizationCodePrefix}:{identifier}");
 
             // Remove key
-            tran.KeyDeleteAsync(key);
+            tran.KeyDeleteAsync($"{this.Configuration.AuthorizationCodePrefix}:{identifier}");
 
             return await tran.ExecuteAsync(CommandFlags.HighPriority);
         }
 
         /// <summary>Deletes the specified authorization code.</summary>
-        /// <param name="identifier">The identifier.</param>
+        /// <param name="authorizationCode">The authorization code.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAuthorizationCode(object identifier)
+        public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            var id = identifier as RedisTokenIdentifier;
-
-            if (id == null)
-            {
-                throw new ArgumentException("identifier must be a RedisTokenIdentifier type", nameof(identifier));
-            }
-
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
 
-            // Remove items from index
-            tran.SortedSetRemoveAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", $"{this.Configuration.AuthorizationCodePrefix}:{id.Id}");
+            // Remove items from indexes
+            tran.SortedSetRemoveAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", $"{this.Configuration.AuthorizationCodePrefix}:{authorizationCode.GetIdentifier()}");
 
             // Remove key
-            tran.KeyDeleteAsync($"{this.Configuration.AuthorizationCodePrefix}:{id.Id}");
+            tran.KeyDeleteAsync($"{this.Configuration.AuthorizationCodePrefix}:{authorizationCode.GetIdentifier()}");
 
             return await tran.ExecuteAsync(CommandFlags.HighPriority);
         }
@@ -232,18 +214,11 @@
         /// <summary>Gets the specified access token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The access token.</returns>
-        public async Task<IAccessToken> GetAccessToken(object identifier)
+        public async Task<IAccessToken> GetAccessToken(string identifier)
         {
-            var id = identifier as RedisTokenIdentifier;
-
-            if (id == null)
-            {
-                throw new ArgumentException("identifier must be a RedisTokenIdentifier type", nameof(identifier));
-            }
-
             var db = this.GetDatabase();
 
-            var hashEntries = await db.HashGetAllAsync($"{this.Configuration.AccessTokenPrefix}:{id.Id}");
+            var hashEntries = await db.HashGetAllAsync($"{this.Configuration.AccessTokenPrefix}:{identifier}");
 
             if (hashEntries.Any())
             {
@@ -272,8 +247,6 @@
 
             foreach (var key in nonExpiredKeys)
             {
-                var hashedId = key.ToString().Substring(this.Configuration.AccessTokenPrefix.Length + 1);
-
                 var hashEntries = await db.HashGetAllAsync(key.ToString());
 
                 if (hashEntries.Any())
@@ -466,52 +439,33 @@
         }
 
         /// <summary>Deletes the specified access token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteAccessToken(string identifier)
+        {
+            var db = this.GetDatabase();
+
+            var entry = await this.GetAccessToken(identifier);
+
+            return await this.DeleteAccessToken(entry);
+        }
+
+        /// <summary>Deletes the specified access token.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
         {
-            var token = new RedisAccessToken(accessToken);
-
-            var key = this.GenerateKeyPath(token);
-
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
 
             // Remove items from indexes
-            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:client:{token.ClientId}", key);
-            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{token.RedirectUri}", key);
-            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{token.Subject}", key);
-            tran.SortedSetRemoveAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", key);
+            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:client:{accessToken.ClientId}", accessToken.GetIdentifier());
+            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{accessToken.RedirectUri}", accessToken.GetIdentifier());
+            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{accessToken.Subject}", accessToken.GetIdentifier());
+            tran.SortedSetRemoveAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", accessToken.GetIdentifier());
 
             // Remove key
-            tran.KeyDeleteAsync(key, CommandFlags.HighPriority);
-
-            return await tran.ExecuteAsync(CommandFlags.HighPriority);
-        }
-
-        /// <summary>Deletes the specified access token.</summary>
-        /// <param name="identifier">The identifier.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAccessToken(object identifier)
-        {
-            var id = identifier as RedisTokenIdentifier;
-
-            if (id == null)
-            {
-                throw new ArgumentException("identifier must be a RedisTokenIdentifier type", nameof(identifier));
-            }
-
-            var db = this.GetDatabase();
-            var tran = db.CreateTransaction();
-
-            // Remove items from indexes
-            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:client:{id.ClientId}", id.Id);
-            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{id.RedirectUri}", id.Id);
-            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{id.Subject}", id.Id);
-            tran.SortedSetRemoveAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", id.Id);
-
-            // Remove key
-            tran.KeyDeleteAsync(identifier.ToString());
+            tran.KeyDeleteAsync(accessToken.GetIdentifier());
 
             return await tran.ExecuteAsync(CommandFlags.HighPriority);
         }
@@ -519,18 +473,11 @@
         /// <summary>Gets the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The refresh token.</returns>
-        public async Task<IRefreshToken> GetRefreshToken(object identifier)
+        public async Task<IRefreshToken> GetRefreshToken(string identifier)
         {
-            var id = identifier as RedisTokenIdentifier;
-
-            if (id == null)
-            {
-                throw new ArgumentException("identifier must be a RedisTokenIdentifier type", nameof(identifier));
-            }
-
             var db = this.GetDatabase();
 
-            var hashEntries = await db.HashGetAllAsync($"{this.Configuration.RefreshTokenPrefix}:{id.Id}");
+            var hashEntries = await db.HashGetAllAsync($"{this.Configuration.RefreshTokenPrefix}:{identifier}");
 
             if (hashEntries.Any())
             {
@@ -740,6 +687,18 @@
             return 0;
         }
 
+        /// <summary>Deletes the specified refresh token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteRefreshToken(string identifier)
+        {
+            var db = this.GetDatabase();
+
+            var entry = await this.GetRefreshToken(identifier);
+
+            return await this.DeleteRefreshToken(entry);
+        }
+
         /// <summary>
         /// Deletes the specified refresh token. Called when authenticating a refresh token to prevent re-
         /// use.
@@ -767,28 +726,6 @@
             return await tran.ExecuteAsync(CommandFlags.HighPriority);
         }
 
-        /// <summary>Deletes the specified refresh token.</summary>
-        /// <param name="identifier">The identifier.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteRefreshToken(object identifier)
-        {
-            var id = identifier as RedisTokenIdentifier;
-
-            var db = this.GetDatabase();
-            var tran = db.CreateTransaction();
-
-            // Remove items from indexes
-            tran.SortedSetRemoveAsync($"{this.Configuration.RefreshTokenPrefix}:_index:expires", id.Id);
-            tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:client:{id.ClientId}", id.Id);
-            tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:redirecturi:{id.RedirectUri}", id.Id);
-            tran.HashDeleteAsync($"{this.Configuration.RefreshTokenPrefix}:_index:subject:{id.Subject}", id.Id);
-
-            // Remove keys
-            tran.KeyDeleteAsync(id.Id);
-
-            return await tran.ExecuteAsync(CommandFlags.HighPriority);
-        }
-
         /// <summary>Deletes all access tokens, refresh tokens and authorization codes.</summary>
         /// <remarks>Requires <c>allowAdmin=true</c> in Redis connection string.</remarks>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
@@ -806,7 +743,7 @@
         /// <returns>The key.</returns>
         protected string GenerateKeyPath(RedisAccessToken accessToken)
         {
-            return this.Configuration.AccessTokenPrefix + ":" + ((RedisTokenIdentifier)accessToken.GetIdentifier()).Id;
+            return this.Configuration.AccessTokenPrefix + ":" + accessToken.GetIdentifier();
         }
 
         /// <summary>Generates a key.</summary>
@@ -814,7 +751,7 @@
         /// <returns>The key.</returns>
         protected string GenerateKeyPath(RedisRefreshToken refreshToken)
         {
-            return this.Configuration.RefreshTokenPrefix + ":" + ((RedisTokenIdentifier)refreshToken.GetIdentifier()).Id;
+            return this.Configuration.RefreshTokenPrefix + ":" + refreshToken.GetIdentifier();
         }
 
         /// <summary>Generates a key.</summary>
@@ -822,7 +759,7 @@
         /// <returns>The key.</returns>
         protected string GenerateKeyPath(RedisAuthorizationCode authorizationCode)
         {
-            return this.Configuration.AuthorizationCodePrefix + ":" + ((RedisTokenIdentifier)authorizationCode.GetIdentifier()).Id;
+            return this.Configuration.AuthorizationCodePrefix + ":" + authorizationCode.GetIdentifier();
         }
 
         /// <summary>Gets a reference to the database.</summary>

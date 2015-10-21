@@ -1,9 +1,8 @@
 ﻿namespace Sentinel.OAuth.Core.Interfaces.Managers
 {
+    using Sentinel.OAuth.Core.Interfaces.Identity;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-
-    using Sentinel.OAuth.Core.Interfaces.Identity;
 
     public interface IClientManager
     {

@@ -3,6 +3,7 @@
     using Common.Logging;
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Core.Interfaces.Providers;
+    using Sentinel.OAuth.Core.Interfaces.Repositories;
     using System;
 
     /// <summary>The Sentinel authorization server options used for controlling the authoriztion system behavior.</summary>
@@ -74,6 +75,14 @@
         /// <summary>Gets or sets the token provider.</summary>
         /// <value>The token provider.</value>
         public ITokenProvider TokenProvider { get; set; }
+
+        /// <summary>Gets or sets the token repository.</summary>
+        /// <value>The token repository.</value>
+        public ITokenRepository TokenRepository { get; set; }
+
+        /// <summary>Gets or sets the client repository.</summary>
+        /// <value>The client repository.</value>
+        public IClientRepository ClientRepository { get; set; }
 
         /// <summary>Gets or sets the principal provider.</summary>
         /// <value>The principal provider.</value>

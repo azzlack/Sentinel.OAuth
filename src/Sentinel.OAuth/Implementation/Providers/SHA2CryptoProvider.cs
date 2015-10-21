@@ -1,14 +1,12 @@
 ﻿namespace Sentinel.OAuth.Implementation.Providers
 {
+    using Common.Logging;
+    using Sentinel.OAuth.Core.Interfaces.Providers;
     using System;
     using System.IO;
     using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
-
-    using Common.Logging;
-
-    using Sentinel.OAuth.Core.Interfaces.Providers;
 
     /// <summary>A <c>SHA-2</c> crypto provider for creating and validating hashes.</summary>
     public class SHA2CryptoProvider : ICryptoProvider
@@ -67,6 +65,16 @@
             this.log.Debug("Successfully created hash");
 
             return result;
+        }
+
+        /// <summary>Creates a random hash.</summary>
+        /// <param name="length">The random text length in bits. A value of minimum 256 is recommended.</param>
+        /// <returns>The hash.</returns>
+        public string CreateHash(int length)
+        {
+            var text = this.GenerateText(length);
+
+            return this.CreateHash(text);
         }
 
         /// <summary>

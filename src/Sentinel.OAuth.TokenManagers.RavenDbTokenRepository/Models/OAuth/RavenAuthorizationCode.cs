@@ -37,13 +37,6 @@
         /// <value>The created date.</value>
         public DateTimeOffset Created { get; set; }
 
-        /// <summary>Gets the identifier.</summary>
-        /// <returns>The identifier.</returns>
-        public override object GetIdentifier()
-        {
-            return this.Id;
-        }
-
         /// <summary>Generates an identifier.</summary>
         /// <param name="clientId">Identifier for the client.</param>
         /// <param name="redirectUri">The redirect uri.</param>

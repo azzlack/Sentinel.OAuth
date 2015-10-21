@@ -3,7 +3,6 @@
     using Sentinel.OAuth.Core.Interfaces.Models;
     using System;
     using System.Collections.Generic;
-    using System.Text;
 
     public class AuthorizationCode : IAuthorizationCode
     {
@@ -69,9 +68,9 @@
 
         /// <summary>Gets the identifier.</summary>
         /// <returns>The identifier.</returns>
-        public virtual object GetIdentifier()
+        public string GetIdentifier()
         {
-            return Convert.ToBase64String(Encoding.UTF8.GetBytes(this.ClientId + this.RedirectUri + this.Subject + this.ValidTo.Ticks));
+            return this.Code;
         }
 
         /// <summary>Check if this object is valid.</summary>
@@ -95,7 +94,7 @@
         /// <returns>true if the objects are considered equal, false if they are not.</returns>
         public virtual bool Equals(IAuthorizationCode other)
         {
-            if (this.ClientId == other.ClientId && this.RedirectUri == other.RedirectUri && this.Subject == other.Subject && this.ValidTo == other.ValidTo)
+            if (this.GetIdentifier() == other.GetIdentifier())
             {
                 return true;
             }

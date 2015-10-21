@@ -1,28 +1,36 @@
 ﻿namespace Sentinel.OAuth.Core.Managers
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Providers;
+    using Sentinel.OAuth.Core.Interfaces.Repositories;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     /// <summary>A base client manager.</summary>
     public abstract class BaseClientManager : IClientManager
     {
-        /// <summary>
-        /// Initializes a new instance of the Sentinel.OAuth.Core.Models.Managers.BaseClientManager
-        /// class.
-        /// </summary>
+        /// <summary>Initializes a new instance of the Sentinel.OAuth.Core.Models.Managers.BaseClientManager class.</summary>
         /// <param name="cryptoProvider">The crypto provider.</param>
-        protected BaseClientManager(ICryptoProvider cryptoProvider)
+        /// <param name="clientRepository">The client repository.</param>
+        protected BaseClientManager(ICryptoProvider cryptoProvider, IClientRepository clientRepository)
         {
             this.CryptoProvider = cryptoProvider;
+            this.ClientRepository = clientRepository;
         }
+
+        /// <summary>Gets the client repository.</summary>
+        /// <value>The client repository.</value>
+        public IClientRepository ClientRepository { get; private set; }
 
         /// <summary>Gets the crypto provider.</summary>
         /// <value>The crypto provider.</value>
         protected ICryptoProvider CryptoProvider { get; private set; }
+
+        /// <summary>Gets the clients.</summary>
+        /// <returns>The clients.</returns>
+        public abstract Task<IEnumerable<IClient>> GetClients();
 
         /// <summary>
         /// Authenticates the client. Used when authenticating with the authorization_code grant type.

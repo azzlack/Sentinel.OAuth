@@ -129,7 +129,7 @@
         {
             var insertResult = await this.TokenRepository.InsertAuthorizationCode(new AuthorizationCode { Code = "123456789", Ticket = "abcdef", ValidTo = DateTimeOffset.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "Username" });
 
-            var deleteResult = await this.TokenRepository.DeleteAuthorizationCode(insertResult);
+            var deleteResult = await this.TokenRepository.DeleteAuthorizationCode(insertResult.GetIdentifier());
             var authorizationCodes = await this.TokenRepository.GetAuthorizationCodes("http://localhost", DateTimeOffset.UtcNow.AddMinutes(1));
 
             Assert.IsTrue(deleteResult);
@@ -365,7 +365,7 @@
         {
             var insertResult = await this.TokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTimeOffset.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
 
-            var deleteResult = await this.TokenRepository.DeleteRefreshToken(insertResult);
+            var deleteResult = await this.TokenRepository.DeleteRefreshToken(insertResult.GetIdentifier());
             var refreshTokens = await this.TokenRepository.GetRefreshTokens("NUnit2", "http://localhost", DateTimeOffset.UtcNow.AddMinutes(1));
 
             Assert.IsTrue(deleteResult);

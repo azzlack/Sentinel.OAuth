@@ -50,24 +50,31 @@
         {
             this.logger.DebugFormat("Authenticating authorization code '{0}' for redirect uri '{1}'", authorizationCode, redirectUri);
 
-            var entity = await this.TokenProvider.ValidateAuthorizationCode(redirectUri, authorizationCode);
+            var principal = await this.TokenProvider.ValidateAuthorizationCode(authorizationCode);
 
-            if (entity != null)
+            if (principal != null)
             {
-                this.logger.DebugFormat("Authorization code is valid");
+                var entity = await this.TokenRepository.GetAuthorizationCode(authorizationCode);
 
-                // Delete used authorization code
-                var deleteResult = await this.TokenRepository.DeleteAuthorizationCode(entity);
-
-                if (!deleteResult)
+                if (entity != null && entity.RedirectUri == redirectUri)
                 {
-                    this.logger.Error($"Unable to delete used authorization code: {JsonConvert.SerializeObject(entity)}");
+                    this.logger.DebugFormat("Authorization code is valid");
+
+                    // Delete used authorization code
+                    var deleteResult = await this.TokenRepository.DeleteAuthorizationCode(entity);
+
+                    if (!deleteResult)
+                    {
+                        this.logger.Error($"Unable to delete used authorization code: {JsonConvert.SerializeObject(entity)}");
+                    }
+
+                    var storedPrincipal = this.PrincipalProvider.Decrypt(entity.Ticket, authorizationCode);
+
+                    // Set correct authentication method and return new principal
+                    return this.PrincipalProvider.Create(
+                        AuthenticationType.OAuth,
+                        storedPrincipal.Identity.Claims.ToArray());
                 }
-
-                var storedPrincipal = this.PrincipalProvider.Decrypt(entity.Ticket, authorizationCode);
-
-                // Set correct authentication method and return new principal
-                return this.PrincipalProvider.Create(AuthenticationType.OAuth, storedPrincipal.Identity.Claims.ToArray());
             }
 
             this.logger.Warn("Authorization code is not valid");
@@ -82,15 +89,20 @@
         {
             this.logger.DebugFormat("Authenticating access token");
 
-            var entity = await this.TokenProvider.ValidateAccessToken(accessToken);
+            var valid = await this.TokenProvider.ValidateAccessToken(accessToken);
 
-            if (entity != null)
+            if (valid)
             {
-                this.logger.DebugFormat("Access token is valid. It belongs to the user '{0}', client '{1}' and redirect uri '{2}'", entity.Subject, entity.ClientId, entity.RedirectUri);
+                var entity = await this.TokenRepository.GetAccessToken(accessToken);
 
-                var storedPrincipal = this.PrincipalProvider.Decrypt(entity.Ticket, accessToken);
+                if (entity != null)
+                {
+                    this.logger.DebugFormat("Access token is valid. It belongs to the user '{0}', client '{1}' and redirect uri '{2}'", entity.Subject, entity.ClientId, entity.RedirectUri);
 
-                return this.PrincipalProvider.Create(AuthenticationType.OAuth, storedPrincipal.Identity.Claims.ToArray());
+                    var storedPrincipal = this.PrincipalProvider.Decrypt(entity.Ticket, accessToken);
+
+                    return this.PrincipalProvider.Create(AuthenticationType.OAuth, storedPrincipal.Identity.Claims.ToArray());
+                }
             }
 
             this.logger.WarnFormat("Access token '{0}' is not valid", accessToken);
@@ -107,28 +119,33 @@
         {
             this.logger.DebugFormat("Authenticating refresh token for client '{0}' and redirect uri '{1}'", clientId, redirectUri);
 
-            var entity = await this.TokenProvider.ValidateRefreshToken(clientId, redirectUri, refreshToken);
+            var valid = await this.TokenProvider.ValidateRefreshToken(refreshToken);
 
-            if (entity != null)
+            if (valid)
             {
-                this.logger.DebugFormat("Refresh token is valid. It belongs to the user '{0}', client '{1}' and redirect uri '{2}'", entity.Subject, entity.ClientId, entity.RedirectUri);
+                var entity = await this.TokenRepository.GetAuthorizationCode(refreshToken);
 
-                // Delete refresh token to prevent it being used again
-                var deleteResult = await this.TokenRepository.DeleteRefreshToken(entity);
-
-                if (!deleteResult)
+                if (entity != null && entity.ClientId == clientId && entity.RedirectUri == redirectUri)
                 {
-                    this.logger.Error($"Unable to delete used refresh token: {JsonConvert.SerializeObject(entity)}");
+                    this.logger.DebugFormat("Refresh token is valid. It belongs to the user '{0}', client '{1}' and redirect uri '{2}'", entity.Subject, entity.ClientId, entity.RedirectUri);
+
+                    // Delete refresh token to prevent it being used again
+                    var deleteResult = await this.TokenRepository.DeleteRefreshToken(refreshToken);
+
+                    if (!deleteResult)
+                    {
+                        this.logger.Error($"Unable to delete used refresh token: {JsonConvert.SerializeObject(entity)}");
+                    }
+
+                    // Re-authenticate user to get new claims
+                    var user = await this.userManager.AuthenticateUserAsync(entity.Subject);
+
+                    // Make sure the user has the correct client claim
+                    user.Identity.RemoveClaim(x => x.Type == ClaimType.Client);
+                    user.Identity.AddClaim(ClaimType.Client, entity.ClientId);
+
+                    return this.PrincipalProvider.Create(AuthenticationType.OAuth, user.Identity.Claims.ToArray());
                 }
-
-                // Re-authenticate user to get new claims
-                var user = await this.userManager.AuthenticateUserAsync(entity.Subject);
-
-                // Make sure the user has the correct client claim
-                user.Identity.RemoveClaim(x => x.Type == ClaimType.Client);
-                user.Identity.AddClaim(ClaimType.Client, entity.ClientId);
-
-                return this.PrincipalProvider.Create(AuthenticationType.OAuth, user.Identity.Claims.ToArray());
             }
 
             this.logger.WarnFormat("Refresh token '{0}' is not valid", refreshToken);

@@ -19,10 +19,9 @@
         Task<TokenCreationResult<IAuthorizationCode>> CreateAuthorizationCode(string clientId, string redirectUri, ISentinelPrincipal userPrincipal, IEnumerable<string> scope, DateTimeOffset expireTime);
 
         /// <summary>Validates an authorization code.</summary>
-        /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="code">The code.</param>
-        /// <returns>The access token if valid, <c>null</c> otherwise.</returns>
-        Task<IAuthorizationCode> ValidateAuthorizationCode(string redirectUri, string code);
+        /// <returns>The token principal if valid, <c>null</c> otherwise.</returns>
+        Task<bool> ValidateAuthorizationCode(string code);
 
         /// <summary>Creates an access token.</summary>
         /// <param name="clientId">Identifier for the client.</param>
@@ -35,8 +34,8 @@
 
         /// <summary>Validates an access token.</summary>
         /// <param name="token">The token.</param>
-        /// <returns>The access token if valid, <c>null</c> otherwise.</returns>
-        Task<IAccessToken> ValidateAccessToken(string token);
+        /// <returns>The token principal if valid, <c>null</c> otherwise.</returns>
+        Task<bool> ValidateAccessToken(string token);
 
         /// <summary>Creates an access token.</summary>
         /// <param name="clientId">Identifier for the client.</param>
@@ -48,10 +47,8 @@
         Task<TokenCreationResult<IRefreshToken>> CreateRefreshToken(string clientId, string redirectUri, ISentinelPrincipal userPrincipal, IEnumerable<string> scope, DateTimeOffset expireTime);
 
         /// <summary>Validates an access token.</summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="token">The token.</param>
-        /// <returns>The access token if valid, <c>null</c> otherwise.</returns>
-        Task<IRefreshToken> ValidateRefreshToken(string clientId, string redirectUri, string token);
+        /// <returns>The token principal if valid, <c>null</c> otherwise.</returns>
+        Task<bool> ValidateRefreshToken(string token);
     }
 }

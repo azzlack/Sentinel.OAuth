@@ -11,7 +11,7 @@
         /// <summary>Gets the specified authorization code.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The authorization code.</returns>
-        Task<IAuthorizationCode> GetAuthorizationCode(object identifier);
+        Task<IAuthorizationCode> GetAuthorizationCode(string identifier);
 
         /// <summary>
         /// Gets all authorization codes that matches the specified redirect uri and expires after the specified date.
@@ -38,23 +38,20 @@
         /// <returns>The number of deleted codes.</returns>
         Task<int> DeleteAuthorizationCodes(DateTimeOffset expires);
 
-        /// <summary>
-        /// Deletes the specified authorization code.
-        /// Called when authenticating an authorization code to prevent re-use.
-        /// </summary>
+        /// <summary>Deletes the specified authorization code.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        Task<bool> DeleteAuthorizationCode(string identifier);
+
+        /// <summary>Deletes the specified authorization code.</summary>
         /// <param name="authorizationCode">The authorization code.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode);
 
-        /// <summary>Deletes the specified authorization code.</summary>
-        /// <param name="identifier">The identifier.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        Task<bool> DeleteAuthorizationCode(object identifier);
-
         /// <summary>Gets the specified access token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The access token.</returns>
-        Task<IAccessToken> GetAccessToken(object identifier);
+        Task<IAccessToken> GetAccessToken(string identifier);
 
         /// <summary>
         /// Gets all access tokens that expires **after** the specified date.
@@ -95,22 +92,20 @@
         /// <returns>The number of deleted tokens.</returns>
         Task<int> DeleteAccessTokens(string clientId, string redirectUri, string subject);
 
-        /// <summary>
-        /// Deletes the specified access token.
-        /// </summary>
+        /// <summary>Deletes the specified access token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        Task<bool> DeleteAccessToken(string identifier);
+
+        /// <summary>Deletes the specified access token.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         Task<bool> DeleteAccessToken(IAccessToken accessToken);
 
-        /// <summary>Deletes the specified access token.</summary>
-        /// <param name="identifier">The identifier.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        Task<bool> DeleteAccessToken(object identifier);
-
         /// <summary>Gets the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The refresh token.</returns>
-        Task<IRefreshToken> GetRefreshToken(object identifier);
+        Task<IRefreshToken> GetRefreshToken(string identifier);
 
         /// <summary>
         /// Gets all refresh tokens that matches the specified redirect uri and expires after the
@@ -154,18 +149,15 @@
         /// <returns>The number of deleted tokens.</returns>
         Task<int> DeleteRefreshTokens(string clientId, string redirectUri, string subject);
 
-        /// <summary>
-        /// Deletes the specified refresh token.
-        /// Called when authenticating a refresh token to prevent re-use.
-        /// </summary>
-        /// <param name="refreshToken">The refresh token.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        Task<bool> DeleteRefreshToken(IRefreshToken refreshToken);
-
         /// <summary>Deletes the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        Task<bool> DeleteRefreshToken(object identifier);
+        Task<bool> DeleteRefreshToken(string identifier);
+
+        /// <summary>Deletes the specified refresh token.</summary>
+        /// <param name="refreshToken">The refresh token.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        Task<bool> DeleteRefreshToken(IRefreshToken refreshToken);
 
         /// <summary>Deletes all access tokens, refresh tokens and authorization codes.</summary>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>

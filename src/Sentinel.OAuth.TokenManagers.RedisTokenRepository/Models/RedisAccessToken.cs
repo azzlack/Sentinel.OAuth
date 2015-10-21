@@ -64,13 +64,6 @@
         /// <value>The created date.</value>
         public DateTimeOffset Created { get; set; }
 
-        /// <summary>Gets the identifier.</summary>
-        /// <returns>The identifier.</returns>
-        public override object GetIdentifier()
-        {
-            return this.id ?? (this.id = this.GenerateIdentity(this.ClientId, this.RedirectUri, this.Subject, this.ValidTo));
-        }
-
         /// <summary>Check if this object is valid.</summary>
         /// <returns><c>true</c> if valid, <c>false</c> if not.</returns>
         public override bool IsValid()

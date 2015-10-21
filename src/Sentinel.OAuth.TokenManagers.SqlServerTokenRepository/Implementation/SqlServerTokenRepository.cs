@@ -31,13 +31,8 @@
         /// <summary>Gets the specified authorization code.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The authorization code.</returns>
-        public async Task<IAuthorizationCode> GetAuthorizationCode(object identifier)
+        public async Task<IAuthorizationCode> GetAuthorizationCode(string identifier)
         {
-            if (!(identifier is long))
-            {
-                throw new ArgumentException("identifier must be a long type", nameof(identifier));
-            }
-
             using (var connection = await this.OpenConnection())
             {
                 var data =
@@ -176,29 +171,11 @@
             }
         }
 
-        /// <summary>
-        /// Deletes the specified authorization code. Called when authenticating an authorization code to
-        /// prevent re-use.
-        /// </summary>
-        /// <param name="authorizationCode">The authorization code.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
-        {
-            var code = new SqlAuthorizationCode(authorizationCode);
-
-            return await this.DeleteAuthorizationCode(code.Id);
-        }
-
         /// <summary>Deletes the specified authorization code.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAuthorizationCode(object identifier)
+        public async Task<bool> DeleteAuthorizationCode(string identifier)
         {
-            if (!(identifier is long))
-            {
-                throw new ArgumentException("identifier must be a long type", nameof(identifier));
-            }
-
             using (var connection = await this.OpenConnection())
             {
                 var rows =
@@ -211,16 +188,19 @@
             }
         }
 
+        /// <summary>Deletes the specified authorization code.</summary>
+        /// <param name="authorizationCode">The authorization code.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>Gets the specified access token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The access token.</returns>
-        public async Task<IAccessToken> GetAccessToken(object identifier)
+        public async Task<IAccessToken> GetAccessToken(string identifier)
         {
-            if (!(identifier is long))
-            {
-                throw new ArgumentException("identifier must be a long type", nameof(identifier));
-            }
-
             using (var connection = await this.OpenConnection())
             {
                 var data =
@@ -413,25 +393,10 @@
         }
 
         /// <summary>Deletes the specified access token.</summary>
-        /// <param name="accessToken">The access token.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
-        {
-            var token = new SqlAccessToken(accessToken);
-
-            return await this.DeleteAccessToken(token.Id);
-        }
-
-        /// <summary>Deletes the specified access token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAccessToken(object identifier)
+        public async Task<bool> DeleteAccessToken(string identifier)
         {
-            if (!(identifier is long))
-            {
-                throw new ArgumentException("identifier must be a long type", nameof(identifier));
-            }
-
             using (var connection = await this.OpenConnection())
             {
                 var rows =
@@ -444,16 +409,19 @@
             }
         }
 
+        /// <summary>Deletes the specified access token.</summary>
+        /// <param name="accessToken">The access token.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public Task<bool> DeleteAccessToken(IAccessToken accessToken)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>Gets the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The refresh token.</returns>
-        public async Task<IRefreshToken> GetRefreshToken(object identifier)
+        public async Task<IRefreshToken> GetRefreshToken(string identifier)
         {
-            if (!(identifier is long))
-            {
-                throw new ArgumentException("identifier must be a long type", nameof(identifier));
-            }
-
             using (var connection = await this.OpenConnection())
             {
                 var data =
@@ -653,19 +621,14 @@
         {
             var token = new SqlRefreshToken(refreshToken);
 
-            return await this.DeleteRefreshToken(token.Id);
+            return await this.DeleteRefreshToken(token.GetIdentifier());
         }
 
         /// <summary>Deletes the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteRefreshToken(object identifier)
+        public async Task<bool> DeleteRefreshToken(string identifier)
         {
-            if (!(identifier is long))
-            {
-                throw new ArgumentException("identifier must be a long type", nameof(identifier));
-            }
-
             using (var connection = await this.OpenConnection())
             {
                 var rows =

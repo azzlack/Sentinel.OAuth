@@ -1,13 +1,12 @@
 ﻿namespace Sentinel.Sample.Managers
 {
-    using System.Collections.Generic;
-    using System.Security.Claims;
-    using System.Threading.Tasks;
-
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Models.Identity;
+    using System.Collections.Generic;
+    using System.Security.Claims;
+    using System.Threading.Tasks;
 
     public class SimpleClientManager : IClientManager
     {

@@ -59,7 +59,7 @@
         [SetUp]
         public void SetUp()
         {
-            this.clientManager = new SqlServerClientManager(new SqlServerClientManagerConfiguration(this.instance.CreateConnectionStringBuilder().ToString(), this.databaseName), new PBKDF2CryptoProvider());
+            this.clientManager = new SqlServerClientManager(new SqlServerClientManagerConfiguration(this.instance.CreateConnectionStringBuilder().ToString(), this.databaseName), new PBKDF2CryptoProvider(), new SqlServerClientRepository());
         }
 
         [Test]

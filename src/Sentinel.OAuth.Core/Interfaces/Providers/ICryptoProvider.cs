@@ -18,6 +18,11 @@
         /// <returns>The hash of the text.</returns>
         string CreateHash(string text);
 
+        /// <summary>Creates a random hash.</summary>
+        /// <param name="length">The random text length in bits. A value of minimum 256 is recommended.</param>
+        /// <returns>The hash.</returns>
+        string CreateHash(int length);
+
         /// <summary>
         /// Validates the specified text against the specified hash.
         /// </summary>

@@ -8,7 +8,6 @@
     using Sentinel.OAuth.Core.Models.OAuth;
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
 
     public class SentinelTokenProvider : ITokenProvider
@@ -68,11 +67,9 @@
         /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="code">The code.</param>
         /// <returns>The access token if valid, <c>null</c> otherwise.</returns>
-        public async Task<IAuthorizationCode> ValidateAuthorizationCode(string redirectUri, string code)
+        public async Task<bool> ValidateAuthorizationCode(string code)
         {
-            var authorizationCodes = await this.tokenRepository.GetAuthorizationCodes(redirectUri, DateTimeOffset.UtcNow);
-
-            return authorizationCodes.FirstOrDefault(x => this.cryptoProvider.ValidateHash(code, x.Code));
+            return true;
         }
 
         /// <summary>Creates an access token.</summary>
@@ -109,11 +106,9 @@
         /// <summary>Validates an access token.</summary>
         /// <param name="token">The token.</param>
         /// <returns>The access token if valid, <c>null</c> otherwise.</returns>
-        public async Task<IAccessToken> ValidateAccessToken(string token)
+        public async Task<bool> ValidateAccessToken(string token)
         {
-            var nonExpiredAccessTokens = await this.tokenRepository.GetAccessTokens(DateTimeOffset.UtcNow);
-
-            return nonExpiredAccessTokens.FirstOrDefault(x => this.cryptoProvider.ValidateHash(token, x.Token));
+            return true;
         }
 
         /// <summary>Creates an access token.</summary>
@@ -151,11 +146,9 @@
         /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="token">The token.</param>
         /// <returns>The access token if valid, <c>null</c> otherwise.</returns>
-        public async Task<IRefreshToken> ValidateRefreshToken(string clientId, string redirectUri, string token)
+        public async Task<bool> ValidateRefreshToken(string token)
         {
-            var refreshTokens = await this.tokenRepository.GetRefreshTokens(clientId, redirectUri, DateTimeOffset.UtcNow);
-
-            return refreshTokens.FirstOrDefault(x => this.cryptoProvider.ValidateHash(token, x.Token));
+            return true;
         }
     }
 }

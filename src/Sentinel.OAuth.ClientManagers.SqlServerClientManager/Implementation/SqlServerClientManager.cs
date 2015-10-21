@@ -1,19 +1,19 @@
 ﻿namespace Sentinel.OAuth.ClientManagers.SqlServerClientManager.Implementation
 {
+    using Dapper;
+    using Sentinel.OAuth.ClientManagers.SqlServerClientManager.Models;
+    using Sentinel.OAuth.Core.Constants.Identity;
+    using Sentinel.OAuth.Core.Interfaces.Identity;
+    using Sentinel.OAuth.Core.Interfaces.Models;
+    using Sentinel.OAuth.Core.Interfaces.Providers;
+    using Sentinel.OAuth.Core.Interfaces.Repositories;
+    using Sentinel.OAuth.Core.Managers;
+    using Sentinel.OAuth.Models.Identity;
     using System.Collections.Generic;
     using System.Data.SqlClient;
     using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
-
-    using Dapper;
-
-    using Sentinel.OAuth.ClientManagers.SqlServerClientManager.Models;
-    using Sentinel.OAuth.Core.Constants.Identity;
-    using Sentinel.OAuth.Core.Interfaces.Identity;
-    using Sentinel.OAuth.Core.Interfaces.Providers;
-    using Sentinel.OAuth.Core.Managers;
-    using Sentinel.OAuth.Models.Identity;
 
     /// <summary>A Sentinel user manager for storing clients in an SQL Server database.</summary> 
     public class SqlServerClientManager : BaseClientManager
@@ -21,19 +21,31 @@
         /// <summary>The configuration.</summary>
         private readonly SqlServerClientManagerConfiguration configuration;
 
-        /// <summary>
-        /// Initializes a new instance of the SqlServerClientManager class.
-        /// </summary>
-        /// <param name="configuration">
-        /// The connection string.
-        /// </param>
-        /// <param name="cryptoProvider">
-        /// The crypto provider.
-        /// </param>
-        public SqlServerClientManager(SqlServerClientManagerConfiguration configuration, ICryptoProvider cryptoProvider)
-            : base(cryptoProvider)
+        /// <summary>Initializes a new instance of the SqlServerClientManager class.</summary>
+        /// <param name="configuration">The connection string.</param>
+        /// <param name="cryptoProvider">The crypto provider.</param>
+        /// <param name="clientRepository">The client repository.</param>
+        public SqlServerClientManager(SqlServerClientManagerConfiguration configuration, ICryptoProvider cryptoProvider, IClientRepository clientRepository)
+            : base(cryptoProvider, clientRepository)
         {
             this.configuration = configuration;
+        }
+
+        /// <summary>Gets the clients.</summary>
+        /// <returns>The clients.</returns>
+        public override async Task<IEnumerable<IClient>> GetClients()
+        {
+            using (var connection = this.OpenConnection())
+            {
+                var transaction = connection.BeginTransaction();
+                var clients =
+                    await
+                    connection.QueryAsync<Client>(
+                        "SELECT * FROM Clients WHERE Enabled = 1",
+                        transaction);
+
+                return clients;
+            }
         }
 
         /// <summary>
@@ -114,8 +126,8 @@
                 var matches =
                     await
                     connection.QueryAsync<Client>(
-                        "SELECT * FROM Clients WHERE ClientId = @UserName AND Enabled = 1", 
-                        new { UserName = clientId }, 
+                        "SELECT * FROM Clients WHERE ClientId = @UserName AND Enabled = 1",
+                        new { UserName = clientId },
                         transaction);
 
                 foreach (var client in matches)
@@ -125,7 +137,7 @@
                         var principal =
                             new SentinelPrincipal(
                                 new SentinelIdentity(
-                                    AuthenticationType.OAuth, 
+                                    AuthenticationType.OAuth,
                                     new SentinelClaim(ClaimTypes.Name, client.ClientId)));
 
                         return principal;

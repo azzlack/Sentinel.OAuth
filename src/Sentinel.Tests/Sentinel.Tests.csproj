@@ -204,6 +204,9 @@
     <Compile Include="Integration\TokenManagers\SqlServerTokenManagerTests.cs" />
     <Compile Include="Integration\TokenManagers\TokenManagerTests.cs" />
     <Compile Include="Integration\TokenManagerTests.cs" />
+    <Compile Include="Integration\TokenProviders\JwtTokenProviderTests.cs" />
+    <Compile Include="Integration\TokenProviders\SentinelTokenProviderTests.cs" />
+    <Compile Include="Integration\TokenProviders\TokenProviderTests.cs" />
     <Compile Include="Integration\UserManagers\AspNetIdentityUserManagerTests.cs" />
     <Compile Include="Integration\UserManagers\SqlServerUserManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
