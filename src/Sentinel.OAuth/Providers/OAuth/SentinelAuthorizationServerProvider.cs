@@ -1,19 +1,16 @@
 ﻿namespace Sentinel.OAuth.Providers.OAuth
 {
-    using System;
-    using System.Linq;
-    using System.Text.RegularExpressions;
-    using System.Threading.Tasks;
-
-    using Microsoft.Owin;
     using Microsoft.Owin.Security;
     using Microsoft.Owin.Security.OAuth;
-
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Constants.OAuth;
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.Models.Identity;
+    using System;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
 
     public class SentinelAuthorizationServerProvider : OAuthAuthorizationServerProvider
     {
@@ -144,6 +141,8 @@
                 // Only proceed if client id and client secret is provided
                 if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(clientSecret))
                 {
+                    context.SetError("invalid_client");
+
                     this.options.Logger.WarnFormat("Client id ({0}) or client secret ({1}) is invalid", clientId, clientSecret);
 
                     return;
@@ -155,7 +154,7 @@
 
                 if (!client.Identity.IsAuthenticated)
                 {
-                    context.Rejected();
+                    context.SetError("invalid_grant");
 
                     this.options.Logger.WarnFormat("Client '{0}' was not authenticated because the supplied secret did not match", clientId);
 
@@ -164,7 +163,7 @@
             }
             else
             {
-                context.Rejected();
+                context.SetError("invalid_client");
 
                 this.options.Logger.WarnFormat("Client '{0}' was not authenticated because the provider could not retrieve the client id and client secret from the Authorization header or Form parameters", clientId);
 

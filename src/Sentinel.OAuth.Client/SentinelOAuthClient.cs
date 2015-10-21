@@ -1,16 +1,15 @@
 ﻿namespace Sentinel.OAuth.Client
 {
+    using Newtonsoft.Json;
+    using Sentinel.OAuth.Client.Interfaces;
+    using Sentinel.OAuth.Core.Models.OAuth.Http;
     using System;
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
+    using System.Security;
     using System.Text;
     using System.Threading.Tasks;
-
-    using Newtonsoft.Json;
-
-    using Sentinel.OAuth.Client.Interfaces;
-    using Sentinel.OAuth.Core.Models.OAuth.Http;
 
     /// <summary>OAuth client for Sentinel.</summary>
     public class SentinelOAuthClient : IOAuthClient, IDisposable
@@ -23,7 +22,7 @@
         /// <summary>
         /// The http handler
         /// </summary>
-        private readonly HttpClientHandler handler;
+        private readonly HttpMessageHandler handler;
 
         /// <summary>
         ///     Initializes a new instance of the Sentinel.OAuth.Client.SentinelOAuthClient class.
@@ -34,17 +33,32 @@
             this.Settings = settings;
 
             this.cookieContainer = new CookieContainer();
-            this.handler = new HttpClientHandler()
+
+            var handler = new HttpClientHandler()
             {
                 CookieContainer = this.cookieContainer,
                 UseCookies = true,
                 AllowAutoRedirect = false
             };
 
-            if (this.handler.SupportsAutomaticDecompression)
+            if (handler.SupportsAutomaticDecompression)
             {
-                this.handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
             }
+
+            this.handler = handler;
+
+            this.Client = new HttpClient(this.handler) { BaseAddress = settings.Url };
+        }
+
+        /// <summary>Initializes a new instance of the Sentinel.OAuth.Client.SentinelOAuthClient class.</summary>
+        /// <param name="settings">Options for controlling the operation.</param>
+        /// <param name="handler">The http handler.</param>
+        public SentinelOAuthClient(ISentinelClientSettings settings, HttpMessageHandler handler)
+        {
+            this.Settings = settings;
+
+            this.handler = handler;
 
             this.Client = new HttpClient(this.handler) { BaseAddress = settings.Url };
         }
@@ -52,11 +66,11 @@
         /// <summary>
         /// Gets the http client
         /// </summary>
-        public HttpClient Client { get; private set; }
+        public HttpClient Client { get; }
 
         /// <summary>Gets the settings.</summary>
         /// <value>The settings.</value>
-        public ISentinelClientSettings Settings { get; private set; }
+        public ISentinelClientSettings Settings { get; }
 
         /// <summary>Authenticates the current client and returns an access token.</summary>
         /// <exception cref="Exception">Thrown when an exception error condition occurs.</exception>
@@ -71,19 +85,22 @@
             };
 
             var request = new HttpRequestMessage(HttpMethod.Post, "oauth/token")
-                              {
-                                  Content = new FormUrlEncodedContent(accessTokenRequest.Properties)
-                              };
+            {
+                Content = new FormUrlEncodedContent(accessTokenRequest.Properties)
+            };
             request.Headers.Authorization = new BasicAuthenticationHeaderValue(this.Settings.ClientId, this.Settings.ClientSecret);
 
-            var response = await this.Client.SendAsync(request);
+            var response = await this.Client.SendAsync(request).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<AccessTokenResponse>(await response.Content.ReadAsStringAsync());
+                return JsonConvert.DeserializeObject<AccessTokenResponse>(
+                    await response.Content.ReadAsStringAsync());
             }
 
-            throw new Exception(string.Format("Unable to get access token for application {{ {0} }}.\r\n", accessTokenRequest), new HttpRequestException(await response.Content.ReadAsStringAsync()));
+            throw new SecurityException(
+                $"Unable to get access token for application {{ {accessTokenRequest} }}.\r\n",
+                new HttpRequestException(await response.Content.ReadAsStringAsync()));
         }
 
         /// <summary>Authenticates the specified user and client and returns an access token.</summary>
@@ -108,7 +125,7 @@
             };
             accessTokenRequestMessage.Headers.Authorization = new BasicAuthenticationHeaderValue(this.Settings.ClientId, this.Settings.ClientSecret);
 
-            var accessTokenResponseMessage = await this.Client.SendAsync(accessTokenRequestMessage);
+            var accessTokenResponseMessage = await this.Client.SendAsync(accessTokenRequestMessage).ConfigureAwait(false);
 
             if (accessTokenResponseMessage.IsSuccessStatusCode)
             {
@@ -117,7 +134,7 @@
                 return accessTokenResponse;
             }
 
-            throw new Exception(string.Format("Unable to get access token for user {{ {0} }}.\r\n", accessTokenRequestMessage), new HttpRequestException(await accessTokenResponseMessage.Content.ReadAsStringAsync()));
+            throw new SecurityException($"Unable to get access token for user {{ {accessTokenRequestMessage} }}.\r\n", new HttpRequestException(await accessTokenResponseMessage.Content.ReadAsStringAsync()));
         }
 
         /// <summary>Re-authenticates by refreshing the access token.</summary>
@@ -143,30 +160,26 @@
                 Convert.ToBase64String(
                     Encoding.UTF8.GetBytes(string.Format("{0}:{1}", this.Settings.ClientId, this.Settings.ClientSecret))));
 
-            var response = await this.Client.SendAsync(request);
+            var response = await this.Client.SendAsync(request).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<AccessTokenResponse>(await response.Content.ReadAsStringAsync());
             }
 
-            throw new Exception("Unable to refresh access token", new HttpRequestException(await response.Content.ReadAsStringAsync()));
+            throw new SecurityException("Unable to refresh access token", new HttpRequestException(await response.Content.ReadAsStringAsync()));
         }
 
         /// <summary>Gets the cookies.</summary>
         /// <returns>A list of cookies.</returns>
         public virtual async Task<CookieCollection> GetCookies()
         {
-            return this.cookieContainer.GetCookies(this.Client.BaseAddress);
+            return this.cookieContainer?.GetCookies(this.Client.BaseAddress);
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        /// <filterpriority>2</filterpriority>
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public virtual void Dispose()
         {
-            this.handler.Dispose();
             this.Client.Dispose();
         }
     }
