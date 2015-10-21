@@ -72,7 +72,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The authorization codes.</returns>
-        public async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTime expires)
+        public async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -132,7 +132,7 @@
                             Scope = code.Scope != null ? string.Join(" ", code.Scope) : null,
                             code.Ticket,
                             code.ValidTo,
-                            Created = DateTime.UtcNow
+                            Created = DateTimeOffset.UtcNow
                         });
 
                 var data = await connection.QueryAsync("SELECT * FROM AuthorizationCodes WHERE Id = @Id", new { Id = id });
@@ -162,7 +162,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted codes.</returns>
-        public async Task<int> DeleteAuthorizationCodes(DateTime expires)
+        public async Task<int> DeleteAuthorizationCodes(DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -254,7 +254,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The access tokens.</returns>
-        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTime expires)
+        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -291,7 +291,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The access tokens.</returns>
-        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTime expires)
+        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -379,7 +379,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteAccessTokens(DateTime expires)
+        public async Task<int> DeleteAccessTokens(DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -489,7 +489,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTime expires)
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -524,7 +524,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTime expires)
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -580,7 +580,7 @@
                             Scope = token.Scope != null ? string.Join(" ", token.Scope) : null,
                             refreshToken.Token,
                             refreshToken.ValidTo,
-                            Created = DateTime.UtcNow
+                            Created = DateTimeOffset.UtcNow
                         });
 
                 var data = await connection.QueryAsync("SELECT * FROM RefreshTokens WHERE Id = @Id", new { Id = id });
@@ -610,7 +610,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteRefreshTokens(DateTime expires)
+        public async Task<int> DeleteRefreshTokens(DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {

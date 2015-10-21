@@ -8,6 +8,7 @@
 
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Implementation;
+    using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.Models.Identity;
 
     [TestFixture]

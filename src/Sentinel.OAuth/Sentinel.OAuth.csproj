@@ -88,18 +88,20 @@
   <ItemGroup>
     <Compile Include="Converters\SentinelClaimConverter.cs" />
     <Compile Include="Extensions\AppBuilderExtensions.cs" />
+    <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\PrincipalExtensions.cs" />
     <Compile Include="Extensions\OwinContextExtensions.cs" />
-    <Compile Include="Implementation\SHA2CryptoProvider.cs" />
-    <Compile Include="Implementation\TokenFactory.cs" />
+    <Compile Include="Implementation\Managers\TokenManager.cs" />
+    <Compile Include="Implementation\Providers\JwtTokenProvider.cs" />
+    <Compile Include="Implementation\Providers\PBKDF2CryptoProvider.cs" />
+    <Compile Include="Implementation\Providers\PrincipalProvider.cs" />
+    <Compile Include="Implementation\Providers\SentinelTokenProvider.cs" />
+    <Compile Include="Implementation\Providers\SHA2CryptoProvider.cs" />
+    <Compile Include="Implementation\Repositories\MemoryTokenRepository.cs" />
     <Compile Include="Models\Identity\SentinelClaim.cs" />
     <Compile Include="Models\Identity\SentinelIdentity.cs" />
     <Compile Include="Models\Identity\SentinelPrincipal.cs" />
-    <Compile Include="Implementation\MemoryTokenRepository.cs" />
-    <Compile Include="Implementation\TokenManager.cs" />
-    <Compile Include="Implementation\PBKDF2CryptoProvider.cs" />
-    <Compile Include="Implementation\PrincipalProvider.cs" />
     <Compile Include="Models\Owin\OwinOAuthContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\OAuth\SentinelTicketFormat.cs" />
@@ -118,7 +120,9 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Implementation\Factories\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -56,7 +56,7 @@
         /// Gets or sets the expiration time.
         /// </summary>
         /// <value>The expiration time.</value>
-        public DateTime ValidTo { get; set; }
+        public DateTimeOffset ValidTo { get; set; }
 
         /// <summary>Gets the identifier.</summary>
         /// <returns>The identifier.</returns>
@@ -73,7 +73,7 @@
                 || (this.RedirectUri == null && this.Scope == null)
                 || this.Subject == null
                 || this.Token == null
-                || this.ValidTo == DateTime.MinValue)
+                || this.ValidTo == DateTimeOffset.MinValue)
             {
                 return false;
             }

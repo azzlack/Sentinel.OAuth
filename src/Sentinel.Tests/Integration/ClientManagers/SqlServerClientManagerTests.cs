@@ -1,17 +1,14 @@
 ﻿namespace Sentinel.Tests.Integration.ClientManagers
 {
-    using System;
-    using System.Data;
-    using System.Data.SqlLocalDb;
-
     using Dapper;
-
     using NUnit.Framework;
-
     using Sentinel.OAuth.ClientManagers.SqlServerClientManager.Implementation;
     using Sentinel.OAuth.ClientManagers.SqlServerClientManager.Models;
     using Sentinel.OAuth.Core.Interfaces.Managers;
-    using Sentinel.OAuth.Implementation;
+    using Sentinel.OAuth.Implementation.Providers;
+    using System;
+    using System.Data;
+    using System.Data.SqlLocalDb;
 
     [TestFixture]
     [Category("Integration")]

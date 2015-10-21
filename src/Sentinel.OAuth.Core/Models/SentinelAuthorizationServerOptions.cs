@@ -1,11 +1,9 @@
 ﻿namespace Sentinel.OAuth.Core.Models
 {
-    using System;
-
     using Common.Logging;
-
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Core.Interfaces.Providers;
+    using System;
 
     /// <summary>The Sentinel authorization server options used for controlling the authoriztion system behavior.</summary>
     public class SentinelAuthorizationServerOptions
@@ -24,7 +22,6 @@
             this.RefreshTokenLifetime = TimeSpan.FromDays(90);
             this.AuthorizationCodeEndpointUrl = "/oauth/authorize";
             this.TokenEndpointUrl = "/oauth/token";
-            this.TokenFormat = Constants.OAuth.TokenFormat.Sentinel;
         }
 
         /// <summary>Gets the events.</summary>
@@ -74,13 +71,17 @@
         /// <value>The token store.</value>
         public ITokenManager TokenManager { get; set; }
 
-        /// <summary>Gets or sets the crypto provider.</summary>
-        /// <value>The crypto provider.</value>
-        public ICryptoProvider CryptoProvider { get; set; }
+        /// <summary>Gets or sets the token provider.</summary>
+        /// <value>The token provider.</value>
+        public ITokenProvider TokenProvider { get; set; }
 
         /// <summary>Gets or sets the principal provider.</summary>
         /// <value>The principal provider.</value>
         public IPrincipalProvider PrincipalProvider { get; set; }
+
+        /// <summary>Gets or sets the crypto provider.</summary>
+        /// <value>The crypto provider.</value>
+        public ICryptoProvider CryptoProvider { get; set; }
 
         /// <summary>Gets or sets URL of the authorization code endpoint.</summary>
         /// <remarks>There must be a page answering on this url that is capable of logging in the user.</remarks>
@@ -90,9 +91,5 @@
         /// <summary>Gets or sets URL of the token endpoint.</summary>
         /// <value>The token endpoint URL.</value>
         public string TokenEndpointUrl { get; set; }
-
-        /// <summary>Gets or sets the token format.</summary>
-        /// <value>The token format.</value>
-        public string TokenFormat { get; set; }
     }
 }

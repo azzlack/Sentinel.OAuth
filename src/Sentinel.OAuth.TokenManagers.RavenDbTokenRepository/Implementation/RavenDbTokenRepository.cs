@@ -54,7 +54,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The authorization codes.</returns>
-        public async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTime expires)
+        public async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTimeOffset expires)
         {
             using (var session = this.OpenAsyncSession())
             {
@@ -94,7 +94,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted codes.</returns>
-        public async Task<int> DeleteAuthorizationCodes(DateTime expires)
+        public async Task<int> DeleteAuthorizationCodes(DateTimeOffset expires)
         {
             using (var session = this.OpenAsyncSession())
             {
@@ -172,7 +172,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The access tokens.</returns>
-        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTime expires)
+        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTimeOffset expires)
         {
             using (var session = this.OpenAsyncSession())
             {
@@ -187,7 +187,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The access tokens.</returns>
-        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTime expires)
+        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTimeOffset expires)
         {
             using (var session = this.OpenAsyncSession())
             {
@@ -223,7 +223,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteAccessTokens(DateTime expires)
+        public async Task<int> DeleteAccessTokens(DateTimeOffset expires)
         {
             using (var session = this.OpenAsyncSession())
             {
@@ -338,7 +338,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTime expires)
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTimeOffset expires)
         {
             using (var session = this.OpenAsyncSession())
             {
@@ -352,7 +352,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTime expires)
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTimeOffset expires)
         {
             using (var session = this.OpenAsyncSession())
             {
@@ -388,7 +388,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteRefreshTokens(DateTime expires)
+        public async Task<int> DeleteRefreshTokens(DateTimeOffset expires)
         {
             using (var session = this.OpenAsyncSession())
             {

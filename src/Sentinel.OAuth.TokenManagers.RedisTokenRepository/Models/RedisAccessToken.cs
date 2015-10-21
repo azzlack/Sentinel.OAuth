@@ -29,7 +29,7 @@
         {
             this.id = this.GenerateIdentity(accessToken.ClientId, accessToken.RedirectUri, accessToken.Subject, accessToken.ValidTo);
 
-            this.Created = DateTime.UtcNow;
+            this.Created = DateTimeOffset.UtcNow;
         }
 
         /// <summary>
@@ -52,8 +52,8 @@
             this.Subject = subject.Value.HasValue ? subject.Value.ToString() : string.Empty;
             this.Token = token.Value.HasValue ? token.Value.ToString() : string.Empty;
             this.Ticket = ticket.Value.HasValue ? ticket.Value.ToString() : string.Empty;
-            this.ValidTo = validTo.Value.HasValue ? JsonConvert.DeserializeObject<DateTime>(validTo.Value.ToString()) : DateTime.MinValue;
-            this.Created = created.Value.HasValue ? JsonConvert.DeserializeObject<DateTime>(created.Value.ToString()) : DateTime.MinValue;
+            this.ValidTo = validTo.Value.HasValue ? JsonConvert.DeserializeObject<DateTimeOffset>(validTo.Value.ToString()) : DateTimeOffset.MinValue;
+            this.Created = created.Value.HasValue ? JsonConvert.DeserializeObject<DateTimeOffset>(created.Value.ToString()) : DateTimeOffset.MinValue;
 
             this.id = this.GenerateIdentity(this.ClientId, this.RedirectUri, this.Subject, this.ValidTo);
         }
@@ -62,7 +62,7 @@
         /// Gets or sets the created date.
         /// </summary>
         /// <value>The created date.</value>
-        public DateTime Created { get; set; }
+        public DateTimeOffset Created { get; set; }
 
         /// <summary>Gets the identifier.</summary>
         /// <returns>The identifier.</returns>
@@ -75,7 +75,7 @@
         /// <returns><c>true</c> if valid, <c>false</c> if not.</returns>
         public override bool IsValid()
         {
-            return base.IsValid() && this.Created != DateTime.MinValue;
+            return base.IsValid() && this.Created != DateTimeOffset.MinValue;
         }
 
         /// <summary>Tests if this IAccessToken is considered equal to another.</summary>
@@ -118,7 +118,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="validTo">The valid to Date/Time.</param>
         /// <returns>The identity.</returns>
-        private RedisTokenIdentifier GenerateIdentity(string clientId, string redirectUri, string subject, DateTime validTo)
+        private RedisTokenIdentifier GenerateIdentity(string clientId, string redirectUri, string subject, DateTimeOffset validTo)
         {
             return
                 new RedisTokenIdentifier(

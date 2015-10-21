@@ -9,6 +9,7 @@
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Implementation;
+    using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.Models.Identity;
     using Sentinel.OAuth.UserManagers.AspNetIdentityUserManager.Models;
 

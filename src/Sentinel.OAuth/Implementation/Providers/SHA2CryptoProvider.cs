@@ -1,4 +1,4 @@
-﻿namespace Sentinel.OAuth.Implementation
+﻿namespace Sentinel.OAuth.Implementation.Providers
 {
     using System;
     using System.IO;

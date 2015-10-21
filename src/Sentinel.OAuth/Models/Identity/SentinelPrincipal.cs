@@ -1,18 +1,15 @@
 ﻿namespace Sentinel.OAuth.Models.Identity
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.Linq;
-    using System.Security;
-    using System.Security.Claims;
-    using System.Security.Principal;
-    using System.Threading;
-
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Extensions;
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Security.Claims;
+    using System.Security.Principal;
+    using System.Threading;
 
     /// <summary>A JSON-serializable principal.</summary>
     [DebuggerDisplay("Identity: {Identity}")]
@@ -101,7 +98,7 @@
 
         /// <summary>Gets the time in UTC format when the identity expires.</summary>
         /// <value>The expire time in UTC format.</value>
-        public DateTime ValidTo
+        public DateTimeOffset ValidTo
         {
             get
             {
@@ -110,10 +107,10 @@
                 long unixTime;
                 if (expireClaim != null && long.TryParse(expireClaim.Value, out unixTime))
                 {
-                    return unixTime.FromUnixTime();
+                    return unixTime.ToDateTimeOffset();
                 }
 
-                return DateTime.MinValue;
+                return DateTimeOffset.MinValue;
             }
         }
 

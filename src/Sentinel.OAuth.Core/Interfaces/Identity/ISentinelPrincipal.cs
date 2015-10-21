@@ -13,7 +13,7 @@
 
         /// <summary>Gets the time in UTC format when the identity expires.</summary>
         /// <value>The expire time in UTC format.</value>
-        DateTime ValidTo { get; }
+        DateTimeOffset ValidTo { get; }
 
         /// <summary>Gets the roles.</summary>
         /// <value>The roles.</value>

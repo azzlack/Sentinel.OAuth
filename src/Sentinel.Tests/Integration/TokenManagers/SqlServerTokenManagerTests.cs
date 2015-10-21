@@ -6,7 +6,8 @@
     using NUnit.Framework;
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
-    using Sentinel.OAuth.Implementation;
+    using Sentinel.OAuth.Implementation.Managers;
+    using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.Models.Identity;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Implementation;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models;
@@ -81,14 +82,17 @@
             var connectionStringBuilder = this.instance.CreateConnectionStringBuilder();
             connectionStringBuilder.SetInitialCatalogName(this.databaseName);
 
+            var principalProvider = new PrincipalProvider(new PBKDF2CryptoProvider());
+            var tokenRepository =
+                new SqlServerTokenRepository(
+                    new SqlServerTokenRepositoryConfiguration(connectionStringBuilder.ToString()));
+
             this.TokenManager = new TokenManager(
                 LogManager.GetLogger(typeof(SqlServerTokenManagerTests)),
                 userManager.Object,
-                new PrincipalProvider(new PBKDF2CryptoProvider()),
-                new SHA2CryptoProvider(),
-                new SqlTokenFactory(),
-                new SqlServerTokenRepository(
-                    new SqlServerTokenRepositoryConfiguration(connectionStringBuilder.ToString())));
+                principalProvider,
+                new SentinelTokenProvider(new SHA2CryptoProvider(), principalProvider, tokenRepository),
+                tokenRepository);
 
             base.SetUp();
         }

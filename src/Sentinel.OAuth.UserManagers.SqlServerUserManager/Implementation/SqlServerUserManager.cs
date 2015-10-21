@@ -1,19 +1,17 @@
 ﻿namespace Sentinel.OAuth.UserManagers.SqlServerUserManager.Implementation
 {
-    using System;
-    using System.Data.SqlClient;
-    using System.Linq;
-    using System.Security.Claims;
-    using System.Threading.Tasks;
-
     using Dapper;
-
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Managers;
     using Sentinel.OAuth.Models.Identity;
     using Sentinel.OAuth.UserManagers.SqlServerUserManager.Models;
+    using System;
+    using System.Data.SqlClient;
+    using System.Linq;
+    using System.Security.Claims;
+    using System.Threading.Tasks;
 
     /// <summary>A Sentinel user manager for storing users in an SQL Server database.</summary>
     public class SqlServerUserManager : BaseUserManager
@@ -25,7 +23,7 @@
         /// <param name="configuration">The connection string.</param>
         /// <param name="cryptoProvider">The crypto provider.</param>
         public SqlServerUserManager(SqlServerUserManagerConfiguration configuration, ICryptoProvider cryptoProvider)
-            : base (cryptoProvider)
+            : base(cryptoProvider)
         {
             this.configuration = configuration;
         }
@@ -44,7 +42,7 @@
                     await
                     connection.QueryAsync<User>(
                         "SELECT * FROM Users WHERE UserName = @UserName",
-                        new { UserName = username }, 
+                        new { UserName = username },
                         transaction);
                 var user = matches.FirstOrDefault();
 
@@ -62,7 +60,7 @@
                     await
                         connection.ExecuteAsync(
                             "UPDATE Users SET LastLogin = @LastLogin WHERE Username = @Username",
-                            new { LastLogin = DateTime.UtcNow, Username = user.Username },
+                            new { LastLogin = DateTimeOffset.UtcNow, Username = user.Username },
                             transaction);
 
                     return principal;
@@ -105,7 +103,7 @@
                     await
                         connection.ExecuteAsync(
                             "UPDATE Users SET LastLogin = @LastLogin WHERE Username = @Username",
-                            new { LastLogin = DateTime.UtcNow, Username = user.Username },
+                            new { LastLogin = DateTimeOffset.UtcNow, Username = user.Username },
                             transaction);
 
                     return principal;

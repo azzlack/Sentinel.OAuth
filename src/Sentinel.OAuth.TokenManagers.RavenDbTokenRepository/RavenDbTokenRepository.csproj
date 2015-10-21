@@ -54,7 +54,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Implementation\RavenDbTokenRepository.cs" />
-    <Compile Include="Implementation\RavenTokenFactory.cs" />
     <Compile Include="Indexes\AuthorizationCodes_Ids.cs" />
     <Compile Include="Indexes\RefreshTokens_Ids.cs" />
     <Compile Include="Indexes\AccessTokens_Ids.cs" />

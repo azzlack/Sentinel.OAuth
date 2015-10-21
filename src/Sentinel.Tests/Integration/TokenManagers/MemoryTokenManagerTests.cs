@@ -5,7 +5,9 @@
     using NUnit.Framework;
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
-    using Sentinel.OAuth.Implementation;
+    using Sentinel.OAuth.Implementation.Managers;
+    using Sentinel.OAuth.Implementation.Providers;
+    using Sentinel.OAuth.Implementation.Repositories;
     using Sentinel.OAuth.Models.Identity;
     using System.Security.Claims;
 
@@ -24,13 +26,15 @@
                             new SentinelClaim(ClaimTypes.Name, "azzlack"),
                             new SentinelClaim(ClaimType.Client, "NUnit"))));
 
+            var principalProvider = new PrincipalProvider(new PBKDF2CryptoProvider());
+            var tokenRepository = new MemoryTokenRepository();
+
             this.TokenManager = new TokenManager(
                 LogManager.GetLogger(typeof(MemoryTokenManagerTests)),
                 userManager.Object,
-                new PrincipalProvider(new PBKDF2CryptoProvider()),
-                new PBKDF2CryptoProvider(),
-                new TokenFactory(),
-                new MemoryTokenRepository());
+                principalProvider,
+                new SentinelTokenProvider(new PBKDF2CryptoProvider(), principalProvider, tokenRepository),
+                tokenRepository);
 
             base.SetUp();
         }

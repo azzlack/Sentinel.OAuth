@@ -1,14 +1,12 @@
 ﻿namespace Sentinel.OAuth.Core.Managers
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-
-    using Sentinel.OAuth.Core.Interfaces.Factories;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     public abstract class BaseTokenManager : ITokenManager
     {
@@ -17,38 +15,26 @@
 
         /// <summary>Initializes a new instance of the BaseTokenManager class.</summary>
         /// <param name="principalProvider">The principal provider.</param>
-        /// <param name="cryptoProvider">The crypto provider.</param>
-        /// <param name="tokenFactory">The token factory.</param>
+        /// <param name="tokenProvider">The token provider.</param>
         /// <param name="tokenRepository">The token repository.</param>
-        protected BaseTokenManager(IPrincipalProvider principalProvider, ICryptoProvider cryptoProvider, ITokenFactory tokenFactory, ITokenRepository tokenRepository)
+        protected BaseTokenManager(IPrincipalProvider principalProvider, ITokenProvider tokenProvider, ITokenRepository tokenRepository)
         {
-            this.CryptoProvider = cryptoProvider;
+            this.TokenProvider = tokenProvider;
             this.PrincipalProvider = principalProvider;
-            this.TokenFactory = tokenFactory;
             this.tokenRepository = tokenRepository;
         }
 
         /// <summary>Gets the token repository.</summary>
         /// <value>The token repository.</value>
-        public ITokenRepository TokenRepository
-        {
-            get
-            {
-                return this.tokenRepository;
-            }
-        }
+        public ITokenRepository TokenRepository => this.tokenRepository;
 
         /// <summary>Gets the principal provider.</summary>
         /// <value>The principal provider.</value>
         protected IPrincipalProvider PrincipalProvider { get; private set; }
 
-        /// <summary>Gets the crypto provider.</summary>
-        /// <value>The crypto provider.</value>
-        protected ICryptoProvider CryptoProvider { get; private set; }
-
-        /// <summary>Gets the token factory.</summary>
-        /// <value>The token factory.</value>
-        protected ITokenFactory TokenFactory { get; private set; }
+        /// <summary>Gets the token provider.</summary>
+        /// <value>The token provider.</value>
+        protected ITokenProvider TokenProvider { get; private set; }
 
         /// <summary>Authenticates the authorization code.</summary>
         /// <param name="redirectUri">The redirect URI.</param>

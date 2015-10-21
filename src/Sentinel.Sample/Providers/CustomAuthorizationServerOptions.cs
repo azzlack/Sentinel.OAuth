@@ -1,18 +1,16 @@
 ﻿namespace Sentinel.Sample.Providers
 {
-    using System;
-    using System.Linq;
-    using System.Security.Claims;
-    using System.Threading.Tasks;
-
+    using Microsoft.AspNet.Identity;
     using Microsoft.Owin.Security;
     using Microsoft.Owin.Security.OAuth;
-
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.Models.Identity;
-    using Microsoft.AspNet.Identity;
+    using System;
+    using System.Linq;
+    using System.Security.Claims;
+    using System.Threading.Tasks;
 
     public class CustomAuthorizationServerOptions : SentinelAuthorizationServerOptions
     {
@@ -61,7 +59,7 @@
                 new AuthenticationProperties
                 {
                     IsPersistent = true,
-                    ExpiresUtc = DateTime.UtcNow.Add(context.Options.AccessTokenExpireTimeSpan)
+                    ExpiresUtc = DateTimeOffset.UtcNow.Add(context.Options.AccessTokenExpireTimeSpan)
                 },
                 cookiePrincipal.Identity.AsClaimsIdentity());
         }

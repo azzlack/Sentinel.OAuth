@@ -25,7 +25,7 @@
                 this.Id = ((SqlAccessToken)accessToken).Id;
             }
 
-            this.Created = DateTime.UtcNow;
+            this.Created = DateTimeOffset.UtcNow;
         }
 
         /// <summary>Gets or sets the identifier.</summary>
@@ -36,7 +36,7 @@
         /// Gets or sets the created date.
         /// </summary>
         /// <value>The created date.</value>
-        public DateTime Created { get; set; }
+        public DateTimeOffset Created { get; set; }
 
         /// <summary>Gets the identifier.</summary>
         /// <returns>The identifier.</returns>
@@ -49,7 +49,7 @@
         /// <returns><c>true</c> if valid, <c>false</c> if not.</returns>
         public override bool IsValid()
         {
-            return base.IsValid() && this.Created != DateTime.MinValue;
+            return base.IsValid() && this.Created != DateTimeOffset.MinValue;
         }
     }
 }

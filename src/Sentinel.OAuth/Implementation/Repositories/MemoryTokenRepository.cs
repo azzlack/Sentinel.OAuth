@@ -1,4 +1,4 @@
-﻿namespace Sentinel.OAuth.Implementation
+﻿namespace Sentinel.OAuth.Implementation.Repositories
 {
     using Newtonsoft.Json;
     using Sentinel.OAuth.Core.Interfaces.Models;
@@ -53,7 +53,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The authorization codes.</returns>
-        public async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTime expires)
+        public async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTimeOffset expires)
         {
             return this.authorizationCodes.Where(x => x.Value.RedirectUri == redirectUri && x.Value.ValidTo > expires).Select(x => x.Value);
         }
@@ -83,7 +83,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted codes.</returns>
-        public async Task<int> DeleteAuthorizationCodes(DateTime expires)
+        public async Task<int> DeleteAuthorizationCodes(DateTimeOffset expires)
         {
             var i = 0;
             var codes = this.authorizationCodes.Where(x => x.Value.ValidTo <= expires).ToList();
@@ -157,7 +157,7 @@
         /// <summary>Gets all access tokens that expires after the specified date.</summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The access tokens.</returns>
-        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTime expires)
+        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTimeOffset expires)
         {
             return this.accessTokens.Select(x => x.Value).Where(x => x.ValidTo > expires);
         }
@@ -169,7 +169,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The access tokens.</returns>
-        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTime expires)
+        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTimeOffset expires)
         {
             return this.accessTokens.Select(x => x.Value).Where(x => x.ValidTo > expires && x.Subject == subject);
         }
@@ -199,7 +199,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteAccessTokens(DateTime expires)
+        public async Task<int> DeleteAccessTokens(DateTimeOffset expires)
         {
             var i = 0;
             var tokens = this.accessTokens.Where(x => x.Value.ValidTo <= expires).ToList();
@@ -306,7 +306,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTime expires)
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTimeOffset expires)
         {
             return this.refreshTokens.Select(x => x.Value).Where(x => x.ClientId == clientId && x.RedirectUri == redirectUri && x.ValidTo > expires);
         }
@@ -317,7 +317,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTime expires)
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTimeOffset expires)
         {
             return this.refreshTokens.Select(x => x.Value).Where(x => x.Subject == subject && x.ValidTo > expires);
         }
@@ -349,7 +349,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteRefreshTokens(DateTime expires)
+        public async Task<int> DeleteRefreshTokens(DateTimeOffset expires)
         {
             var i = 0;
             var tokens = this.refreshTokens.Where(x => x.Value.ValidTo <= expires).ToList();

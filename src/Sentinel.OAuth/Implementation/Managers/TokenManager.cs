@@ -1,8 +1,8 @@
-﻿namespace Sentinel.OAuth.Implementation
+﻿namespace Sentinel.OAuth.Implementation.Managers
 {
     using Common.Logging;
+    using Newtonsoft.Json;
     using Sentinel.OAuth.Core.Constants.Identity;
-    using Sentinel.OAuth.Core.Interfaces.Factories;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Core.Interfaces.Providers;
@@ -24,21 +24,18 @@
         private readonly IUserManager userManager;
 
         /// <summary>Initializes a new instance of the TokenManager class.</summary>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when one or more required arguments are null.
-        /// </exception>
+        /// <exception cref="ArgumentNullException">Thrown when one or more required arguments are null.</exception>
         /// <param name="logger">The logger.</param>
         /// <param name="userManager">Manager for users.</param>
         /// <param name="principalProvider">The principal provider.</param>
-        /// <param name="cryptoProvider">The crypto provider.</param>
-        /// <param name="tokenFactory">The token factory.</param>
+        /// <param name="tokenProvider">The token provider.</param>
         /// <param name="tokenRepository">The token repository.</param>
-        public TokenManager(ILog logger, IUserManager userManager, IPrincipalProvider principalProvider, ICryptoProvider cryptoProvider, ITokenFactory tokenFactory, ITokenRepository tokenRepository)
-            : base(principalProvider, cryptoProvider, tokenFactory, tokenRepository)
+        public TokenManager(ILog logger, IUserManager userManager, IPrincipalProvider principalProvider, ITokenProvider tokenProvider, ITokenRepository tokenRepository)
+            : base(principalProvider, tokenProvider, tokenRepository)
         {
             if (logger == null)
             {
-                throw new ArgumentNullException("logger");
+                throw new ArgumentNullException(nameof(logger));
             }
 
             this.logger = logger;
@@ -53,18 +50,19 @@
         {
             this.logger.DebugFormat("Authenticating authorization code '{0}' for redirect uri '{1}'", authorizationCode, redirectUri);
 
-            var authorizationCodes = await this.TokenRepository.GetAuthorizationCodes(redirectUri, DateTime.UtcNow);
-
-            this.logger.DebugFormat("Got {0} authorization codes expiring after {1}", authorizationCodes.Count(), DateTime.UtcNow.ToString("s"));
-
-            var entity = authorizationCodes.FirstOrDefault(x => this.CryptoProvider.ValidateHash(authorizationCode, x.Code));
+            var entity = await this.TokenProvider.ValidateAuthorizationCode(redirectUri, authorizationCode);
 
             if (entity != null)
             {
                 this.logger.DebugFormat("Authorization code is valid");
 
                 // Delete used authorization code
-                await this.TokenRepository.DeleteAuthorizationCode(entity);
+                var deleteResult = await this.TokenRepository.DeleteAuthorizationCode(entity);
+
+                if (!deleteResult)
+                {
+                    this.logger.Error($"Unable to delete used authorization code: {JsonConvert.SerializeObject(entity)}");
+                }
 
                 var storedPrincipal = this.PrincipalProvider.Decrypt(entity.Ticket, authorizationCode);
 
@@ -84,11 +82,7 @@
         {
             this.logger.DebugFormat("Authenticating access token");
 
-            var accessTokens = await this.TokenRepository.GetAccessTokens(DateTime.UtcNow);
-
-            this.logger.DebugFormat("Got {0} access tokens expiring after {1}", accessTokens.Count(), DateTime.UtcNow.ToString("s"));
-
-            var entity = accessTokens.FirstOrDefault(x => this.CryptoProvider.ValidateHash(accessToken, x.Token));
+            var entity = await this.TokenProvider.ValidateAccessToken(accessToken);
 
             if (entity != null)
             {
@@ -113,18 +107,19 @@
         {
             this.logger.DebugFormat("Authenticating refresh token for client '{0}' and redirect uri '{1}'", clientId, redirectUri);
 
-            var refreshTokens = await this.TokenRepository.GetRefreshTokens(clientId, redirectUri, DateTime.UtcNow);
-
-            this.logger.DebugFormat("Got {0} refresh tokens expiring after {1}", refreshTokens.Count(), DateTime.UtcNow.ToString("s"));
-
-            var entity = refreshTokens.FirstOrDefault(x => this.CryptoProvider.ValidateHash(refreshToken, x.Token));
+            var entity = await this.TokenProvider.ValidateRefreshToken(clientId, redirectUri, refreshToken);
 
             if (entity != null)
             {
                 this.logger.DebugFormat("Refresh token is valid. It belongs to the user '{0}', client '{1}' and redirect uri '{2}'", entity.Subject, entity.ClientId, entity.RedirectUri);
 
                 // Delete refresh token to prevent it being used again
-                await this.TokenRepository.DeleteRefreshToken(entity);
+                var deleteResult = await this.TokenRepository.DeleteRefreshToken(entity);
+
+                if (!deleteResult)
+                {
+                    this.logger.Error($"Unable to delete used refresh token: {JsonConvert.SerializeObject(entity)}");
+                }
 
                 // Re-authenticate user to get new claims
                 var user = await this.userManager.AuthenticateUserAsync(entity.Subject);
@@ -167,7 +162,7 @@
             }
 
             // Delete all expired authorization codes
-            await this.TokenRepository.DeleteAuthorizationCodes(DateTime.UtcNow);
+            await this.TokenRepository.DeleteAuthorizationCodes(DateTimeOffset.UtcNow);
 
             // Remove unnecessary claims from principal
             userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
@@ -181,26 +176,21 @@
             // Create and store authorization code for future use
             this.logger.DebugFormat("Creating authorization code for client '{0}', redirect uri '{1}' and user '{2}'", client, redirectUri, userPrincipal.Identity.Name);
 
-            string code;
-            var hashedCode = this.CryptoProvider.CreateHash(out code, 256);
-
-            var authorizationCode = this.TokenFactory.CreateAuthorizationCode(
+            var createResult = await this.TokenProvider.CreateAuthorizationCode(
                 client.Value,
                 redirectUri,
-                userPrincipal.Identity.Name,
+                userPrincipal,
                 scope,
-                hashedCode,
-                this.PrincipalProvider.Encrypt(userPrincipal, code),
-                DateTime.UtcNow.Add(expire));
+                DateTimeOffset.UtcNow.Add(expire));
 
             // Add authorization code to database
-            var result = await this.TokenRepository.InsertAuthorizationCode(authorizationCode);
+            var insertResult = await this.TokenRepository.InsertAuthorizationCode(createResult.Entity);
 
-            if (result != null)
+            if (insertResult != null)
             {
                 this.logger.DebugFormat("Successfully created and stored authorization code");
 
-                return code;
+                return createResult.Token;
             }
 
             this.logger.ErrorFormat("Unable to create and/or store authorization code");
@@ -225,7 +215,7 @@
             }
 
             // Delete all expired access tokens
-            await this.TokenRepository.DeleteAccessTokens(DateTime.UtcNow);
+            await this.TokenRepository.DeleteAccessTokens(DateTimeOffset.UtcNow);
 
             // Remove unnecessary claims from principal
             userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
@@ -238,27 +228,21 @@
 
             this.logger.DebugFormat("Creating access token for client '{0}', redirect uri '{1}' and user '{2}'", clientId, redirectUri, userPrincipal.Identity.Name);
 
-            // Create new access token
-            string token;
-            var hashedToken = this.CryptoProvider.CreateHash(out token, 2048);
-
-            var accessToken = this.TokenFactory.CreateAccessToken(
+            var createResult = await this.TokenProvider.CreateAccessToken(
                 clientId,
                 redirectUri,
-                userPrincipal.Identity.Name,
+                userPrincipal,
                 scope,
-                hashedToken,
-                this.PrincipalProvider.Encrypt(userPrincipal, token),
-                DateTime.UtcNow.Add(expire));
+                DateTimeOffset.UtcNow.Add(expire));
 
             // Add access token to database
-            var result = await this.TokenRepository.InsertAccessToken(accessToken);
+            var insertResult = await this.TokenRepository.InsertAccessToken(createResult.Entity);
 
-            if (result != null)
+            if (insertResult != null)
             {
                 this.logger.DebugFormat("Successfully created and stored access token");
 
-                return token;
+                return createResult.Token;
             }
 
             this.logger.ErrorFormat("Unable to create and/or store access token");
@@ -283,7 +267,7 @@
             }
 
             // Delete all expired refresh tokens
-            await this.TokenRepository.DeleteRefreshTokens(DateTime.UtcNow);
+            await this.TokenRepository.DeleteRefreshTokens(DateTimeOffset.UtcNow);
 
             // Remove unnecessary claims from principal
             userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
@@ -296,20 +280,23 @@
 
             this.logger.DebugFormat("Creating refresh token for client '{0}', redirect uri '{1}' and user '{2}'", clientId, redirectUri, userPrincipal.Identity.Name);
 
-            // Create new refresh token
-            string token;
-            var hashedToken = this.CryptoProvider.CreateHash(out token, 2048);
-
-            var refreshToken = this.TokenFactory.CreateRefreshToken(clientId, redirectUri, userPrincipal.Identity.Name, scope, hashedToken, DateTime.UtcNow.Add(expire));
+            var createResult =
+                await
+                this.TokenProvider.CreateRefreshToken(
+                    clientId,
+                    redirectUri,
+                    userPrincipal,
+                    scope,
+                    DateTimeOffset.UtcNow.Add(expire));
 
             // Add refresh token to database
-            var result = await this.TokenRepository.InsertRefreshToken(refreshToken);
+            var insertResult = await this.TokenRepository.InsertRefreshToken(createResult.Entity);
 
-            if (result != null)
+            if (insertResult != null)
             {
                 this.logger.DebugFormat("Successfully created and stored refresh token");
 
-                return token;
+                return createResult.Token;
             }
 
             this.logger.ErrorFormat("Unable to create and/or store refresh token");

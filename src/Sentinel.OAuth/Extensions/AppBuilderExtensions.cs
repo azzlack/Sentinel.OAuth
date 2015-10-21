@@ -1,17 +1,17 @@
 ﻿namespace Sentinel.OAuth.Extensions
 {
-    using System;
-
     using Common.Logging;
-
     using Microsoft.Owin;
     using Microsoft.Owin.Security.OAuth;
-
     using Owin;
-
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Implementation;
     using Sentinel.OAuth.Providers.OAuth;
+    using System;
+
+    using Sentinel.OAuth.Implementation.Managers;
+    using Sentinel.OAuth.Implementation.Providers;
+    using Sentinel.OAuth.Implementation.Repositories;
 
     /// <summary>
     /// Extension methods to add Authorization Server capabilities to an OWIN pipeline
@@ -49,9 +49,14 @@
                 options.PrincipalProvider = new PrincipalProvider(options.CryptoProvider);
             }
 
+            if (options.TokenProvider == null)
+            {
+                options.TokenProvider = new JwtTokenProvider();
+            }
+
             if (options.TokenManager == null)
             {
-                options.TokenManager = new TokenManager(options.Logger, options.UserManager, options.PrincipalProvider, options.CryptoProvider, new TokenFactory(), new MemoryTokenRepository());
+                options.TokenManager = new TokenManager(options.Logger, options.UserManager, options.PrincipalProvider, options.TokenProvider, new MemoryTokenRepository());
             }
 
             // Initialize underlying OWIN OAuth system
@@ -70,9 +75,9 @@
 
             app.UseOAuthAuthorizationServer(oauthOptions);
             app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions()
-                                                 {
-                                                     AccessTokenProvider = oauthOptions.AccessTokenProvider
-                                                 });
+            {
+                AccessTokenProvider = oauthOptions.AccessTokenProvider
+            });
 
             return app;
         }

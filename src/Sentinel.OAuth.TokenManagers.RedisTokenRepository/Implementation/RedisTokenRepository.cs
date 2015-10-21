@@ -64,7 +64,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The authorization codes.</returns>
-        public async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTime expires)
+        public async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTimeOffset expires)
         {
             var db = this.GetDatabase();
 
@@ -120,7 +120,7 @@
 
             try
             {
-                this.Configuration.Log.DebugFormat("Inserting access token hash in key {0}", key);
+                this.Configuration.Log.DebugFormat("Inserting authorization code hash in key {0}", key);
 
                 // Add hash to key
                 tran.HashSetAsync(key, code.ToHashEntries());
@@ -135,7 +135,7 @@
                 this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, code.ValidTo);
 
                 // Make the key expire when the code times out
-                tran.KeyExpireAsync(key, code.ValidTo);
+                tran.KeyExpireAsync(key, code.ValidTo.UtcDateTime);
 
                 await tran.ExecuteAsync();
 
@@ -155,7 +155,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted codes.</returns>
-        public async Task<int> DeleteAuthorizationCodes(DateTime expires)
+        public async Task<int> DeleteAuthorizationCodes(DateTimeOffset expires)
         {
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
@@ -163,7 +163,7 @@
             var keysToDelete = await db.SortedSetRangeByScoreAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", 0, expires.ToUnixTime());
 
             // Remove items from index
-            var expireTask = tran.SortedSetRemoveRangeByScoreAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", 0, expires.ToUnixTime());
+            tran.SortedSetRemoveRangeByScoreAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", 0, expires.ToUnixTime());
 
             // Remove keys
             foreach (var key in keysToDelete)
@@ -197,7 +197,7 @@
             var tran = db.CreateTransaction();
 
             // Remove items from index
-            tran.SortedSetRemoveAsync(this.Configuration.AuthorizationCodePrefix, key);
+            tran.SortedSetRemoveAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", key);
 
             // Remove key
             tran.KeyDeleteAsync(key);
@@ -210,14 +210,21 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(object identifier)
         {
+            var id = identifier as RedisTokenIdentifier;
+
+            if (id == null)
+            {
+                throw new ArgumentException("identifier must be a RedisTokenIdentifier type", nameof(identifier));
+            }
+
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
 
             // Remove items from index
-            tran.SortedSetRemoveAsync(this.Configuration.AuthorizationCodePrefix, identifier.ToString());
+            tran.SortedSetRemoveAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", $"{this.Configuration.AuthorizationCodePrefix}:{id.Id}");
 
             // Remove key
-            tran.KeyDeleteAsync(identifier.ToString());
+            tran.KeyDeleteAsync($"{this.Configuration.AuthorizationCodePrefix}:{id.Id}");
 
             return await tran.ExecuteAsync(CommandFlags.HighPriority);
         }
@@ -254,7 +261,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The access tokens.</returns>
-        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTime expires)
+        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTimeOffset expires)
         {
             var db = this.GetDatabase();
 
@@ -290,7 +297,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The access tokens.</returns>
-        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTime expires)
+        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTimeOffset expires)
         {
             var db = this.GetDatabase();
 
@@ -360,7 +367,7 @@
                 this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, token.ValidTo);
 
                 // Make the keys expire when the code times out
-                tran.KeyExpireAsync(key, token.ValidTo);
+                tran.KeyExpireAsync(key, token.ValidTo.UtcDateTime);
 
                 await tran.ExecuteAsync();
 
@@ -380,7 +387,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteAccessTokens(DateTime expires)
+        public async Task<int> DeleteAccessTokens(DateTimeOffset expires)
         {
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
@@ -544,7 +551,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTime expires)
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTimeOffset expires)
         {
             var db = this.GetDatabase();
 
@@ -577,7 +584,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTime expires)
+        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTimeOffset expires)
         {
             var db = this.GetDatabase();
 
@@ -643,7 +650,7 @@
                 this.Configuration.Log.DebugFormat("Making key {0} expire at {1}", key, token.ValidTo);
 
                 // Make the key expire when the code times out
-                tran.KeyExpireAsync(key, token.ValidTo);
+                tran.KeyExpireAsync(key, token.ValidTo.UtcDateTime);
 
                 await tran.ExecuteAsync();
 
@@ -663,7 +670,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteRefreshTokens(DateTime expires)
+        public async Task<int> DeleteRefreshTokens(DateTimeOffset expires)
         {
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();

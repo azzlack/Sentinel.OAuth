@@ -99,14 +99,6 @@
         [Test]
         public async void AuthenticateAuthorizationCode_WhenGivenUsingCodeTwice_ReturnsNotAuthenticatedIdentity()
         {
-            await
-                this.TokenManager.CreateAuthorizationCodeAsync(
-                    new SentinelPrincipal(
-                    new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "this one is expired"), new SentinelClaim(ClaimType.Client, "NUnit"))),
-                    TimeSpan.FromMinutes(-5),
-                    "http://localhost",
-                    new[] { Scope.Read });
-
             var code =
                 await
                 this.TokenManager.CreateAuthorizationCodeAsync(

@@ -1,22 +1,19 @@
 ﻿namespace Sentinel.Tests.Integration
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Security.Claims;
-
     using Common.Logging;
-
     using Moq;
-
     using NUnit.Framework;
-
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Extensions;
-    using Sentinel.OAuth.Implementation;
+    using Sentinel.OAuth.Implementation.Managers;
+    using Sentinel.OAuth.Implementation.Providers;
+    using Sentinel.OAuth.Implementation.Repositories;
     using Sentinel.OAuth.Models.Identity;
     using Sentinel.Tests.Constants;
+    using System;
+    using System.Security.Claims;
 
     [TestFixture]
     [Category("Integration")]
@@ -35,7 +32,10 @@
                             new SentinelClaim(ClaimTypes.Name, "azzlack"),
                             new SentinelClaim(ClaimType.Client, "NUnit"))));
 
-            this.tokenManager = new TokenManager(LogManager.GetLogger<TokenManagerTests>(), userManager.Object, new PrincipalProvider(new PBKDF2CryptoProvider()), new PBKDF2CryptoProvider(), new TokenFactory(), new MemoryTokenRepository());
+            var principalProvider = new PrincipalProvider(new PBKDF2CryptoProvider());
+            var tokenRepository = new MemoryTokenRepository();
+
+            this.tokenManager = new TokenManager(LogManager.GetLogger<TokenManagerTests>(), userManager.Object, principalProvider, new SentinelTokenProvider(new PBKDF2CryptoProvider(), principalProvider, tokenRepository), tokenRepository);
         }
 
         [TestCase("NUnit", "http://localhost")]

@@ -5,7 +5,8 @@
     using NUnit.Framework;
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
-    using Sentinel.OAuth.Implementation;
+    using Sentinel.OAuth.Implementation.Managers;
+    using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.Models.Identity;
     using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Implementation;
     using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models;
@@ -27,18 +28,21 @@
                             new SentinelClaim(ClaimTypes.Name, "azzlack"),
                             new SentinelClaim(ClaimType.Client, "NUnit"))));
 
-            this.TokenManager = new TokenManager(
-                LogManager.GetLogger(typeof(RedisTokenManagerTests)),
-                userManager.Object,
-                new PrincipalProvider(new PBKDF2CryptoProvider()),
-                new PBKDF2CryptoProvider(),
-                new RedisTokenFactory(),
+            var principalProvider = new PrincipalProvider(new PBKDF2CryptoProvider());
+            var tokenRepository =
                 new RedisTokenRepository(
                     new RedisTokenRepositoryConfiguration(
                         ConfigurationManager.AppSettings["RedisHost"],
                         4,
                         "sentinel.oauth.RedisTokenManagerTests",
-                        LogManager.GetLogger(typeof(RedisTokenManagerTests)))));
+                        LogManager.GetLogger(typeof(RedisTokenManagerTests))));
+
+            this.TokenManager = new TokenManager(
+                LogManager.GetLogger(typeof(RedisTokenManagerTests)),
+                userManager.Object,
+                principalProvider,
+                new SentinelTokenProvider(new PBKDF2CryptoProvider(), principalProvider, tokenRepository),
+                tokenRepository);
 
             base.SetUp();
         }

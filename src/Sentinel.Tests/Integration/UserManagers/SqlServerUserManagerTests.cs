@@ -1,17 +1,14 @@
 ﻿namespace Sentinel.Tests.Integration.UserManagers
 {
+    using Dapper;
+    using NUnit.Framework;
+    using Sentinel.OAuth.Core.Interfaces.Managers;
+    using Sentinel.OAuth.Implementation.Providers;
+    using Sentinel.OAuth.UserManagers.SqlServerUserManager.Implementation;
+    using Sentinel.OAuth.UserManagers.SqlServerUserManager.Models;
     using System;
     using System.Data;
     using System.Data.SqlLocalDb;
-
-    using Dapper;
-
-    using NUnit.Framework;
-
-    using Sentinel.OAuth.Core.Interfaces.Managers;
-    using Sentinel.OAuth.Implementation;
-    using Sentinel.OAuth.UserManagers.SqlServerUserManager.Implementation;
-    using Sentinel.OAuth.UserManagers.SqlServerUserManager.Models;
 
     [TestFixture]
     [Category("Integration")]
@@ -127,7 +124,7 @@
                         connection.Close();
                     }
                 }
-                
+
                 this.instance.Dispose();
             }
         }

@@ -84,8 +84,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants\Identity\ClaimType.cs" />
-    <Compile Include="Interfaces\Factories\ITokenFactory.cs" />
     <Compile Include="Interfaces\Models\IToken.cs" />
+    <Compile Include="Interfaces\Providers\ITokenProvider.cs" />
     <Compile Include="Models\OAuth\AccessToken.cs" />
     <Compile Include="Constants\Identity\AuthenticationType.cs" />
     <Compile Include="Models\OAuth\AuthorizationCode.cs" />
@@ -103,7 +103,6 @@
     <Compile Include="Interfaces\Managers\ITokenManager.cs" />
     <Compile Include="Interfaces\Providers\IPrincipalProvider.cs" />
     <Compile Include="Interfaces\Repositories\ITokenRepository.cs" />
-    <Compile Include="Constants\OAuth\TokenFormat.cs" />
     <Compile Include="Managers\BaseTokenManager.cs" />
     <Compile Include="Managers\BaseUserManager.cs" />
     <Compile Include="Managers\BaseClientManager.cs" />
@@ -115,6 +114,7 @@
     <Compile Include="Models\OAuth\RefreshToken.cs" />
     <Compile Include="Models\SentinelAuthorizationServerEvents.cs" />
     <Compile Include="Models\SentinelAuthorizationServerOptions.cs" />
+    <Compile Include="Models\TokenCreationResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +132,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interfaces\Factories\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

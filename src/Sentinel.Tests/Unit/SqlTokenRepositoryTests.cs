@@ -45,9 +45,9 @@
 
                 connection.Execute($"CREATE DATABASE [{this.databaseName}]");
                 connection.Execute($"USE [{this.databaseName}]");
-                connection.Execute("CREATE TABLE AccessTokens (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Ticket VARCHAR(MAX) NOT NULL, Token VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, RedirectUri VARCHAR(MAX), Scope NVARCHAR(MAX), ValidTo DATETIME2, Created DATETIME2)");
-                connection.Execute("CREATE TABLE RefreshTokens (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Token VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, RedirectUri VARCHAR(MAX), Scope NVARCHAR(MAX), ValidTo DATETIME2, Created DATETIME2)");
-                connection.Execute("CREATE TABLE AuthorizationCodes (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Ticket VARCHAR(MAX) NOT NULL, Code VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, Scope NVARCHAR(MAX), RedirectUri VARCHAR(MAX), ValidTo DATETIME2, Created DATETIME2)");
+                connection.Execute("CREATE TABLE AccessTokens (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Ticket VARCHAR(MAX) NOT NULL, Token VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, RedirectUri VARCHAR(MAX), Scope NVARCHAR(MAX), ValidTo DATETIMEOFFSET, Created DATETIMEOFFSET)");
+                connection.Execute("CREATE TABLE RefreshTokens (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Token VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, RedirectUri VARCHAR(MAX), Scope NVARCHAR(MAX), ValidTo DATETIMEOFFSET, Created DATETIMEOFFSET)");
+                connection.Execute("CREATE TABLE AuthorizationCodes (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Ticket VARCHAR(MAX) NOT NULL, Code VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, Scope NVARCHAR(MAX), RedirectUri VARCHAR(MAX), ValidTo DATETIMEOFFSET, Created DATETIMEOFFSET)");
             }
 
             base.TestFixtureSetUp();

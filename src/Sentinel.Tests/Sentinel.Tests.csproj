@@ -193,6 +193,7 @@
   <ItemGroup>
     <Compile Include="Constants\Scope.cs" />
     <Compile Include="Facade\AuthorizationServerTests.cs" />
+    <Compile Include="Facade\JwtAuthorizationServerTests.cs" />
     <Compile Include="Facade\SentinelTokenAuthorizationServerTests.cs" />
     <Compile Include="Integration\ClientManagers\SqlServerClientManagerTests.cs" />
     <Compile Include="Integration\PrincipalProviderTests.cs" />

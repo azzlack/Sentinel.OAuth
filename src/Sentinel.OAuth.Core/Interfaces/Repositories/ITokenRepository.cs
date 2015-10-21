@@ -20,7 +20,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The authorization codes.</returns>
-        Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTime expires);
+        Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTimeOffset expires);
 
         /// <summary>
         /// Inserts the specified authorization code.
@@ -36,7 +36,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted codes.</returns>
-        Task<int> DeleteAuthorizationCodes(DateTime expires);
+        Task<int> DeleteAuthorizationCodes(DateTimeOffset expires);
 
         /// <summary>
         /// Deletes the specified authorization code.
@@ -62,7 +62,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The access tokens.</returns>
-        Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTime expires);
+        Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTimeOffset expires);
 
         /// <summary>
         /// Gets all access tokens for the specified user that expires **after** the specified date. 
@@ -70,7 +70,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The access tokens.</returns>
-        Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTime expires);
+        Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTimeOffset expires);
 
         /// <summary>
         /// Inserts the specified access token.
@@ -86,7 +86,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted tokens.</returns>
-        Task<int> DeleteAccessTokens(DateTime expires);
+        Task<int> DeleteAccessTokens(DateTimeOffset expires);
 
         /// <summary>Deletes the access tokens belonging to the specified client, redirect uri and subject.</summary>
         /// <param name="clientId">Identifier for the client.</param>
@@ -121,7 +121,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTime expires);
+        Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTimeOffset expires);
 
         /// <summary>
         /// Gets all refresh tokens for the specified user that expires **after** the specified date. 
@@ -129,7 +129,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTime expires);
+        Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTimeOffset expires);
 
         /// <summary>
         /// Inserts the specified refresh token.
@@ -145,7 +145,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted tokens.</returns>
-        Task<int> DeleteRefreshTokens(DateTime expires);
+        Task<int> DeleteRefreshTokens(DateTimeOffset expires);
 
         /// <summary>Deletes the refresh tokens belonging to the specified client, redirect uri and subject.</summary>
         /// <param name="clientId">Identifier for the client.</param>

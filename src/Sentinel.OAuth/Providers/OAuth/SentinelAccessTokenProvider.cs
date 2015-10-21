@@ -1,17 +1,15 @@
 ﻿namespace Sentinel.OAuth.Providers.OAuth
 {
-    using System;
-    using System.Linq;
-    using System.Security.Claims;
-    using System.Threading.Tasks;
-
     using Microsoft.Owin.Security;
     using Microsoft.Owin.Security.Infrastructure;
-
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Constants.OAuth;
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Extensions;
+    using System;
+    using System.Linq;
+    using System.Security.Claims;
+    using System.Threading.Tasks;
 
     /// <summary>The Sentinel access token provider.</summary>
     public class SentinelAccessTokenProvider : AuthenticationTokenProvider
@@ -90,7 +88,7 @@
                     context.OwinContext.GetOAuthContext().RedirectUri);
 
                 // Add expiration claim so it is stored with the token
-                context.Ticket.Identity.AddClaim(new Claim(ClaimTypes.Expiration, DateTime.UtcNow.Add(this.options.AccessTokenLifetime).ToUnixTime().ToString()));
+                context.Ticket.Identity.AddClaim(new Claim(ClaimTypes.Expiration, DateTimeOffset.UtcNow.Add(this.options.AccessTokenLifetime).ToUnixTime().ToString()));
 
                 var tcs = new TaskCompletionSource<string>();
                 Task.Run(
@@ -145,9 +143,9 @@
                         if (principal.Identity.IsAuthenticated)
                         {
                             var props = new AuthenticationProperties
-                                            {
-                                                ExpiresUtc = DateTimeOffset.UtcNow.Add(this.options.AccessTokenLifetime)
-                                            };
+                            {
+                                ExpiresUtc = DateTimeOffset.UtcNow.Add(this.options.AccessTokenLifetime)
+                            };
 
                             /* Override the validation parameters.
                              * This is because OWIN thinks the principal.Identity.Name should 

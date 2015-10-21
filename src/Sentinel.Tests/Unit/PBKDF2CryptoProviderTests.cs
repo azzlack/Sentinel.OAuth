@@ -11,6 +11,8 @@
     using System.Security.Cryptography;
     using System.Text;
 
+    using Sentinel.OAuth.Implementation.Providers;
+
     [TestFixture]
     [Category("Unit")]
     public class PBKDF2CryptoProviderTests

@@ -26,7 +26,7 @@
         /// Gets or sets the expiration time.
         /// </summary>
         /// <value>The expiration time.</value>
-        DateTime ValidTo { get; set; }
+        DateTimeOffset ValidTo { get; set; }
 
         /// <summary>Gets the identifier.</summary>
         /// <returns>The identifier.</returns>
