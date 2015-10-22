@@ -10,31 +10,31 @@
 
     public abstract class BaseTokenManager : ITokenManager
     {
+        /// <summary>The principal provider.</summary>
+        private readonly IPrincipalProvider principalProvider;
+
+        /// <summary>The token provider.</summary>
+        private readonly ITokenProvider tokenProvider;
+
         /// <summary>The token repository.</summary>
         private readonly ITokenRepository tokenRepository;
+
+        /// <summary>The client repository.</summary>
+        private readonly IClientRepository clientRepository;
+
 
         /// <summary>Initializes a new instance of the BaseTokenManager class.</summary>
         /// <param name="principalProvider">The principal provider.</param>
         /// <param name="tokenProvider">The token provider.</param>
         /// <param name="tokenRepository">The token repository.</param>
-        protected BaseTokenManager(IPrincipalProvider principalProvider, ITokenProvider tokenProvider, ITokenRepository tokenRepository)
+        /// <param name="clientRepository">The client repository.</param>
+        protected BaseTokenManager(IPrincipalProvider principalProvider, ITokenProvider tokenProvider, ITokenRepository tokenRepository, IClientRepository clientRepository)
         {
-            this.TokenProvider = tokenProvider;
-            this.PrincipalProvider = principalProvider;
+            this.principalProvider = principalProvider;
+            this.tokenProvider = tokenProvider;
             this.tokenRepository = tokenRepository;
+            this.clientRepository = clientRepository;
         }
-
-        /// <summary>Gets the token repository.</summary>
-        /// <value>The token repository.</value>
-        public ITokenRepository TokenRepository => this.tokenRepository;
-
-        /// <summary>Gets the principal provider.</summary>
-        /// <value>The principal provider.</value>
-        protected IPrincipalProvider PrincipalProvider { get; private set; }
-
-        /// <summary>Gets the token provider.</summary>
-        /// <value>The token provider.</value>
-        protected ITokenProvider TokenProvider { get; private set; }
 
         /// <summary>Authenticates the authorization code.</summary>
         /// <param name="redirectUri">The redirect URI.</param>

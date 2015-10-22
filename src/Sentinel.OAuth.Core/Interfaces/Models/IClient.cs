@@ -21,5 +21,27 @@
         /// </summary>
         /// <value>The redirect uri.</value>
         string RedirectUri { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>The name.</value>
+        string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the last used date.
+        /// </summary>
+        /// <value>The last used date.</value>
+        DateTime LastUsed { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this Client is enabled.
+        /// </summary>
+        /// <value><c>true</c> if enabled; otherwise, <c>false</c>.</value>
+        bool Enabled { get; set; }
+
+        /// <summary>Gets the identifier.</summary>
+        /// <returns>The identifier.</returns>
+        string GetIdentifier();
     }
 }

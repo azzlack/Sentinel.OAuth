@@ -20,6 +20,7 @@
         /// <summary>The token repository.</summary>
         private readonly ITokenRepository tokenRepository;
 
+        /// <summary>The client repository.</summary>
         private readonly IClientRepository clientRepository;
 
         /// <summary>The configuration.</summary>

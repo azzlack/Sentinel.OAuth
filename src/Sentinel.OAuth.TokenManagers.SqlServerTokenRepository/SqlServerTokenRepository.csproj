@@ -48,11 +48,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Implementation\SqlServerClientRepository.cs" />
     <Compile Include="Implementation\SqlServerTokenRepository.cs" />
+    <Compile Include="Interfaces\ISqlServerRepositoryConfiguration.cs" />
     <Compile Include="Models\OAuth\SqlAccessToken.cs" />
     <Compile Include="Models\OAuth\SqlAuthorizationCode.cs" />
+    <Compile Include="Models\OAuth\SqlClient.cs" />
     <Compile Include="Models\OAuth\SqlRefreshToken.cs" />
-    <Compile Include="Models\SqlServerTokenRepositoryConfiguration.cs" />
+    <Compile Include="Models\SqlServerRepositoryConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -6,6 +6,7 @@
     using Sentinel.OAuth.ClientManagers.SqlServerClientManager.Models;
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Implementation.Providers;
+    using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Implementation;
     using System;
     using System.Data;
     using System.Data.SqlLocalDb;

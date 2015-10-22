@@ -48,6 +48,21 @@
                 options.PrincipalProvider = new PrincipalProvider(options.CryptoProvider);
             }
 
+            if (options.ClientManager == null)
+            {
+                throw new InvalidOperationException("ClientManager must be set");
+            }
+
+            if (options.ClientRepository == null)
+            {
+                throw new InvalidOperationException("ClientRepository must be set");
+            }
+
+            if (options.UserManager == null)
+            {
+                throw new InvalidOperationException("UserManager must be set");
+            }
+
             if (options.TokenRepository == null)
             {
                 options.TokenRepository = new MemoryTokenRepository();

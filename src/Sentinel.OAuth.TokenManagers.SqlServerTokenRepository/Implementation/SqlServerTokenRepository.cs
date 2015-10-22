@@ -4,7 +4,7 @@
     using Newtonsoft.Json;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models;
+    using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Interfaces;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models.OAuth;
     using System;
     using System.Collections.Generic;
@@ -15,18 +15,17 @@
     /// <summary>A token repository using a SQL server for storage.</summary>
     public class SqlServerTokenRepository : ITokenRepository
     {
+        /// <summary>The configuration.</summary>
+        private readonly ISqlServerRepositoryConfiguration configuration;
+
         /// <summary>
         /// Initializes a new instance of the SqlServerTokenRepository class.
         /// </summary>
         /// <param name="configuration">The configuration.</param>
-        public SqlServerTokenRepository(SqlServerTokenRepositoryConfiguration configuration)
+        public SqlServerTokenRepository(ISqlServerRepositoryConfiguration configuration)
         {
-            this.Configuration = configuration;
+            this.configuration = configuration;
         }
-
-        /// <summary>Gets the configuration.</summary>
-        /// <value>The configuration.</value>
-        protected SqlServerTokenRepositoryConfiguration Configuration { get; }
 
         /// <summary>Gets the specified authorization code.</summary>
         /// <param name="identifier">The identifier.</param>
@@ -657,7 +656,7 @@
         /// <returns>A SqlConnection.</returns>
         private async Task<SqlConnection> OpenConnection()
         {
-            var connection = new SqlConnection(this.Configuration.ConnectionString);
+            var connection = new SqlConnection(this.configuration.ConnectionString);
             await connection.OpenAsync();
 
             return connection;

@@ -247,10 +247,6 @@
       <Project>{3fd81fab-932d-4592-b325-ec190d8e0c03}</Project>
       <Name>AspNetIdentityUserManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sentinel.OAuth.ClientManagers.SqlServerClientManager\SqlServerClientManager.csproj">
-      <Project>{a4dc3c3b-014e-42ed-ac98-555186f8ab98}</Project>
-      <Name>SqlServerClientManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Sentinel.OAuth.Client\Sentinel.OAuth.Client.csproj">
       <Project>{817dd465-2c53-44f5-9c19-5f4c40510f5e}</Project>
       <Name>Sentinel.OAuth.Client</Name>

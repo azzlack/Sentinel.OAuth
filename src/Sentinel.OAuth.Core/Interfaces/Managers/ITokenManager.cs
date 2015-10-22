@@ -1,19 +1,13 @@
 ﻿namespace Sentinel.OAuth.Core.Interfaces.Managers
 {
+    using Sentinel.OAuth.Core.Interfaces.Identity;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    using Sentinel.OAuth.Core.Interfaces.Identity;
-    using Sentinel.OAuth.Core.Interfaces.Repositories;
-
     /// <summary>Interface for token validation and creation.</summary>
     public interface ITokenManager
     {
-        /// <summary>Gets the token repository.</summary>
-        /// <value>The token repository.</value>
-        ITokenRepository TokenRepository { get; }
-
         /// <summary>
         /// Authenticates the authorization code.
         /// </summary>
