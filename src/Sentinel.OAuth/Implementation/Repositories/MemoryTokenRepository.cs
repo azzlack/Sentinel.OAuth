@@ -36,6 +36,11 @@
         /// <returns>The authorization code.</returns>
         public async Task<IAuthorizationCode> GetAuthorizationCode(string identifier)
         {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentNullException(nameof(identifier));
+            }
+
             var entry = this.authorizationCodes.FirstOrDefault(x => x.Key == identifier.ToString());
 
             return entry.Value;
@@ -100,6 +105,11 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(string identifier)
         {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentNullException(nameof(identifier));
+            }
+
             var exists = this.authorizationCodes.Any(x => x.Key == identifier);
 
             if (exists)
@@ -132,6 +142,11 @@
         /// <returns>The access token.</returns>
         public async Task<IAccessToken> GetAccessToken(string identifier)
         {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentNullException(nameof(identifier));
+            }
+
             var entry = this.accessTokens.FirstOrDefault(x => x.Key == identifier.ToString());
 
             return entry.Value;
@@ -169,9 +184,9 @@
                 throw new ArgumentException($"The access token is invalid: {JsonConvert.SerializeObject(token)}", nameof(accessToken));
             }
 
-            if (this.accessTokens.TryAdd(token.GetIdentifier().ToString(), token))
+            if (this.accessTokens.TryAdd(token.GetIdentifier(), token))
             {
-                return accessToken;
+                return token;
             }
 
             return null;
@@ -226,8 +241,13 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAccessToken(string identifier)
         {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentNullException(nameof(identifier));
+            }
+
             var i = 0;
-            var tokens = this.accessTokens.Where(x => x.Key == identifier.ToString()).ToList();
+            var tokens = this.accessTokens.Where(x => x.Key == identifier).ToList();
 
             foreach (var token in tokens)
             {
@@ -246,12 +266,10 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
         {
-            var exists = this.accessTokens.Any(x => x.Value.Equals(accessToken));
+            var token = this.accessTokens.FirstOrDefault(x => x.Key == accessToken.Token);
 
-            if (exists)
+            if (token.Value != null)
             {
-                var token = this.accessTokens.First(x => x.Value.Equals(accessToken));
-
                 AccessToken removedToken;
                 return this.accessTokens.TryRemove(token.Key, out removedToken);
             }
@@ -264,6 +282,11 @@
         /// <returns>The refresh token.</returns>
         public async Task<IRefreshToken> GetRefreshToken(string identifier)
         {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentNullException(nameof(identifier));
+            }
+
             var entry = this.refreshTokens.FirstOrDefault(x => x.Key == identifier.ToString());
 
             return entry.Value;
@@ -382,6 +405,11 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteRefreshToken(string identifier)
         {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentNullException(nameof(identifier));
+            }
+
             var exists = this.refreshTokens.Any(x => x.Key == identifier.ToString());
 
             if (exists)

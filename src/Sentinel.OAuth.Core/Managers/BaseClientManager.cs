@@ -2,7 +2,6 @@
 {
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
-    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using System.Collections.Generic;
@@ -27,10 +26,6 @@
         /// <summary>Gets the crypto provider.</summary>
         /// <value>The crypto provider.</value>
         protected ICryptoProvider CryptoProvider { get; private set; }
-
-        /// <summary>Gets the clients.</summary>
-        /// <returns>The clients.</returns>
-        public abstract Task<IEnumerable<IClient>> GetClients();
 
         /// <summary>
         /// Authenticates the client. Used when authenticating with the authorization_code grant type.

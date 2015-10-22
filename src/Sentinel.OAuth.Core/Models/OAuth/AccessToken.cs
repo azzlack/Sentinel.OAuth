@@ -66,7 +66,7 @@
 
         /// <summary>Gets the identifier.</summary>
         /// <returns>The identifier.</returns>
-        public string GetIdentifier()
+        public virtual string GetIdentifier()
         {
             return this.Token;
         }

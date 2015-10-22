@@ -30,8 +30,9 @@
         /// <param name="principalProvider">The principal provider.</param>
         /// <param name="tokenProvider">The token provider.</param>
         /// <param name="tokenRepository">The token repository.</param>
-        public TokenManager(ILog logger, IUserManager userManager, IPrincipalProvider principalProvider, ITokenProvider tokenProvider, ITokenRepository tokenRepository)
-            : base(principalProvider, tokenProvider, tokenRepository)
+        /// <param name="clientRepository">The client repository.</param>
+        public TokenManager(ILog logger, IUserManager userManager, IPrincipalProvider principalProvider, ITokenProvider tokenProvider, ITokenRepository tokenRepository, IClientRepository clientRepository)
+            : base(principalProvider, tokenProvider, tokenRepository, clientRepository)
         {
             if (logger == null)
             {
@@ -50,9 +51,9 @@
         {
             this.logger.DebugFormat("Authenticating authorization code '{0}' for redirect uri '{1}'", authorizationCode, redirectUri);
 
-            var principal = await this.TokenProvider.ValidateAuthorizationCode(authorizationCode);
+            var valid = await this.TokenProvider.ValidateAuthorizationCode(authorizationCode);
 
-            if (principal != null)
+            if (valid)
             {
                 var entity = await this.TokenRepository.GetAuthorizationCode(authorizationCode);
 

@@ -3,7 +3,6 @@
     using Dapper;
     using NUnit.Framework;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Implementation;
-    using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models;
     using System;
     using System.Data;
     using System.Data.SqlLocalDb;
@@ -59,10 +58,7 @@
             var connectionStringBuilder = this.instance.CreateConnectionStringBuilder();
             connectionStringBuilder.InitialCatalog = this.databaseName;
 
-            this.TokenRepository =
-                new SqlServerTokenRepository(
-                    new SqlServerTokenRepositoryConfiguration(
-                        connectionStringBuilder.ToString()));
+            this.TokenRepository = new SqlServerTokenRepository(connectionStringBuilder.ToString());
 
             base.SetUp();
         }

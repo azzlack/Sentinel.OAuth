@@ -11,6 +11,7 @@
     using Sentinel.OAuth.TokenManagers.RavenDbTokenRepository.Models.OAuth;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     /// <summary>A token repository using RavenDB for storage.</summary>
@@ -36,14 +37,18 @@
         /// <returns>The authorization code.</returns>
         public async Task<IAuthorizationCode> GetAuthorizationCode(string identifier)
         {
-            if (!(identifier is string))
+            if (string.IsNullOrEmpty(identifier))
             {
-                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+                throw new ArgumentNullException(nameof(identifier));
             }
 
             using (var session = this.OpenAsyncSession())
             {
-                return await session.LoadAsync<RavenAuthorizationCode>(identifier.ToString());
+                return await
+                    session.Query<RavenAuthorizationCode>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.Code == identifier)
+                        .FirstOrDefaultAsync();
             }
         }
 
@@ -58,7 +63,12 @@
         {
             using (var session = this.OpenAsyncSession())
             {
-                return await session.Query<RavenAuthorizationCode>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.RedirectUri == redirectUri && x.ValidTo > expires).ToListAsync();
+                return
+                    await
+                    session.Query<RavenAuthorizationCode>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.RedirectUri == redirectUri && x.ValidTo > expires)
+                        .ToListAsync();
             }
         }
 
@@ -99,7 +109,12 @@
             using (var session = this.OpenAsyncSession())
             {
                 var i = 0;
-                var matches = await session.Query<RavenAuthorizationCode>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ValidTo <= expires).ToListAsync();
+                var matches =
+                    await
+                    session.Query<RavenAuthorizationCode>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.ValidTo <= expires)
+                        .ToListAsync();
 
                 foreach (var match in matches)
                 {
@@ -121,14 +136,18 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(string identifier)
         {
-            if (!(identifier is string))
+            if (string.IsNullOrEmpty(identifier))
             {
-                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+                throw new ArgumentNullException(nameof(identifier));
             }
 
             using (var session = this.OpenAsyncSession())
             {
-                var match = await session.LoadAsync<RavenAuthorizationCode>(identifier);
+                var match = await
+                    session.Query<RavenAuthorizationCode>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.Code == identifier)
+                        .FirstOrDefaultAsync();
 
                 session.Delete(match);
                 await session.SaveChangesAsync();
@@ -140,9 +159,21 @@
         /// <summary>Deletes the specified authorization code.</summary>
         /// <param name="authorizationCode">The authorization code.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
+        public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            throw new NotImplementedException();
+            using (var session = this.OpenAsyncSession())
+            {
+                var match = await
+                    session.Query<RavenAuthorizationCode>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.Code == authorizationCode.Code)
+                        .FirstOrDefaultAsync();
+
+                session.Delete(match);
+                await session.SaveChangesAsync();
+
+                return true;
+            }
         }
 
         /// <summary>Gets the specified access token.</summary>
@@ -150,14 +181,18 @@
         /// <returns>The access token.</returns>
         public async Task<IAccessToken> GetAccessToken(string identifier)
         {
-            if (!(identifier is string))
+            if (string.IsNullOrEmpty(identifier))
             {
-                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+                throw new ArgumentNullException(nameof(identifier));
             }
 
             using (var session = this.OpenAsyncSession())
             {
-                return await session.LoadAsync<RavenAccessToken>(identifier.ToString());
+                return await
+                    session.Query<RavenAccessToken>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.Token == identifier)
+                        .FirstOrDefaultAsync();
             }
         }
 
@@ -282,14 +317,18 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAccessToken(string identifier)
         {
-            if (!(identifier is string))
+            if (string.IsNullOrEmpty(identifier))
             {
-                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+                throw new ArgumentNullException(nameof(identifier));
             }
 
             using (var session = this.OpenAsyncSession())
             {
-                var match = await session.LoadAsync<RavenAccessToken>(identifier.ToString());
+                var match = await
+                    session.Query<RavenAccessToken>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.Token == identifier)
+                        .FirstOrDefaultAsync();
 
                 session.Delete(match);
                 await session.SaveChangesAsync();
@@ -301,9 +340,21 @@
         /// <summary>Deletes the specified access token.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public Task<bool> DeleteAccessToken(IAccessToken accessToken)
+        public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
         {
-            throw new NotImplementedException();
+            using (var session = this.OpenAsyncSession())
+            {
+                var match = await
+                    session.Query<RavenAccessToken>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.Token == accessToken.Token)
+                        .FirstOrDefaultAsync();
+
+                session.Delete(match);
+                await session.SaveChangesAsync();
+
+                return true;
+            }
         }
 
         /// <summary>Gets the specified refresh token.</summary>
@@ -311,14 +362,18 @@
         /// <returns>The refresh token.</returns>
         public async Task<IRefreshToken> GetRefreshToken(string identifier)
         {
-            if (!(identifier is string))
+            if (string.IsNullOrEmpty(identifier))
             {
-                throw new ArgumentException("identifier must be a string type", nameof(identifier));
+                throw new ArgumentNullException(nameof(identifier));
             }
 
             using (var session = this.OpenAsyncSession())
             {
-                return await session.LoadAsync<RavenRefreshToken>(identifier.ToString());
+                return await
+                    session.Query<RavenRefreshToken>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.Token == identifier)
+                        .FirstOrDefaultAsync();
             }
         }
 
@@ -335,7 +390,12 @@
         {
             using (var session = this.OpenAsyncSession())
             {
-                return await session.Query<RavenRefreshToken>().Customize(x => x.WaitForNonStaleResultsAsOfLastWrite()).Where(x => x.ClientId == clientId && x.RedirectUri == redirectUri && x.ValidTo > expires).ToListAsync();
+                return
+                    await
+                    session.Query<RavenRefreshToken>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.ClientId == clientId && x.RedirectUri == redirectUri && x.ValidTo > expires)
+                        .ToListAsync();
             }
         }
 
@@ -435,6 +495,32 @@
             }
         }
 
+        /// <summary>Deletes the specified refresh token.</summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteRefreshToken(string identifier)
+        {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentNullException(nameof(identifier));
+            }
+
+            using (var session = this.OpenAsyncSession())
+            {
+                var match =
+                    await
+                    session.Query<RavenRefreshToken>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.Token == identifier)
+                        .FirstOrDefaultAsync();
+
+                session.Delete(match);
+                await session.SaveChangesAsync();
+
+                return true;
+            }
+        }
+
         /// <summary>
         /// Deletes the specified refresh token. Called when authenticating a refresh token to prevent re-
         /// use.
@@ -443,24 +529,13 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteRefreshToken(IRefreshToken refreshToken)
         {
-            var token = new RavenRefreshToken(refreshToken);
-
-            return await this.DeleteRefreshToken(token.Id);
-        }
-
-        /// <summary>Deletes the specified refresh token.</summary>
-        /// <param name="identifier">The identifier.</param>
-        /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteRefreshToken(string identifier)
-        {
-            if (!(identifier is string))
-            {
-                throw new ArgumentException("identifier must be a string type", nameof(identifier));
-            }
-
             using (var session = this.OpenAsyncSession())
             {
-                var match = await session.LoadAsync<RavenRefreshToken>(identifier.ToString());
+                var match = await
+                    session.Query<RavenRefreshToken>()
+                        .Customize(x => x.WaitForNonStaleResultsAsOfLastWrite())
+                        .Where(x => x.Token == refreshToken.Token)
+                        .FirstOrDefaultAsync();
 
                 session.Delete(match);
                 await session.SaveChangesAsync();

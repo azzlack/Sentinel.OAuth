@@ -13,9 +13,8 @@
         {
             var cryptoProvider = new SHA2CryptoProvider();
             var principalProvider = new PrincipalProvider(cryptoProvider);
-            var tokenRepository = new MemoryTokenRepository();
 
-            this.TokenProvider = new SentinelTokenProvider(cryptoProvider, principalProvider, tokenRepository);
+            this.TokenProvider = new SentinelTokenProvider(cryptoProvider, principalProvider);
 
             base.TestFixtureSetUp();
         }

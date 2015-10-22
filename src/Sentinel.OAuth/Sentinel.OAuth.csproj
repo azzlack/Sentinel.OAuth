@@ -97,6 +97,7 @@
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\PrincipalExtensions.cs" />
     <Compile Include="Extensions\OwinContextExtensions.cs" />
+    <Compile Include="Implementation\Managers\ClientManager.cs" />
     <Compile Include="Implementation\Managers\TokenManager.cs" />
     <Compile Include="Implementation\Providers\JwtTokenProvider.cs" />
     <Compile Include="Implementation\Providers\PBKDF2CryptoProvider.cs" />

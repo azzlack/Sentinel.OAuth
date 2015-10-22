@@ -32,7 +32,7 @@
         /// Gets or sets the last used date.
         /// </summary>
         /// <value>The last used date.</value>
-        DateTime LastUsed { get; set; }
+        DateTimeOffset LastUsed { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this Client is enabled.

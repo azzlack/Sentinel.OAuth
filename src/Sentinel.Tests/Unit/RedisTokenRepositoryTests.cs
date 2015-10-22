@@ -2,6 +2,7 @@
 {
     using Common.Logging;
     using NUnit.Framework;
+    using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Implementation;
     using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models;
     using System.Configuration;

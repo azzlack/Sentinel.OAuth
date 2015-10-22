@@ -11,9 +11,6 @@
 
     public class RedisAuthorizationCode : AuthorizationCode
     {
-        /// <summary>The identifier.</summary>
-        private RedisTokenIdentifier id;
-
         /// <summary>
         /// Initializes a new instance of the
         /// Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models.RedisAuthorizationCode class.
@@ -25,8 +22,6 @@
         public RedisAuthorizationCode(IAuthorizationCode authorizationCode)
             : base(authorizationCode)
         {
-            this.id = this.GenerateIdentity(authorizationCode.ClientId, authorizationCode.RedirectUri, authorizationCode.Subject, authorizationCode.ValidTo);
-
             this.Created = DateTimeOffset.UtcNow;
         }
 
@@ -52,8 +47,6 @@
             this.Ticket = ticket.Value.HasValue ? ticket.Value.ToString() : string.Empty;
             this.ValidTo = validTo.Value.HasValue ? JsonConvert.DeserializeObject<DateTimeOffset>(validTo.Value.ToString()) : DateTimeOffset.MinValue;
             this.Created = created.Value.HasValue ? JsonConvert.DeserializeObject<DateTimeOffset>(created.Value.ToString()) : DateTimeOffset.MinValue;
-
-            this.id = this.GenerateIdentity(this.ClientId, this.RedirectUri, this.Subject, this.ValidTo);
         }
 
         /// <summary>
@@ -67,22 +60,6 @@
         public override bool IsValid()
         {
             return base.IsValid() && this.Created != DateTimeOffset.MinValue;
-        }
-
-        /// <summary>Tests if this IAuthorizationCode is considered equal to another.</summary>
-        /// <param name="other">The code to compare to this object.</param>
-        /// <returns>true if the objects are considered equal, false if they are not.</returns>
-        public override bool Equals(IAuthorizationCode other)
-        {
-            var id1 = this.GetIdentifier();
-            var id2 = other.GetIdentifier();
-
-            if (id1 is IEquatable<RedisTokenIdentifier> && id2 is IEquatable<RedisTokenIdentifier>)
-            {
-                return id1.Equals(id2);
-            }
-
-            return base.Equals(other);
         }
 
         /// <summary>Converts this object to a list of hash entries.</summary>
@@ -101,22 +78,6 @@
             entries.Add(new HashEntry("Created", JsonConvert.SerializeObject(this.Created)));
 
             return entries.ToArray();
-        }
-
-        /// <summary>Generates an identity.</summary>
-        /// <param name="clientId">The client id.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
-        /// <param name="subject">The subject.</param>
-        /// <param name="validTo">The valid to Date/Time.</param>
-        /// <returns>The identity.</returns>
-        private RedisTokenIdentifier GenerateIdentity(string clientId, string redirectUri, string subject, DateTimeOffset validTo)
-        {
-            return
-                new RedisTokenIdentifier(
-                    Convert.ToBase64String(Encoding.UTF8.GetBytes(clientId + redirectUri + subject + validTo.Ticks)),
-                    clientId,
-                    redirectUri,
-                    subject);
         }
     }
 }

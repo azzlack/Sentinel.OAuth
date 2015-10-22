@@ -4,7 +4,6 @@
     using Newtonsoft.Json;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Interfaces;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models.OAuth;
     using System;
     using System.Collections.Generic;
@@ -15,16 +14,14 @@
     /// <summary>A token repository using a SQL server for storage.</summary>
     public class SqlServerTokenRepository : ITokenRepository
     {
-        /// <summary>The configuration.</summary>
-        private readonly ISqlServerRepositoryConfiguration configuration;
+        /// <summary>The connection string.</summary>
+        private readonly string connectionString;
 
-        /// <summary>
-        /// Initializes a new instance of the SqlServerTokenRepository class.
-        /// </summary>
-        /// <param name="configuration">The configuration.</param>
-        public SqlServerTokenRepository(ISqlServerRepositoryConfiguration configuration)
+        /// <summary>Initializes a new instance of the SqlServerTokenRepository class.</summary>
+        /// <param name="connectionString">The connection string.</param>
+        public SqlServerTokenRepository(string connectionString)
         {
-            this.configuration = configuration;
+            this.connectionString = connectionString;
         }
 
         /// <summary>Gets the specified authorization code.</summary>
@@ -32,12 +29,17 @@
         /// <returns>The authorization code.</returns>
         public async Task<IAuthorizationCode> GetAuthorizationCode(string identifier)
         {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentNullException(nameof(identifier));
+            }
+
             using (var connection = await this.OpenConnection())
             {
                 var data =
                     await
                     connection.QueryAsync(
-                        "SELECT * FROM AuthorizationCodes WHERE Id = @Id",
+                        "SELECT * FROM AuthorizationCodes WHERE Code = @Id",
                         new { Id = identifier });
                 var codes =
                     data.Select(
@@ -175,12 +177,17 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(string identifier)
         {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentNullException(nameof(identifier));
+            }
+
             using (var connection = await this.OpenConnection())
             {
                 var rows =
                     await
                     connection.ExecuteAsync(
-                        "DELETE FROM AuthorizationCodes WHERE Id = @Id",
+                        "DELETE FROM AuthorizationCodes WHERE Code = @Id",
                         new { Id = identifier });
 
                 return rows == 1;
@@ -190,9 +197,18 @@
         /// <summary>Deletes the specified authorization code.</summary>
         /// <param name="authorizationCode">The authorization code.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
+        public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            throw new NotImplementedException();
+            using (var connection = await this.OpenConnection())
+            {
+                var rows =
+                    await
+                    connection.ExecuteAsync(
+                        "DELETE FROM AuthorizationCodes WHERE Code = @Id",
+                        new { Id = authorizationCode.GetIdentifier() });
+
+                return rows == 1;
+            }
         }
 
         /// <summary>Gets the specified access token.</summary>
@@ -200,12 +216,17 @@
         /// <returns>The access token.</returns>
         public async Task<IAccessToken> GetAccessToken(string identifier)
         {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentNullException(nameof(identifier));
+            }
+
             using (var connection = await this.OpenConnection())
             {
                 var data =
                     await
                     connection.QueryAsync(
-                        "SELECT * FROM AccessTokens WHERE Id = @Id",
+                        "SELECT * FROM AccessTokens WHERE Token = @Id",
                         new { Id = identifier });
                 var tokens =
                     data.Select(
@@ -396,12 +417,17 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAccessToken(string identifier)
         {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentNullException(nameof(identifier));
+            }
+
             using (var connection = await this.OpenConnection())
             {
                 var rows =
                     await
                     connection.ExecuteAsync(
-                        "DELETE FROM AccessTokens WHERE Id = @Id",
+                        "DELETE FROM AccessTokens WHERE Token = @Id",
                         new { Id = identifier });
 
                 return rows == 1;
@@ -411,9 +437,18 @@
         /// <summary>Deletes the specified access token.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public Task<bool> DeleteAccessToken(IAccessToken accessToken)
+        public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
         {
-            throw new NotImplementedException();
+            using (var connection = await this.OpenConnection())
+            {
+                var rows =
+                    await
+                    connection.ExecuteAsync(
+                        "DELETE FROM AccessTokens WHERE Token = @Id",
+                        new { Id = accessToken.GetIdentifier() });
+
+                return rows == 1;
+            }
         }
 
         /// <summary>Gets the specified refresh token.</summary>
@@ -421,12 +456,17 @@
         /// <returns>The refresh token.</returns>
         public async Task<IRefreshToken> GetRefreshToken(string identifier)
         {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentNullException(nameof(identifier));
+            }
+
             using (var connection = await this.OpenConnection())
             {
                 var data =
                     await
                     connection.QueryAsync(
-                        "SELECT * FROM RefreshTokens WHERE Id = @Id",
+                        "SELECT * FROM RefreshTokens WHERE Token = @Id",
                         new { Id = identifier });
                 var tokens =
                     data.Select(
@@ -618,9 +658,16 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteRefreshToken(IRefreshToken refreshToken)
         {
-            var token = new SqlRefreshToken(refreshToken);
+            using (var connection = await this.OpenConnection())
+            {
+                var rows =
+                    await
+                    connection.ExecuteAsync(
+                        "DELETE FROM RefreshTokens WHERE Token = @Id",
+                        new { Id = refreshToken.GetIdentifier() });
 
-            return await this.DeleteRefreshToken(token.GetIdentifier());
+                return rows == 1;
+            }
         }
 
         /// <summary>Deletes the specified refresh token.</summary>
@@ -628,12 +675,17 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteRefreshToken(string identifier)
         {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentNullException(nameof(identifier));
+            }
+
             using (var connection = await this.OpenConnection())
             {
                 var rows =
                     await
                     connection.ExecuteAsync(
-                        "DELETE FROM RefreshTokens WHERE Id = @Id",
+                        "DELETE FROM RefreshTokens WHERE Token = @Id",
                         new { Id = identifier });
 
                 return rows == 1;
@@ -656,7 +708,7 @@
         /// <returns>A SqlConnection.</returns>
         private async Task<SqlConnection> OpenConnection()
         {
-            var connection = new SqlConnection(this.configuration.ConnectionString);
+            var connection = new SqlConnection(this.connectionString);
             await connection.OpenAsync();
 
             return connection;

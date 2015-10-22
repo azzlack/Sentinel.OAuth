@@ -3,7 +3,6 @@
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Providers;
-    using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Core.Models.OAuth;
     using System;
@@ -18,18 +17,13 @@
         /// <summary>The principal provider.</summary>
         private readonly IPrincipalProvider principalProvider;
 
-        /// <summary>The token repository.</summary>
-        private readonly ITokenRepository tokenRepository;
-
         /// <summary>Initializes a new instance of the Sentinel.OAuth.Implementation.Providers.SentinelTokenProvider class.</summary>
         /// <param name="cryptoProvider">The crypto provider.</param>
         /// <param name="principalProvider">The principal provider.</param>
-        /// <param name="tokenRepository">The token repository.</param>
-        public SentinelTokenProvider(ICryptoProvider cryptoProvider, IPrincipalProvider principalProvider, ITokenRepository tokenRepository)
+        public SentinelTokenProvider(ICryptoProvider cryptoProvider, IPrincipalProvider principalProvider)
         {
             this.cryptoProvider = cryptoProvider;
             this.principalProvider = principalProvider;
-            this.tokenRepository = tokenRepository;
         }
 
         /// <summary>Creates an authorization code.</summary>

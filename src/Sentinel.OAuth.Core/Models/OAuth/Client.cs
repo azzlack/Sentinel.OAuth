@@ -50,7 +50,7 @@
         /// Gets or sets the last used date.
         /// </summary>
         /// <value>The last used date.</value>
-        public DateTime LastUsed { get; set; }
+        public DateTimeOffset LastUsed { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this Client is enabled.

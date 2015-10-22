@@ -10,5 +10,9 @@
         /// <returns>An enumerator that allows foreach to be used to process the clients in this collection.</returns>
         Task<IEnumerable<IClient>> GetClients();
 
+        /// <summary>Gets the client with the specified id.</summary>
+        /// <param name="clientId">Identifier for the client.</param>
+        /// <returns>The client.</returns>
+        Task<IClient> GetClient(string clientId);
     }
 }

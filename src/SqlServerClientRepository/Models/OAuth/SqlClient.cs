@@ -1,8 +1,9 @@
-﻿namespace Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models.OAuth
+﻿namespace Sentinel.OAuth.ClientManagers.SqlServerClientRepository.Models.OAuth
 {
+    using System;
+
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Models.OAuth;
-    using System;
 
     public class SqlClient : Client
     {

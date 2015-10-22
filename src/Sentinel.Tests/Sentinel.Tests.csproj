@@ -195,6 +195,7 @@
     <Compile Include="Facade\AuthorizationServerTests.cs" />
     <Compile Include="Facade\JwtAuthorizationServerTests.cs" />
     <Compile Include="Facade\SentinelTokenAuthorizationServerTests.cs" />
+    <Compile Include="Integration\ClientManagers\ClientManagerTests.cs" />
     <Compile Include="Integration\ClientManagers\SqlServerClientManagerTests.cs" />
     <Compile Include="Integration\PrincipalProviderTests.cs" />
     <Compile Include="Facade\SentinelOAuthClientTests.cs" />
@@ -278,6 +279,10 @@
     <ProjectReference Include="..\Sentinel.Sample\Sentinel.Sample.csproj">
       <Project>{201854e2-f29f-4928-8160-54080bd650d1}</Project>
       <Name>Sentinel.Sample</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SqlServerClientRepository\SqlServerClientRepository.csproj">
+      <Project>{88416938-b37f-4289-a6a0-6521a5370ce0}</Project>
+      <Name>SqlServerClientRepository</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

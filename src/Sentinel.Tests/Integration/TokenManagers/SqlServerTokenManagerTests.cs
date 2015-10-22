@@ -4,13 +4,13 @@
     using Dapper;
     using Moq;
     using NUnit.Framework;
+    using Sentinel.OAuth.ClientManagers.SqlServerClientRepository.Implementation;
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Implementation.Managers;
     using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.Models.Identity;
     using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Implementation;
-    using Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models;
     using System;
     using System.Data;
     using System.Data.SqlLocalDb;
@@ -55,9 +55,9 @@
                 {
                     connection.Execute($"CREATE DATABASE [{this.databaseName}]");
                     connection.Execute($"USE [{this.databaseName}]");
-                    connection.Execute("CREATE TABLE AccessTokens (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Ticket VARCHAR(MAX) NOT NULL, Token VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, RedirectUri VARCHAR(MAX), Scope NVARCHAR(MAX), ValidTo DATETIME2, Created DATETIME2)");
-                    connection.Execute("CREATE TABLE RefreshTokens (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Token VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, RedirectUri VARCHAR(MAX), Scope NVARCHAR(MAX), ValidTo DATETIME2, Created DATETIME2)");
-                    connection.Execute("CREATE TABLE AuthorizationCodes (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Ticket VARCHAR(MAX) NOT NULL, Code VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, Scope NVARCHAR(MAX), RedirectUri VARCHAR(MAX), ValidTo DATETIME2, Created DATETIME2)");
+                    connection.Execute("CREATE TABLE AccessTokens (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Ticket VARCHAR(MAX) NOT NULL, Token VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, RedirectUri NVARCHAR(2083), Scope NVARCHAR(MAX), ValidTo DATETIME2, Created DATETIME2)");
+                    connection.Execute("CREATE TABLE RefreshTokens (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Token VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, RedirectUri NVARCHAR(2083), Scope NVARCHAR(MAX), ValidTo DATETIME2, Created DATETIME2)");
+                    connection.Execute("CREATE TABLE AuthorizationCodes (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, Ticket VARCHAR(MAX) NOT NULL, Code VARCHAR(MAX) NOT NULL, Subject NVARCHAR(255) NOT NULL, Scope NVARCHAR(MAX), RedirectUri NVARCHAR(2083), ValidTo DATETIME2, Created DATETIME2)");
                 }
                 finally
                 {
@@ -83,16 +83,16 @@
             connectionStringBuilder.SetInitialCatalogName(this.databaseName);
 
             var principalProvider = new PrincipalProvider(new PBKDF2CryptoProvider());
-            var tokenRepository =
-                new SqlServerTokenRepository(
-                    new SqlServerTokenRepositoryConfiguration(connectionStringBuilder.ToString()));
+            var tokenRepository = new SqlServerTokenRepository(connectionStringBuilder.ToString());
+            var clientRepository = new SqlServerClientRepository(connectionStringBuilder.ToString());
 
             this.TokenManager = new TokenManager(
                 LogManager.GetLogger(typeof(SqlServerTokenManagerTests)),
                 userManager.Object,
                 principalProvider,
-                new SentinelTokenProvider(new SHA2CryptoProvider(), principalProvider, tokenRepository),
-                tokenRepository);
+                new SentinelTokenProvider(new SHA2CryptoProvider(), principalProvider),
+                tokenRepository,
+                clientRepository);
 
             base.SetUp();
         }

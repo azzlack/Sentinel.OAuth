@@ -10,19 +10,6 @@
 
     public abstract class BaseTokenManager : ITokenManager
     {
-        /// <summary>The principal provider.</summary>
-        private readonly IPrincipalProvider principalProvider;
-
-        /// <summary>The token provider.</summary>
-        private readonly ITokenProvider tokenProvider;
-
-        /// <summary>The token repository.</summary>
-        private readonly ITokenRepository tokenRepository;
-
-        /// <summary>The client repository.</summary>
-        private readonly IClientRepository clientRepository;
-
-
         /// <summary>Initializes a new instance of the BaseTokenManager class.</summary>
         /// <param name="principalProvider">The principal provider.</param>
         /// <param name="tokenProvider">The token provider.</param>
@@ -30,11 +17,27 @@
         /// <param name="clientRepository">The client repository.</param>
         protected BaseTokenManager(IPrincipalProvider principalProvider, ITokenProvider tokenProvider, ITokenRepository tokenRepository, IClientRepository clientRepository)
         {
-            this.principalProvider = principalProvider;
-            this.tokenProvider = tokenProvider;
-            this.tokenRepository = tokenRepository;
-            this.clientRepository = clientRepository;
+            this.PrincipalProvider = principalProvider;
+            this.TokenProvider = tokenProvider;
+            this.TokenRepository = tokenRepository;
+            this.ClientRepository = clientRepository;
         }
+
+        /// <summary>Gets the principal provider.</summary>
+        /// <value>The principal provider.</value>
+        protected IPrincipalProvider PrincipalProvider { get; }
+
+        /// <summary>Gets the token provider.</summary>
+        /// <value>The token provider.</value>
+        protected ITokenProvider TokenProvider { get; }
+
+        /// <summary>Gets the client repository.</summary>
+        /// <value>The client repository.</value>
+        protected IClientRepository ClientRepository { get; }
+
+        /// <summary>Gets the token repository.</summary>
+        /// <value>The token repository.</value>
+        protected ITokenRepository TokenRepository { get; }
 
         /// <summary>Authenticates the authorization code.</summary>
         /// <param name="redirectUri">The redirect URI.</param>

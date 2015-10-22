@@ -6,6 +6,9 @@
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
+    using Sentinel.OAuth.Core.Interfaces.Models;
+    using Sentinel.OAuth.Core.Interfaces.Repositories;
+    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.Implementation.Managers;
     using Sentinel.OAuth.Implementation.Providers;
@@ -13,6 +16,7 @@
     using Sentinel.OAuth.Models.Identity;
     using Sentinel.Tests.Constants;
     using System;
+    using System.Collections.Generic;
     using System.Security.Claims;
 
     [TestFixture]
@@ -34,8 +38,26 @@
 
             var principalProvider = new PrincipalProvider(new PBKDF2CryptoProvider());
             var tokenRepository = new MemoryTokenRepository();
+            var clientRepository = new Mock<IClientRepository>();
+            clientRepository.Setup(x => x.GetClients())
+                .ReturnsAsync(
+                    new List<IClient>()
+                        {
+                            new Client()
+                                {
+                                    ClientId = "NUnit",
+                                    ClientSecret = "aabbccddee",
+                                    RedirectUri = "http://localhost"
+                                }
+                        });
 
-            this.tokenManager = new TokenManager(LogManager.GetLogger<TokenManagerTests>(), userManager.Object, principalProvider, new SentinelTokenProvider(new PBKDF2CryptoProvider(), principalProvider, tokenRepository), tokenRepository);
+            this.tokenManager = new TokenManager(
+                LogManager.GetLogger<TokenManagerTests>(),
+                userManager.Object,
+                principalProvider,
+                new SentinelTokenProvider(new SHA2CryptoProvider(), principalProvider),
+                tokenRepository,
+                clientRepository.Object);
         }
 
         [TestCase("NUnit", "http://localhost")]

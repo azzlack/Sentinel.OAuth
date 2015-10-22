@@ -2,9 +2,9 @@
 {
     using Moq;
     using NUnit.Framework;
-    using Sentinel.OAuth.ClientManagers.SqlServerClientManager.Models;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
+    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.Implementation.Repositories;
     using Sentinel.OAuth.Models.Providers;

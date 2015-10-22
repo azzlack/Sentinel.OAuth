@@ -75,7 +75,7 @@
 
             if (options.TokenManager == null)
             {
-                options.TokenManager = new TokenManager(options.Logger, options.UserManager, options.PrincipalProvider, options.TokenProvider, options.TokenRepository);
+                options.TokenManager = new TokenManager(options.Logger, options.UserManager, options.PrincipalProvider, options.TokenProvider, options.TokenRepository, options.ClientRepository);
             }
 
             // Initialize underlying OWIN OAuth system
