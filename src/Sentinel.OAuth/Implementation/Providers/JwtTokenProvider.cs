@@ -148,12 +148,12 @@
                 RedirectUri = redirectUri,
                 Subject = userPrincipal.Identity.Name,
                 Scope = scope,
-                Token = token.RawSignature,
+                Token = ticket,
                 Ticket = ticket,
                 ValidTo = expireTime
             };
 
-            return new TokenCreationResult<IAccessToken>(Convert.ToBase64String(Encoding.UTF8.GetBytes(token.RawSignature)), accessToken);
+            return new TokenCreationResult<IAccessToken>(ticket, accessToken);
         }
 
         /// <summary>Validates the access token.</summary>
@@ -162,7 +162,7 @@
         /// <returns>The token principal if valid, <c>null</c> otherwise.</returns>
         public async Task<TokenValidationResult<IAccessToken>> ValidateAccessToken(IEnumerable<IAccessToken> accessTokens, string token)
         {
-            var entity = accessTokens.FirstOrDefault(x => x.Token == Encoding.UTF8.GetString(Convert.FromBase64String(token)));
+            var entity = accessTokens.FirstOrDefault(x => x.Token == token);
 
             if (entity != null)
             {
@@ -174,7 +174,7 @@
                 };
 
                 SecurityToken st;
-                var principal = this.tokenHandler.ValidateToken(entity.Ticket, validationParams, out st);
+                var principal = this.tokenHandler.ValidateToken(token, validationParams, out st);
 
                 if (principal.Identity.IsAuthenticated)
                 {
@@ -236,7 +236,9 @@
         /// <returns>The token principal if valid, <c>null</c> otherwise.</returns>
         public async Task<TokenValidationResult<IRefreshToken>> ValidateRefreshToken(IEnumerable<IRefreshToken> refreshTokens, string token)
         {
-            var entity = refreshTokens.FirstOrDefault(x => x.Token == Encoding.UTF8.GetString(Convert.FromBase64String(token)));
+            var id = Encoding.UTF8.GetString(Convert.FromBase64String(token));
+
+            var entity = refreshTokens.FirstOrDefault(x => x.Token == id);
 
             if (entity != null)
             {
@@ -248,7 +250,7 @@
                 };
 
                 SecurityToken st;
-                var principal = this.tokenHandler.ValidateToken(entity.Token, validationParams, out st);
+                var principal = this.tokenHandler.ValidateToken(id, validationParams, out st);
 
                 if (principal.Identity.IsAuthenticated)
                 {

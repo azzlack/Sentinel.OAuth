@@ -2,11 +2,16 @@
 {
     using Microsoft.Owin.Security.OAuth;
     using Microsoft.Owin.Testing;
+    using Moq;
     using NUnit.Framework;
     using Owin;
+    using Sentinel.OAuth.Core.Interfaces.Models;
+    using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.Core.Models;
+    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Extensions;
     using Sentinel.Sample.Managers;
+    using System.Collections.Generic;
     using System.Web.Http;
 
     [TestFixture]
@@ -16,13 +21,24 @@
         [TestFixtureSetUp]
         public override void TestFixtureSetUp()
         {
+            var client = new Client()
+            {
+                ClientId = "NUnit",
+                ClientSecret = "10000:gW7zpVeugKl8IFu7TcpPskcgQjy4185eAwBk9fFlZK6JNd1I45tLyCYtJrzWzE+kVCUP7lMSY8o808EjUgfavBzYU/ZtWypcdCdCJ0BMfMcf8Mk+XIYQCQLiFpt9Rjrf5mAY86NuveUtd1yBdPjxX5neMXEtquNYhu9I6iyzcN4=:Lk2ZkpmTDkNtO/tsB/GskMppdAX2bXehP+ED4oLis0AAv3Q1VeI8KL0SxIIWdxjKH0NJKZ6qniRFkfZKZRS2hS4SB8oyB34u/jyUlmv+RZGZSt9nJ9FYJn1percd/yFA7sSQOpkGljJ6OTwdthe0Bw0A/8qlKHbO2y2M5BFgYHY=",
+                RedirectUri = "http://localhost",
+                Enabled = true
+            };
+
+            var clientRepository = new Mock<IClientRepository>();
+            clientRepository.Setup(x => x.GetClient("NUnit")).ReturnsAsync(client);
+            clientRepository.Setup(x => x.GetClients()).ReturnsAsync(new List<IClient>() { client });
+
             this.Server = TestServer.Create(
                 app =>
                 {
-                    // The easiest way to use Sentinel
                     app.UseSentinelAuthorizationServer(new SentinelAuthorizationServerOptions()
                     {
-                        ClientManager = new SimpleClientManager(),
+                        ClientRepository = clientRepository.Object,
                         UserManager = new SimpleUserManager()
                     });
 

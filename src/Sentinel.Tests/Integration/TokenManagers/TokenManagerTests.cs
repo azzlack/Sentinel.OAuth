@@ -242,7 +242,7 @@
 
             Console.WriteLine("Token: {0}", token);
 
-            var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", token, "http://localhost");
+            var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", "http://localhost", token);
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating refresh token took {this.testStopwatch.Elapsed - createRefreshTokenElapsed} seconds");
@@ -259,7 +259,7 @@
                 this.TokenManager.CreateRefreshTokenAsync(
                     new SentinelPrincipal(
                     new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
-                    TimeSpan.FromSeconds(5),
+                    TimeSpan.FromSeconds(-5),
                     "NUnit",
                     "http://localhost",
                     new[] { Scope.Read });
@@ -270,7 +270,7 @@
 
             Console.WriteLine("Token: {0}", token);
 
-            var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", "https://localhost", token);
+            var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", "http://localhost", token);
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating refresh token took {this.testStopwatch.Elapsed - createRefreshTokenElapsed} seconds");

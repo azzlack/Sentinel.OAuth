@@ -1,17 +1,15 @@
 ﻿namespace Sentinel.OAuth.Providers.OAuth
 {
-    using System;
-    using System.Linq;
-    using System.Security.Claims;
-    using System.Threading.Tasks;
-
     using Microsoft.Owin.Security;
     using Microsoft.Owin.Security.Infrastructure;
-
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Constants.OAuth;
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Extensions;
+    using System;
+    using System.Linq;
+    using System.Security.Claims;
+    using System.Threading.Tasks;
 
     /// <summary>The Sentinel refresh token provider.</summary>
     public class SentinelRefreshTokenProvider : AuthenticationTokenProvider
@@ -51,7 +49,7 @@
             if (context.OwinContext.GetOAuthContext().GrantType == GrantType.ClientCredentials)
             {
                 this.options.Logger.Debug("This is a client_credentials request, skipping refresh token creation.");
-                
+
                 return;
             }
 
@@ -70,7 +68,7 @@
                         var token =
                             await
                             this.options.TokenManager.CreateRefreshTokenAsync(
-                                context.Ticket.Identity.AsSentinelPrincipal(), 
+                                context.Ticket.Identity.AsSentinelPrincipal(),
                                 this.options.RefreshTokenLifetime,
                                 context.OwinContext.GetOAuthContext().ClientId,
                                 context.OwinContext.GetOAuthContext().RedirectUri,
@@ -104,28 +102,35 @@
 
             var clientId = context.OwinContext.GetOAuthContext().ClientId;
             var redirectUri = context.OwinContext.GetOAuthContext().RedirectUri;
-            
+
             var tcs = new TaskCompletionSource<AuthenticationTicket>();
             Task.Run(
                 async () =>
                 {
                     try
                     {
-                        var principal = await this.options.TokenManager.AuthenticateRefreshTokenAsync(clientId, context.Token, redirectUri);
+                        var principal = await this.options.TokenManager.AuthenticateRefreshTokenAsync(clientId, redirectUri, context.Token);
 
                         if (principal.Identity.IsAuthenticated)
                         {
+                            var client = principal.Identity.Claims.First(x => x.Type == ClaimType.Client).Value;
+
                             /* Override the validation parameters.
                              * This is because OWIN thinks the principal.Identity.Name should 
                              * be the same as the client_id from ValidateClientAuthentication method,
                              * but we need to use the user id in Sentinel.
                              */
                             var props = new AuthenticationProperties();
-                            props.Dictionary.Add("client_id", principal.Identity.Claims.First(x => x.Type == ClaimType.Client).Value);
+                            props.Dictionary.Add("client_id", client);
                             props.RedirectUri = redirectUri;
                             props.ExpiresUtc = DateTimeOffset.UtcNow.Add(this.options.RefreshTokenLifetime);
 
-                            // TODO: Use UserManager to get new data
+                            // Re-authenticate user to get new claims
+                            var user = await this.options.UserManager.AuthenticateUserAsync(principal.Identity.Name);
+
+                            // Make sure the user has the correct client claim
+                            user.Identity.RemoveClaim(x => x.Type == ClaimType.Client);
+                            user.Identity.AddClaim(ClaimType.Client, client);
 
                             tcs.SetResult(new AuthenticationTicket(principal.Identity.AsClaimsIdentity(), props));
                         }

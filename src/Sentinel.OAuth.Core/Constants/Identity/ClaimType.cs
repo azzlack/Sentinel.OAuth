@@ -16,5 +16,8 @@
 
         /// <summary>The grant type claim type.</summary>
         public const string GrantType = "urn:oauth:granttype";
+
+        /// <summary>The redirect uri claim type.</summary>
+        public const string RedirectUri = "urn:oauth:redirecturi";
     }
 }

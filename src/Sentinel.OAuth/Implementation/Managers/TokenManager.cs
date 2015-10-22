@@ -11,6 +11,7 @@
     using Sentinel.OAuth.Models.Identity;
     using System;
     using System.Collections.Generic;
+    using System.IdentityModel.Claims;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -132,14 +133,11 @@
                         this.logger.Error($"Unable to delete used refresh token: {JsonConvert.SerializeObject(validationResult.Entity)}");
                     }
 
-                    // Re-authenticate user to get new claims
-                    var user = await this.userManager.AuthenticateUserAsync(validationResult.Entity.Subject);
-
-                    // Make sure the user has the correct client claim
-                    user.Identity.RemoveClaim(x => x.Type == ClaimType.Client);
-                    user.Identity.AddClaim(ClaimType.Client, validationResult.Entity.ClientId);
-
-                    return this.PrincipalProvider.Create(AuthenticationType.OAuth, user.Identity.Claims.ToArray());
+                    return this.PrincipalProvider.Create(
+                        AuthenticationType.OAuth,
+                        new SentinelClaim(ClaimType.Client, validationResult.Entity.ClientId),
+                        new SentinelClaim(ClaimTypes.Name, validationResult.Entity.Subject),
+                        new SentinelClaim(ClaimType.RedirectUri, validationResult.Entity.RedirectUri));
                 }
             }
 

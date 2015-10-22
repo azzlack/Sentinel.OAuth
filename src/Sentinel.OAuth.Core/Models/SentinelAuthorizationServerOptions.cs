@@ -88,9 +88,13 @@
         /// <value>The principal provider.</value>
         public IPrincipalProvider PrincipalProvider { get; set; }
 
-        /// <summary>Gets or sets the crypto provider.</summary>
-        /// <value>The crypto provider.</value>
-        public ICryptoProvider CryptoProvider { get; set; }
+        /// <summary>Gets or sets the token crypto provider.</summary>
+        /// <value>The token crypto provider.</value>
+        public ICryptoProvider TokenCryptoProvider { get; set; }
+
+        /// <summary>Gets or sets the password crypto provider.</summary>
+        /// <value>The password crypto provider.</value>
+        public ICryptoProvider PasswordCryptoProvider { get; set; }
 
         /// <summary>Gets or sets URL of the authorization code endpoint.</summary>
         /// <remarks>There must be a page answering on this url that is capable of logging in the user.</remarks>

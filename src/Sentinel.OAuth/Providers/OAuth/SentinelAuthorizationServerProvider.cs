@@ -236,6 +236,15 @@
 
             if (client.Identity.IsAuthenticated)
             {
+                if (client.Identity.HasClaim(x => x.Type == ClaimType.RedirectUri))
+                {
+                    context.OwinContext.GetOAuthContext().RedirectUri = client.Identity.Claims.First(x => x.Type == ClaimType.RedirectUri).Value;
+                }
+                else
+                {
+                    this.options.Logger.Warn($"Client '{context.ClientId}' does not have a valid redirect uri, validation will not work.");
+                }
+
                 var ticket = new AuthenticationTicket(client.Identity.AsClaimsIdentity(), new AuthenticationProperties());
 
                 context.Validated(ticket);

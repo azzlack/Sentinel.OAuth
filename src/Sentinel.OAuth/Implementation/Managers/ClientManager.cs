@@ -37,6 +37,7 @@
                         new SentinelIdentity(
                             AuthenticationType.OAuth,
                             new SentinelClaim(ClaimTypes.Name, clientId),
+                            new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
                             new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ClientId)));
 
                 return principal;
@@ -62,6 +63,8 @@
                             new SentinelIdentity(
                                 AuthenticationType.OAuth,
                                 new SentinelClaim(ClaimTypes.Name, clientId),
+                                new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
+                                new SentinelClaim(ClaimType.Scope, string.Join(" ", scope)),
                                 new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ClientId)));
 
                 return principal;
@@ -87,6 +90,7 @@
                             new SentinelIdentity(
                                 AuthenticationType.OAuth,
                                 new SentinelClaim(ClaimTypes.Name, client.ClientId),
+                                new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
                                 new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ClientCredentials)));
 
                     return principal;

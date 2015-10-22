@@ -38,14 +38,19 @@
                 options.Logger = LogManager.GetLogger("Sentinel.OAuth");
             }
 
-            if (options.CryptoProvider == null)
+            if (options.TokenCryptoProvider == null)
             {
-                options.CryptoProvider = new SHA2CryptoProvider();
+                options.TokenCryptoProvider = new SHA2CryptoProvider();
+            }
+
+            if (options.PasswordCryptoProvider == null)
+            {
+                options.PasswordCryptoProvider = new PBKDF2CryptoProvider();
             }
 
             if (options.PrincipalProvider == null)
             {
-                options.PrincipalProvider = new PrincipalProvider(options.CryptoProvider);
+                options.PrincipalProvider = new PrincipalProvider(options.TokenCryptoProvider);
             }
 
             if (options.ClientRepository == null)
@@ -60,7 +65,7 @@
 
             if (options.TokenProvider == null)
             {
-                options.TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration("Sentinel.OAuth", options.CryptoProvider.CreateHash(256)));
+                options.TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration("Sentinel.OAuth", options.TokenCryptoProvider.CreateHash(256)));
             }
 
             if (options.TokenManager == null)
@@ -70,7 +75,7 @@
 
             if (options.ClientManager == null)
             {
-                options.ClientManager = new ClientManager(options.CryptoProvider, options.ClientRepository);
+                options.ClientManager = new ClientManager(options.PasswordCryptoProvider, options.ClientRepository);
             }
 
             if (options.UserManager == null)
