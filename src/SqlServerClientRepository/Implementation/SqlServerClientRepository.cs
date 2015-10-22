@@ -4,6 +4,7 @@
     using Sentinel.OAuth.ClientManagers.SqlServerClientRepository.Models.OAuth;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
+    using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
     using System.Linq;
@@ -69,13 +70,13 @@
                         new SqlClient()
                         {
                             Id = x.Id,
-                            Created = x.Created,
+                            Created = x.Created ?? DateTimeOffset.MinValue,
                             ClientId = x.ClientId,
                             ClientSecret = x.ClientSecret,
                             RedirectUri = x.RedirectUri,
                             Name = x.Name,
-                            LastUsed = x.LastUsed,
-                            Enabled = x.Enabled
+                            LastUsed = x.LastUsed ?? DateTimeOffset.MinValue,
+                            Enabled = x.Enabled ?? false
                         });
 
                 return clients.FirstOrDefault();

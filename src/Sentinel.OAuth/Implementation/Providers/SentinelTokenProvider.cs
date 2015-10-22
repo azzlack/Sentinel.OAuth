@@ -1,12 +1,16 @@
 ﻿namespace Sentinel.OAuth.Implementation.Providers
 {
+    using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Core.Models.OAuth;
+    using Sentinel.OAuth.Models.Identity;
     using System;
     using System.Collections.Generic;
+    using System.IdentityModel.Claims;
+    using System.Linq;
     using System.Threading.Tasks;
 
     public class SentinelTokenProvider : ITokenProvider
@@ -58,12 +62,24 @@
         }
 
         /// <summary>Validates an authorization code.</summary>
-        /// <param name="redirectUri">The redirect URI.</param>
+        /// <param name="authorizationCodes">The authorization codes to validate against.</param>
         /// <param name="code">The code.</param>
-        /// <returns>The access token if valid, <c>null</c> otherwise.</returns>
-        public async Task<bool> ValidateAuthorizationCode(string code)
+        /// <returns>The token principal if valid, <c>null</c> otherwise.</returns>
+        public async Task<TokenValidationResult<IAuthorizationCode>> ValidateAuthorizationCode(IEnumerable<IAuthorizationCode> authorizationCodes, string code)
         {
-            return true;
+            var entity = authorizationCodes.FirstOrDefault(x => this.cryptoProvider.ValidateHash(code, x.Code));
+
+            if (entity != null)
+            {
+                var principal = this.principalProvider.Decrypt(entity.Ticket, code);
+
+                if (principal.Identity.IsAuthenticated)
+                {
+                    return new TokenValidationResult<IAuthorizationCode>(principal, entity);
+                }
+            }
+
+            return new TokenValidationResult<IAuthorizationCode>(SentinelPrincipal.Anonymous, null);
         }
 
         /// <summary>Creates an access token.</summary>
@@ -97,12 +113,25 @@
             return new TokenCreationResult<IAccessToken>(token, accessToken);
         }
 
-        /// <summary>Validates an access token.</summary>
+        /// <summary>Validates the access token.</summary>
+        /// <param name="accessTokens">The access tokens to validate against.</param>
         /// <param name="token">The token.</param>
-        /// <returns>The access token if valid, <c>null</c> otherwise.</returns>
-        public async Task<bool> ValidateAccessToken(string token)
+        /// <returns>The token principal if valid, <c>null</c> otherwise.</returns>
+        public async Task<TokenValidationResult<IAccessToken>> ValidateAccessToken(IEnumerable<IAccessToken> accessTokens, string token)
         {
-            return true;
+            var entity = accessTokens.FirstOrDefault(x => this.cryptoProvider.ValidateHash(token, x.Token));
+
+            if (entity != null)
+            {
+                var principal = this.principalProvider.Decrypt(entity.Ticket, token);
+
+                if (principal.Identity.IsAuthenticated)
+                {
+                    return new TokenValidationResult<IAccessToken>(principal, entity);
+                }
+            }
+
+            return new TokenValidationResult<IAccessToken>(SentinelPrincipal.Anonymous, null);
         }
 
         /// <summary>Creates an access token.</summary>
@@ -136,13 +165,24 @@
         }
 
         /// <summary>Validates an access token.</summary>
-        /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect URI.</param>
+        /// <param name="refreshTokens">The refresh tokens to validate against.</param>
         /// <param name="token">The token.</param>
-        /// <returns>The access token if valid, <c>null</c> otherwise.</returns>
-        public async Task<bool> ValidateRefreshToken(string token)
+        /// <returns>The token principal if valid, <c>null</c> otherwise.</returns>
+        public async Task<TokenValidationResult<IRefreshToken>> ValidateRefreshToken(IEnumerable<IRefreshToken> refreshTokens, string token)
         {
-            return true;
+            var entity = refreshTokens.FirstOrDefault(x => this.cryptoProvider.ValidateHash(token, x.Token));
+
+            if (entity != null)
+            {
+                var principal = this.principalProvider.Create(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, entity.Subject));
+
+                if (principal.Identity.IsAuthenticated)
+                {
+                    return new TokenValidationResult<IRefreshToken>(principal, entity);
+                }
+            }
+
+            return new TokenValidationResult<IRefreshToken>(SentinelPrincipal.Anonymous, null);
         }
     }
 }

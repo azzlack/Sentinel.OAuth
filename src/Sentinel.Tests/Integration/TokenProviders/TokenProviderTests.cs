@@ -1,12 +1,18 @@
 ﻿namespace Sentinel.Tests.Integration.TokenProviders
 {
+    using Moq;
     using NUnit.Framework;
     using Sentinel.OAuth.Core.Constants.Identity;
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Providers;
+    using Sentinel.OAuth.Core.Interfaces.Repositories;
+    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Models.Identity;
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Security.Claims;
+    using System.Text;
 
     public abstract class TokenProviderTests
     {
@@ -16,9 +22,37 @@
 
         public ITokenProvider TokenProvider { get; set; }
 
+        public ITokenRepository TokenRepository { get; set; }
+
         [TestFixtureSetUp]
         public virtual void TestFixtureSetUp()
         {
+            var tokenRepository = new Mock<ITokenRepository>();
+            tokenRepository.Setup(x => x.GetAuthorizationCodes(It.IsAny<string>(), It.IsAny<DateTimeOffset>()))
+                .ReturnsAsync(
+                    new List<IAuthorizationCode>()
+                        {
+                            new AuthorizationCode()
+                                {
+                                    ClientId = "NUnit",
+                                    RedirectUri = "http://localhost",
+                                    Subject = "ovea"
+                                }
+                        });
+            tokenRepository.Setup(x => x.GetAccessTokens(It.IsAny<DateTimeOffset>()))
+                .ReturnsAsync(
+                    new List<IAccessToken>()
+                        {
+                            new AccessToken()
+                                {
+                                    ClientId = "NUnit",
+                                    RedirectUri = "http://localhost",
+                                    Subject = "ovea"
+                                }
+                        });
+
+            this.TokenRepository = tokenRepository.Object;
+
             this.testFixtureStopwatch = new Stopwatch();
             this.testFixtureStopwatch.Start();
         }
@@ -51,28 +85,7 @@
         }
 
         [Test]
-        public async void CreateAuthorizationCode_WhenGivenValidParameters_ReturnsValidCode()
-        {
-            var result =
-               await
-               this.TokenProvider.CreateAuthorizationCode(
-                   "NUnit",
-                   "http://localhost",
-                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
-                   null,
-                   DateTimeOffset.UtcNow.AddMinutes(5));
-
-            Console.WriteLine($"Code: {result.Token}");
-            Console.WriteLine($"Ticket: {result.Entity.Ticket}");
-
-            Assert.AreEqual("NUnit", result.Entity.ClientId);
-            Assert.AreEqual("http://localhost", result.Entity.RedirectUri);
-            Assert.AreEqual("azzlack", result.Entity.Subject);
-            Assert.IsNotNullOrEmpty(result.Token);
-        }
-
-        [Test]
-        public async void AuthenticateAuthorizationCode_WhenGivenValidIdentity_ReturnsAuthenticatedIdentity()
+        public async void CreateAuthorizationCode_WhenGivenValidParameters_ReturnsValidResult()
         {
             var createResult =
                await
@@ -83,9 +96,156 @@
                    null,
                    DateTimeOffset.UtcNow.AddMinutes(5));
 
-            var validateResult = await this.TokenProvider.ValidateAuthorizationCode(createResult.Token);
+            Console.WriteLine($"Code: {createResult.Token}");
+            Console.WriteLine($"Ticket: {createResult.Entity.Ticket}");
 
-            Assert.IsTrue(validateResult);
+            Assert.AreEqual("NUnit", createResult.Entity.ClientId);
+            Assert.AreEqual("http://localhost", createResult.Entity.RedirectUri);
+            Assert.AreEqual("azzlack", createResult.Entity.Subject);
+            Assert.IsNotNullOrEmpty(createResult.Token);
+        }
+
+        [Test]
+        public async void ValidateAuthorizationCode_WhenGivenValidIdentity_ReturnsValidResult()
+        {
+            var createResult =
+               await
+               this.TokenProvider.CreateAuthorizationCode(
+                   "NUnit",
+                   "http://localhost",
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   null,
+                   DateTimeOffset.UtcNow.AddMinutes(5));
+
+            var validateResult = await this.TokenProvider.ValidateAuthorizationCode(new List<IAuthorizationCode>() { createResult.Entity }, createResult.Token);
+
+            Assert.IsTrue(validateResult.IsValid);
+        }
+
+        [Test]
+        public async void ValidateAuthorizationCode_WhenGivenInvalidIdentity_ReturnsValidResult()
+        {
+            var createResult =
+               await
+               this.TokenProvider.CreateAuthorizationCode(
+                   "NUnit",
+                   "http://localhost",
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   null,
+                   DateTimeOffset.UtcNow.AddMinutes(5));
+
+            var validateResult = await this.TokenProvider.ValidateAuthorizationCode(new List<IAuthorizationCode>() { createResult.Entity }, Convert.ToBase64String(Encoding.UTF8.GetBytes("aabbccddee")));
+
+            Assert.IsFalse(validateResult.IsValid);
+        }
+
+        [Test]
+        public async void CreateAccessToken_WhenGivenValidParameters_ReturnsValidResult()
+        {
+            var createResult =
+               await
+               this.TokenProvider.CreateAccessToken(
+                   "NUnit",
+                   "http://localhost",
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   null,
+                   DateTimeOffset.UtcNow.AddMinutes(5));
+
+            Console.WriteLine($"Token: {createResult.Token}");
+            Console.WriteLine($"Ticket: {createResult.Entity.Ticket}");
+
+            Assert.AreEqual("NUnit", createResult.Entity.ClientId);
+            Assert.AreEqual("http://localhost", createResult.Entity.RedirectUri);
+            Assert.AreEqual("azzlack", createResult.Entity.Subject);
+            Assert.IsNotNullOrEmpty(createResult.Token);
+        }
+
+        [Test]
+        public async void ValidateAccessToken_WhenGivenValidIdentity_ReturnsValidResult()
+        {
+            var createResult =
+               await
+               this.TokenProvider.CreateAccessToken(
+                   "NUnit",
+                   "http://localhost",
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   null,
+                   DateTimeOffset.UtcNow.AddMinutes(5));
+
+            var validateResult = await this.TokenProvider.ValidateAccessToken(new List<IAccessToken>() { createResult.Entity }, createResult.Token);
+
+            Assert.IsTrue(validateResult.IsValid);
+        }
+
+        [Test]
+        public async void ValidateAccessToken_WhenGivenInvalidIdentity_ReturnsNotValidResult()
+        {
+            var createResult =
+               await
+               this.TokenProvider.CreateAccessToken(
+                   "NUnit",
+                   "http://localhost",
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   null,
+                   DateTimeOffset.UtcNow.AddMinutes(5));
+
+            var validateResult = await this.TokenProvider.ValidateAccessToken(new List<IAccessToken>() { createResult.Entity }, Convert.ToBase64String(Encoding.UTF8.GetBytes("aabbccddee")));
+
+            Assert.IsFalse(validateResult.IsValid);
+        }
+
+        [Test]
+        public async void CreateRefreshToken_WhenGivenValidParameters_ReturnsValidResult()
+        {
+            var createResult =
+               await
+               this.TokenProvider.CreateRefreshToken(
+                   "NUnit",
+                   "http://localhost",
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   null,
+                   DateTimeOffset.UtcNow.AddMinutes(5));
+
+            Console.WriteLine($"Token: {createResult.Token}");
+
+            Assert.AreEqual("NUnit", createResult.Entity.ClientId);
+            Assert.AreEqual("http://localhost", createResult.Entity.RedirectUri);
+            Assert.AreEqual("azzlack", createResult.Entity.Subject);
+            Assert.IsNotNullOrEmpty(createResult.Token);
+        }
+
+        [Test]
+        public async void ValidateRefreshToken_WhenGivenValidIdentity_ReturnsValidResult()
+        {
+            var createResult =
+               await
+               this.TokenProvider.CreateRefreshToken(
+                   "NUnit",
+                   "http://localhost",
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   null,
+                   DateTimeOffset.UtcNow.AddMinutes(5));
+
+            var validateResult = await this.TokenProvider.ValidateRefreshToken(new List<IRefreshToken>() { createResult.Entity }, createResult.Token);
+
+            Assert.IsTrue(validateResult.IsValid);
+        }
+
+        [Test]
+        public async void ValidateRefreshToken_WhenGivenInvalidIdentity_ReturnsNotValidResult()
+        {
+            var createResult =
+               await
+               this.TokenProvider.CreateRefreshToken(
+                   "NUnit",
+                   "http://localhost",
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   null,
+                   DateTimeOffset.UtcNow.AddMinutes(5));
+
+            var validateResult = await this.TokenProvider.ValidateRefreshToken(new List<IRefreshToken>() { createResult.Entity }, Convert.ToBase64String(Encoding.UTF8.GetBytes("aabbccddee")));
+
+            Assert.IsFalse(validateResult.IsValid);
         }
     }
 }

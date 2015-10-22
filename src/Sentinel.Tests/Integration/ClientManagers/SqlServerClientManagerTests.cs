@@ -15,6 +15,8 @@
     {
         private TemporarySqlLocalDbInstance instance;
 
+        private string databaseName;
+
         [TestFixtureSetUp]
         public override void TestFixtureSetUp()
         {
@@ -23,7 +25,7 @@
                 throw new Exception("LocalDB is not installed!");
             }
 
-            var databaseName = "SqlServerClientManagerTests" + Guid.NewGuid().ToString("N");
+            this.databaseName = "SqlServerClientManagerTests" + Guid.NewGuid().ToString("N");
 
             // Configure dapper to support datetime2
             SqlMapper.AddTypeMap(typeof(DateTime), DbType.DateTime2);
@@ -38,9 +40,9 @@
 
                 try
                 {
-                    connection.Execute("CREATE DATABASE " + databaseName);
-                    connection.Execute("USE " + databaseName);
-                    connection.Execute("CREATE TABLE Clients (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, ClientSecret VARCHAR(MAX) NOT NULL, NVARCHAR(2083) NOT NULL, Name NVARCHAR(255) NOT NULL, Enabled bit, LastUsed DATETIMEOFFSET, Created DATETIMEOFFSET)");
+                    connection.Execute("CREATE DATABASE " + this.databaseName);
+                    connection.Execute("USE " + this.databaseName);
+                    connection.Execute("CREATE TABLE Clients (Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1), ClientId VARCHAR(255) NOT NULL, ClientSecret VARCHAR(MAX) NOT NULL, RedirectUri NVARCHAR(2083) NOT NULL, Name NVARCHAR(255) NOT NULL, Enabled bit, LastUsed DATETIMEOFFSET, Created DATETIMEOFFSET)");
                     connection.Execute("INSERT INTO Clients (ClientId, ClientSecret, RedirectUri, Name, Enabled) VALUES ('NUnit', '10000:gW7zpVeugKl8IFu7TcpPskcgQjy4185eAwBk9fFlZK6JNd1I45tLyCYtJrzWzE+kVCUP7lMSY8o808EjUgfavBzYU/ZtWypcdCdCJ0BMfMcf8Mk+XIYQCQLiFpt9Rjrf5mAY86NuveUtd1yBdPjxX5neMXEtquNYhu9I6iyzcN4=:Lk2ZkpmTDkNtO/tsB/GskMppdAX2bXehP+ED4oLis0AAv3Q1VeI8KL0SxIIWdxjKH0NJKZ6qniRFkfZKZRS2hS4SB8oyB34u/jyUlmv+RZGZSt9nJ9FYJn1percd/yFA7sSQOpkGljJ6OTwdthe0Bw0A/8qlKHbO2y2M5BFgYHY=', 'http://localhost', 'NUnit Test', 1)");
                     connection.Execute("INSERT INTO Clients (ClientId, ClientSecret, RedirectUri, Name) VALUES ('NUnit2', '10000:gW7zpVeugKl8IFu7TcpPskcgQjy4185eAwBk9fFlZK6JNd1I45tLyCYtJrzWzE+kVCUP7lMSY8o808EjUgfavBzYU/ZtWypcdCdCJ0BMfMcf8Mk+XIYQCQLiFpt9Rjrf5mAY86NuveUtd1yBdPjxX5neMXEtquNYhu9I6iyzcN4=:Lk2ZkpmTDkNtO/tsB/GskMppdAX2bXehP+ED4oLis0AAv3Q1VeI8KL0SxIIWdxjKH0NJKZ6qniRFkfZKZRS2hS4SB8oyB34u/jyUlmv+RZGZSt9nJ9FYJn1percd/yFA7sSQOpkGljJ6OTwdthe0Bw0A/8qlKHbO2y2M5BFgYHY=', 'http://localhost', 'NUnit2 Test')");
                 }
@@ -56,9 +58,12 @@
         [SetUp]
         public override void SetUp()
         {
+            var connectionStringBuilder = this.instance.CreateConnectionStringBuilder();
+            connectionStringBuilder.SetInitialCatalogName(this.databaseName);
+
             this.ClientManager = new ClientManager(
                 new PBKDF2CryptoProvider(),
-                new SqlServerClientRepository(this.instance.CreateConnectionStringBuilder().ToString()));
+                new SqlServerClientRepository(connectionStringBuilder.ToString()));
 
             base.SetUp();
         }

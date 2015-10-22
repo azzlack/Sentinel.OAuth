@@ -48,19 +48,9 @@
                 options.PrincipalProvider = new PrincipalProvider(options.CryptoProvider);
             }
 
-            if (options.ClientManager == null)
-            {
-                throw new InvalidOperationException("ClientManager must be set");
-            }
-
             if (options.ClientRepository == null)
             {
                 throw new InvalidOperationException("ClientRepository must be set");
-            }
-
-            if (options.UserManager == null)
-            {
-                throw new InvalidOperationException("UserManager must be set");
             }
 
             if (options.TokenRepository == null)
@@ -70,12 +60,22 @@
 
             if (options.TokenProvider == null)
             {
-                options.TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration("Sentinel.OAuth", options.CryptoProvider.CreateHash(256)), options.TokenRepository, options.ClientRepository);
+                options.TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration("Sentinel.OAuth", options.CryptoProvider.CreateHash(256)));
             }
 
             if (options.TokenManager == null)
             {
                 options.TokenManager = new TokenManager(options.Logger, options.UserManager, options.PrincipalProvider, options.TokenProvider, options.TokenRepository, options.ClientRepository);
+            }
+
+            if (options.ClientManager == null)
+            {
+                options.ClientManager = new ClientManager(options.CryptoProvider, options.ClientRepository);
+            }
+
+            if (options.UserManager == null)
+            {
+                throw new InvalidOperationException("UserManager must be set");
             }
 
             // Initialize underlying OWIN OAuth system

@@ -20,7 +20,6 @@
     [Category("Integration")]
     public class SqlServerTokenManagerTests : TokenManagerTests
     {
-        /// <summary>The instance.</summary>
         private TemporarySqlLocalDbInstance instance;
 
         private string databaseName;
@@ -103,10 +102,7 @@
         [TestFixtureTearDown]
         public override void TestFixtureTearDown()
         {
-            if (this.instance != null)
-            {
-                this.instance.Dispose();
-            }
+            this.instance?.Dispose();
 
             base.TestFixtureTearDown();
         }

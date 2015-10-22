@@ -119,6 +119,7 @@
     <Compile Include="Models\SentinelAuthorizationServerEvents.cs" />
     <Compile Include="Models\SentinelAuthorizationServerOptions.cs" />
     <Compile Include="Models\TokenCreationResult.cs" />
+    <Compile Include="Models\TokenValidationResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
