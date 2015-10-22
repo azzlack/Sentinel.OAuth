@@ -11,6 +11,7 @@
     using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.Implementation.Providers;
+    using Sentinel.Sample.Controllers;
     using System.Collections.Generic;
     using System.Web.Http;
 
@@ -48,6 +49,8 @@
             this.Server = TestServer.Create(
                 app =>
                     {
+                        var identityControllerType = typeof(IdentityController); // Force loading of identity controller
+
                         var principalProvider = new PrincipalProvider(new SHA2CryptoProvider());
                         var tokenProvider = new SentinelTokenProvider(new SHA2CryptoProvider(), principalProvider);
 

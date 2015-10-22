@@ -236,7 +236,7 @@
             Assert.That(content.Contains("invalid_grant"));
         }
 
-        [TestCase("user", "user")]
+        [TestCase("azzlack", "aabbccddee")]
         public async void AuthenticateResourceOwner_WhenGivenValidRefreshToken_ShouldReturnNewAccessToken(string username, string password)
         {
             var request1 = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
