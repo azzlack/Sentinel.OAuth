@@ -84,6 +84,10 @@
         /// <value>The client repository.</value>
         public IClientRepository ClientRepository { get; set; }
 
+        /// <summary>Gets or sets the user repository.</summary>
+        /// <value>The user repository.</value>
+        public IUserRepository UserRepository { get; set; }
+
         /// <summary>Gets or sets the principal provider.</summary>
         /// <value>The principal provider.</value>
         public IPrincipalProvider PrincipalProvider { get; set; }

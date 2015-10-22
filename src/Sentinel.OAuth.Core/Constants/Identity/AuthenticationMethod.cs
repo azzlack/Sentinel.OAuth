@@ -10,5 +10,8 @@
 
         /// <summary>Authenticated using username and password.</summary>
         public const string UserCredentials = "user_credentials";
+
+        /// <summary>Authenticated using user id only.</summary>
+        public const string UserId = "user_id";
     }
 }

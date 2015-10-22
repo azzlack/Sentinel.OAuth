@@ -99,6 +99,7 @@
     <Compile Include="Extensions\OwinContextExtensions.cs" />
     <Compile Include="Implementation\Managers\ClientManager.cs" />
     <Compile Include="Implementation\Managers\TokenManager.cs" />
+    <Compile Include="Implementation\Managers\UserManager.cs" />
     <Compile Include="Implementation\Providers\JwtTokenProvider.cs" />
     <Compile Include="Implementation\Providers\PBKDF2CryptoProvider.cs" />
     <Compile Include="Implementation\Providers\PrincipalProvider.cs" />

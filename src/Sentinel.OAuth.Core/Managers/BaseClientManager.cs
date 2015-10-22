@@ -21,7 +21,7 @@
 
         /// <summary>Gets the client repository.</summary>
         /// <value>The client repository.</value>
-        public IClientRepository ClientRepository { get; private set; }
+        protected IClientRepository ClientRepository { get; private set; }
 
         /// <summary>Gets the crypto provider.</summary>
         /// <value>The crypto provider.</value>

@@ -1,13 +1,11 @@
 ﻿namespace Sentinel.OAuth.Extensions
 {
+    using Newtonsoft.Json;
+    using Sentinel.OAuth.Core.Interfaces.Identity;
+    using Sentinel.OAuth.Models.Identity;
     using System.Linq;
     using System.Security.Claims;
     using System.Security.Principal;
-
-    using Newtonsoft.Json;
-
-    using Sentinel.OAuth.Core.Interfaces.Identity;
-    using Sentinel.OAuth.Models.Identity;
 
     public static class PrincipalExtensions
     {
@@ -61,7 +59,7 @@
         /// <returns>A ClaimsIdentity.</returns>
         public static ClaimsIdentity AsClaimsIdentity(this ISentinelIdentity identity)
         {
-            return new ClaimsIdentity(identity.Claims.Select(x => new Claim(x.Type, x.Value)), identity.AuthenticationType);
+            return new ClaimsIdentity(identity.Claims.Select(x => new Claim(x.Type, x.Value ?? "")), identity.AuthenticationType);
         }
     }
 }

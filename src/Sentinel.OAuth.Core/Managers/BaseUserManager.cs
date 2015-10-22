@@ -1,10 +1,10 @@
 ﻿namespace Sentinel.OAuth.Core.Managers
 {
-    using System.Threading.Tasks;
-
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Core.Interfaces.Providers;
+    using Sentinel.OAuth.Core.Interfaces.Repositories;
+    using System.Threading.Tasks;
 
     /// <summary>A base user manager.</summary>
     public abstract class BaseUserManager : IUserManager
@@ -13,14 +13,20 @@
         /// Initializes a new instance of the BaseUserManager class.
         /// </summary>
         /// <param name="cryptoProvider">The crypto provider.</param>
-        protected BaseUserManager(ICryptoProvider cryptoProvider)
+        /// <param name="userRepository"></param>
+        protected BaseUserManager(ICryptoProvider cryptoProvider, IUserRepository userRepository)
         {
             this.CryptoProvider = cryptoProvider;
+            this.UserRepository = userRepository;
         }
 
         /// <summary>Gets the crypto provider.</summary>
         /// <value>The crypto provider.</value>
         protected ICryptoProvider CryptoProvider { get; private set; }
+
+        /// <summary>Gets the user repository.</summary>
+        /// <value>The user repository.</value>
+        protected IUserRepository UserRepository { get; private set; }
 
         /// <summary>Authenticates the user using username and password.</summary>
         /// <param name="username">The username.</param>

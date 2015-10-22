@@ -53,6 +53,11 @@
                 options.PrincipalProvider = new PrincipalProvider(options.TokenCryptoProvider);
             }
 
+            if (options.UserRepository == null)
+            {
+                throw new InvalidOperationException("UserRepository must be set");
+            }
+
             if (options.ClientRepository == null)
             {
                 throw new InvalidOperationException("ClientRepository must be set");
@@ -71,6 +76,11 @@
             if (options.TokenManager == null)
             {
                 options.TokenManager = new TokenManager(options.Logger, options.UserManager, options.PrincipalProvider, options.TokenProvider, options.TokenRepository, options.ClientRepository);
+            }
+
+            if (options.UserManager == null)
+            {
+                options.UserManager = new UserManager(options.PasswordCryptoProvider, options.UserRepository);
             }
 
             if (options.ClientManager == null)

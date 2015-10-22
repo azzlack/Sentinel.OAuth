@@ -38,13 +38,13 @@
                         new SqlClient()
                         {
                             Id = x.Id,
-                            Created = x.Created,
+                            Created = x.Created ?? DateTimeOffset.MinValue,
                             ClientId = x.ClientId,
                             ClientSecret = x.ClientSecret,
                             RedirectUri = x.RedirectUri,
                             Name = x.Name,
-                            LastUsed = x.LastUsed,
-                            Enabled = x.Enabled
+                            LastUsed = x.LastUsed ?? DateTimeOffset.MinValue,
+                            Enabled = x.Enabled ?? false
                         });
 
                 return clients;

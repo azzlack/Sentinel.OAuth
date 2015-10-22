@@ -40,7 +40,12 @@
                             new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
                             new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ClientId)));
 
-                return principal;
+                if (principal.Identity.IsAuthenticated)
+                {
+                    // TODO: Update lastused date
+
+                    return principal;
+                }
             }
 
             return SentinelPrincipal.Anonymous;
@@ -67,7 +72,12 @@
                                 new SentinelClaim(ClaimType.Scope, string.Join(" ", scope)),
                                 new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ClientId)));
 
-                return principal;
+                if (principal.Identity.IsAuthenticated)
+                {
+                    // TODO: Update lastused date
+
+                    return principal;
+                }
             }
 
             return SentinelPrincipal.Anonymous;
@@ -93,7 +103,12 @@
                                 new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
                                 new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ClientCredentials)));
 
-                    return principal;
+                    if (principal.Identity.IsAuthenticated)
+                    {
+                        // TODO: Update lastused date
+
+                        return principal;
+                    }
                 }
             }
 

@@ -209,6 +209,7 @@
     <Compile Include="Integration\TokenProviders\TokenProviderTests.cs" />
     <Compile Include="Integration\UserManagers\AspNetIdentityUserManagerTests.cs" />
     <Compile Include="Integration\UserManagers\SqlServerUserManagerTests.cs" />
+    <Compile Include="Integration\UserManagers\UserManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Unit\SqlTokenRepositoryTests.cs" />
     <Compile Include="Unit\RedisTokenRepositoryTests.cs" />
@@ -267,9 +268,9 @@
       <Project>{2a880295-cd2f-45c7-b592-0595318292cb}</Project>
       <Name>SqlServerTokenRepository</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sentinel.OAuth.UserManagers.SqlServerUserManager\SqlServerUserManager.csproj">
+    <ProjectReference Include="..\Sentinel.OAuth.UserManagers.SqlServerUserManager\SqlServerUserRepository.csproj">
       <Project>{7d33d993-b9be-463d-8942-cc5d0b99c06d}</Project>
-      <Name>SqlServerUserManager</Name>
+      <Name>SqlServerUserRepository</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sentinel.OAuth\Sentinel.OAuth.csproj">
       <Project>{d456998c-5a63-4743-b46e-89f6324c38c7}</Project>

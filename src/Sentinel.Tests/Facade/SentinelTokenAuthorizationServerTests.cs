@@ -11,7 +11,6 @@
     using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.Implementation.Providers;
-    using Sentinel.Sample.Managers;
     using System.Collections.Generic;
     using System.Web.Http;
 
@@ -29,10 +28,22 @@
                 RedirectUri = "http://localhost",
                 Enabled = true
             };
+            var user = new User()
+            {
+                UserId = "azzlack",
+                Password = "10000:gW7zpVeugKl8IFu7TcpPskcgQjy4185eAwBk9fFlZK6JNd1I45tLyCYtJrzWzE+kVCUP7lMSY8o808EjUgfavBzYU/ZtWypcdCdCJ0BMfMcf8Mk+XIYQCQLiFpt9Rjrf5mAY86NuveUtd1yBdPjxX5neMXEtquNYhu9I6iyzcN4=:Lk2ZkpmTDkNtO/tsB/GskMppdAX2bXehP+ED4oLis0AAv3Q1VeI8KL0SxIIWdxjKH0NJKZ6qniRFkfZKZRS2hS4SB8oyB34u/jyUlmv+RZGZSt9nJ9FYJn1percd/yFA7sSQOpkGljJ6OTwdthe0Bw0A/8qlKHbO2y2M5BFgYHY=",
+                FirstName = "Ove",
+                LastName = "Andersen",
+                Enabled = true
+            };
 
             var clientRepository = new Mock<IClientRepository>();
             clientRepository.Setup(x => x.GetClient("NUnit")).ReturnsAsync(client);
             clientRepository.Setup(x => x.GetClients()).ReturnsAsync(new List<IClient>() { client });
+
+            var userRepository = new Mock<IUserRepository>();
+            userRepository.Setup(x => x.GetUser("azzlack")).ReturnsAsync(user);
+            userRepository.Setup(x => x.GetUsers()).ReturnsAsync(new List<IUser>() { user });
 
             this.Server = TestServer.Create(
                 app =>
@@ -44,7 +55,7 @@
                             new SentinelAuthorizationServerOptions()
                             {
                                 ClientRepository = clientRepository.Object,
-                                UserManager = new SimpleUserManager(),
+                                UserRepository = userRepository.Object,
                                 TokenProvider = tokenProvider
                             });
 

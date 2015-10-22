@@ -28,15 +28,20 @@
         [TestFixtureSetUp]
         public virtual void TestFixtureSetUp()
         {
-            this.Client = this.Server.HttpClient;
-
-            Console.WriteLine("Using API URL " + this.Client.BaseAddress);
         }
 
         [TestFixtureTearDown]
-        public void TestFixtureTearDown()
+        public virtual void TestFixtureTearDown()
         {
             this.Server.Dispose();
+        }
+
+        [SetUp]
+        public virtual void SetUp()
+        {
+            this.Client = new HttpClient(this.Server.Handler) { BaseAddress = this.Server.BaseAddress };
+
+            Console.WriteLine("Using API URL " + this.Client.BaseAddress);
         }
 
         [TestCase("NUnit", "http://localhost")]
@@ -171,7 +176,7 @@
             Assert.AreEqual("{\"error\":\"invalid_request\"}", content);
         }
 
-        [TestCase("user", "user")]
+        [TestCase("azzlack", "aabbccddee")]
         public async void AuthenticateResourceOwner_WhenGivenValidClientAndUserAndPassword_ShouldReturnAccessToken(string username, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
