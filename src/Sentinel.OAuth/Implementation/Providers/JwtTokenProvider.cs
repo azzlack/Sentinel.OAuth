@@ -1,5 +1,6 @@
 ﻿namespace Sentinel.OAuth.Implementation.Providers
 {
+    using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Providers;
@@ -55,7 +56,11 @@
                 TokenIssuerName = this.configuration.Issuer,
                 AppliesToAddress = redirectUri,
                 Lifetime = new Lifetime(DateTime.UtcNow, expireTime.UtcDateTime),
-                SigningCredentials = this.configuration.SigningCredentials
+                SigningCredentials = this.configuration.SigningCredentials,
+                Properties =
+                    {
+                        { "sub", userPrincipal.Identity.Name }
+                    }
             };
 
             var token = this.tokenHandler.CreateToken(tokenDescriptor) as JwtSecurityToken;
@@ -124,16 +129,15 @@
             IEnumerable<string> scope,
             DateTimeOffset expireTime)
         {
-            var tokenDescriptor = new SecurityTokenDescriptor
+            // Add additional claims of necessary
+            if (!userPrincipal.Identity.HasClaim(x => x.Type == JwtClaimType.Subject))
             {
-                Subject = new ClaimsIdentity(userPrincipal.Identity),
-                TokenIssuerName = this.configuration.Issuer,
-                AppliesToAddress = redirectUri,
-                Lifetime = new Lifetime(DateTime.UtcNow, expireTime.UtcDateTime),
-                SigningCredentials = this.configuration.SigningCredentials
-            };
+                userPrincipal.Identity.AddClaim(JwtClaimType.Subject, "test");
+            }
 
-            var token = this.tokenHandler.CreateToken(tokenDescriptor) as JwtSecurityToken;
+            // TODO: Create custom JwtSecurityTokenHandler that takes care of setting the correct claims
+
+            var token = new JwtSecurityToken(this.configuration.Issuer, redirectUri, userPrincipal.Identity.Claims.Select(x => new Claim(x.Type, x.Value)), DateTime.UtcNow, expireTime.UtcDateTime, this.configuration.SigningCredentials);
 
             if (token == null)
             {
