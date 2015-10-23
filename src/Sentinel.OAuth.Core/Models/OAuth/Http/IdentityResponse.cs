@@ -1,15 +1,25 @@
 ﻿namespace Sentinel.OAuth.Core.Models.OAuth.Http
 {
+    using Newtonsoft.Json;
     using Sentinel.OAuth.Core.Constants.Identity;
+    using Sentinel.OAuth.Core.Converters;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
 
-    public class IdentityResponse : Dictionary<string, string>
+    [JsonConverter(typeof(IdentityResponseJsonConverter))]
+    public class IdentityResponse : Collection<KeyValuePair<string, string>>
     {
         /// <summary>Initializes a new instance of the <see cref="IdentityResponse" /> class.</summary>
-        public IdentityResponse()
+        /// <param name="claims">A variable-length parameters list containing claims.</param>
+        public IdentityResponse(IEnumerable<KeyValuePair<string, string>> claims)
         {
+            foreach (var claim in claims)
+            {
+                this.Add(new KeyValuePair<string, string>(claim.Key, claim.Value));
+            }
         }
 
         /// <summary>Initializes a new instance of the <see cref="IdentityResponse" /> class.</summary>
@@ -18,7 +28,17 @@
         {
             foreach (var claim in identity.Claims)
             {
-                this.Add(claim.Type, claim.Value);
+                this.Add(new KeyValuePair<string, string>(claim.Type, claim.Value));
+            }
+        }
+
+        /// <summary>Initializes a new instance of the <see cref="IdentityResponse" /> class.</summary>
+        /// <param name="claims">A variable-length parameters list containing claims.</param>
+        public IdentityResponse(params ISentinelClaim[] claims)
+        {
+            foreach (var claim in claims)
+            {
+                this.Add(new KeyValuePair<string, string>(claim.Type, claim.Value));
             }
         }
 
@@ -28,17 +48,9 @@
         {
             get
             {
-                if (this.ContainsKey("jti"))
-                {
-                    return this["jti"];
-                }
+                var claim = this.FirstOrDefault(x => x.Key == "jti" || x.Key == ClaimType.Id);
 
-                if (this.ContainsKey(ClaimType.Id))
-                {
-                    return this[ClaimType.Id];
-                }
-
-                return null;
+                return claim.Value;
             }
         }
 
@@ -48,17 +60,9 @@
         {
             get
             {
-                if (this.ContainsKey("iss"))
-                {
-                    return this["iss"];
-                }
+                var claim = this.FirstOrDefault(x => x.Key == "iss" || x.Key == ClaimType.Issuer);
 
-                if (this.ContainsKey(ClaimType.Issuer))
-                {
-                    return this[ClaimType.Issuer];
-                }
-
-                return null;
+                return claim.Value;
             }
         }
 
@@ -68,17 +72,9 @@
         {
             get
             {
-                if (this.ContainsKey("sub"))
-                {
-                    return this["sub"];
-                }
+                var claim = this.FirstOrDefault(x => x.Key == "sub" || x.Key == ClaimType.Name);
 
-                if (this.ContainsKey(ClaimType.Name))
-                {
-                    return this[ClaimType.Name];
-                }
-
-                return null;
+                return claim.Value;
             }
         }
 
@@ -88,17 +84,9 @@
         {
             get
             {
-                if (this.ContainsKey("aud"))
-                {
-                    return this["aud"];
-                }
+                var claim = this.FirstOrDefault(x => x.Key == "aud" || x.Key == ClaimType.RedirectUri);
 
-                if (this.ContainsKey(ClaimType.RedirectUri))
-                {
-                    return this[ClaimType.RedirectUri];
-                }
-
-                return null;
+                return claim.Value;
             }
         }
 
@@ -108,16 +96,12 @@
         {
             get
             {
-                DateTimeOffset exp;
+                DateTimeOffset dt;
+                var claim = this.FirstOrDefault(x => x.Key == "exp" || x.Key == ClaimType.Expiration);
 
-                if (this.ContainsKey("exp") && DateTimeOffset.TryParse(this["exp"], out exp))
+                if (DateTimeOffset.TryParse(claim.Value, out dt))
                 {
-                    return exp;
-                }
-
-                if (this.ContainsKey(ClaimType.Expiration) && DateTimeOffset.TryParse(ClaimType.Expiration, out exp))
-                {
-                    return exp;
+                    return dt;
                 }
 
                 return DateTimeOffset.MinValue;
@@ -130,16 +114,12 @@
         {
             get
             {
-                DateTimeOffset nbf;
+                DateTimeOffset dt;
+                var claim = this.FirstOrDefault(x => x.Key == "nbf" || x.Key == ClaimType.ValidFrom);
 
-                if (this.ContainsKey("nbf") && DateTimeOffset.TryParse(this["nbf"], out nbf))
+                if (DateTimeOffset.TryParse(claim.Value, out dt))
                 {
-                    return nbf;
-                }
-
-                if (this.ContainsKey(ClaimType.ValidFrom) && DateTimeOffset.TryParse(ClaimType.ValidFrom, out nbf))
-                {
-                    return nbf;
+                    return dt;
                 }
 
                 return DateTimeOffset.MinValue;
@@ -152,16 +132,12 @@
         {
             get
             {
-                DateTimeOffset iat;
+                DateTimeOffset dt;
+                var claim = this.FirstOrDefault(x => x.Key == "iat" || x.Key == ClaimType.AuthenticationInstant);
 
-                if (this.ContainsKey("iat") && DateTimeOffset.TryParse(this["iat"], out iat))
+                if (DateTimeOffset.TryParse(claim.Value, out dt))
                 {
-                    return iat;
-                }
-
-                if (this.ContainsKey(ClaimType.AuthenticationInstant) && DateTimeOffset.TryParse(ClaimType.AuthenticationInstant, out iat))
-                {
-                    return iat;
+                    return dt;
                 }
 
                 return DateTimeOffset.MinValue;

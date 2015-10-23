@@ -86,6 +86,7 @@
     <Compile Include="Constants\Identity\AuthenticationMethod.cs" />
     <Compile Include="Constants\Identity\ClaimType.cs" />
     <Compile Include="Constants\OAuth\ErrorCode.cs" />
+    <Compile Include="Converters\IdentityResponseJsonConverter.cs" />
     <Compile Include="Interfaces\Models\IToken.cs" />
     <Compile Include="Interfaces\Models\IUser.cs" />
     <Compile Include="Interfaces\Providers\ITokenProvider.cs" />
