@@ -10,7 +10,6 @@
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Extensions;
-    using Sentinel.Sample.Controllers;
     using System.Collections.Generic;
     using System.Web.Http;
 
@@ -48,8 +47,6 @@
             this.Server = TestServer.Create(
                 app =>
                     {
-                        var identityControllerType = typeof(IdentityController); // Force loading of identity controller
-
                         app.UseSentinelAuthorizationServer(new SentinelAuthorizationServerOptions()
                         {
                             ClientRepository = clientRepository.Object,

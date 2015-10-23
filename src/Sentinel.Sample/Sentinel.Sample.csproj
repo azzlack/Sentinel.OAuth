@@ -19,6 +19,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -143,7 +144,6 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\IdentityController.cs" />
     <Compile Include="Managers\SimpleUserManager.cs" />
     <Compile Include="Managers\SimpleClientManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -159,6 +159,9 @@
       <Project>{d456998c-5a63-4743-b46e-89f6324c38c7}</Project>
       <Name>Sentinel.OAuth</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controllers\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

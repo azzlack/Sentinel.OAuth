@@ -85,6 +85,7 @@
   <ItemGroup>
     <Compile Include="Constants\Identity\AuthenticationMethod.cs" />
     <Compile Include="Constants\Identity\ClaimType.cs" />
+    <Compile Include="Constants\OAuth\ErrorCode.cs" />
     <Compile Include="Interfaces\Models\IToken.cs" />
     <Compile Include="Interfaces\Models\IUser.cs" />
     <Compile Include="Interfaces\Providers\ITokenProvider.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="Models\OAuth\Http\AuthorizationRequest.cs" />
     <Compile Include="Models\OAuth\Http\AuthorizationResponse.cs" />
     <Compile Include="Models\OAuth\Http\ErrorResponse.cs" />
+    <Compile Include="Models\OAuth\Http\IdentityResponse.cs" />
     <Compile Include="Models\OAuth\RefreshToken.cs" />
     <Compile Include="Models\OAuth\User.cs" />
     <Compile Include="Models\SentinelAuthorizationServerEvents.cs" />

@@ -3,14 +3,18 @@
     using Common.Logging;
     using Microsoft.Owin;
     using Microsoft.Owin.Security.OAuth;
+    using Newtonsoft.Json;
     using Owin;
+    using Sentinel.OAuth.Core.Constants.OAuth;
     using Sentinel.OAuth.Core.Models;
+    using Sentinel.OAuth.Core.Models.OAuth.Http;
     using Sentinel.OAuth.Implementation.Managers;
     using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.Implementation.Repositories;
     using Sentinel.OAuth.Models.Providers;
     using Sentinel.OAuth.Providers.OAuth;
     using System;
+    using System.Net;
 
     /// <summary>
     /// Extension methods to add Authorization Server capabilities to an OWIN pipeline
@@ -112,6 +116,31 @@
             {
                 AccessTokenProvider = oauthOptions.AccessTokenProvider
             });
+
+            // Set up identity endpoint
+            app.Map(
+                options.IdentityEndpointUrl,
+                config =>
+                    {
+                        config.Run(
+                            async (context) =>
+                                {
+                                    var auth = await context.Authentication.AuthenticateAsync(OAuthDefaults.AuthenticationType);
+
+                                    if (auth != null && auth.Identity.IsAuthenticated)
+                                    {
+                                        context.Response.ContentType = "application/json";
+                                        await context.Response.WriteAsync(JsonConvert.SerializeObject(new IdentityResponse(auth.Identity.AsSentinelIdentity())));
+                                    }
+                                    else
+                                    {
+                                        context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                        context.Response.ContentType = "application/json";
+                                        context.Response.Headers["WWW-Authenticate"] = "";
+                                        await context.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorResponse(ErrorCode.InvalidToken)));
+                                    }
+                                });
+                    });
 
             return app;
         }

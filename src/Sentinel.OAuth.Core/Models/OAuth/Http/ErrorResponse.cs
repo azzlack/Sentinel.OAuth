@@ -1,8 +1,7 @@
 ﻿namespace Sentinel.OAuth.Core.Models.OAuth.Http
 {
-    using System.Diagnostics;
-
     using Newtonsoft.Json;
+    using System.Diagnostics;
 
     /// <summary>
     /// Represents an OAuth error response
@@ -16,6 +15,13 @@
         public ErrorResponse()
         {
             this.ErrorCode = "invalid_client";
+        }
+
+        /// <summary>Initializes a new instance of the <see cref="ErrorResponse" /> class.</summary>
+        /// <param name="errorCode">The error code.</param>
+        public ErrorResponse(string errorCode)
+        {
+            this.ErrorCode = errorCode;
         }
 
         /// <summary>

@@ -5,11 +5,8 @@
     using Newtonsoft.Json;
     using NUnit.Framework;
     using Sentinel.OAuth.Client;
-    using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Constants.OAuth;
-    using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Models.OAuth.Http;
-    using Sentinel.OAuth.Models.Identity;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -96,10 +93,6 @@
             Console.WriteLine("Response: [{0} {1}] {2}", (int)response.StatusCode, response.StatusCode, await response.Content.ReadAsStringAsync());
 
             Assert.IsNotNullOrEmpty(content.AccessToken, "No access token returned");
-
-            var identity = await this.PrintIdentity(content.AccessToken);
-
-            Assert.IsTrue(identity.HasClaim(ClaimType.Scope, Constants.Scope.Read));
         }
 
         [TestCase("NUnit", "NUnit")]
@@ -204,12 +197,6 @@
             var content = JsonConvert.DeserializeObject<AccessTokenResponse>(await response.Content.ReadAsStringAsync());
 
             Assert.IsNotNullOrEmpty(content.AccessToken, "No access token returned");
-
-            var identity = await this.PrintIdentity(content.AccessToken);
-
-            Assert.IsTrue(identity.IsAuthenticated);
-            //Assert.IsTrue(identity.HasClaim(ClaimType.Scope, Scope.Read));
-            //Assert.IsTrue(identity.HasClaim(ClaimType.Scope, Scope.Write)); TODO: Add these back when OpenID Connect has been implemented
         }
 
         [TestCase("user", "pass")]
@@ -283,8 +270,6 @@
             var content2 = JsonConvert.DeserializeObject<AccessTokenResponse>(await response2.Content.ReadAsStringAsync());
 
             Assert.IsNotNullOrEmpty(content2.AccessToken, "No access token returned");
-
-            await this.PrintIdentity(content2.AccessToken);
         }
 
         [TestCase("user", "pass")]
@@ -334,11 +319,6 @@
             var token = JsonConvert.DeserializeObject<AccessTokenResponse>(await response.Content.ReadAsStringAsync());
 
             Assert.IsNotNullOrEmpty(token.AccessToken, "No access token returned");
-
-            var identity = await this.PrintIdentity(token.AccessToken);
-
-            Assert.IsTrue(identity.IsAuthenticated);
-            //Assert.IsTrue(identity.HasClaim(x => x.Type == ClaimType.Scope)); TODO: Add this back when openID connect has been implemented
         }
 
         [Test]
@@ -363,10 +343,12 @@
             Assert.That(content.Contains("invalid_grant"));
         }
 
-        [TestCase("identity")]
-        public async void GetResource_WhenNotAuthorized_ShouldReturn401Unauthorized(string url)
+        [Test]
+        public async void GetIdentity_WhenNotAuthorized_ShouldReturn401Unauthorized()
         {
-            var c = new HttpClient(this.Server.Handler) { BaseAddress = new Uri(this.Server.BaseAddress + "api/") };
+            var url = "openid/identity";
+
+            var c = new HttpClient(this.Server.Handler) { BaseAddress = this.Server.BaseAddress };
 
             Console.WriteLine("Request: {0}{1}", c.BaseAddress, url);
 
@@ -377,10 +359,12 @@
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
-        [TestCase("identity")]
-        public async void GetResource_WhenNotAuthorized_ShouldReturnCorrectWwwAuthenticateHeader(string url)
+        [Test]
+        public async void GetIdentity_WhenNotAuthorized_ShouldReturnCorrectWwwAuthenticateHeader()
         {
-            var c = new HttpClient(this.Server.Handler) { BaseAddress = new Uri(this.Server.BaseAddress + "api/") };
+            var url = "openid/identity";
+
+            var c = new HttpClient(this.Server.Handler) { BaseAddress = this.Server.BaseAddress };
 
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.Add("Accept", "application/json, text/plain, */*");
@@ -415,36 +399,54 @@
             Assert.AreEqual("Bearer", response.Headers.First(x => x.Key == "WWW-Authenticate").Value.First());
         }
 
-        private async Task<ISentinelIdentity> PrintIdentity(string accessToken)
+        [Test]
+        public async void GetIdentity_WhenAuthenticated_ReturnsClaims()
         {
+            var request = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "aabbccddee");
+            request.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
+                                                        {
+                                                            { "grant_type", GrantType.Password },
+                                                            { "redirect_uri", "http://localhost" },
+                                                            { "scope", string.Join(" ", Scope.Read, Scope.Write) },
+                                                            { "username", "azzlack" },
+                                                            { "password", "aabbccddee" }
+                                                        });
+
+            Console.WriteLine("Request: {0}{1}", this.Client.BaseAddress, request.RequestUri);
+
+            var authenticationResponse = await this.Client.SendAsync(request);
+
+            Console.WriteLine("Response: {0} {1}", (int)authenticationResponse.StatusCode, authenticationResponse.ReasonPhrase);
+
+            var authenticationContent = JsonConvert.DeserializeObject<AccessTokenResponse>(await authenticationResponse.Content.ReadAsStringAsync());
+
             Console.WriteLine();
-            Console.WriteLine("Using access token: {0}", accessToken);
+            Console.WriteLine("Using access token: {0}", authenticationContent.AccessToken);
 
-            var request = new HttpRequestMessage(HttpMethod.Get, "api/identity");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/identity");
+            identityRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authenticationContent.AccessToken);
 
-            Console.WriteLine("Request: {0}", request.RequestUri);
+            Console.WriteLine("Request: {0}", identityRequest.RequestUri);
 
-            var response = await this.Client.SendAsync(request);
-            var content = await response.Content.ReadAsStringAsync();
+            var identityResponse = await this.Client.SendAsync(identityRequest);
+            var identityContent = await identityResponse.Content.ReadAsStringAsync();
 
-            Console.WriteLine("Response: {0} {1}", (int)response.StatusCode, response.ReasonPhrase);
-            if (!response.IsSuccessStatusCode)
+            Console.WriteLine("Response: {0} {1}", (int)identityResponse.StatusCode, identityResponse.ReasonPhrase);
+            if (!identityResponse.IsSuccessStatusCode)
             {
-                Console.WriteLine(content);
+                Console.WriteLine(identityContent);
             }
 
-            var identity = JsonConvert.DeserializeObject<SentinelIdentity>(content);
-
-            Assert.IsTrue(identity.IsAuthenticated, "The access token didn't work");
+            var identity = JsonConvert.DeserializeObject<IdentityResponse>(identityContent);
 
             Console.WriteLine("Claims:");
-            foreach (var claim in identity.Claims)
+            foreach (var claim in identity)
             {
-                Console.WriteLine("{0}: {1}", claim.Type, claim.Value);
+                Console.WriteLine("{0}: {1}", claim.Key, claim.Value);
             }
 
-            return identity;
+            Assert.AreEqual("azzlack", identity.Subject);
         }
     }
 }

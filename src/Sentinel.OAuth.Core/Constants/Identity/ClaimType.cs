@@ -19,5 +19,23 @@
 
         /// <summary>The redirect uri claim type.</summary>
         public const string RedirectUri = "urn:oauth:redirecturi";
+
+        /// <summary>The id claim type.</summary>
+        public const string Id = "urn:oauth:id";
+
+        /// <summary>The issuer claim type.</summary>
+        public const string Issuer = "urn:oauth:issuer";
+
+        /// <summary>The valid from claim type.</summary>
+        public const string ValidFrom = "urn:oauth:validfrom";
+
+        /// <summary>The name claim type.</summary>
+        public const string Name = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
+
+        /// <summary>The expiration claim type.</summary>
+        public const string Expiration = "http://schemas.microsoft.com/ws/2008/06/identity/claims/expiration";
+
+        /// <summary>The authentication instant claim type.</summary>
+        public const string AuthenticationInstant = "http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationinstant";
     }
 }

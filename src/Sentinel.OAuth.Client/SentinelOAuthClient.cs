@@ -170,6 +170,26 @@
             throw new SecurityException("Unable to refresh access token", new HttpRequestException(await response.Content.ReadAsStringAsync()));
         }
 
+        /// <summary>Gets the identity.</summary>
+        /// <param name="token">The token.</param>
+        /// <returns>The identity.</returns>
+        public async Task<IdentityResponse> GetIdentity(string token)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "openid/identity");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await this.Client.SendAsync(request).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<IdentityResponse>(await response.Content.ReadAsStringAsync());
+            }
+
+            throw new SecurityException(
+                $"Unable to get identity.\r\n",
+                new HttpRequestException(await response.Content.ReadAsStringAsync()));
+        }
+
         /// <summary>Gets the cookies.</summary>
         /// <returns>A list of cookies.</returns>
         public virtual async Task<CookieCollection> GetCookies()

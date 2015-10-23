@@ -1,8 +1,7 @@
 ﻿namespace Sentinel.OAuth.Core.Models.OAuth.Http
 {
-    using System.Diagnostics;
-
     using Newtonsoft.Json;
+    using System.Diagnostics;
 
     /// <summary>
     /// Represents an OAuth access token response

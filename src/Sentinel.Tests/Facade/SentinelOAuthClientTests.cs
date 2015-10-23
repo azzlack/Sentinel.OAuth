@@ -12,7 +12,6 @@
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Extensions;
-    using Sentinel.Sample.Controllers;
     using System;
     using System.Collections.Generic;
     using System.Security;
@@ -56,8 +55,6 @@
             this.server = TestServer.Create(
                 app =>
                 {
-                    var identityControllerType = typeof(IdentityController); // Force loading of identity controller
-
                     app.UseSentinelAuthorizationServer(new SentinelAuthorizationServerOptions()
                     {
                         ClientRepository = clientRepository.Object,
@@ -160,6 +157,16 @@
         public async void Authenticate_WhenGivenInvalidRefreshToken_ShouldThrowException()
         {
             await this.client.RefreshAuthentication(Guid.NewGuid().ToString("N"));
+        }
+
+        [TestCase("azzlack", "aabbccddee")]
+        public async void GetIdentity_WhenGivenValidUsernameAndPassword_ShouldReturnIdentity(string userName, string password)
+        {
+            var token = await this.client.Authenticate(userName, password);
+            var identity = await this.client.GetIdentity(token.AccessToken);
+
+            Assert.IsNotNull(identity);
+            Assert.AreEqual(userName, identity.Subject);
         }
     }
 }

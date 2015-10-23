@@ -23,6 +23,7 @@
             this.RefreshTokenLifetime = TimeSpan.FromDays(90);
             this.AuthorizationCodeEndpointUrl = "/oauth/authorize";
             this.TokenEndpointUrl = "/oauth/token";
+            this.IdentityEndpointUrl = "/openid/identity";
         }
 
         /// <summary>Gets the events.</summary>
@@ -108,5 +109,9 @@
         /// <summary>Gets or sets URL of the token endpoint.</summary>
         /// <value>The token endpoint URL.</value>
         public string TokenEndpointUrl { get; set; }
+
+        /// <summary>Gets or sets URL of the identity endpoint.</summary>
+        /// <value>The identity endpoint URL.</value>
+        public string IdentityEndpointUrl { get; set; }
     }
 }

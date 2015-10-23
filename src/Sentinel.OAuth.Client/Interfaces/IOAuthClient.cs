@@ -1,10 +1,8 @@
 ﻿namespace Sentinel.OAuth.Client.Interfaces
 {
+    using Sentinel.OAuth.Core.Models.OAuth.Http;
     using System.Net;
     using System.Threading.Tasks;
-
-    using Sentinel.OAuth.Core.Models.OAuth;
-    using Sentinel.OAuth.Core.Models.OAuth.Http;
 
     /// <summary>Interface for OAuth clients.</summary>
     public interface IOAuthClient
@@ -30,6 +28,11 @@
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns>The access token.</returns>
         Task<AccessTokenResponse> RefreshAuthentication(string refreshToken);
+
+        /// <summary>Gets the identity.</summary>
+        /// <param name="token">The token.</param>
+        /// <returns>The identity.</returns>
+        Task<IdentityResponse> GetIdentity(string token);
 
         /// <summary>
         /// Gets the cookies.
