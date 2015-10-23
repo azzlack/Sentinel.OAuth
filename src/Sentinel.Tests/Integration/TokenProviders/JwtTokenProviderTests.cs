@@ -14,7 +14,7 @@
         {
             var cryptoProvider = new SHA2CryptoProvider();
 
-            this.TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration(new Uri("https://sentinel.oauth"), cryptoProvider.CreateHash(256)));
+            this.TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration(new Uri("https://sentinel.oauth"), cryptoProvider.CreateHash(256)), cryptoProvider);
 
             base.TestFixtureSetUp();
         }

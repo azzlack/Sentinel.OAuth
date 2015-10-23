@@ -22,14 +22,22 @@
         /// <summary>The configuration.</summary>
         private readonly JwtTokenProviderConfiguration configuration;
 
+        /// <summary>The crypto provider.</summary>
+        private readonly ICryptoProvider cryptoProvider;
+
         /// <summary>The token handler.</summary>
         private readonly JwtSecurityTokenHandler tokenHandler;
 
-        /// <summary>Initializes a new instance of the Sentinel.OAuth.Implementation.Providers.JwtTokenProvider class.</summary>
-        /// <param name="configuration">The configuration.</param>
-        public JwtTokenProvider(JwtTokenProviderConfiguration configuration)
+        /// <summary>
+        /// Initializes a new instance of the Sentinel.OAuth.Implementation.Providers.JwtTokenProvider
+        /// class.
+        /// </summary>
+        /// <param name="configuration"> The configuration.</param>
+        /// <param name="cryptoProvider">The crypto provider.</param>
+        public JwtTokenProvider(JwtTokenProviderConfiguration configuration, ICryptoProvider cryptoProvider)
         {
             this.configuration = configuration;
+            this.cryptoProvider = cryptoProvider;
 
             this.tokenHandler = new JwtSecurityTokenHandler();
         }
@@ -48,7 +56,7 @@
             IEnumerable<string> scope,
             DateTimeOffset expireTime)
         {
-            var token = new JwtSecurityToken(
+            var jwt = new JwtSecurityToken(
                 this.configuration.Issuer.AbsoluteUri,
                 clientId,
                 userPrincipal.Identity.Claims.Select(x => new Claim(x.Type, x.Value)),
@@ -56,7 +64,10 @@
                 expireTime.UtcDateTime,
                 this.configuration.SigningCredentials);
 
-            var ticket = this.tokenHandler.WriteToken(token);
+            string token;
+            var hashedToken = this.cryptoProvider.CreateHash(out token, 128);
+
+            var ticket = this.tokenHandler.WriteToken(jwt);
 
             var authorizationCode = new AuthorizationCode()
             {
@@ -64,12 +75,12 @@
                 RedirectUri = redirectUri,
                 Subject = userPrincipal.Identity.Name,
                 Scope = scope,
-                Code = token.RawSignature,
+                Code = hashedToken,
                 Ticket = ticket,
                 ValidTo = expireTime
             };
 
-            return new TokenCreationResult<IAuthorizationCode>(Convert.ToBase64String(Encoding.UTF8.GetBytes(token.RawSignature)), authorizationCode);
+            return new TokenCreationResult<IAuthorizationCode>(token, authorizationCode);
         }
 
         /// <summary>Validates an authorization code.</summary>
@@ -78,7 +89,7 @@
         /// <returns>The access token if valid, <c>null</c> otherwise.</returns>
         public async Task<TokenValidationResult<IAuthorizationCode>> ValidateAuthorizationCode(IEnumerable<IAuthorizationCode> authorizationCodes, string code)
         {
-            var entity = authorizationCodes.FirstOrDefault(x => x.Code == Encoding.UTF8.GetString(Convert.FromBase64String(code)));
+            var entity = authorizationCodes.FirstOrDefault(x => this.cryptoProvider.ValidateHash(code, x.Code));
 
             if (entity != null)
             {
@@ -115,9 +126,7 @@
             IEnumerable<string> scope,
             DateTimeOffset expireTime)
         {
-            // TODO: Create custom JwtSecurityTokenHandler that takes care of setting the correct claims
-
-            var token = new JwtSecurityToken(
+            var jwt = new JwtSecurityToken(
                 this.configuration.Issuer.AbsoluteUri,
                 clientId,
                 userPrincipal.Identity.Claims.Select(x => new Claim(x.Type, x.Value)),
@@ -125,12 +134,10 @@
                 expireTime.UtcDateTime,
                 this.configuration.SigningCredentials);
 
-            if (token == null)
-            {
-                throw new InvalidOperationException("The token handler failed to produce a valid token");
-            }
+            var idToken = this.tokenHandler.WriteToken(jwt);
 
-            var ticket = this.tokenHandler.WriteToken(token);
+            string token;
+            var hashedToken = this.cryptoProvider.CreateHash(out token, 2048);
 
             var accessToken = new AccessToken()
             {
@@ -138,12 +145,12 @@
                 RedirectUri = redirectUri,
                 Subject = userPrincipal.Identity.Name,
                 Scope = scope,
-                Token = ticket,
-                Ticket = ticket,
+                Token = hashedToken,
+                Ticket = idToken,
                 ValidTo = expireTime
             };
 
-            return new TokenCreationResult<IAccessToken>(ticket, accessToken);
+            return new TokenCreationResult<IAccessToken>(token, accessToken);
         }
 
         /// <summary>Validates the access token.</summary>
@@ -152,7 +159,7 @@
         /// <returns>The token principal if valid, <c>null</c> otherwise.</returns>
         public async Task<TokenValidationResult<IAccessToken>> ValidateAccessToken(IEnumerable<IAccessToken> accessTokens, string token)
         {
-            var entity = accessTokens.FirstOrDefault(x => x.Token == token);
+            var entity = accessTokens.FirstOrDefault(x => this.cryptoProvider.ValidateHash(token, x.Token));
 
             if (entity != null)
             {
@@ -164,7 +171,7 @@
                 };
 
                 SecurityToken st;
-                var principal = this.tokenHandler.ValidateToken(token, validationParams, out st);
+                var principal = this.tokenHandler.ValidateToken(entity.Ticket, validationParams, out st);
 
                 if (principal.Identity.IsAuthenticated)
                 {
@@ -189,7 +196,7 @@
             IEnumerable<string> scope,
             DateTimeOffset expireTime)
         {
-            var token = new JwtSecurityToken(
+            var jwt = new JwtSecurityToken(
                 this.configuration.Issuer.AbsoluteUri,
                 clientId,
                 userPrincipal.Identity.Claims.Select(x => new Claim(x.Type, x.Value)),
@@ -197,7 +204,10 @@
                 expireTime.UtcDateTime,
                 this.configuration.SigningCredentials);
 
-            var ticket = this.tokenHandler.WriteToken(token);
+            string token;
+            var hashedToken = this.cryptoProvider.CreateHash(out token, 256);
+
+            var ticket = this.tokenHandler.WriteToken(jwt);
 
             var refreshToken = new RefreshToken()
             {
@@ -205,11 +215,12 @@
                 RedirectUri = redirectUri,
                 Subject = userPrincipal.Identity.Name,
                 Scope = scope,
-                Token = ticket,
+                Token = hashedToken,
+                Ticket = ticket,
                 ValidTo = expireTime
             };
 
-            return new TokenCreationResult<IRefreshToken>(Convert.ToBase64String(Encoding.UTF8.GetBytes(ticket)), refreshToken);
+            return new TokenCreationResult<IRefreshToken>(token, refreshToken);
         }
 
         /// <summary>Validates the refresh token.</summary>
@@ -218,9 +229,7 @@
         /// <returns>The token principal if valid, <c>null</c> otherwise.</returns>
         public async Task<TokenValidationResult<IRefreshToken>> ValidateRefreshToken(IEnumerable<IRefreshToken> refreshTokens, string token)
         {
-            var id = Encoding.UTF8.GetString(Convert.FromBase64String(token));
-
-            var entity = refreshTokens.FirstOrDefault(x => x.Token == id);
+            var entity = refreshTokens.FirstOrDefault(x => this.cryptoProvider.ValidateHash(token, x.Token));
 
             if (entity != null)
             {
@@ -232,7 +241,7 @@
                 };
 
                 SecurityToken st;
-                var principal = this.tokenHandler.ValidateToken(id, validationParams, out st);
+                var principal = this.tokenHandler.ValidateToken(entity.Ticket, validationParams, out st);
 
                 if (principal.Identity.IsAuthenticated)
                 {

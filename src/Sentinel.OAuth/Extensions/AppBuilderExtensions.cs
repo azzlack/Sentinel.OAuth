@@ -79,7 +79,7 @@
 
             if (options.TokenProvider == null)
             {
-                options.TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration(options.IssuerUri, options.TokenCryptoProvider.CreateHash(256)));
+                options.TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration(options.IssuerUri, options.TokenCryptoProvider.CreateHash(256)), options.TokenCryptoProvider);
             }
 
             if (options.TokenManager == null)
