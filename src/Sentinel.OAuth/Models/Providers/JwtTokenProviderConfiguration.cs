@@ -1,5 +1,6 @@
 ﻿namespace Sentinel.OAuth.Models.Providers
 {
+    using System;
     using System.IdentityModel.Tokens;
     using System.ServiceModel.Security.Tokens;
     using System.Text;
@@ -7,13 +8,13 @@
     public class JwtTokenProviderConfiguration
     {
         /// <summary>Initializes a new instance of the Sentinel.OAuth.Models.Providers.JwtTokenProviderConfiguration class.</summary>
-        /// <param name="issuerName">Name of the issuer.</param>
+        /// <param name="issuerUri">The issuer URI.</param>
         /// <param name="symmetricKey">The symmetric key.</param>
-        public JwtTokenProviderConfiguration(string issuerName, string symmetricKey)
+        public JwtTokenProviderConfiguration(Uri issuerUri, string symmetricKey)
         {
             // TODO: Add support for using certificate instead of symmetric key
 
-            this.Issuer = issuerName;
+            this.Issuer = issuerUri;
             this.SigningCredentials =
                 new SigningCredentials(
                     new InMemorySymmetricSecurityKey(Encoding.UTF8.GetBytes(symmetricKey)),
@@ -24,7 +25,7 @@
 
         /// <summary>Gets the issuer.</summary>
         /// <value>The issuer.</value>
-        public string Issuer { get; }
+        public Uri Issuer { get; }
 
         /// <summary>Gets the signing credentials.</summary>
         /// <value>The signing credentials.</value>

@@ -1,5 +1,7 @@
 ﻿namespace Sentinel.Tests.Facade
 {
+    using System;
+
     using Microsoft.Owin.Security.OAuth;
     using Microsoft.Owin.Testing;
     using Moq;
@@ -50,7 +52,8 @@
                         app.UseSentinelAuthorizationServer(new SentinelAuthorizationServerOptions()
                         {
                             ClientRepository = clientRepository.Object,
-                            UserRepository = userRepository.Object
+                            UserRepository = userRepository.Object,
+                            IssuerUri = new Uri("https://sentinel.oauth")
                         });
 
                         // Start up web api

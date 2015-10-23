@@ -52,6 +52,10 @@
         /// <value>The refresh token lifetime.</value>
         public TimeSpan RefreshTokenLifetime { get; set; }
 
+        /// <summary>Gets or sets URI of the issuer.</summary>
+        /// <value>The issuer URI.</value>
+        public Uri IssuerUri { get; set; }
+
         /// <summary>
         /// Gets or sets the user management provider. This is the class responsible for locating and
         /// validating users.

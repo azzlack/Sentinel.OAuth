@@ -27,8 +27,6 @@
 
         /// <summary>Initializes a new instance of the Sentinel.OAuth.Implementation.Providers.JwtTokenProvider class.</summary>
         /// <param name="configuration">The configuration.</param>
-        /// <param name="tokenRepository">The token repository.</param>
-        /// <param name="clientRepository">The client repository.</param>
         public JwtTokenProvider(JwtTokenProviderConfiguration configuration)
         {
             this.configuration = configuration;
@@ -50,25 +48,13 @@
             IEnumerable<string> scope,
             DateTimeOffset expireTime)
         {
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(userPrincipal.Identity),
-                TokenIssuerName = this.configuration.Issuer,
-                AppliesToAddress = redirectUri,
-                Lifetime = new Lifetime(DateTime.UtcNow, expireTime.UtcDateTime),
-                SigningCredentials = this.configuration.SigningCredentials,
-                Properties =
-                    {
-                        { "sub", userPrincipal.Identity.Name }
-                    }
-            };
-
-            var token = this.tokenHandler.CreateToken(tokenDescriptor) as JwtSecurityToken;
-
-            if (token == null)
-            {
-                throw new InvalidOperationException("The token handler failed to produce a valid token");
-            }
+            var token = new JwtSecurityToken(
+                this.configuration.Issuer.AbsoluteUri,
+                clientId,
+                userPrincipal.Identity.Claims.Select(x => new Claim(x.Type, x.Value)),
+                DateTime.UtcNow,
+                expireTime.UtcDateTime,
+                this.configuration.SigningCredentials);
 
             var ticket = this.tokenHandler.WriteToken(token);
 
@@ -98,9 +84,9 @@
             {
                 var validationParams = new TokenValidationParameters()
                 {
-                    ValidAudience = entity.RedirectUri,
+                    ValidAudience = entity.ClientId,
                     IssuerSigningToken = this.configuration.SigningKey,
-                    ValidIssuer = this.configuration.Issuer
+                    ValidIssuer = this.configuration.Issuer.AbsoluteUri
                 };
 
                 SecurityToken st;
@@ -129,15 +115,15 @@
             IEnumerable<string> scope,
             DateTimeOffset expireTime)
         {
-            // Add additional claims of necessary
-            if (!userPrincipal.Identity.HasClaim(x => x.Type == JwtClaimType.Subject))
-            {
-                userPrincipal.Identity.AddClaim(JwtClaimType.Subject, "test");
-            }
-
             // TODO: Create custom JwtSecurityTokenHandler that takes care of setting the correct claims
 
-            var token = new JwtSecurityToken(this.configuration.Issuer, redirectUri, userPrincipal.Identity.Claims.Select(x => new Claim(x.Type, x.Value)), DateTime.UtcNow, expireTime.UtcDateTime, this.configuration.SigningCredentials);
+            var token = new JwtSecurityToken(
+                this.configuration.Issuer.AbsoluteUri,
+                clientId,
+                userPrincipal.Identity.Claims.Select(x => new Claim(x.Type, x.Value)),
+                DateTime.UtcNow,
+                expireTime.UtcDateTime,
+                this.configuration.SigningCredentials);
 
             if (token == null)
             {
@@ -172,9 +158,9 @@
             {
                 var validationParams = new TokenValidationParameters()
                 {
-                    ValidAudience = entity.RedirectUri,
+                    ValidAudience = entity.ClientId,
                     IssuerSigningToken = this.configuration.SigningKey,
-                    ValidIssuer = this.configuration.Issuer
+                    ValidIssuer = this.configuration.Issuer.AbsoluteUri
                 };
 
                 SecurityToken st;
@@ -203,21 +189,13 @@
             IEnumerable<string> scope,
             DateTimeOffset expireTime)
         {
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(userPrincipal.Identity),
-                TokenIssuerName = this.configuration.Issuer,
-                AppliesToAddress = redirectUri,
-                Lifetime = new Lifetime(DateTime.UtcNow, expireTime.UtcDateTime),
-                SigningCredentials = this.configuration.SigningCredentials
-            };
-
-            var token = this.tokenHandler.CreateToken(tokenDescriptor) as JwtSecurityToken;
-
-            if (token == null)
-            {
-                throw new InvalidOperationException("The token handler failed to produce a valid token");
-            }
+            var token = new JwtSecurityToken(
+                this.configuration.Issuer.AbsoluteUri,
+                clientId,
+                userPrincipal.Identity.Claims.Select(x => new Claim(x.Type, x.Value)),
+                DateTime.UtcNow,
+                expireTime.UtcDateTime,
+                this.configuration.SigningCredentials);
 
             var ticket = this.tokenHandler.WriteToken(token);
 
@@ -248,9 +226,9 @@
             {
                 var validationParams = new TokenValidationParameters()
                 {
-                    ValidAudience = entity.RedirectUri,
+                    ValidAudience = entity.ClientId,
                     IssuerSigningToken = this.configuration.SigningKey,
-                    ValidIssuer = this.configuration.Issuer
+                    ValidIssuer = this.configuration.Issuer.AbsoluteUri
                 };
 
                 SecurityToken st;

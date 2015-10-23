@@ -42,6 +42,11 @@
                 options.Logger = LogManager.GetLogger("Sentinel.OAuth");
             }
 
+            if (options.IssuerUri == null)
+            {
+                throw new InvalidOperationException("IssuerUri must be set");
+            }
+
             if (options.TokenCryptoProvider == null)
             {
                 options.TokenCryptoProvider = new SHA2CryptoProvider();
@@ -74,7 +79,7 @@
 
             if (options.TokenProvider == null)
             {
-                options.TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration("Sentinel.OAuth", options.TokenCryptoProvider.CreateHash(256)));
+                options.TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration(options.IssuerUri, options.TokenCryptoProvider.CreateHash(256)));
             }
 
             if (options.TokenManager == null)
