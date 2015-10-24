@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.IdentityModel.Tokens;
     using System.Security.Claims;
 
     using Newtonsoft.Json;
@@ -20,6 +21,11 @@
         {
             this.Type = claim.Type;
             this.Value = claim.Value;
+
+            if (claim.Properties.ContainsKey(JwtSecurityTokenHandler.ShortClaimTypeProperty))
+            {
+                this.Alias = claim.Properties[JwtSecurityTokenHandler.ShortClaimTypeProperty];
+            }
         }
 
         /// <summary>
@@ -36,12 +42,16 @@
         /// <summary>Gets the type.</summary>
         /// <value>The type.</value>
         [JsonProperty]
-        public string Type { get; private set; }
+        public string Type { get; }
+
+        /// <summary>Gets the alias.</summary>
+        /// <value>The alias.</value>
+        public string Alias { get; }
 
         /// <summary>Gets the value.</summary>
         /// <value>The value.</value>
         [JsonProperty]
-        public string Value { get; private set; }
+        public string Value { get; }
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="SentinelClaim"/> to <see cref="Claim"/>.
@@ -50,7 +60,15 @@
         /// <returns>The result of the conversion.</returns>
         public static implicit operator Claim(SentinelClaim m)
         {
-            return new Claim(m.Type, m.Value);
+            var c = new Claim(m.Type, m.Value);
+
+            // Add Alias if Claim was made from a JWT
+            if (!string.IsNullOrEmpty(m.Alias))
+            {
+                c.Properties.Add(JwtSecurityTokenHandler.ShortClaimTypeProperty, m.Alias);
+            }
+
+            return c;
         }
 
         /// <summary>
@@ -112,7 +130,7 @@
         /// <returns>A <see cref="string" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return string.Format("Type: {0}, Value: {1}", this.Type, this.Value);
+            return $"Type: {this.Type}, Value: {this.Value}";
         }
     }
 }

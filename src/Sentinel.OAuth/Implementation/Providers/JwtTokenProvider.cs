@@ -17,6 +17,9 @@
     using System.Text;
     using System.Threading.Tasks;
 
+    using Sentinel.OAuth.Extensions;
+    using Sentinel.OAuth.Implementation.Handlers;
+
     public class JwtTokenProvider : ITokenProvider
     {
         /// <summary>The configuration.</summary>
@@ -56,10 +59,13 @@
             IEnumerable<string> scope,
             DateTimeOffset expireTime)
         {
+            // Add sub claim
+            userPrincipal.Identity.AddClaim(JwtClaimType.Subject, userPrincipal.Identity.Name);
+
             var jwt = new JwtSecurityToken(
                 this.configuration.Issuer.AbsoluteUri,
                 clientId,
-                userPrincipal.Identity.Claims.Select(x => new Claim(x.Type, x.Value)),
+                userPrincipal.Identity.Claims.ToClaims(),
                 DateTime.UtcNow,
                 expireTime.UtcDateTime,
                 this.configuration.SigningCredentials);
@@ -126,10 +132,13 @@
             IEnumerable<string> scope,
             DateTimeOffset expireTime)
         {
+            // Add sub claim
+            userPrincipal.Identity.AddClaim(JwtClaimType.Subject, userPrincipal.Identity.Name);
+
             var jwt = new JwtSecurityToken(
                 this.configuration.Issuer.AbsoluteUri,
                 clientId,
-                userPrincipal.Identity.Claims.Select(x => new Claim(x.Type, x.Value)),
+                userPrincipal.Identity.Claims.ToClaims(),
                 DateTime.UtcNow,
                 expireTime.UtcDateTime,
                 this.configuration.SigningCredentials);
@@ -196,10 +205,13 @@
             IEnumerable<string> scope,
             DateTimeOffset expireTime)
         {
+            // Add sub claim
+            userPrincipal.Identity.AddClaim(JwtClaimType.Subject, userPrincipal.Identity.Name);
+
             var jwt = new JwtSecurityToken(
                 this.configuration.Issuer.AbsoluteUri,
                 clientId,
-                userPrincipal.Identity.Claims.Select(x => new Claim(x.Type, x.Value)),
+                userPrincipal.Identity.Claims.ToClaims(),
                 DateTime.UtcNow,
                 expireTime.UtcDateTime,
                 this.configuration.SigningCredentials);
@@ -207,7 +219,7 @@
             string token;
             var hashedToken = this.cryptoProvider.CreateHash(out token, 256);
 
-            var ticket = this.tokenHandler.WriteToken(jwt);
+            var idToken = this.tokenHandler.WriteToken(jwt);
 
             var refreshToken = new RefreshToken()
             {
@@ -216,7 +228,7 @@
                 Subject = userPrincipal.Identity.Name,
                 Scope = scope,
                 Token = hashedToken,
-                Ticket = ticket,
+                Ticket = idToken,
                 ValidTo = expireTime
             };
 

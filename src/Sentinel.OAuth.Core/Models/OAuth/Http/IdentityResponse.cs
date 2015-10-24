@@ -23,16 +23,6 @@
         }
 
         /// <summary>Initializes a new instance of the <see cref="IdentityResponse" /> class.</summary>
-        /// <param name="identity">The identity.</param>
-        public IdentityResponse(ISentinelIdentity identity)
-        {
-            foreach (var claim in identity.Claims)
-            {
-                this.Add(new KeyValuePair<string, string>(claim.Type, claim.Value));
-            }
-        }
-
-        /// <summary>Initializes a new instance of the <see cref="IdentityResponse" /> class.</summary>
         /// <param name="claims">A variable-length parameters list containing claims.</param>
         public IdentityResponse(params ISentinelClaim[] claims)
         {

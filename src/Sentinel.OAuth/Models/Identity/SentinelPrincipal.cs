@@ -60,7 +60,7 @@
         {
             if (identity == null)
             {
-                throw new ArgumentNullException("identity");
+                throw new ArgumentNullException(nameof(identity));
             }
 
             this.Identity = new SentinelIdentity(identity);
@@ -68,33 +68,15 @@
 
         /// <summary>Gets an unauthorized/anonymous Sentinel principal object.</summary>
         /// <value>An unauthorized/anonymous Sentinel principal object.</value>
-        public static ISentinelPrincipal Anonymous
-        {
-            get
-            {
-                return new SentinelPrincipal(SentinelIdentity.Anonymous);
-            }
-        }
+        public static ISentinelPrincipal Anonymous => new SentinelPrincipal(SentinelIdentity.Anonymous);
 
         /// <summary>Gets the current principal.</summary>
         /// <value>The current principal.</value>
-        public static ISentinelPrincipal Current
-        {
-            get
-            {
-                return new SentinelPrincipal(Thread.CurrentPrincipal);
-            }
-        }
+        public static ISentinelPrincipal Current => new SentinelPrincipal(Thread.CurrentPrincipal);
 
         /// <summary>Gets the identity.</summary>
         /// <value>The identity.</value>
-        IIdentity IPrincipal.Identity
-        {
-            get
-            {
-                return this.Identity ?? SentinelIdentity.Anonymous;
-            }
-        }
+        IIdentity IPrincipal.Identity => this.Identity ?? SentinelIdentity.Anonymous;
 
         /// <summary>Gets the time in UTC format when the identity expires.</summary>
         /// <value>The expire time in UTC format.</value>
@@ -158,7 +140,7 @@
         /// Gets the actual identity.
         /// </summary>
         /// <value>The actual identity.</value>
-        public ISentinelIdentity Identity { get; private set; }
+        public ISentinelIdentity Identity { get; }
 
         /// <summary>Determines whether the current principal belongs to the specified role.</summary>
         /// <param name="role">The name of the role for which to check membership.</param>

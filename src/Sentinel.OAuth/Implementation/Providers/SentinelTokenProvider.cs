@@ -13,6 +13,8 @@
     using System.Linq;
     using System.Threading.Tasks;
 
+    using Sentinel.OAuth.Extensions;
+
     public class SentinelTokenProvider : ITokenProvider
     {
         /// <summary>The crypto provider.</summary>
@@ -45,7 +47,10 @@
             DateTimeOffset expireTime)
         {
             string code;
-            var hashedCode = this.cryptoProvider.CreateHash(out code, 256);
+            var hashedCode = this.cryptoProvider.CreateHash(out code, 128);
+
+            // Add expire claim
+            userPrincipal.Identity.AddClaim(new SentinelClaim(ClaimType.Expiration, expireTime.ToUnixTime().ToString()));
 
             var authorizationCode = new AuthorizationCode()
             {
@@ -99,6 +104,9 @@
             string token;
             var hashedToken = this.cryptoProvider.CreateHash(out token, 2048);
 
+            // Add expire claim
+            userPrincipal.Identity.AddClaim(new SentinelClaim(ClaimType.Expiration, expireTime.ToUnixTime().ToString()));
+
             var accessToken = new AccessToken()
             {
                 ClientId = clientId,
@@ -149,7 +157,10 @@
             DateTimeOffset expireTime)
         {
             string token;
-            var hashedToken = this.cryptoProvider.CreateHash(out token, 2048);
+            var hashedToken = this.cryptoProvider.CreateHash(out token, 256);
+
+            // Add expire claim
+            userPrincipal.Identity.AddClaim(new SentinelClaim(ClaimType.Expiration, expireTime.ToUnixTime().ToString()));
 
             var refreshToken = new RefreshToken()
             {

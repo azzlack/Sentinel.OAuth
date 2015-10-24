@@ -87,9 +87,6 @@
                     context.OwinContext.GetOAuthContext().ClientId,
                     context.OwinContext.GetOAuthContext().RedirectUri);
 
-                // Add expiration claim so it is stored with the token
-                context.Ticket.Identity.AddClaim(new Claim(ClaimTypes.Expiration, DateTimeOffset.UtcNow.Add(this.options.AccessTokenLifetime).ToUnixTime().ToString()));
-
                 var tcs = new TaskCompletionSource<string>();
                 Task.Run(
                     async () =>
@@ -172,7 +169,7 @@
 
             var result = tcs.Task.Result;
 
-            if (result != null)
+            if (result != null) 
             {
                 context.SetTicket(result);
             }

@@ -16,6 +16,8 @@
     using System;
     using System.Net;
 
+    using Sentinel.OAuth.Models.Identity;
+
     /// <summary>
     /// Extension methods to add Authorization Server capabilities to an OWIN pipeline
     /// </summary>
@@ -127,21 +129,21 @@
                 options.IdentityEndpointUrl,
                 config =>
                     {
+                        
                         config.Run(
                             async (context) =>
                                 {
-                                    var auth = await context.Authentication.AuthenticateAsync(OAuthDefaults.AuthenticationType);
-
-                                    if (auth != null && auth.Identity.IsAuthenticated)
+                                    if (context.Authentication.User != null && context.Authentication.User.Identity.IsAuthenticated)
                                     {
                                         context.Response.ContentType = "application/json";
-                                        await context.Response.WriteAsync(JsonConvert.SerializeObject(new IdentityResponse(auth.Identity.AsSentinelIdentity())));
+                                        var identity = new SentinelIdentity(context.Authentication.User.Identity);
+                                        await context.Response.WriteAsync(JsonConvert.SerializeObject(identity.AsIdentityResponse()));
                                     }
                                     else
                                     {
                                         context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                                         context.Response.ContentType = "application/json";
-                                        context.Response.Headers["WWW-Authenticate"] = "";
+                                        context.Response.Headers["WWW-Authenticate"] = string.Empty;
                                         await context.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorResponse(ErrorCode.InvalidToken)));
                                     }
                                 });

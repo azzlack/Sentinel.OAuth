@@ -93,10 +93,13 @@
   <ItemGroup>
     <Compile Include="Converters\SentinelClaimConverter.cs" />
     <Compile Include="Extensions\AppBuilderExtensions.cs" />
+    <Compile Include="Extensions\ClaimsIdentityExtensions.cs" />
     <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
-    <Compile Include="Extensions\PrincipalExtensions.cs" />
     <Compile Include="Extensions\OwinContextExtensions.cs" />
+    <Compile Include="Extensions\SentinelClaimExtensions.cs" />
+    <Compile Include="Extensions\SentinelIdentityExtensions.cs" />
+    <Compile Include="Implementation\Handlers\SentinelJwtSecurityTokenHandler.cs" />
     <Compile Include="Implementation\Managers\ClientManager.cs" />
     <Compile Include="Implementation\Managers\TokenManager.cs" />
     <Compile Include="Implementation\Managers\UserManager.cs" />

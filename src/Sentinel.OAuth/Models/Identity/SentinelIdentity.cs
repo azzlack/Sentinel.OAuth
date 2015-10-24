@@ -104,29 +104,6 @@
         }
 
         /// <summary>
-        ///     Initializes a new instance of the SentinelIdentity class.
-        /// </summary>
-        /// <exception cref="System.ArgumentNullException">
-        ///     Thrown when one or more required arguments are null.
-        /// </exception>
-        /// <param name="authenticationType">The type of the authentication.</param>
-        /// <param name="claims">The claims.</param>
-        public SentinelIdentity(string authenticationType, IEnumerable<ISentinelClaim> claims)
-            : this(authenticationType, claims.ToArray())
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the SentinelIdentity class.
-        /// </summary>
-        /// <param name="authenticationType">The type of the authentication.</param>
-        /// <param name="claims">The claims.</param>
-        public SentinelIdentity(string authenticationType, IEnumerable<Claim> claims)
-            : this(authenticationType, claims.Select(x => new SentinelClaim(x)))
-        {
-        }
-
-        /// <summary>
         /// Prevents a default instance of the SentinelIdentity
         /// class from being created.
         /// </summary>
@@ -236,7 +213,7 @@
             lock (this.locker)
             {
                 var c = this.Claims.ToList();
-                c.AddRange(claims.Select(claim => (SentinelClaim)claim));
+                c.AddRange(claims.Select(claim => new SentinelClaim(claim)));
 
                 this.Claims = c;
             }
