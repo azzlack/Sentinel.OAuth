@@ -71,7 +71,7 @@
                 this.configuration.SigningCredentials);
 
             string token;
-            var hashedToken = this.cryptoProvider.CreateHash(out token, 128);
+            var hashedToken = this.cryptoProvider.CreateHash(out token, 256);
 
             var ticket = this.tokenHandler.WriteToken(jwt);
 
@@ -146,7 +146,7 @@
             var idToken = this.tokenHandler.WriteToken(jwt);
 
             string token;
-            var hashedToken = this.cryptoProvider.CreateHash(out token, 2048);
+            var hashedToken = this.cryptoProvider.CreateHash(out token, 512);
 
             var accessToken = new AccessToken()
             {
@@ -217,7 +217,7 @@
                 this.configuration.SigningCredentials);
 
             string token;
-            var hashedToken = this.cryptoProvider.CreateHash(out token, 256);
+            var hashedToken = this.cryptoProvider.CreateHash(out token, 2048);
 
             var idToken = this.tokenHandler.WriteToken(jwt);
 

@@ -47,7 +47,7 @@
             DateTimeOffset expireTime)
         {
             string code;
-            var hashedCode = this.cryptoProvider.CreateHash(out code, 128);
+            var hashedCode = this.cryptoProvider.CreateHash(out code, 256);
 
             // Add expire claim
             userPrincipal.Identity.AddClaim(new SentinelClaim(ClaimType.Expiration, expireTime.ToUnixTime().ToString()));
@@ -102,7 +102,7 @@
             DateTimeOffset expireTime)
         {
             string token;
-            var hashedToken = this.cryptoProvider.CreateHash(out token, 2048);
+            var hashedToken = this.cryptoProvider.CreateHash(out token, 512);
 
             // Add expire claim
             userPrincipal.Identity.AddClaim(new SentinelClaim(ClaimType.Expiration, expireTime.ToUnixTime().ToString()));
@@ -157,7 +157,7 @@
             DateTimeOffset expireTime)
         {
             string token;
-            var hashedToken = this.cryptoProvider.CreateHash(out token, 256);
+            var hashedToken = this.cryptoProvider.CreateHash(out token, 2048);
 
             // Add expire claim
             userPrincipal.Identity.AddClaim(new SentinelClaim(ClaimType.Expiration, expireTime.ToUnixTime().ToString()));
