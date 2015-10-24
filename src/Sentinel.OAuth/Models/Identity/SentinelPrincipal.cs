@@ -106,36 +106,6 @@
             }
         }
 
-        /// <summary>Gets the access token.</summary>
-        /// <value>The access token.</value>
-        public string AccessToken
-        {
-            get
-            {
-                if (this.Identity.HasClaim(x => x.Type == ClaimType.AccessToken))
-                {
-                    return this.Identity.Claims.First(x => x.Type == ClaimType.AccessToken).Value;
-                }
-
-                return string.Empty;
-            }
-        }
-
-        /// <summary>Gets the refresh token.</summary>
-        /// <value>The refresh token.</value>
-        public string RefreshToken
-        {
-            get
-            {
-                if (this.Identity.HasClaim(x => x.Type == ClaimType.RefreshToken))
-                {
-                    return this.Identity.Claims.First(x => x.Type == ClaimType.RefreshToken).Value;
-                }
-
-                return string.Empty;
-            }
-        }
-
         /// <summary>
         /// Gets the actual identity.
         /// </summary>

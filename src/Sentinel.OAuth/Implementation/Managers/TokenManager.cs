@@ -174,9 +174,6 @@
             // Delete all expired authorization codes
             await this.TokenRepository.DeleteAuthorizationCodes(DateTimeOffset.UtcNow);
 
-            // Remove unnecessary claims from principal
-            userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
-
             // Add scope claims
             if (scope != null)
             {
@@ -227,9 +224,6 @@
             // Delete all expired access tokens
             await this.TokenRepository.DeleteAccessTokens(DateTimeOffset.UtcNow);
 
-            // Remove unnecessary claims from principal
-            userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
-
             // Add scope claims
             if (scope != null)
             {
@@ -278,9 +272,6 @@
 
             // Delete all expired refresh tokens
             await this.TokenRepository.DeleteRefreshTokens(DateTimeOffset.UtcNow);
-
-            // Remove unnecessary claims from principal
-            userPrincipal.Identity.RemoveClaim(x => x.Type == ClaimType.AccessToken || x.Type == ClaimType.RefreshToken);
 
             // Add scope claims
             if (scope != null)

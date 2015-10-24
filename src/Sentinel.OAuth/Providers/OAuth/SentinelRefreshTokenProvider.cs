@@ -84,8 +84,6 @@
 
             var refreshToken = tcs.Task.Result;
 
-            context.Ticket.Identity.AddClaim(new Claim(ClaimType.RefreshToken, refreshToken));
-
             context.SetToken(refreshToken);
 
             this.options.Logger.Debug("Created refresh token");

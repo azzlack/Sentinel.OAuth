@@ -113,8 +113,6 @@
                 accessToken = tcs.Task.Result;
             }
 
-            context.Ticket.Identity.AddClaim(new Claim(ClaimType.AccessToken, accessToken));
-
             context.SetToken(accessToken);
 
             this.options.Logger.DebugFormat("Created access token");
