@@ -25,5 +25,11 @@
 	<file src="..\..\src\Sentinel.OAuth.TokenManagers.SqlServerTokenRepository\bin\Release\Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.dll" target="lib\net45" />
 	<file src="..\..\src\Sentinel.OAuth.TokenManagers.SqlServerTokenRepository\bin\Release\Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.pdb" target="lib\net45" />
 	<file src="..\..\src\Sentinel.OAuth.TokenManagers.SqlServerTokenRepository\**\*.cs" exclude="**\obj\**\*.*" target="src" />
+	<file src="..\..\src\Sentinel.OAuth.ClientManagers.SqlServerClientRepository\bin\Release\Sentinel.OAuth.ClientManagers.SqlServerClientRepository.dll" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.ClientManagers.SqlServerClientRepository\bin\Release\Sentinel.OAuth.ClientManagers.SqlServerClientRepository.pdb" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.ClientManagers.SqlServerClientRepository\**\*.cs" exclude="**\obj\**\*.*" target="src" />
+	<file src="..\..\src\Sentinel.OAuth.UserManagers.SqlServerUserRepository\bin\Release\Sentinel.OAuth.UserManagers.SqlServerUserRepository.dll" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.UserManagers.SqlServerUserRepository\bin\Release\Sentinel.OAuth.UserManagers.SqlServerUserRepository.pdb" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.UserManagers.SqlServerUserRepository\**\*.cs" exclude="**\obj\**\*.*" target="src" />
   </files>
 </package>
