@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicAuthenticationHeaderValue.cs" />
+    <Compile Include="Helpers\JwtHelper.cs" />
     <Compile Include="Interfaces\IOAuthClient.cs" />
     <Compile Include="Interfaces\ISentinelClientSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
