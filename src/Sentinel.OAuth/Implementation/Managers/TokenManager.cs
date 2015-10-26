@@ -15,6 +15,9 @@
     using System.Linq;
     using System.Threading.Tasks;
 
+    using Sentinel.OAuth.Core.Interfaces.Models;
+    using Sentinel.OAuth.Core.Models;
+
     /// <summary>A universal token manager. Takes care of processing the tokens without caring where and how they are stored.</summary>
     public class TokenManager : BaseTokenManager
     {
@@ -155,13 +158,13 @@
         /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="scope">The scope.</param>
         /// <returns>An authorization code.</returns>
-        public override async Task<string> CreateAuthorizationCodeAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string redirectUri, IEnumerable<string> scope)
+        public override async Task<TokenCreationResult<IAuthorizationCode>> CreateAuthorizationCodeAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string redirectUri, IEnumerable<string> scope)
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
                 this.logger.ErrorFormat("The specified user is not authenticated");
 
-                return string.Empty;
+                return null;
             }
 
             var client = userPrincipal.Identity.Claims.FirstOrDefault(x => x.Type == ClaimType.Client);
@@ -197,12 +200,12 @@
             {
                 this.logger.DebugFormat("Successfully created and stored authorization code");
 
-                return createResult.Token;
+                return createResult;
             }
 
             this.logger.ErrorFormat("Unable to create and/or store authorization code");
 
-            return string.Empty;
+            return null;
         }
 
         /// <summary>Creates an access token.</summary>
@@ -212,13 +215,13 @@
         /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="scope">The scope.</param>
         /// <returns>An access token.</returns>
-        public override async Task<string> CreateAccessTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri, IEnumerable<string> scope)
+        public override async Task<TokenCreationResult<IAccessToken>> CreateAccessTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri, IEnumerable<string> scope)
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
                 this.logger.ErrorFormat("The specified principal is not authenticated");
 
-                return string.Empty;
+                return null;
             }
 
             // Delete all expired access tokens
@@ -246,12 +249,12 @@
             {
                 this.logger.DebugFormat("Successfully created and stored access token");
 
-                return createResult.Token;
+                return createResult;
             }
 
             this.logger.ErrorFormat("Unable to create and/or store access token");
 
-            return string.Empty;
+            return null;
         }
 
         /// <summary>Creates a refresh token.</summary>
@@ -261,13 +264,13 @@
         /// <param name="redirectUri">The redirect URI.</param>
         /// <param name="scope">The scope.</param>
         /// <returns>A refresh token.</returns>
-        public override async Task<string> CreateRefreshTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri, IEnumerable<string> scope)
+        public override async Task<TokenCreationResult<IRefreshToken>> CreateRefreshTokenAsync(ISentinelPrincipal userPrincipal, TimeSpan expire, string clientId, string redirectUri, IEnumerable<string> scope)
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
                 this.logger.ErrorFormat("The specified principal is not authenticated");
 
-                return string.Empty;
+                return null;
             }
 
             // Delete all expired refresh tokens
@@ -297,12 +300,12 @@
             {
                 this.logger.DebugFormat("Successfully created and stored refresh token");
 
-                return createResult.Token;
+                return createResult;
             }
 
             this.logger.ErrorFormat("Unable to create and/or store refresh token");
 
-            return string.Empty;
+            return null;
         }
     }
 }

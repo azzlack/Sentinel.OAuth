@@ -99,7 +99,6 @@
     <Compile Include="Extensions\OwinContextExtensions.cs" />
     <Compile Include="Extensions\SentinelClaimExtensions.cs" />
     <Compile Include="Extensions\SentinelIdentityExtensions.cs" />
-    <Compile Include="Implementation\Handlers\SentinelJwtSecurityTokenHandler.cs" />
     <Compile Include="Implementation\Managers\ClientManager.cs" />
     <Compile Include="Implementation\Managers\TokenManager.cs" />
     <Compile Include="Implementation\Managers\UserManager.cs" />
@@ -131,7 +130,9 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Implementation\Handlers\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

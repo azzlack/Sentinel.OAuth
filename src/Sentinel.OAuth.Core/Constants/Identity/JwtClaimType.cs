@@ -22,5 +22,11 @@
 
         /// <summary>The JWT identifier claim type.</summary>
         public const string Id = "jti";
+
+        /// <summary>The access token hash claim type.</summary>
+        public const string AccessTokenHash = "at_hash";
+
+        /// <summary>The authorization code hash claim type.</summary>
+        public const string AuthorizationCodeHash = "c_hash";
     }
 }

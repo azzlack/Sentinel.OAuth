@@ -1,27 +1,33 @@
 ﻿namespace Sentinel.OAuth.Core.Interfaces.Providers
 {
+    using Sentinel.OAuth.Core.Constants;
+
     /// <summary>Interface for a provider for creating and validating hashes.</summary>
     public interface ICryptoProvider
     {
-        /// <summary>
-        /// Creates a hash of a random text.
-        /// </summary>
+        /// <summary>Gets the hash algorithm.</summary>
+        /// <value>The hash algorithm.</value>
+        HashAlgorithm HashAlgorithm { get; }
+
+        /// <summary>Creates a hash of a random text.</summary>
         /// <param name="text">The text that was hashed.</param>
-        /// <param name="length">The random text length in bits. A value of minimum 256 is recommended.</param>
+        /// <param name="length">
+        /// The random text length in bits. A value of minimum 256 is recommended.
+        /// </param>
         /// <returns>The hash of the text.</returns>
         string CreateHash(out string text, int length);
 
-        /// <summary>
-        /// Creates a hash of the specified text.
-        /// </summary>
+        /// <summary>Creates a random hash.</summary>
+        /// <param name="length">
+        /// The random text length in bits. A value of minimum 256 is recommended.
+        /// </param>
+        /// <returns>The hash.</returns>
+        string CreateHash(int length);
+
+        /// <summary>Creates a hash of the specified text.</summary>
         /// <param name="text">The text to hash.</param>
         /// <returns>The hash of the text.</returns>
         string CreateHash(string text);
-
-        /// <summary>Creates a random hash.</summary>
-        /// <param name="length">The random text length in bits. A value of minimum 256 is recommended.</param>
-        /// <returns>The hash.</returns>
-        string CreateHash(int length);
 
         /// <summary>
         /// Validates the specified text against the specified hash.

@@ -8,6 +8,8 @@
     using System.Security.Cryptography;
     using System.Text;
 
+    using HashAlgorithm = Sentinel.OAuth.Core.Constants.HashAlgorithm;
+
     /// <summary>A <c>SHA-2</c> crypto provider for creating and validating hashes.</summary>
     public class SHA2CryptoProvider : ICryptoProvider
     {
@@ -20,21 +22,23 @@
         /// <summary>The log.</summary>
         private readonly ILog log;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SHA2CryptoProvider" /> class.
-        /// </summary>
+        /// <summary>Initializes a new instance of the <see cref="SHA2CryptoProvider" /> class.</summary>
+        /// <param name="hashAlgorithm">The hash algorithm.</param>
         /// <param name="saltByteSize">The salt size. Defaults to 64.</param>
-        public SHA2CryptoProvider(int saltByteSize = 64)
+        public SHA2CryptoProvider(HashAlgorithm hashAlgorithm, int saltByteSize = 64)
         {
+            this.HashAlgorithm = hashAlgorithm;
             this.saltByteSize = saltByteSize;
 
             this.rng = new RNGCryptoServiceProvider();
             this.log = LogManager.GetLogger("Sentinel.OAuth.SHA2CryptoProvider");
         }
 
-        /// <summary>
-        /// Creates a hash of a random text.
-        /// </summary>
+        /// <summary>Gets the hash algorithm.</summary>
+        /// <value>The hash algorithm.</value>
+        public HashAlgorithm HashAlgorithm { get; }
+
+        /// <summary>Creates a hash of a random text.</summary>
         /// <param name="text">The text that was hashed.</param>
         /// <param name="textLength">The random text length in bits.</param>
         /// <returns>The hash of the text.</returns>
@@ -45,9 +49,7 @@
             return this.CreateHash(text);
         }
 
-        /// <summary>
-        /// Creates a hash of the specified text.
-        /// </summary>
+        /// <summary>Creates a hash of the specified text.</summary>
         /// <param name="text">The text to hash.</param>
         /// <returns>The hash of the the text.</returns>
         public string CreateHash(string text)
@@ -68,7 +70,9 @@
         }
 
         /// <summary>Creates a random hash.</summary>
-        /// <param name="length">The random text length in bits. A value of minimum 256 is recommended.</param>
+        /// <param name="length">
+        /// The random text length in bits. A value of minimum 256 is recommended.
+        /// </param>
         /// <returns>The hash.</returns>
         public string CreateHash(int length)
         {
@@ -95,7 +99,7 @@
             }
             catch (FormatException ex)
             {
-                this.log.Error(string.Format("The hash '{0}' is not a valid base64 encoded string", correctHash), ex);
+                this.log.Error($"The hash '{correctHash}' is not a valid base64 encoded string", ex);
                 return false;
             }
 
@@ -229,15 +233,13 @@
             return salt;
         }
 
-        /// <summary>
-        /// Computes the PBKDF2-SHA1 hash of a text.
-        /// </summary>
+        /// <summary>Computes the PBKDF2-SHA1 hash of a text.</summary>
         /// <param name="text">The text to hash.</param>
         /// <param name="salt">The salt.</param>
         /// <returns>A hash of the text.</returns>
         private byte[] Compute(byte[] text, byte[] salt)
         {
-            using (var sha = new SHA512CryptoServiceProvider())
+            using (var sha = this.GetCryptoServiceProvider())
             {
                 // Prepend salt to text
                 var saltedText = new byte[salt.Length + text.Length];
@@ -264,13 +266,13 @@
         /// <returns>The index.</returns>
         private int GetRandomIndex(int minValue, int maxValue)
         {
-            const long Max = (1 + (Int64)UInt32.MaxValue);
+            const long Max = 1 + (long)uint.MaxValue;
 
             var buffer = new byte[4];
 
             if (minValue > maxValue)
             {
-                throw new ArgumentOutOfRangeException("minValue");
+                throw new ArgumentOutOfRangeException(nameof(minValue));
             }
 
             if (minValue == maxValue)
@@ -278,7 +280,7 @@
                 return minValue;
             }
 
-            Int64 diff = maxValue - minValue;
+            long diff = maxValue - minValue;
 
             while (true)
             {
@@ -289,9 +291,31 @@
 
                 if (rand < Max - remainder)
                 {
-                    return (Int32)(minValue + (rand % diff));
+                    return (int)(minValue + (rand % diff));
                 }
             }
+        }
+
+        /// <summary>Gets crypto service provider.</summary>
+        /// <returns>The crypto service provider.</returns>
+        private System.Security.Cryptography.HashAlgorithm GetCryptoServiceProvider()
+        {
+            if (this.HashAlgorithm == HashAlgorithm.SHA256)
+            {
+                return new SHA256CryptoServiceProvider();
+            }
+
+            if (this.HashAlgorithm == HashAlgorithm.SHA384)
+            {
+                return new SHA384CryptoServiceProvider();
+            }
+
+            if (this.HashAlgorithm == HashAlgorithm.SHA512)
+            {
+                return new SHA512CryptoServiceProvider();
+            }
+
+            throw new ArgumentException("Hash algorithm is not valid");
         }
     }
 }

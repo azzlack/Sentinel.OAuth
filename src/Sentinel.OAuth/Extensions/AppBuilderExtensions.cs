@@ -16,6 +16,7 @@
     using System;
     using System.Net;
 
+    using Sentinel.OAuth.Core.Constants;
     using Sentinel.OAuth.Models.Identity;
 
     /// <summary>
@@ -51,7 +52,7 @@
 
             if (options.TokenCryptoProvider == null)
             {
-                options.TokenCryptoProvider = new SHA2CryptoProvider();
+                options.TokenCryptoProvider = new SHA2CryptoProvider(HashAlgorithm.SHA512);
             }
 
             if (options.PasswordCryptoProvider == null)
@@ -81,7 +82,7 @@
 
             if (options.TokenProvider == null)
             {
-                options.TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration(options.IssuerUri, options.TokenCryptoProvider.CreateHash(256)), options.TokenCryptoProvider);
+                options.TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration(options.TokenCryptoProvider, options.IssuerUri, options.TokenCryptoProvider.CreateHash(256)));
             }
 
             if (options.TokenManager == null)

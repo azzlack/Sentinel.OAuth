@@ -9,11 +9,17 @@
     using Sentinel.OAuth.Core.Models.OAuth.Http;
     using System;
     using System.Collections.Generic;
+    using System.IdentityModel.Tokens;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
+    using System.Security.Cryptography;
+    using System.Text;
     using System.Threading.Tasks;
+
+    using Sentinel.OAuth.Core.Constants.Identity;
+
     using Scope = Sentinel.Tests.Constants.Scope;
 
     public abstract class AuthorizationServerTests
@@ -21,6 +27,10 @@
         protected TestServer Server;
 
         protected HttpClient Client;
+
+        protected string SymmetricKey;
+
+        protected EventHandler<Tuple<AccessTokenResponse, IdentityResponse>> ValidateTokenEventHandler;
 
         [TestFixtureSetUp]
         public virtual void TestFixtureSetUp()
@@ -447,6 +457,59 @@
             }
 
             Assert.AreEqual("azzlack", identity.Subject);
+        }
+
+        [Test]
+        public async void GetIdentity_WhenUsingOpenId_ReturnsValidAccessToken()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "aabbccddee");
+            request.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
+                                                        {
+                                                            { "grant_type", GrantType.Password },
+                                                            { "redirect_uri", "http://localhost" },
+                                                            { "scope", "openid" },
+                                                            { "username", "azzlack" },
+                                                            { "password", "aabbccddee" }
+                                                        });
+
+            Console.WriteLine("Request: {0}{1}", this.Client.BaseAddress, request.RequestUri);
+
+            var authenticationResponse = await this.Client.SendAsync(request);
+
+            Console.WriteLine("Response: {0} {1}", (int)authenticationResponse.StatusCode, authenticationResponse.ReasonPhrase);
+
+            var authenticationContent = await authenticationResponse.Content.ReadAsStringAsync();
+            var token = JsonConvert.DeserializeObject<AccessTokenResponse>(authenticationContent);
+
+            Console.WriteLine();
+            Console.WriteLine("Using access token: {0}", token.AccessToken);
+
+            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/identity");
+            identityRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+
+            Console.WriteLine("Request: {0}", identityRequest.RequestUri);
+
+            var identityResponse = await this.Client.SendAsync(identityRequest);
+            var identityContent = await identityResponse.Content.ReadAsStringAsync();
+
+            Console.WriteLine("Response: {0} {1}", (int)identityResponse.StatusCode, identityResponse.ReasonPhrase);
+            if (!identityResponse.IsSuccessStatusCode)
+            {
+                Console.WriteLine(identityContent);
+            }
+
+            var identity = JsonConvert.DeserializeObject<IdentityResponse>(identityContent);
+
+            Console.WriteLine("Claims:");
+            foreach (var claim in identity)
+            {
+                Console.WriteLine("{0}: {1}", claim.Key, claim.Value);
+            }
+
+            Assert.IsNotNullOrEmpty(token.IdToken, "Server did not return an id token");
+
+            this.ValidateTokenEventHandler?.Invoke(this, new Tuple<AccessTokenResponse, IdentityResponse>(token, identity));
         }
     }
 }

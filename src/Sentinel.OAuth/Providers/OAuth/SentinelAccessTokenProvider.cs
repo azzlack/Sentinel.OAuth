@@ -60,7 +60,7 @@
                     {
                         try
                         {
-                            var token =
+                            var createResult =
                                 await
                                 this.options.TokenManager.CreateAccessTokenAsync(
                                     context.Ticket.Identity.AsSentinelPrincipal(),
@@ -69,7 +69,7 @@
                                     context.OwinContext.GetOAuthContext().RedirectUri,
                                     context.OwinContext.GetOAuthContext().Scope);
 
-                            tcs.SetResult(token);
+                            tcs.SetResult(createResult.Token);
                         }
                         catch (Exception ex)
                         {
@@ -93,7 +93,7 @@
                     {
                         try
                         {
-                            var token =
+                            var createResult =
                                 await
                                 this.options.TokenManager.CreateAccessTokenAsync(
                                     context.Ticket.Identity.AsSentinelPrincipal(),
@@ -101,8 +101,14 @@
                                     context.OwinContext.GetOAuthContext().ClientId,
                                     context.OwinContext.GetOAuthContext().RedirectUri,
                                     context.OwinContext.GetOAuthContext().Scope);
+                            
+                            // Store id token in context if scope contains openid
+                            if (context.OwinContext.GetOAuthContext().Scope.Contains("openid"))
+                            {
+                                context.OwinContext.Set("id_token", createResult.Entity.Ticket);
+                            }
 
-                            tcs.SetResult(token);
+                            tcs.SetResult(createResult.Token);
                         }
                         catch (Exception ex)
                         {

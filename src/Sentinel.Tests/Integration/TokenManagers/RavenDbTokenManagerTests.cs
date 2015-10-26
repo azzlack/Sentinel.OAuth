@@ -17,6 +17,8 @@
     using System.Collections.Generic;
     using System.Security.Claims;
 
+    using Sentinel.OAuth.Core.Constants;
+
     [TestFixture]
     [Category("Integration")]
     public class RavenDbTokenManagerTests : TokenManagerTests
@@ -32,7 +34,7 @@
                             new SentinelClaim(ClaimTypes.Name, "azzlack"),
                             new SentinelClaim(ClaimType.Client, "NUnit"))));
 
-            var principalProvider = new PrincipalProvider(new SHA2CryptoProvider());
+            var principalProvider = new PrincipalProvider(new SHA2CryptoProvider(HashAlgorithm.SHA256));
             var tokenRepository = new RavenDbTokenRepository(
                     new RavenDbTokenRepositoryConfiguration(new EmbeddableDocumentStore() { RunInMemory = true }, LogManager.GetLogger<RavenDbTokenManagerTests>()));
             var clientRepository = new Mock<IClientRepository>();
@@ -43,7 +45,7 @@
                 LogManager.GetLogger(typeof(RavenDbTokenManagerTests)),
                 userManager.Object,
                 principalProvider,
-                new SentinelTokenProvider(new SHA2CryptoProvider(), principalProvider),
+                new SentinelTokenProvider(new SHA2CryptoProvider(HashAlgorithm.SHA256), principalProvider),
                 tokenRepository,
                 clientRepository.Object);
 

@@ -16,6 +16,8 @@
     using System.Collections.Generic;
     using System.Web.Http;
 
+    using Sentinel.OAuth.Core.Constants;
+
     [TestFixture]
     [Category("Facade")]
     public class SentinelTokenAuthorizationServerTests : AuthorizationServerTests
@@ -50,8 +52,8 @@
             this.Server = TestServer.Create(
                 app =>
                     {
-                        var principalProvider = new PrincipalProvider(new SHA2CryptoProvider());
-                        var tokenProvider = new SentinelTokenProvider(new SHA2CryptoProvider(), principalProvider);
+                        var principalProvider = new PrincipalProvider(new SHA2CryptoProvider(HashAlgorithm.SHA512));
+                        var tokenProvider = new SentinelTokenProvider(new SHA2CryptoProvider(HashAlgorithm.SHA512), principalProvider);
 
                         app.UseSentinelAuthorizationServer(
                             new SentinelAuthorizationServerOptions()

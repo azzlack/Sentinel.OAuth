@@ -65,7 +65,7 @@
                 {
                     try
                     {
-                        var token =
+                        var createResult =
                             await
                             this.options.TokenManager.CreateRefreshTokenAsync(
                                 context.Ticket.Identity.AsSentinelPrincipal(),
@@ -74,7 +74,7 @@
                                 context.OwinContext.GetOAuthContext().RedirectUri,
                                 context.OwinContext.GetOAuthContext().Scope);
 
-                        tcs.SetResult(token);
+                        tcs.SetResult(createResult.Token);
                     }
                     catch (Exception ex)
                     {

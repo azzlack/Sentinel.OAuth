@@ -13,12 +13,32 @@
     using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Extensions;
     using System.Collections.Generic;
+    using System.IdentityModel.Tokens;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.Text;
     using System.Web.Http;
+
+    using Newtonsoft.Json;
+
+    using Sentinel.OAuth.Client;
+    using Sentinel.OAuth.Core.Constants;
+    using Sentinel.OAuth.Core.Constants.Identity;
+    using Sentinel.OAuth.Core.Constants.OAuth;
+    using Sentinel.OAuth.Core.Models.OAuth.Http;
+    using Sentinel.OAuth.Implementation.Providers;
+    using Sentinel.OAuth.Models.Providers;
 
     [TestFixture]
     [Category("Facade")]
     public class JwtAuthorizationServerTests : AuthorizationServerTests
     {
+        public JwtAuthorizationServerTests()
+        {
+            this.ValidateTokenEventHandler += this.OnValidateToken;
+        }
+
         [TestFixtureSetUp]
         public override void TestFixtureSetUp()
         {
@@ -46,6 +66,11 @@
             userRepository.Setup(x => x.GetUser("azzlack")).ReturnsAsync(user);
             userRepository.Setup(x => x.GetUsers()).ReturnsAsync(new List<IUser>() { user });
 
+            var cryptoProvider = new SHA2CryptoProvider(HashAlgorithm.SHA256);
+            var issuerUri = new Uri("https://sentinel.oauth");
+
+            this.SymmetricKey = cryptoProvider.CreateHash(256);
+
             this.Server = TestServer.Create(
                 app =>
                     {
@@ -53,7 +78,8 @@
                         {
                             ClientRepository = clientRepository.Object,
                             UserRepository = userRepository.Object,
-                            IssuerUri = new Uri("https://sentinel.oauth")
+                            IssuerUri = issuerUri,
+                            TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration(cryptoProvider, issuerUri, this.SymmetricKey))
                         });
 
                         // Start up web api
@@ -69,6 +95,19 @@
                     });
 
             base.TestFixtureSetUp();
+        }
+
+        /// <summary>Executes the validate token action.</summary>
+        /// <param name="sender">Source of the event.</param>
+        /// <param name="e">The Tuple&lt;AccessTokenResponse,IdentityResponse&gt; to process.</param>
+        private void OnValidateToken(object sender, Tuple<AccessTokenResponse, IdentityResponse> e)
+        {
+            // Validate at_hash
+            var accessTokenHash = new SHA2CryptoProvider(HashAlgorithm.SHA256).CreateHash(e.Item1.AccessToken);
+            var digest = Convert.ToBase64String(Encoding.ASCII.GetBytes(accessTokenHash.ToCharArray(), 0, accessTokenHash.Length / 2));
+
+            // TODO: The salt is different each time, meaning it will never be equal. How to deal with it?
+            //Assert.AreEqual(e.Item2.First(x => x.Key == "at_hash").Value, digest);
         }
     }
 }

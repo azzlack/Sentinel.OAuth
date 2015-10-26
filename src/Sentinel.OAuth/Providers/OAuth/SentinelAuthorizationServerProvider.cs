@@ -381,9 +381,19 @@
         /// <returns>Task to enable asynchronous execution.</returns>
         public override async Task TokenEndpointResponse(OAuthTokenEndpointResponseContext context)
         {
-            if (context.TokenIssued && this.options.Events.TokenIssued != null)
+            if (context.TokenIssued)
             {
-                await this.options.Events.TokenIssued(new TokenIssuedEventArgs(context));
+                // Add id_token to output if it was set
+                var idToken = context.OwinContext.Get<string>("id_token");
+                if (!string.IsNullOrEmpty(idToken))
+                {
+                    context.AdditionalResponseParameters.Add("id_token", idToken);
+                }
+
+                if (this.options.Events.TokenIssued != null)
+                {
+                    await this.options.Events.TokenIssued(new TokenIssuedEventArgs(context));
+                }
             }
 
             await base.TokenEndpointResponse(context);

@@ -16,6 +16,8 @@
     using System.Data.SqlLocalDb;
     using System.Security.Claims;
 
+    using Sentinel.OAuth.Core.Constants;
+
     [TestFixture]
     [Category("Integration")]
     public class SqlServerTokenManagerTests : TokenManagerTests
@@ -89,7 +91,7 @@
                 LogManager.GetLogger(typeof(SqlServerTokenManagerTests)),
                 userManager.Object,
                 principalProvider,
-                new SentinelTokenProvider(new SHA2CryptoProvider(), principalProvider),
+                new SentinelTokenProvider(new SHA2CryptoProvider(HashAlgorithm.SHA256), principalProvider),
                 tokenRepository,
                 clientRepository);
 

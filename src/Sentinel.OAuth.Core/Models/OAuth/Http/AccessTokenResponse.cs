@@ -6,7 +6,7 @@
     /// <summary>
     /// Represents an OAuth access token response
     /// </summary>
-    [DebuggerDisplay("access_token: {AccessToken}, refresh_token: {RefreshToken}, token_type: {TokenType}, expires_in: {ExpiresIn}")]
+    [DebuggerDisplay("access_token: {AccessToken}, refresh_token: {RefreshToken}, id_token: {IdToken}, token_type: {TokenType}, expires_in: {ExpiresIn}")]
     public class AccessTokenResponse
     {
         /// <summary>
@@ -15,6 +15,11 @@
         /// <value>The access token.</value>
         [JsonProperty("access_token")]
         public string AccessToken { get; set; }
+
+        /// <summary>Gets or sets the identifier token.</summary>
+        /// <value>The identifier token.</value>
+        [JsonProperty("id_token", NullValueHandling = NullValueHandling.Ignore)]
+        public string IdToken { get; set; }
 
         /// <summary>
         /// Gets or sets the refresh token.

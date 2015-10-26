@@ -17,6 +17,8 @@
     using System.Configuration;
     using System.Security.Claims;
 
+    using Sentinel.OAuth.Core.Constants;
+
     [TestFixture]
     [Category("Integration")]
     public class RedisTokenManagerTests : TokenManagerTests
@@ -32,7 +34,7 @@
                             new SentinelClaim(ClaimTypes.Name, "azzlack"),
                             new SentinelClaim(ClaimType.Client, "NUnit"))));
 
-            var principalProvider = new PrincipalProvider(new SHA2CryptoProvider());
+            var principalProvider = new PrincipalProvider(new SHA2CryptoProvider(HashAlgorithm.SHA512));
             var tokenRepository =
                 new RedisTokenRepository(
                     new RedisTokenRepositoryConfiguration(
@@ -48,7 +50,7 @@
                 LogManager.GetLogger(typeof(RedisTokenManagerTests)),
                 userManager.Object,
                 principalProvider,
-                new SentinelTokenProvider(new SHA2CryptoProvider(), principalProvider),
+                new SentinelTokenProvider(new SHA2CryptoProvider(HashAlgorithm.SHA512), principalProvider),
                 tokenRepository,
                 clientRepository.Object);
 

@@ -13,20 +13,18 @@
     using System.IdentityModel.Protocols.WSTrust;
     using System.IdentityModel.Tokens;
     using System.Linq;
+    using System.Security.Authentication;
     using System.Security.Claims;
+    using System.Security.Cryptography;
     using System.Text;
     using System.Threading.Tasks;
 
     using Sentinel.OAuth.Extensions;
-    using Sentinel.OAuth.Implementation.Handlers;
 
     public class JwtTokenProvider : ITokenProvider
     {
         /// <summary>The configuration.</summary>
         private readonly JwtTokenProviderConfiguration configuration;
-
-        /// <summary>The crypto provider.</summary>
-        private readonly ICryptoProvider cryptoProvider;
 
         /// <summary>The token handler.</summary>
         private readonly JwtSecurityTokenHandler tokenHandler;
@@ -37,10 +35,9 @@
         /// </summary>
         /// <param name="configuration"> The configuration.</param>
         /// <param name="cryptoProvider">The crypto provider.</param>
-        public JwtTokenProvider(JwtTokenProviderConfiguration configuration, ICryptoProvider cryptoProvider)
+        public JwtTokenProvider(JwtTokenProviderConfiguration configuration)
         {
             this.configuration = configuration;
-            this.cryptoProvider = cryptoProvider;
 
             this.tokenHandler = new JwtSecurityTokenHandler();
         }
@@ -59,8 +56,16 @@
             IEnumerable<string> scope,
             DateTimeOffset expireTime)
         {
-            // Add sub claim
+
+            string token;
+            var hashedToken = this.configuration.CryptoProvider.CreateHash(out token, 256);
+
+            // Create access token hash
+            var codeHash = this.configuration.CryptoProvider.CreateHash(token).ToCharArray();
+
+            // Add extra claims
             userPrincipal.Identity.AddClaim(JwtClaimType.Subject, userPrincipal.Identity.Name);
+            userPrincipal.Identity.AddClaim(JwtClaimType.AuthorizationCodeHash, Convert.ToBase64String(Encoding.ASCII.GetBytes(codeHash, 0, codeHash.Length / 2)));
 
             var jwt = new JwtSecurityToken(
                 this.configuration.Issuer.AbsoluteUri,
@@ -69,9 +74,6 @@
                 DateTime.UtcNow,
                 expireTime.UtcDateTime,
                 this.configuration.SigningCredentials);
-
-            string token;
-            var hashedToken = this.cryptoProvider.CreateHash(out token, 256);
 
             var ticket = this.tokenHandler.WriteToken(jwt);
 
@@ -95,7 +97,7 @@
         /// <returns>The access token if valid, <c>null</c> otherwise.</returns>
         public async Task<TokenValidationResult<IAuthorizationCode>> ValidateAuthorizationCode(IEnumerable<IAuthorizationCode> authorizationCodes, string code)
         {
-            var entity = authorizationCodes.FirstOrDefault(x => this.cryptoProvider.ValidateHash(code, x.Code));
+            var entity = authorizationCodes.FirstOrDefault(x => this.configuration.CryptoProvider.ValidateHash(code, x.Code));
 
             if (entity != null)
             {
@@ -132,8 +134,16 @@
             IEnumerable<string> scope,
             DateTimeOffset expireTime)
         {
-            // Add sub claim
+            // Create token
+            string token;
+            var hashedToken = this.configuration.CryptoProvider.CreateHash(out token, 512);
+
+            // Create access token hash
+            var tokenHash = this.configuration.CryptoProvider.CreateHash(token).ToCharArray();
+            
+            // Add extra claims
             userPrincipal.Identity.AddClaim(JwtClaimType.Subject, userPrincipal.Identity.Name);
+            userPrincipal.Identity.AddClaim(JwtClaimType.AccessTokenHash, Convert.ToBase64String(Encoding.ASCII.GetBytes(tokenHash, 0, tokenHash.Length / 2)));
 
             var jwt = new JwtSecurityToken(
                 this.configuration.Issuer.AbsoluteUri,
@@ -144,9 +154,6 @@
                 this.configuration.SigningCredentials);
 
             var idToken = this.tokenHandler.WriteToken(jwt);
-
-            string token;
-            var hashedToken = this.cryptoProvider.CreateHash(out token, 512);
 
             var accessToken = new AccessToken()
             {
@@ -168,7 +175,7 @@
         /// <returns>The token principal if valid, <c>null</c> otherwise.</returns>
         public async Task<TokenValidationResult<IAccessToken>> ValidateAccessToken(IEnumerable<IAccessToken> accessTokens, string token)
         {
-            var entity = accessTokens.FirstOrDefault(x => this.cryptoProvider.ValidateHash(token, x.Token));
+            var entity = accessTokens.FirstOrDefault(x => this.configuration.CryptoProvider.ValidateHash(token, x.Token));
 
             if (entity != null)
             {
@@ -217,7 +224,7 @@
                 this.configuration.SigningCredentials);
 
             string token;
-            var hashedToken = this.cryptoProvider.CreateHash(out token, 2048);
+            var hashedToken = this.configuration.CryptoProvider.CreateHash(out token, 2048);
 
             var idToken = this.tokenHandler.WriteToken(jwt);
 
@@ -241,7 +248,7 @@
         /// <returns>The token principal if valid, <c>null</c> otherwise.</returns>
         public async Task<TokenValidationResult<IRefreshToken>> ValidateRefreshToken(IEnumerable<IRefreshToken> refreshTokens, string token)
         {
-            var entity = refreshTokens.FirstOrDefault(x => this.cryptoProvider.ValidateHash(token, x.Token));
+            var entity = refreshTokens.FirstOrDefault(x => this.configuration.CryptoProvider.ValidateHash(token, x.Token));
 
             if (entity != null)
             {

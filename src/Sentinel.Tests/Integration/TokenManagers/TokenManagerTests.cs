@@ -64,9 +64,9 @@
                    "http://localhost",
                    null);
 
-            Console.WriteLine("Code: {0}", code);
+            Console.WriteLine("Code: {0}", code.Token);
 
-            Assert.IsNotNullOrEmpty(code);
+            Assert.IsNotNullOrEmpty(code.Token);
         }
 
         [Test]
@@ -85,9 +85,9 @@
             var createAccessTokenElapsed = this.testStopwatch.Elapsed;
             Console.WriteLine($"Creating authorization code took {createAccessTokenElapsed} seconds");
 
-            Console.WriteLine("Code: {0}", code);
+            Console.WriteLine("Code: {0}", code.Token);
 
-            var user = await this.TokenManager.AuthenticateAuthorizationCodeAsync("http://localhost", code);
+            var user = await this.TokenManager.AuthenticateAuthorizationCodeAsync("http://localhost", code.Token);
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating authorization code took {this.testStopwatch.Elapsed - createAccessTokenElapsed} seconds");
@@ -112,14 +112,14 @@
             var createAuthorizationCodeElapsed = this.testStopwatch.Elapsed;
             Console.WriteLine($"Creating access token took {createAuthorizationCodeElapsed} seconds");
 
-            Console.WriteLine("Code: {0}", code);
+            Console.WriteLine("Code: {0}", code.Token);
 
-            var user1 = await this.TokenManager.AuthenticateAuthorizationCodeAsync("http://localhost", code);
+            var user1 = await this.TokenManager.AuthenticateAuthorizationCodeAsync("http://localhost", code.Token);
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating authorization code took {this.testStopwatch.Elapsed - createAuthorizationCodeElapsed} seconds");
 
-            var user2 = await this.TokenManager.AuthenticateAuthorizationCodeAsync("http://localhost", code);
+            var user2 = await this.TokenManager.AuthenticateAuthorizationCodeAsync("http://localhost", code.Token);
 
             Assert.IsFalse(user2.Identity.IsAuthenticated, "The code is possible to use twice");
         }
@@ -141,9 +141,9 @@
             var createAccessTokenElapsed = this.testStopwatch.Elapsed;
             Console.WriteLine($"Creating access token took {createAccessTokenElapsed} seconds");
 
-            Console.WriteLine("Token: {0}", token);
+            Console.WriteLine("Token: {0}", token.Token);
 
-            Assert.IsNotNullOrEmpty(token);
+            Assert.IsNotNullOrEmpty(token.Token);
         }
 
         [Test]
@@ -163,9 +163,9 @@
             var createAccessTokenElapsed = this.testStopwatch.Elapsed;
             Console.WriteLine($"Creating access token took {createAccessTokenElapsed} seconds");
 
-            Console.WriteLine("Token: {0}", token);
+            Console.WriteLine("Token: {0}", token.Token);
 
-            var user = await this.TokenManager.AuthenticateAccessTokenAsync(token);
+            var user = await this.TokenManager.AuthenticateAccessTokenAsync(token.Token);
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating access token took {this.testStopwatch.Elapsed - createAccessTokenElapsed} seconds");
@@ -191,9 +191,9 @@
             var createAccessTokenElapsed = this.testStopwatch.Elapsed;
             Console.WriteLine($"Creating access token took {createAccessTokenElapsed} seconds");
 
-            Console.WriteLine("Token: {0}", token);
+            Console.WriteLine("Token: {0}", token.Token);
 
-            var user = await this.TokenManager.AuthenticateAccessTokenAsync(token);
+            var user = await this.TokenManager.AuthenticateAccessTokenAsync(token.Token);
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating access token took {this.testStopwatch.Elapsed - createAccessTokenElapsed} seconds");
@@ -218,9 +218,9 @@
             var createRefreshTokenElapsed = this.testStopwatch.Elapsed;
             Console.WriteLine($"Creating refresh token took {createRefreshTokenElapsed} seconds");
 
-            Console.WriteLine("Token: {0}", token);
+            Console.WriteLine("Token: {0}", token.Token);
 
-            Assert.IsNotNullOrEmpty(token);
+            Assert.IsNotNullOrEmpty(token.Token);
         }
 
         [Test]
@@ -240,9 +240,9 @@
             var createRefreshTokenElapsed = this.testStopwatch.Elapsed;
             Console.WriteLine($"Creating access token took {createRefreshTokenElapsed} seconds");
 
-            Console.WriteLine("Token: {0}", token);
+            Console.WriteLine("Token: {0}", token.Token);
 
-            var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", "http://localhost", token);
+            var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", "http://localhost", token.Token);
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating refresh token took {this.testStopwatch.Elapsed - createRefreshTokenElapsed} seconds");
@@ -268,9 +268,9 @@
             var createRefreshTokenElapsed = this.testStopwatch.Elapsed;
             Console.WriteLine($"Creating access token took {createRefreshTokenElapsed} seconds");
 
-            Console.WriteLine("Token: {0}", token);
+            Console.WriteLine("Token: {0}", token.Token);
 
-            var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", "http://localhost", token);
+            var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", "http://localhost", token.Token);
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating refresh token took {this.testStopwatch.Elapsed - createRefreshTokenElapsed} seconds");

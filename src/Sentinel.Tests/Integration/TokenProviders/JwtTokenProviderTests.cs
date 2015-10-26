@@ -3,6 +3,8 @@
     using System;
 
     using NUnit.Framework;
+
+    using Sentinel.OAuth.Core.Constants;
     using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.Models.Providers;
 
@@ -12,9 +14,9 @@
         [TestFixtureSetUp]
         public override void TestFixtureSetUp()
         {
-            var cryptoProvider = new SHA2CryptoProvider();
+            var cryptoProvider = new SHA2CryptoProvider(HashAlgorithm.SHA256);
 
-            this.TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration(new Uri("https://sentinel.oauth"), cryptoProvider.CreateHash(256)), cryptoProvider);
+            this.TokenProvider = new JwtTokenProvider(new JwtTokenProviderConfiguration(cryptoProvider, new Uri("https://sentinel.oauth"), cryptoProvider.CreateHash(256)));
 
             base.TestFixtureSetUp();
         }
