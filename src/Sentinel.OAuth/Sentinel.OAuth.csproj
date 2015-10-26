@@ -106,6 +106,7 @@
     <Compile Include="Implementation\Providers\SentinelTokenProvider.cs" />
     <Compile Include="Implementation\Providers\SHA2CryptoProvider.cs" />
     <Compile Include="Implementation\Repositories\MemoryTokenRepository.cs" />
+    <Compile Include="Middleware\UserInfoMiddleware.cs" />
     <Compile Include="Models\Identity\SentinelClaim.cs" />
     <Compile Include="Models\Identity\SentinelIdentity.cs" />
     <Compile Include="Models\Identity\SentinelPrincipal.cs" />

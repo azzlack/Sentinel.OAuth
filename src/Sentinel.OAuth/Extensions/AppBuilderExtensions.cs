@@ -3,20 +3,16 @@
     using Common.Logging;
     using Microsoft.Owin;
     using Microsoft.Owin.Security.OAuth;
-    using Newtonsoft.Json;
     using Owin;
     using Sentinel.OAuth.Core.Constants;
-    using Sentinel.OAuth.Core.Constants.OAuth;
     using Sentinel.OAuth.Core.Models;
-    using Sentinel.OAuth.Core.Models.OAuth.Http;
     using Sentinel.OAuth.Implementation.Managers;
     using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.Implementation.Repositories;
-    using Sentinel.OAuth.Models.Identity;
+    using Sentinel.OAuth.Middleware;
     using Sentinel.OAuth.Models.Providers;
     using Sentinel.OAuth.Providers.OAuth;
     using System;
-    using System.Net;
 
     /// <summary>
     /// Extension methods to add Authorization Server capabilities to an OWIN pipeline
@@ -35,7 +31,7 @@
         {
             if (app == null)
             {
-                throw new ArgumentNullException("app");
+                throw new ArgumentNullException(nameof(app));
             }
 
             // Last minute default configurations
@@ -120,29 +116,7 @@
             });
 
             // Set up identity endpoint
-            app.Map(
-                options.IdentityEndpointUrl,
-                config =>
-                    {
-
-                        config.Run(
-                            async (context) =>
-                                {
-                                    if (context.Authentication.User != null && context.Authentication.User.Identity.IsAuthenticated)
-                                    {
-                                        context.Response.ContentType = "application/json";
-                                        var identity = new SentinelIdentity(context.Authentication.User.Identity);
-                                        await context.Response.WriteAsync(JsonConvert.SerializeObject(identity.AsIdentityResponse()));
-                                    }
-                                    else
-                                    {
-                                        context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                                        context.Response.ContentType = "application/json";
-                                        context.Response.Headers["WWW-Authenticate"] = string.Empty;
-                                        await context.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorResponse(ErrorCode.InvalidToken)));
-                                    }
-                                });
-                    });
+            app.Map(options.IdentityEndpointUrl, config => config.Use<UserInfoMiddleware>());
 
             return app;
         }
