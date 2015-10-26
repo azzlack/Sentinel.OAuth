@@ -23,107 +23,70 @@ To make contributions to this project, please fork the `develop` branch and make
 
 ## Setting up
 ### The easy way
-In its simplest form `Sentinel` only requires the following code in your OWIN Startup class to work:
+Sentinel needs to know where and how your users and clients are located. This is accomplished by making an implementation of the `IUserRepository` and `IClientRepository` interfaces. These have methods that is responsible for locating users and clients, stuff that is probable very specific to your application.  
+
+In its simplest form `Sentinel` the only requires the following code in your OWIN Startup class to work:
 
 ```csharp
 app.UseSentinelAuthorizationServer(
     new SentinelAuthorizationServerOptions()
        {
-           ClientManager = new SimpleClientManager(),
-           UserManager = new SimpleUserManager()
+           IssuerUri = new Uri("http://my.host"),
+           ClientRepository = new SimpleClientRepository(),
+           UserRepository = new SimpleUserRepository()
        });
 ```
-In addition, you need to implement a `IUserManager` and a `IClientManager` for validating users and clients:
+The `IUserRepository` and a `IClientRepository` can be implemented like this.  
 
 ```csharp
-public class SimpleUserManager : BaseUserManager
+public class SimpleUserRepository : IUserRepository
 {
-    public SimpleUserManager(ICryptoProvider cryptoProvider)
-        : base(cryptoProvider)
+    /// <summary>Gets the users.</summary>
+    /// <returns>The users.</returns>
+    public async Task<IEnumerable<IUser>> GetUsers()
     {
+        return new List<IUser>() 
+            {
+                new User() { UserId = "myid", Password = "some-hash" }
+            };
     }
 
-    /// <summary>Authenticates the user using username and password.</summary>
-    /// <param name="username">The username.</param>
-    /// <param name="password">The password.</param>
-    /// <returns>The client principal.</returns>
-    public async override Task<ISentinelPrincipal> AuthenticateUserWithPasswordAsync(string username, string password)
+    /// <summary>Gets a user.</summary>
+    /// <param name="userId">Identifier for the user.</param>
+    /// <returns>The user.</returns>
+    public async Task<IUser> GetUser(string userId)
     {
-        // Just return an authenticated principal with the username as name if the username matches the password
-        if (username == password)
-        {
-            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, username)));
-        }
-
-        return SentinelPrincipal.Anonymous;
-    }
-
-    /// <summary>
-    /// Authenticates the user using username only. This method is used to get new user claims after
-    /// a refresh token has been used. You can therefore assume that the user is already logged in.
-    /// </summary>
-    /// <param name="username">The username.</param>
-    /// <returns>The user principal.</returns>
-    public async override Task<ISentinelPrincipal> AuthenticateUserAsync(string username)
-    {
-        return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, username)));
+        return new User() { UserId = userId, Password = "some-hash" };
     }
 }
 
-public class SimpleClientManager : BaseClientManager
+public class SimpleClientRepository : IClientRepository
 {
-    public SimpleClientManager(ICryptoProvider cryptoProvider)
-        : base(cryptoProvider)
+    /// <summary>Gets the clients in this collection.</summary>
+    /// <returns>An enumerator that allows foreach to be used to process the clients in this collection.</returns>
+    public async Task<IEnumerable<IClient>> GetClients()
     {
+        return new List<IClient>() 
+            {
+                new Client() { ClientId = clientId, ClientSecret = "some-hash", RedirectUri = "http://localhost" }
+            };
     }
-
-    /// <summary>
-    ///     Authenticates the client. Used when authenticating with the authorization_code grant type.
-    /// </summary>
-    /// <param name="clientId">The client id.</param>
-    /// <param name="redirectUri">The redirect URI.</param>
-    /// <returns>The client principal.</returns>
-    public async override Task<ISentinelPrincipal> AuthenticateClientAsync(string clientId, string redirectUri)
+    
+    /// <summary>Gets the client with the specified id.</summary>
+    /// <param name="clientId">Identifier for the client.</param>
+    /// <returns>The client.</returns>
+    public async Task<IClient> GetClient(string clientId)
     {
-        // Just return an authenticated principal with the client id as name (allows all clients)
-        return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
-    }
-
-    /// <summary>
-    ///     Authenticates the client. Used when authenticating with the client_credentials grant type.
-    /// </summary>
-    /// <param name="clientId">The client id.</param>
-    /// <param name="scope">The redirect URI.</param>
-    /// <returns>The client principal.</returns>
-    public async override Task<ISentinelPrincipal> AuthenticateClientAsync(string clientId, IEnumerable<string> scope)
-    {
-        // Just return an authenticated principal with the client id as name (allows all clients)
-        return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
-    }
-
-    /// <summary>Authenticates the client credentials using client id and secret.</summary>
-    /// <param name="clientId">The client id.</param>
-    /// <param name="clientSecret">The client secret.</param>
-    /// <returns>The client principal.</returns>
-    public async override Task<ISentinelPrincipal> AuthenticateClientCredentialsAsync(string clientId, string clientSecret)
-    {
-        // Return an authenticated principal if the client secret matches the client id
-        if (clientId == clientSecret)
-        {
-            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
-        }
-
-        return SentinelPrincipal.Anonymous;
+        return new Client() { ClientId = clientId, ClientSecret = "some-hash", RedirectUri = "http://localhost" };
     }
 }
 ```
-You might have noticed the use if `ISentinelPrincipal`, `ISentinelIdentity` and `SentinelClaim`.  
-- `ISentinelPrincipal` is a extension of `IPrincipal`, the base interface for principals in the .NET world. `ClaimsPrincipal` also implements this interface, and the two are convertible via the included extension methods, or in the constructor of `ISentinelPrincipal`.
-- `ISentinelIdentity` is a extension of `IIdentity`, the base interface for principals in the .NET world. `ClaimsIdentity` also implements this interface, and the two are convertible via the included extension methods, or in the constructor of `ISentinelIdentity`.
-- `SentinelClaim` and its interface `ISentinelClaim` do not derive from the `System.IdentityModel.Claims.Claim`. Instead it can take in a `Claim` in its constructor and can convert back implicitly.
 
-The reason for these custom types are that the built-in `ClaimsPrincipal` is not PCL-compatible, and the `Core` and `Client` packages must be PCL-compatible. I've included a lot of conversion options, so it should not pose a problem for you.
+### Hashing and validation
+By default, Sentinel uses `HMACSHA-256` for token hashing, and `PBKDF2` for password/client secret hashing and validation.  
+If you use (or want to use) something other than this, you need to swap out the `UserManager` and `ClientManager` properties on the configuration object.
 
+### Conclusion
 The above setup will configure the OAuth server with the default settings, which are as follows:
 
 | Setting | Default Value |
@@ -133,25 +96,16 @@ The above setup will configure the OAuth server with the default settings, which
 | Refresh Token Lifetime | 3 months (90 days) |
 | Token Endpoint | `/oauth/token` |
 | Authorization Code Endpoint | `/oauth/authorize` |
-| Token Format | `Sentinel` (A custom format using a `SHA-512` hashing algorithm to encrypt the token) |
+| UserInfo Endpoint | `/openid/identity` |
+| Token Format | `JWT` (Using a `SHA-512` hashing algorithm to encrypt the token) |
 
-### The advanced way
-The easy way is not always the best way, and `Sentinel` supports customization of user and client management, as well as custom token stores.
+### Notes
+You might have noticed the use if `ISentinelPrincipal`, `ISentinelIdentity` and `SentinelClaim`.  
+- `ISentinelPrincipal` is a extension of `IPrincipal`, the base interface for principals in the .NET world. `ClaimsPrincipal` also implements this interface, and the two are convertible via the included extension methods, or in the constructor of `ISentinelPrincipal`.
+- `ISentinelIdentity` is a extension of `IIdentity`, the base interface for principals in the .NET world. `ClaimsIdentity` also implements this interface, and the two are convertible via the included extension methods, or in the constructor of `ISentinelIdentity`.
+- `SentinelClaim` and its interface `ISentinelClaim` do not derive from the `System.IdentityModel.Claims.Claim`. Instead it can take in a `Claim` in its constructor and can convert back implicitly.
 
-Here is an example on how to use a custom user manager, client manager and user store:
-
-```csharp
-app.UseSentinelAuthorizationServer(
-    new SentinelAuthorizationServerOptions()
-        {
-            AccessTokenLifetime = TimeSpan.FromHours(1),
-            AuthorizationCodeLifetime = TimeSpan.FromMinutes(5),
-            RefreshTokenLifetime = TimeSpan.FromDays(180),
-            UserManager = new SimpleUserManager(),
-            ClientManager = new SimpleClientManager(),
-            TokenManager = new SimpleTokenManager()
-        });
-```
+The reason for these custom types are that the built-in `ClaimsPrincipal` is not PCL-compatible, and the `Core` and `Client` packages must be PCL-compatible. I've included a lot of conversion options, so it should not pose a problem for you.
 
 ## On supporting the `authorization_code` flow
 `Sentinel` does not include a view for your users to log in when using the `/oauth/authorize` endpoint.
