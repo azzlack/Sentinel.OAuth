@@ -68,10 +68,6 @@
       <Project>{3590e38c-f48f-4dc6-bb12-06eb919a70e3}</Project>
       <Name>Sentinel.OAuth.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sentinel.OAuth\Sentinel.OAuth.csproj">
-      <Project>{D456998C-5A63-4743-B46E-89F6324C38C7}</Project>
-      <Name>Sentinel.OAuth</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
