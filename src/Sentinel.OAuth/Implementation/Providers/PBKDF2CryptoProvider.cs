@@ -75,18 +75,30 @@
 
         /// <summary>Creates a hash of the specified text.</summary>
         /// <param name="text">The text to hash.</param>
+        /// <param name="useSalt">If <c>true</c>, salt the hash.</param>
         /// <returns>The hash of the the text.</returns>
-        public string CreateHash(string text)
+        public string CreateHash(string text, bool useSalt = true)
         {
             this.log.Debug("Creating hash");
 
-            // Generate a random salt
-            var salt = this.GenerateSalt();
+            string result;
 
-            // Hash the password and encode the parameters
-            var hash = this.Compute(text, salt, this.iterations, this.hashByteSize);
+            if (useSalt)
+            {
+                // Generate a random salt
+                var salt = this.GenerateSalt();
 
-            var result = string.Format("{1}{0}{2}{0}{3}", string.Join("", this.delimiter), this.iterations, Convert.ToBase64String(salt), Convert.ToBase64String(hash));
+                // Hash the password and encode the parameters
+                var hash = this.Compute(text, salt, this.iterations, this.hashByteSize);
+
+                result = string.Format("{1}{0}{2}{0}{3}", string.Join("", this.delimiter), this.iterations, Convert.ToBase64String(salt), Convert.ToBase64String(hash));
+            }
+            else
+            {
+                var hash = this.Compute(text, this.iterations, this.hashByteSize);
+
+                result = string.Format("{1}{0}{2}", string.Join("", this.delimiter), this.iterations, Convert.ToBase64String(hash));
+            }
 
             this.log.Debug("Finished creating hash");
 
@@ -268,6 +280,20 @@
             }
 
             return diff == 0;
+        }
+
+        /// <summary>
+        /// Computes the PBKDF2-SHA1 hash of a text.
+        /// </summary>
+        /// <param name="text">The text to hash.</param>
+        /// <param name="iterations">The iteration count.</param>
+        /// <param name="outputBytes">The length of the hash to generate, in bytes.</param>
+        /// <returns>A hash of the text.</returns>
+        private byte[] Compute(string text, int iterations, int outputBytes)
+        {
+            var pbkdf2 = new Rfc2898DeriveBytes(text, new byte[0], iterations);
+
+            return pbkdf2.GetBytes(outputBytes);
         }
 
         /// <summary>

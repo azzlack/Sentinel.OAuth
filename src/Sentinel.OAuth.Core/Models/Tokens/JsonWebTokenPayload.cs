@@ -31,6 +31,12 @@
         /// <summary>The subject.</summary>
         public string Subject => this["sub"];
 
+        /// <summary>The access token hash.</summary>
+        public string AccessTokenHash => this["at_hash"];
+
+        /// <summary>The authorization code hash.</summary>
+        public string AuthorizationCodeHash => this["c_hash"];
+
         /// <summary>Gets the valid from time.</summary>
         /// <value>The valid from time.</value>
         public DateTimeOffset ValidFrom

@@ -6,20 +6,15 @@
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Core.Models.OAuth;
+    using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.Models.Identity;
     using Sentinel.OAuth.Models.Providers;
     using System;
     using System.Collections.Generic;
-    using System.IdentityModel.Protocols.WSTrust;
     using System.IdentityModel.Tokens;
     using System.Linq;
-    using System.Security.Authentication;
-    using System.Security.Claims;
-    using System.Security.Cryptography;
     using System.Text;
     using System.Threading.Tasks;
-
-    using Sentinel.OAuth.Extensions;
 
     public class JwtTokenProvider : ITokenProvider
     {
@@ -60,8 +55,8 @@
             string token;
             var hashedToken = this.configuration.CryptoProvider.CreateHash(out token, 256);
 
-            // Create access token hash
-            var codeHash = this.configuration.CryptoProvider.CreateHash(token).ToCharArray();
+            // Create authorization code hash
+            var codeHash = this.configuration.CryptoProvider.CreateHash(token, false).ToCharArray();
 
             // Add extra claims
             userPrincipal.Identity.AddClaim(JwtClaimType.Subject, userPrincipal.Identity.Name);
@@ -139,8 +134,8 @@
             var hashedToken = this.configuration.CryptoProvider.CreateHash(out token, 512);
 
             // Create access token hash
-            var tokenHash = this.configuration.CryptoProvider.CreateHash(token).ToCharArray();
-            
+            var tokenHash = this.configuration.CryptoProvider.CreateHash(token, false).ToCharArray();
+
             // Add extra claims
             userPrincipal.Identity.AddClaim(JwtClaimType.Subject, userPrincipal.Identity.Name);
             userPrincipal.Identity.AddClaim(JwtClaimType.AccessTokenHash, Convert.ToBase64String(Encoding.ASCII.GetBytes(tokenHash, 0, tokenHash.Length / 2)));

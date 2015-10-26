@@ -26,8 +26,9 @@
 
         /// <summary>Creates a hash of the specified text.</summary>
         /// <param name="text">The text to hash.</param>
+        /// <param name="useSalt">If <c>true</c>, salt the hash.</param>
         /// <returns>The hash of the text.</returns>
-        string CreateHash(string text);
+        string CreateHash(string text, bool useSalt = true);
 
         /// <summary>
         /// Validates the specified text against the specified hash.

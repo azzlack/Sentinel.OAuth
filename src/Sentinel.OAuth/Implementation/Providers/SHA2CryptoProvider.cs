@@ -51,16 +51,26 @@
 
         /// <summary>Creates a hash of the specified text.</summary>
         /// <param name="text">The text to hash.</param>
+        /// <param name="useSalt">If <c>true</c>, salt the hash.</param>
         /// <returns>The hash of the the text.</returns>
-        public string CreateHash(string text)
+        public string CreateHash(string text, bool useSalt = true)
         {
             this.log.Debug("Creating hash");
 
-            // Generate a random salt
-            var salt = this.GenerateSalt();
+            byte[] hash;
 
-            // Hash the password and encode the parameters
-            var hash = this.Compute(Encoding.UTF8.GetBytes(text), salt);
+            if (useSalt)
+            {
+                // Generate a random salt
+                var salt = this.GenerateSalt();
+
+                // Hash the password and encode the parameters
+                hash = this.Compute(Encoding.UTF8.GetBytes(text), salt);
+            }
+            else
+            {
+                hash = this.Compute(Encoding.UTF8.GetBytes(text));
+            }
 
             var result = Convert.ToBase64String(hash);
 
@@ -233,7 +243,19 @@
             return salt;
         }
 
-        /// <summary>Computes the PBKDF2-SHA1 hash of a text.</summary>
+        /// <summary>Computes the hash of a text.</summary>
+        /// <param name="text">The text to hash.</param>
+        /// <param name="salt">The salt.</param>
+        /// <returns>A hash of the text.</returns>
+        private byte[] Compute(byte[] text)
+        {
+            using (var sha = this.GetCryptoServiceProvider())
+            {
+                return sha.ComputeHash(text);
+            }
+        }
+
+        /// <summary>Computes the hash of a text.</summary>
         /// <param name="text">The text to hash.</param>
         /// <param name="salt">The salt.</param>
         /// <returns>A hash of the text.</returns>

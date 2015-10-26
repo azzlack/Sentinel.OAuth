@@ -98,11 +98,10 @@
             Assert.IsNotNull(jwt);
 
             // Validate at_hash
-            var accessTokenHash = new SHA2CryptoProvider(HashAlgorithm.SHA256).CreateHash(e.Item1.AccessToken);
+            var accessTokenHash = new SHA2CryptoProvider(HashAlgorithm.SHA256).CreateHash(e.Item1.AccessToken, false);
             var digest = Convert.ToBase64String(Encoding.ASCII.GetBytes(accessTokenHash.ToCharArray(), 0, accessTokenHash.Length / 2));
 
-            // TODO: The salt is different each time, meaning it will never be equal. How to deal with it?
-            //Assert.AreEqual(e.Item2.First(x => x.Key == "at_hash").Value, digest);
+            Assert.AreEqual(jwt.Payload.AccessTokenHash, digest);
         }
     }
 }

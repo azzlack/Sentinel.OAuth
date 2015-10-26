@@ -10,6 +10,8 @@
         /// <param name="jwt">The jwt.</param>
         public JsonWebToken(string jwt)
         {
+            this.Raw = jwt;
+
             var parts = jwt.Split('.');
 
             if (parts.Length != 3)
@@ -32,6 +34,10 @@
                 throw new ArgumentException("Unable to parse token", ex);
             }
         }
+
+        /// <summary>Gets the raw.</summary>
+        /// <value>The raw.</value>
+        public string Raw { get; }
 
         /// <summary>Gets the header.</summary>
         /// <value>The header.</value>
