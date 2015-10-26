@@ -4,10 +4,11 @@
     using Newtonsoft.Json;
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
-    using Sentinel.OAuth.Core.Interfaces.Managers;
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.Core.Managers;
+    using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Models.Identity;
     using System;
     using System.Collections.Generic;
@@ -15,28 +16,20 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    using Sentinel.OAuth.Core.Interfaces.Models;
-    using Sentinel.OAuth.Core.Models;
-
     /// <summary>A universal token manager. Takes care of processing the tokens without caring where and how they are stored.</summary>
     public class TokenManager : BaseTokenManager
     {
         /// <summary>The logger.</summary>
         private readonly ILog logger;
 
-        /// <summary>Manager for user.</summary>
-        private readonly IUserManager userManager;
-
         /// <summary>Initializes a new instance of the TokenManager class.</summary>
         /// <exception cref="ArgumentNullException">Thrown when one or more required arguments are null.</exception>
         /// <param name="logger">The logger.</param>
-        /// <param name="userManager">Manager for users.</param>
         /// <param name="principalProvider">The principal provider.</param>
         /// <param name="tokenProvider">The token provider.</param>
         /// <param name="tokenRepository">The token repository.</param>
-        /// <param name="clientRepository">The client repository.</param>
-        public TokenManager(ILog logger, IUserManager userManager, IPrincipalProvider principalProvider, ITokenProvider tokenProvider, ITokenRepository tokenRepository, IClientRepository clientRepository)
-            : base(principalProvider, tokenProvider, tokenRepository, clientRepository)
+        public TokenManager(ILog logger, IPrincipalProvider principalProvider, ITokenProvider tokenProvider, ITokenRepository tokenRepository)
+            : base(principalProvider, tokenProvider, tokenRepository)
         {
             if (logger == null)
             {
@@ -44,7 +37,6 @@
             }
 
             this.logger = logger;
-            this.userManager = userManager;
         }
 
         /// <summary>Authenticates the authorization code.</summary>

@@ -26,14 +26,6 @@
         [SetUp]
         public override void SetUp()
         {
-            var userManager = new Mock<IUserManager>();
-            userManager.Setup(x => x.AuthenticateUserAsync(It.IsAny<string>()))
-                .ReturnsAsync(new SentinelPrincipal(
-                        new SentinelIdentity(
-                            AuthenticationType.OAuth,
-                            new SentinelClaim(ClaimTypes.Name, "azzlack"),
-                            new SentinelClaim(ClaimType.Client, "NUnit"))));
-
             var principalProvider = new PrincipalProvider(new SHA2CryptoProvider(HashAlgorithm.SHA512));
             var tokenRepository =
                 new RedisTokenRepository(
@@ -42,17 +34,12 @@
                         4,
                         "sentinel.oauth.RedisTokenManagerTests",
                         LogManager.GetLogger(typeof(RedisTokenManagerTests))));
-            var clientRepository = new Mock<IClientRepository>();
-            clientRepository.Setup(x => x.GetClients()).ReturnsAsync(new List<IClient>() { new Client() { ClientId = "NUnit", ClientSecret = "aabbccddee", Enabled = true, RedirectUri = "http://localhost" } });
-            clientRepository.Setup(x => x.GetClient("NUnit")).ReturnsAsync(new Client() { ClientId = "NUnit", ClientSecret = "aabbccddee", Enabled = true, RedirectUri = "http://localhost" });
 
             this.TokenManager = new TokenManager(
                 LogManager.GetLogger(typeof(RedisTokenManagerTests)),
-                userManager.Object,
                 principalProvider,
                 new SentinelTokenProvider(new SHA2CryptoProvider(HashAlgorithm.SHA512), principalProvider),
-                tokenRepository,
-                clientRepository.Object);
+                tokenRepository);
 
             base.SetUp();
         }

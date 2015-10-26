@@ -18,12 +18,11 @@
         /// <param name="tokenProvider">The token provider.</param>
         /// <param name="tokenRepository">The token repository.</param>
         /// <param name="clientRepository">The client repository.</param>
-        protected BaseTokenManager(IPrincipalProvider principalProvider, ITokenProvider tokenProvider, ITokenRepository tokenRepository, IClientRepository clientRepository)
+        protected BaseTokenManager(IPrincipalProvider principalProvider, ITokenProvider tokenProvider, ITokenRepository tokenRepository)
         {
             this.PrincipalProvider = principalProvider;
             this.TokenProvider = tokenProvider;
             this.TokenRepository = tokenRepository;
-            this.ClientRepository = clientRepository;
         }
 
         /// <summary>Gets the principal provider.</summary>
@@ -33,10 +32,6 @@
         /// <summary>Gets the token provider.</summary>
         /// <value>The token provider.</value>
         protected ITokenProvider TokenProvider { get; }
-
-        /// <summary>Gets the client repository.</summary>
-        /// <value>The client repository.</value>
-        protected IClientRepository ClientRepository { get; }
 
         /// <summary>Gets the token repository.</summary>
         /// <value>The token repository.</value>

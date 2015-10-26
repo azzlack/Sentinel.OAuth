@@ -1,21 +1,11 @@
 ﻿namespace Sentinel.Tests.Integration.TokenManagers
 {
     using Common.Logging;
-    using Moq;
     using NUnit.Framework;
-    using Sentinel.OAuth.Core.Constants.Identity;
-    using Sentinel.OAuth.Core.Interfaces.Managers;
-    using Sentinel.OAuth.Core.Interfaces.Models;
-    using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.Core.Models.OAuth;
+    using Sentinel.OAuth.Core.Constants;
     using Sentinel.OAuth.Implementation.Managers;
     using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.Implementation.Repositories;
-    using Sentinel.OAuth.Models.Identity;
-    using System.Collections.Generic;
-    using System.Security.Claims;
-
-    using Sentinel.OAuth.Core.Constants;
 
     [TestFixture]
     [Category("Integration")]
@@ -24,27 +14,14 @@
         [SetUp]
         public override void SetUp()
         {
-            var userManager = new Mock<IUserManager>();
-            userManager.Setup(x => x.AuthenticateUserAsync(It.IsAny<string>()))
-                .ReturnsAsync(new SentinelPrincipal(
-                        new SentinelIdentity(
-                            AuthenticationType.OAuth,
-                            new SentinelClaim(ClaimTypes.Name, "azzlack"),
-                            new SentinelClaim(ClaimType.Client, "NUnit"))));
-
             var principalProvider = new PrincipalProvider(new SHA2CryptoProvider(HashAlgorithm.SHA512));
             var tokenRepository = new MemoryTokenRepository();
-            var clientRepository = new Mock<IClientRepository>();
-            clientRepository.Setup(x => x.GetClients()).ReturnsAsync(new List<IClient>() { new Client() { ClientId = "NUnit", ClientSecret = "aabbccddee", Enabled = true, RedirectUri = "http://localhost" } });
-            clientRepository.Setup(x => x.GetClient("NUnit")).ReturnsAsync(new Client() { ClientId = "NUnit", ClientSecret = "aabbccddee", Enabled = true, RedirectUri = "http://localhost" });
 
             this.TokenManager = new TokenManager(
                 LogManager.GetLogger(typeof(MemoryTokenManagerTests)),
-                userManager.Object,
                 principalProvider,
                 new SentinelTokenProvider(new SHA2CryptoProvider(HashAlgorithm.SHA512), principalProvider),
-                tokenRepository,
-                clientRepository.Object);
+                tokenRepository);
 
             base.SetUp();
         }

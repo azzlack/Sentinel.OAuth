@@ -72,28 +72,17 @@
         [SetUp]
         public override void SetUp()
         {
-            var userManager = new Mock<IUserManager>();
-            userManager.Setup(x => x.AuthenticateUserAsync(It.IsAny<string>()))
-                .ReturnsAsync(new SentinelPrincipal(
-                        new SentinelIdentity(
-                            AuthenticationType.OAuth,
-                            new SentinelClaim(ClaimTypes.Name, "azzlack"),
-                            new SentinelClaim(ClaimType.Client, "NUnit"))));
-
             var connectionStringBuilder = this.instance.CreateConnectionStringBuilder();
             connectionStringBuilder.SetInitialCatalogName(this.databaseName);
 
             var principalProvider = new PrincipalProvider(new PBKDF2CryptoProvider());
             var tokenRepository = new SqlServerTokenRepository(connectionStringBuilder.ToString());
-            var clientRepository = new SqlServerClientRepository(connectionStringBuilder.ToString());
 
             this.TokenManager = new TokenManager(
                 LogManager.GetLogger(typeof(SqlServerTokenManagerTests)),
-                userManager.Object,
                 principalProvider,
                 new SentinelTokenProvider(new SHA2CryptoProvider(HashAlgorithm.SHA256), principalProvider),
-                tokenRepository,
-                clientRepository);
+                tokenRepository);
 
             base.SetUp();
         }

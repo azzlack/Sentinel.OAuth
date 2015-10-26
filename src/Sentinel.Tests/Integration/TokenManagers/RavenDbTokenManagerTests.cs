@@ -26,28 +26,15 @@
         [SetUp]
         public override void SetUp()
         {
-            var userManager = new Mock<IUserManager>();
-            userManager.Setup(x => x.AuthenticateUserAsync(It.IsAny<string>()))
-                .ReturnsAsync(new SentinelPrincipal(
-                        new SentinelIdentity(
-                            AuthenticationType.OAuth,
-                            new SentinelClaim(ClaimTypes.Name, "azzlack"),
-                            new SentinelClaim(ClaimType.Client, "NUnit"))));
-
             var principalProvider = new PrincipalProvider(new SHA2CryptoProvider(HashAlgorithm.SHA256));
             var tokenRepository = new RavenDbTokenRepository(
                     new RavenDbTokenRepositoryConfiguration(new EmbeddableDocumentStore() { RunInMemory = true }, LogManager.GetLogger<RavenDbTokenManagerTests>()));
-            var clientRepository = new Mock<IClientRepository>();
-            clientRepository.Setup(x => x.GetClients()).ReturnsAsync(new List<IClient>() { new Client() { ClientId = "NUnit", ClientSecret = "aabbccddee", Enabled = true, RedirectUri = "http://localhost" } });
-            clientRepository.Setup(x => x.GetClient("NUnit")).ReturnsAsync(new Client() { ClientId = "NUnit", ClientSecret = "aabbccddee", Enabled = true, RedirectUri = "http://localhost" });
 
             this.TokenManager = new TokenManager(
                 LogManager.GetLogger(typeof(RavenDbTokenManagerTests)),
-                userManager.Object,
                 principalProvider,
                 new SentinelTokenProvider(new SHA2CryptoProvider(HashAlgorithm.SHA256), principalProvider),
-                tokenRepository,
-                clientRepository.Object);
+                tokenRepository);
 
             base.SetUp();
         }

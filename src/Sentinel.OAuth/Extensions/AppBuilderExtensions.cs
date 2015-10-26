@@ -82,7 +82,7 @@
 
             if (options.TokenManager == null)
             {
-                options.TokenManager = new TokenManager(options.Logger, options.UserManager, options.PrincipalProvider, options.TokenProvider, options.TokenRepository, options.ClientRepository);
+                options.TokenManager = new TokenManager(options.Logger, options.PrincipalProvider, options.TokenProvider, options.TokenRepository);
             }
 
             if (options.UserManager == null)
