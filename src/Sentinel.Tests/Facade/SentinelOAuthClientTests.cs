@@ -58,7 +58,8 @@
                     app.UseSentinelAuthorizationServer(new SentinelAuthorizationServerOptions()
                     {
                         ClientRepository = clientRepository.Object,
-                        UserRepository = userRepository.Object
+                        UserRepository = userRepository.Object,
+                        IssuerUri = new Uri("http://sentinel.oauth")
                     });
 
                     // Start up web api

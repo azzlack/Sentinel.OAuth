@@ -1,19 +1,15 @@
 ﻿namespace Sentinel.Tests.Unit
 {
+    using Newtonsoft.Json;
+    using NUnit.Framework;
+    using Sentinel.OAuth.Core.Constants.Identity;
+    using Sentinel.OAuth.Core.Interfaces.Providers;
+    using Sentinel.OAuth.Implementation.Providers;
+    using Sentinel.OAuth.Models.Identity;
     using System;
     using System.Security.Claims;
     using System.Security.Cryptography;
     using System.Text;
-
-    using Newtonsoft.Json;
-
-    using NUnit.Framework;
-
-    using Sentinel.OAuth.Core.Constants.Identity;
-    using Sentinel.OAuth.Core.Interfaces.Providers;
-    using Sentinel.OAuth.Implementation;
-    using Sentinel.OAuth.Implementation.Providers;
-    using Sentinel.OAuth.Models.Identity;
 
     [TestFixture]
     [Category("Unit")]
@@ -92,10 +88,12 @@
             Assert.IsNotNullOrEmpty(hash);
         }
 
-        [TestCase("aabbccddee", "JsSAQQiINCmefez0E1vt9VLEwd6kMPD/M3/qwDOpuIw2WupF77UkJIYwzabp2G0CVhYPgDs+craqGzYX9anXShTePNfni5gJ79it0LnjiIng9A5guQ4wEwn+OCPgWZI+a7n7Uy2rNLd+0wTkYX/JX+dU+rgh0xhefIs1Gq5Vxuc=")]
-        public void Validate_WhenGivenValidTextAndHashCombination_ReturnsTrue(string text, string correctHash)
+        [TestCase("aabbccddee")]
+        [TestCase("bfdsghbjflbnfkdkhgureinbfdlg")]
+        public void Validate_WhenGivenValidTextAndHashCombination_ReturnsTrue(string text)
         {
-            var valid = this.provider.ValidateHash(text, correctHash);
+            var hash = this.provider.CreateHash(text);
+            var valid = this.provider.ValidateHash(text, hash);
 
             Assert.IsTrue(valid);
         }
