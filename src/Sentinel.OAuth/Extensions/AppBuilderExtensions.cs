@@ -5,19 +5,18 @@
     using Microsoft.Owin.Security.OAuth;
     using Newtonsoft.Json;
     using Owin;
+    using Sentinel.OAuth.Core.Constants;
     using Sentinel.OAuth.Core.Constants.OAuth;
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Core.Models.OAuth.Http;
     using Sentinel.OAuth.Implementation.Managers;
     using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.Implementation.Repositories;
+    using Sentinel.OAuth.Models.Identity;
     using Sentinel.OAuth.Models.Providers;
     using Sentinel.OAuth.Providers.OAuth;
     using System;
     using System.Net;
-
-    using Sentinel.OAuth.Core.Constants;
-    using Sentinel.OAuth.Models.Identity;
 
     /// <summary>
     /// Extension methods to add Authorization Server capabilities to an OWIN pipeline
@@ -100,11 +99,6 @@
                 options.ClientManager = new ClientManager(options.PasswordCryptoProvider, options.ClientRepository);
             }
 
-            if (options.UserManager == null)
-            {
-                throw new InvalidOperationException("UserManager must be set");
-            }
-
             // Initialize underlying OWIN OAuth system
             var oauthOptions = new OAuthAuthorizationServerOptions
             {
@@ -130,7 +124,7 @@
                 options.IdentityEndpointUrl,
                 config =>
                     {
-                        
+
                         config.Run(
                             async (context) =>
                                 {
