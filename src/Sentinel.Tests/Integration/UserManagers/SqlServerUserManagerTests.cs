@@ -4,10 +4,12 @@
     using NUnit.Framework;
     using Sentinel.OAuth.Implementation.Managers;
     using Sentinel.OAuth.Implementation.Providers;
-    using Sentinel.OAuth.UserManagers.SqlServerUserManager.Implementation;
+
     using System;
     using System.Data;
     using System.Data.SqlLocalDb;
+
+    using Sentinel.OAuth.UserManagers.SqlServerUserRepository.Implementation;
 
     [TestFixture]
     [Category("Integration")]

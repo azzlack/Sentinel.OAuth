@@ -1,8 +1,9 @@
-﻿namespace Sentinel.OAuth.UserManagers.SqlServerUserManager.Models
+﻿namespace Sentinel.OAuth.UserManagers.SqlServerUserRepository.Models
 {
+    using System;
+
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Models.OAuth;
-    using System;
 
     public class SqlUser : User
     {

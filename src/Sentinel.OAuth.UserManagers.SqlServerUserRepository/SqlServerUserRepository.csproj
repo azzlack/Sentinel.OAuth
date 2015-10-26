@@ -7,8 +7,8 @@
     <ProjectGuid>{7D33D993-B9BE-463D-8942-CC5D0B99C06D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Sentinel.OAuth.UserManagers.SqlServerUserManager</RootNamespace>
-    <AssemblyName>Sentinel.OAuth.UserManagers.SqlServerUserManager</AssemblyName>
+    <RootNamespace>Sentinel.OAuth.UserManagers.SqlServerUserRepository</RootNamespace>
+    <AssemblyName>Sentinel.OAuth.UserManagers.SqlServerUserRepository</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

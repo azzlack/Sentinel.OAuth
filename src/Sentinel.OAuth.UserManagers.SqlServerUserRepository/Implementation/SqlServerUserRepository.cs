@@ -1,14 +1,16 @@
-﻿namespace Sentinel.OAuth.UserManagers.SqlServerUserManager.Implementation
+﻿namespace Sentinel.OAuth.UserManagers.SqlServerUserRepository.Implementation
 {
-    using Dapper;
-    using Sentinel.OAuth.Core.Interfaces.Models;
-    using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.UserManagers.SqlServerUserManager.Models;
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
     using System.Linq;
     using System.Threading.Tasks;
+
+    using Dapper;
+
+    using Sentinel.OAuth.Core.Interfaces.Models;
+    using Sentinel.OAuth.Core.Interfaces.Repositories;
+    using Sentinel.OAuth.UserManagers.SqlServerUserRepository.Models;
 
     public class SqlServerUserRepository : IUserRepository
     {

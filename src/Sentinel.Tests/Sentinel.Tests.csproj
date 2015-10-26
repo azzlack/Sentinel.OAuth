@@ -275,7 +275,7 @@
       <Project>{2a880295-cd2f-45c7-b592-0595318292cb}</Project>
       <Name>SqlServerTokenRepository</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sentinel.OAuth.UserManagers.SqlServerUserManager\SqlServerUserRepository.csproj">
+    <ProjectReference Include="..\Sentinel.OAuth.UserManagers.SqlServerUserRepository\SqlServerUserRepository.csproj">
       <Project>{7d33d993-b9be-463d-8942-cc5d0b99c06d}</Project>
       <Name>SqlServerUserRepository</Name>
     </ProjectReference>
@@ -287,7 +287,7 @@
       <Project>{201854e2-f29f-4928-8160-54080bd650d1}</Project>
       <Name>Sentinel.Sample</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SqlServerClientRepository\SqlServerClientRepository.csproj">
+    <ProjectReference Include="..\Sentinel.OAuth.ClientManagers.SqlServerClientRepository\SqlServerClientRepository.csproj">
       <Project>{88416938-b37f-4289-a6a0-6521a5370ce0}</Project>
       <Name>SqlServerClientRepository</Name>
     </ProjectReference>
