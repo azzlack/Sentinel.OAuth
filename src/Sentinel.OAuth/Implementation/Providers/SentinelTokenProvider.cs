@@ -1,6 +1,7 @@
 ﻿namespace Sentinel.OAuth.Implementation.Providers
 {
     using Sentinel.OAuth.Core.Constants.Identity;
+    using Sentinel.OAuth.Core.Extensions;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Providers;
@@ -12,8 +13,6 @@
     using System.IdentityModel.Claims;
     using System.Linq;
     using System.Threading.Tasks;
-
-    using Sentinel.OAuth.Extensions;
 
     public class SentinelTokenProvider : ITokenProvider
     {

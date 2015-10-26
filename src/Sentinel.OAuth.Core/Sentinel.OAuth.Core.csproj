@@ -89,6 +89,9 @@
     <Compile Include="Constants\Identity\JwtClaimType.cs" />
     <Compile Include="Constants\OAuth\ErrorCode.cs" />
     <Compile Include="Converters\IdentityResponseJsonConverter.cs" />
+    <Compile Include="Converters\JsonWebTokenComponentConverter.cs" />
+    <Compile Include="Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
     <Compile Include="Interfaces\Models\IToken.cs" />
     <Compile Include="Interfaces\Models\IUser.cs" />
     <Compile Include="Interfaces\Providers\ITokenProvider.cs" />
@@ -126,6 +129,10 @@
     <Compile Include="Models\SentinelAuthorizationServerEvents.cs" />
     <Compile Include="Models\SentinelAuthorizationServerOptions.cs" />
     <Compile Include="Models\TokenCreationResult.cs" />
+    <Compile Include="Models\Tokens\JsonWebToken.cs" />
+    <Compile Include="Models\Tokens\JsonWebTokenComponent.cs" />
+    <Compile Include="Models\Tokens\JsonWebTokenPayload.cs" />
+    <Compile Include="Models\Tokens\JsonWebTokenHeader.cs" />
     <Compile Include="Models\TokenValidationResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,8 +1,7 @@
 ﻿namespace Sentinel.OAuth.Models.Identity
 {
-    using Sentinel.OAuth.Core.Constants.Identity;
+    using Sentinel.OAuth.Core.Extensions;
     using Sentinel.OAuth.Core.Interfaces.Identity;
-    using Sentinel.OAuth.Extensions;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;

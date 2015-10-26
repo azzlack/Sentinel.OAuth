@@ -1,9 +1,9 @@
 ﻿namespace Sentinel.OAuth.TokenManagers.RedisTokenRepository.Implementation
 {
     using Newtonsoft.Json;
+    using Sentinel.OAuth.Core.Extensions;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
-    using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.TokenManagers.RedisTokenRepository.Models;
     using StackExchange.Redis;
     using System;

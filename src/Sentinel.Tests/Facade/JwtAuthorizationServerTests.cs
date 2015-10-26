@@ -1,34 +1,24 @@
 ﻿namespace Sentinel.Tests.Facade
 {
-    using System;
-
     using Microsoft.Owin.Security.OAuth;
     using Microsoft.Owin.Testing;
     using Moq;
     using NUnit.Framework;
     using Owin;
+    using Sentinel.OAuth.Core.Constants;
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Core.Models.OAuth;
-    using Sentinel.OAuth.Extensions;
-    using System.Collections.Generic;
-    using System.IdentityModel.Tokens;
-    using System.Linq;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
-    using System.Text;
-    using System.Web.Http;
-
-    using Newtonsoft.Json;
-
-    using Sentinel.OAuth.Client;
-    using Sentinel.OAuth.Core.Constants;
-    using Sentinel.OAuth.Core.Constants.Identity;
-    using Sentinel.OAuth.Core.Constants.OAuth;
     using Sentinel.OAuth.Core.Models.OAuth.Http;
+    using Sentinel.OAuth.Core.Models.Tokens;
+    using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.Models.Providers;
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+    using System.Web.Http;
 
     [TestFixture]
     [Category("Facade")]
@@ -102,6 +92,11 @@
         /// <param name="e">The Tuple&lt;AccessTokenResponse,IdentityResponse&gt; to process.</param>
         private void OnValidateToken(object sender, Tuple<AccessTokenResponse, IdentityResponse> e)
         {
+            // Decode id_token
+            var jwt = new JsonWebToken(e.Item1.IdToken);
+
+            Assert.IsNotNull(jwt);
+
             // Validate at_hash
             var accessTokenHash = new SHA2CryptoProvider(HashAlgorithm.SHA256).CreateHash(e.Item1.AccessToken);
             var digest = Convert.ToBase64String(Encoding.ASCII.GetBytes(accessTokenHash.ToCharArray(), 0, accessTokenHash.Length / 2));

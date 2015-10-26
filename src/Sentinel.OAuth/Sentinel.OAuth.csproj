@@ -94,8 +94,6 @@
     <Compile Include="Converters\SentinelClaimConverter.cs" />
     <Compile Include="Extensions\AppBuilderExtensions.cs" />
     <Compile Include="Extensions\ClaimsIdentityExtensions.cs" />
-    <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
-    <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\OwinContextExtensions.cs" />
     <Compile Include="Extensions\SentinelClaimExtensions.cs" />
     <Compile Include="Extensions\SentinelIdentityExtensions.cs" />
