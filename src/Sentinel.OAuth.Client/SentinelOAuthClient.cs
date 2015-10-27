@@ -73,15 +73,17 @@
         public ISentinelClientSettings Settings { get; }
 
         /// <summary>Authenticates the current client and returns an access token.</summary>
-        /// <exception cref="Exception">Thrown when an exception error condition occurs.</exception>
+        /// <exception cref="SecurityException">Thrown when a security violation occurs.</exception>
+        /// <param name="scope">The scope.</param>
         /// <returns>The access token.</returns>
-        public virtual async Task<AccessTokenResponse> Authenticate()
+        public virtual async Task<AccessTokenResponse> Authenticate(string[] scope = null)
         {
             // Get access token. 
             var accessTokenRequest = new AccessTokenRequest()
             {
-                Scope = this.Settings.RedirectUri,
-                GrantType = "client_credentials"
+                RedirectUri = this.Settings.RedirectUri,
+                GrantType = "client_credentials",
+                Scope = scope != null ? string.Join(" ", scope) : null
             };
 
             var request = new HttpRequestMessage(HttpMethod.Post, "oauth/token")
@@ -104,11 +106,14 @@
         }
 
         /// <summary>Authenticates the specified user and client and returns an access token.</summary>
-        /// <exception cref="Exception">Thrown when an exception error condition occurs.</exception>
+        /// <exception cref="SecurityException">Thrown when a security violation occurs.</exception>
         /// <param name="userName">The username.</param>
         /// <param name="password">The password.</param>
+        /// <param name="scope">The scope.</param>
         /// <returns>The access token.</returns>
-        public virtual async Task<AccessTokenResponse> Authenticate(string userName, string password)
+        ///
+        /// ### <exception cref="Exception">Thrown when an exception error condition occurs.</exception>
+        public virtual async Task<AccessTokenResponse> Authenticate(string userName, string password, string[] scope = null)
         {
             // Get access token
             var accessTokenRequest = new AccessTokenRequest()
@@ -116,7 +121,8 @@
                 Username = userName,
                 Password = password,
                 RedirectUri = this.Settings.RedirectUri,
-                GrantType = "password"
+                GrantType = "password",
+                Scope = scope != null ? string.Join(" ", scope) : null
             };
 
             var accessTokenRequestMessage = new HttpRequestMessage(HttpMethod.Post, "oauth/token")
