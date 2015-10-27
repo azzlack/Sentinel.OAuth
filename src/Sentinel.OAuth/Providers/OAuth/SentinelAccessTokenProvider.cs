@@ -8,7 +8,6 @@
     using Sentinel.OAuth.Extensions;
     using System;
     using System.Linq;
-    using System.Security.Claims;
     using System.Threading.Tasks;
 
     /// <summary>The Sentinel access token provider.</summary>
@@ -69,6 +68,12 @@
                                     context.OwinContext.GetOAuthContext().RedirectUri,
                                     context.OwinContext.GetOAuthContext().Scope);
 
+                            // Store id token in context if scope contains openid
+                            if (context.OwinContext.GetOAuthContext().Scope.Contains("openid"))
+                            {
+                                context.OwinContext.Set("id_token", createResult.Entity.Ticket);
+                            }
+
                             tcs.SetResult(createResult.Token);
                         }
                         catch (Exception ex)
@@ -101,7 +106,7 @@
                                     context.OwinContext.GetOAuthContext().ClientId,
                                     context.OwinContext.GetOAuthContext().RedirectUri,
                                     context.OwinContext.GetOAuthContext().Scope);
-                            
+
                             // Store id token in context if scope contains openid
                             if (context.OwinContext.GetOAuthContext().Scope.Contains("openid"))
                             {
@@ -173,7 +178,7 @@
 
             var result = tcs.Task.Result;
 
-            if (result != null) 
+            if (result != null)
             {
                 context.SetTicket(result);
             }

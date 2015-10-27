@@ -2,13 +2,13 @@
 {
     using Microsoft.Owin.Security;
     using Microsoft.Owin.Security.Infrastructure;
+    using Newtonsoft.Json;
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Constants.OAuth;
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Extensions;
     using System;
     using System.Linq;
-    using System.Security.Claims;
     using System.Threading.Tasks;
 
     /// <summary>The Sentinel refresh token provider.</summary>
@@ -111,7 +111,9 @@
 
                         if (principal.Identity.IsAuthenticated)
                         {
-                            var client = principal.Identity.Claims.First(x => x.Type == ClaimType.Client).Value;
+                            var client = principal.Identity.Claims.First(x => x.Type == ClaimType.Client);
+                            var redirect = principal.Identity.Claims.First(x => x.Type == ClaimType.RedirectUri);
+                            var scope = principal.Identity.Claims.First(x => x.Type == ClaimType.Scope);
 
                             /* Override the validation parameters.
                              * This is because OWIN thinks the principal.Identity.Name should 
@@ -119,18 +121,27 @@
                              * but we need to use the user id in Sentinel.
                              */
                             var props = new AuthenticationProperties();
-                            props.Dictionary.Add("client_id", client);
+                            props.Dictionary.Add("client_id", client.Value);
                             props.RedirectUri = redirectUri;
                             props.ExpiresUtc = DateTimeOffset.UtcNow.Add(this.options.RefreshTokenLifetime);
 
                             // Re-authenticate user to get new claims
                             var user = await this.options.UserManager.AuthenticateUserAsync(principal.Identity.Name);
 
-                            // Make sure the user has the correct client claim
+                            // Make sure the user has the correct claims
                             user.Identity.RemoveClaim(x => x.Type == ClaimType.Client);
-                            user.Identity.AddClaim(ClaimType.Client, client);
+                            user.Identity.AddClaim(ClaimType.Client, client.Value);
+                            user.Identity.AddClaim(ClaimType.RedirectUri, redirect.Value);
 
-                            tcs.SetResult(new AuthenticationTicket(principal.Identity.AsClaimsIdentity(), props));
+                            if (scope != null)
+                            {
+                                user.Identity.AddClaim(ClaimType.Scope, JsonConvert.SerializeObject(scope.Value));
+
+                                // Store scope in owin context
+                                context.OwinContext.GetOAuthContext().Scope = scope.Value.Split(' ');
+                            }
+
+                            tcs.SetResult(new AuthenticationTicket(user.Identity.AsClaimsIdentity(), props));
                         }
                         else
                         {
