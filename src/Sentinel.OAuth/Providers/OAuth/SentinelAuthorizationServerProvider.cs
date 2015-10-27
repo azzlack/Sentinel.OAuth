@@ -172,7 +172,7 @@
 
             context.OwinContext.GetOAuthContext().ClientId = context.ClientId;
             context.OwinContext.GetOAuthContext().RedirectUri = context.Parameters["redirect_uri"];
-            context.OwinContext.GetOAuthContext().Scope = context.Parameters["scope"] != null ? context.Parameters["scope"].Split(' ') : null;
+            context.OwinContext.GetOAuthContext().Scope = context.Parameters["scope"]?.Split(' ');
 
             this.options.Logger.DebugFormat("Client '{0}' was successfully authenticated", clientId);
 
