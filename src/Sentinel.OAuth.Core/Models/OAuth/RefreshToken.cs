@@ -51,10 +51,6 @@
         /// <value>The token.</value>
         public string Token { get; set; }
 
-        /// <summary>Gets or sets the ticket.</summary>
-        /// <value>The ticket.</value>
-        public string Ticket { get; set; }
-
         /// <summary>
         /// Gets or sets the expiration time.
         /// </summary>

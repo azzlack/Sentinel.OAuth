@@ -207,21 +207,8 @@
             IEnumerable<string> scope,
             DateTimeOffset expireTime)
         {
-            // Add sub claim
-            userPrincipal.Identity.AddClaim(JwtClaimType.Subject, userPrincipal.Identity.Name);
-
-            var jwt = new JwtSecurityToken(
-                this.configuration.Issuer.AbsoluteUri,
-                clientId,
-                userPrincipal.Identity.Claims.ToClaims(),
-                DateTime.UtcNow,
-                expireTime.UtcDateTime,
-                this.configuration.SigningCredentials);
-
             string token;
             var hashedToken = this.configuration.CryptoProvider.CreateHash(out token, 2048);
-
-            var idToken = this.tokenHandler.WriteToken(jwt);
 
             var refreshToken = new RefreshToken()
             {
@@ -230,7 +217,6 @@
                 Subject = userPrincipal.Identity.Name,
                 Scope = scope,
                 Token = hashedToken,
-                Ticket = idToken,
                 ValidTo = expireTime
             };
 
@@ -247,19 +233,20 @@
 
             if (entity != null)
             {
-                var validationParams = new TokenValidationParameters()
-                {
-                    ValidAudience = entity.ClientId,
-                    IssuerSigningToken = this.configuration.SigningKey,
-                    ValidIssuer = this.configuration.Issuer.AbsoluteUri
-                };
+                var identity = new SentinelIdentity(
+                    AuthenticationType.OAuth,
+                    new SentinelClaim(ClaimType.Name, entity.Subject),
+                    new SentinelClaim(ClaimType.Client, entity.ClientId),
+                    new SentinelClaim(ClaimType.RedirectUri, entity.RedirectUri));
 
-                SecurityToken st;
-                var principal = this.tokenHandler.ValidateToken(entity.Ticket, validationParams, out st);
-
-                if (principal.Identity.IsAuthenticated)
+                if (entity.Scope != null)
                 {
-                    return new TokenValidationResult<IRefreshToken>(new SentinelPrincipal(principal), entity);
+                    identity.AddClaim(ClaimType.Scope, string.Join(" ", entity.Scope));
+                }
+
+                if (identity.IsAuthenticated)
+                {
+                    return new TokenValidationResult<IRefreshToken>(new SentinelPrincipal(identity), entity);
                 }
             }
 
