@@ -8,21 +8,21 @@
     using System.Linq;
 
     [JsonConverter(typeof(JsonWebTokenComponentConverter))]
-    public abstract class JsonWebTokenComponent : ICollection<KeyValuePair<string, string>>
+    public abstract class JsonWebTokenComponent : ICollection<KeyValuePair<string, object>>
     {
         /// <summary>The inner collection.</summary>
-        private readonly Collection<KeyValuePair<string, string>> inner;
+        private readonly Collection<KeyValuePair<string, object>> inner;
 
         /// <summary>Initializes a new instance of the <see cref="JsonWebTokenComponent" /> class.</summary>
         protected JsonWebTokenComponent()
         {
-            this.inner = new Collection<KeyValuePair<string, string>>();
+            this.inner = new Collection<KeyValuePair<string, object>>();
         }
 
         /// <summary>Indexer to get items within this collection using array index syntax.</summary>
         /// <param name="key">The key.</param>
         /// <returns>The value.</returns>
-        protected string this[string key]
+        protected object this[string key]
         {
             get
             {
@@ -43,7 +43,7 @@
         /// <returns>
         /// A <see cref="T:System.Collections.Generic.IEnumerator`1"/> that can be used to iterate through the collection.
         /// </returns>
-        public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
             return this.inner.GetEnumerator();
         }
@@ -63,7 +63,7 @@
         /// Adds an item to the <see cref="T:System.Collections.Generic.ICollection`1"/>.
         /// </summary>
         /// <param name="item">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param><exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.</exception>
-        public void Add(KeyValuePair<string, string> item)
+        public void Add(KeyValuePair<string, object> item)
         {
             this.inner.Add(item);
         }
@@ -73,7 +73,7 @@
         /// <param name="value">The value to add to the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
         public void Add(string key, string value)
         {
-            this.inner.Add(new KeyValuePair<string, string>(key, value));
+            this.inner.Add(new KeyValuePair<string, object>(key, value));
         }
 
         /// <summary>
@@ -91,7 +91,7 @@
         /// true if <paramref name="item"/> is found in the <see cref="T:System.Collections.Generic.ICollection`1"/>; otherwise, false.
         /// </returns>
         /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
-        public bool Contains(KeyValuePair<string, string> item)
+        public bool Contains(KeyValuePair<string, object> item)
         {
             return this.inner.Contains(item);
         }
@@ -108,7 +108,7 @@
         /// Copies the elements of the <see cref="T:System.Collections.Generic.ICollection`1"/> to an <see cref="T:System.Array"/>, starting at a particular <see cref="T:System.Array"/> index.
         /// </summary>
         /// <param name="array">The one-dimensional <see cref="T:System.Array"/> that is the destination of the elements copied from <see cref="T:System.Collections.Generic.ICollection`1"/>. The <see cref="T:System.Array"/> must have zero-based indexing.</param><param name="arrayIndex">The zero-based index in <paramref name="array"/> at which copying begins.</param><exception cref="T:System.ArgumentNullException"><paramref name="array"/> is null.</exception><exception cref="T:System.ArgumentOutOfRangeException"><paramref name="arrayIndex"/> is less than 0.</exception><exception cref="T:System.ArgumentException">The number of elements in the source <see cref="T:System.Collections.Generic.ICollection`1"/> is greater than the available space from <paramref name="arrayIndex"/> to the end of the destination <paramref name="array"/>.</exception>
-        public void CopyTo(KeyValuePair<string, string>[] array, int arrayIndex)
+        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
             this.inner.CopyTo(array, arrayIndex);
         }
@@ -120,7 +120,7 @@
         /// true if <paramref name="item"/> was successfully removed from the <see cref="T:System.Collections.Generic.ICollection`1"/>; otherwise, false. This method also returns false if <paramref name="item"/> is not found in the original <see cref="T:System.Collections.Generic.ICollection`1"/>.
         /// </returns>
         /// <param name="item">The object to remove from the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param><exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.</exception>
-        public bool Remove(KeyValuePair<string, string> item)
+        public bool Remove(KeyValuePair<string, object> item)
         {
             return this.inner.Remove(item);
         }

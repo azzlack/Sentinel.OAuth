@@ -6,10 +6,10 @@
     public class JsonWebTokenPayload : JsonWebTokenComponent
     {
         /// <summary>The identifier.</summary>
-        public string Id => this["jti"];
+        public string Id => this["jti"]?.ToString();
 
         /// <summary>The audience.</summary>
-        public string Audience => this["aud"];
+        public string Audience => this["aud"]?.ToString();
 
         /// <summary>Gets the issuer.</summary>
         /// <value>The issuer.</value>
@@ -24,18 +24,18 @@
                     return null;
                 }
 
-                return new Uri(iss);
+                return new Uri(iss.ToString());
             }
         }
 
         /// <summary>The subject.</summary>
-        public string Subject => this["sub"];
+        public string Subject => this["sub"]?.ToString();
 
         /// <summary>The access token hash.</summary>
-        public string AccessTokenHash => this["at_hash"];
+        public string AccessTokenHash => this["at_hash"]?.ToString();
 
         /// <summary>The authorization code hash.</summary>
-        public string AuthorizationCodeHash => this["c_hash"];
+        public string AuthorizationCodeHash => this["c_hash"]?.ToString();
 
         /// <summary>Gets the valid from time.</summary>
         /// <value>The valid from time.</value>
@@ -51,7 +51,7 @@
                 }
 
                 long ticks;
-                if (long.TryParse(nbf, out ticks))
+                if (long.TryParse(nbf.ToString(), out ticks))
                 {
                     return ticks.ToDateTimeOffset();
                 }
@@ -74,7 +74,7 @@
                 }
 
                 long ticks;
-                if (long.TryParse(exp, out ticks))
+                if (long.TryParse(exp.ToString(), out ticks))
                 {
                     return ticks.ToDateTimeOffset();
                 }

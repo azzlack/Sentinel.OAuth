@@ -1,13 +1,11 @@
 ﻿namespace Sentinel.OAuth.Models.Identity
 {
+    using Newtonsoft.Json;
+    using Sentinel.OAuth.Core.Interfaces.Identity;
     using System;
     using System.Diagnostics;
     using System.IdentityModel.Tokens;
     using System.Security.Claims;
-
-    using Newtonsoft.Json;
-
-    using Sentinel.OAuth.Core.Interfaces.Identity;
 
     /// <summary>A JSON-serializable claim.</summary>
     [DebuggerDisplay("Type: {Type}, Value: {Value}")]
