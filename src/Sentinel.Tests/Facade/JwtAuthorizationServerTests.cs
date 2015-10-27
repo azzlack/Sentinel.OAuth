@@ -97,6 +97,14 @@
 
             Assert.IsNotNull(jwt);
 
+            Console.WriteLine();
+            Console.WriteLine("ID Token Claims");
+
+            foreach (var claim in jwt.Payload)
+            {
+                Console.WriteLine("{0}: {1}", claim.Key, claim.Value);
+            }
+
             // Validate at_hash
             var accessTokenHash = new SHA2CryptoProvider(HashAlgorithm.SHA256).CreateHash(e.Item1.AccessToken, false);
             var digest = Convert.ToBase64String(Encoding.ASCII.GetBytes(accessTokenHash.ToCharArray(), 0, accessTokenHash.Length / 2));

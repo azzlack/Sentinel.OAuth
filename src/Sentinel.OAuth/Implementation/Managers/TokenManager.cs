@@ -128,11 +128,18 @@
                         this.logger.Error($"Unable to delete used refresh token: {JsonConvert.SerializeObject(validationResult.Entity)}");
                     }
 
-                    return this.PrincipalProvider.Create(
+                    var principal = this.PrincipalProvider.Create(
                         AuthenticationType.OAuth,
                         new SentinelClaim(ClaimType.Client, validationResult.Entity.ClientId),
                         new SentinelClaim(ClaimTypes.Name, validationResult.Entity.Subject),
                         new SentinelClaim(ClaimType.RedirectUri, validationResult.Entity.RedirectUri));
+
+                    if (validationResult.Entity.Scope != null)
+                    {
+                        principal.Identity.AddClaim(ClaimType.Scope, string.Join(" ", validationResult.Entity.Scope));
+                    }
+
+                    return principal;
                 }
             }
 
@@ -192,7 +199,7 @@
             {
                 this.logger.DebugFormat("Successfully created and stored authorization code");
 
-                return createResult;
+                return new TokenCreationResult<IAuthorizationCode>(createResult.Token, insertResult);
             }
 
             this.logger.ErrorFormat("Unable to create and/or store authorization code");
@@ -241,7 +248,7 @@
             {
                 this.logger.DebugFormat("Successfully created and stored access token");
 
-                return createResult;
+                return new TokenCreationResult<IAccessToken>(createResult.Token, insertResult);
             }
 
             this.logger.ErrorFormat("Unable to create and/or store access token");
@@ -292,7 +299,7 @@
             {
                 this.logger.DebugFormat("Successfully created and stored refresh token");
 
-                return createResult;
+                return new TokenCreationResult<IRefreshToken>(createResult.Token, insertResult);
             }
 
             this.logger.ErrorFormat("Unable to create and/or store refresh token");

@@ -2,7 +2,6 @@
 {
     using Microsoft.Owin.Security;
     using Microsoft.Owin.Security.Infrastructure;
-    using Newtonsoft.Json;
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Constants.OAuth;
     using Sentinel.OAuth.Core.Models;
@@ -113,7 +112,7 @@
                         {
                             var client = principal.Identity.Claims.First(x => x.Type == ClaimType.Client);
                             var redirect = principal.Identity.Claims.First(x => x.Type == ClaimType.RedirectUri);
-                            var scope = principal.Identity.Claims.First(x => x.Type == ClaimType.Scope);
+                            var scope = principal.Identity.Claims.FirstOrDefault(x => x.Type == ClaimType.Scope);
 
                             /* Override the validation parameters.
                              * This is because OWIN thinks the principal.Identity.Name should 
@@ -130,15 +129,16 @@
 
                             // Make sure the user has the correct claims
                             user.Identity.RemoveClaim(x => x.Type == ClaimType.Client);
+                            user.Identity.RemoveClaim(x => x.Type == ClaimType.RedirectUri);
                             user.Identity.AddClaim(ClaimType.Client, client.Value);
                             user.Identity.AddClaim(ClaimType.RedirectUri, redirect.Value);
 
                             if (scope != null)
                             {
-                                user.Identity.AddClaim(ClaimType.Scope, JsonConvert.SerializeObject(scope.Value));
-
-                                // Store scope in owin context
-                                context.OwinContext.GetOAuthContext().Scope = scope.Value.Split(' ');
+                                foreach (var s in scope.Value.Split(' '))
+                                {
+                                    user.Identity.AddClaim(ClaimType.Scope, s);
+                                }
                             }
 
                             tcs.SetResult(new AuthenticationTicket(user.Identity.AsClaimsIdentity(), props));

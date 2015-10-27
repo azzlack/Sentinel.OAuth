@@ -9,16 +9,11 @@
     using Sentinel.OAuth.Core.Models.OAuth.Http;
     using System;
     using System.Collections.Generic;
-    using System.IdentityModel.Tokens;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
-    using System.Security.Cryptography;
-    using System.Text;
     using System.Threading.Tasks;
-
-    using Sentinel.OAuth.Core.Constants.Identity;
 
     using Scope = Sentinel.Tests.Constants.Scope;
 
@@ -207,6 +202,21 @@
             var content = JsonConvert.DeserializeObject<AccessTokenResponse>(await response.Content.ReadAsStringAsync());
 
             Assert.IsNotNullOrEmpty(content.AccessToken, "No access token returned");
+
+            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/identity");
+            identityRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", content.AccessToken);
+
+            var identityResponse = await this.Client.SendAsync(identityRequest);
+            var identityContent = await identityResponse.Content.ReadAsStringAsync();
+            var identity = JsonConvert.DeserializeObject<IdentityResponse>(identityContent);
+
+            foreach (var claim in identity)
+            {
+                Console.WriteLine($"{claim.Key}:{claim.Value}");
+            }
+
+            CollectionAssert.Contains(identity.Scope, Scope.Read);
+            CollectionAssert.Contains(identity.Scope, Scope.Write);
         }
 
         [TestCase("user", "pass")]
@@ -329,6 +339,15 @@
             var token = JsonConvert.DeserializeObject<AccessTokenResponse>(await response.Content.ReadAsStringAsync());
 
             Assert.IsNotNullOrEmpty(token.AccessToken, "No access token returned");
+
+            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/identity");
+            identityRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+
+            var identityResponse = await this.Client.SendAsync(identityRequest);
+            var identityContent = await identityResponse.Content.ReadAsStringAsync();
+            var identity = JsonConvert.DeserializeObject<IdentityResponse>(identityContent);
+
+            CollectionAssert.Contains(identity.Scope, Scope.Read);
         }
 
         [Test]
@@ -468,9 +487,9 @@
                                                         {
                                                             { "grant_type", GrantType.Password },
                                                             { "redirect_uri", "http://localhost" },
-                                                            { "scope", "openid" },
                                                             { "username", "azzlack" },
-                                                            { "password", "aabbccddee" }
+                                                            { "password", "aabbccddee" },
+                                                            { "scope", "openid readwrite" }
                                                         });
 
             Console.WriteLine("Request: {0}{1}", this.Client.BaseAddress, request.RequestUri);
@@ -501,7 +520,8 @@
 
             var identity = JsonConvert.DeserializeObject<IdentityResponse>(identityContent);
 
-            Console.WriteLine("Claims:");
+            Console.WriteLine();
+            Console.WriteLine("UserInfo Claims:");
             foreach (var claim in identity)
             {
                 Console.WriteLine("{0}: {1}", claim.Key, claim.Value);
@@ -510,6 +530,66 @@
             Assert.IsNotNullOrEmpty(token.IdToken, "Server did not return an id token");
 
             this.ValidateTokenEventHandler?.Invoke(this, new Tuple<AccessTokenResponse, IdentityResponse>(token, identity));
+        }
+
+        [Test]
+        public async void AuthenticateRefreshToken_WhenGivenValidRefreshToken_ReturnsCorrectScope()
+        {
+            var accessTokenRequest = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
+            accessTokenRequest.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "aabbccddee");
+            accessTokenRequest.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
+                                                        {
+                                                            { "grant_type", GrantType.Password },
+                                                            { "redirect_uri", "http://localhost" },
+                                                            { "username", "azzlack" },
+                                                            { "password", "aabbccddee" },
+                                                            { "scope", "openid readwrite" }
+                                                        });
+
+            var accessTokenResponse = await this.Client.SendAsync(accessTokenRequest);
+            var accessTokenContent = await accessTokenResponse.Content.ReadAsStringAsync();
+            var accessToken1 = JsonConvert.DeserializeObject<AccessTokenResponse>(accessTokenContent);
+
+            var refreshTokenRequest = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
+            refreshTokenRequest.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "aabbccddee");
+            refreshTokenRequest.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
+                                                        {
+                                                            { "grant_type", GrantType.RefreshToken },
+                                                            { "redirect_uri", "http://localhost" },
+                                                            { "refresh_token", accessToken1.RefreshToken }
+                                                        });
+
+            var refreshTokenResponse = await this.Client.SendAsync(refreshTokenRequest);
+            var refreshTokenContent = await refreshTokenResponse.Content.ReadAsStringAsync();
+            var accessToken2 = JsonConvert.DeserializeObject<AccessTokenResponse>(refreshTokenContent);
+
+            Console.WriteLine();
+            Console.WriteLine("Using access token: {0}", accessToken2.AccessToken);
+
+            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/identity");
+            identityRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken2.AccessToken);
+
+            Console.WriteLine("Request: {0}", identityRequest.RequestUri);
+
+            var identityResponse = await this.Client.SendAsync(identityRequest);
+            var identityContent = await identityResponse.Content.ReadAsStringAsync();
+
+            Console.WriteLine("Response: {0} {1}", (int)identityResponse.StatusCode, identityResponse.ReasonPhrase);
+            if (!identityResponse.IsSuccessStatusCode)
+            {
+                Console.WriteLine(identityContent);
+            }
+
+            var identity = JsonConvert.DeserializeObject<IdentityResponse>(identityContent);
+
+            Console.WriteLine("Claims:");
+            foreach (var claim in identity)
+            {
+                Console.WriteLine("{0}: {1}", claim.Key, claim.Value);
+            }
+
+            CollectionAssert.Contains(identity.Scope, "openid");
+            CollectionAssert.Contains(identity.Scope, "readwrite");
         }
     }
 }

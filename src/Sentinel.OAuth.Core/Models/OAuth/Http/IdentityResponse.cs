@@ -80,6 +80,23 @@
             }
         }
 
+        /// <summary>Gets the scope.</summary>
+        /// <value>The scope.</value>
+        public IEnumerable<string> Scope
+        {
+            get
+            {
+                var scopes = this.Where(x => x.Key == ClaimType.Scope);
+
+                if (scopes.Any())
+                {
+                    return scopes.Select(x => x.Value);
+                }
+
+                return Enumerable.Empty<string>();
+            }
+        }
+
         /// <summary>Gets the expiration time.</summary>
         /// <value>The expiration time.</value>
         public DateTimeOffset ExpirationTime
