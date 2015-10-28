@@ -53,7 +53,7 @@
 
             if (validationResult.IsValid)
             {
-                this.logger.DebugFormat("Authorization code is valid");
+                this.logger.Debug("Authorization code is valid");
 
                 // Delete used authorization code
                 var deleteResult = await this.TokenRepository.DeleteAuthorizationCode(validationResult.Entity);
@@ -79,7 +79,7 @@
         /// <returns>The user principal.</returns>
         public override async Task<ISentinelPrincipal> AuthenticateAccessTokenAsync(string accessToken)
         {
-            this.logger.DebugFormat("Authenticating access token");
+            this.logger.Debug("Authenticating access token");
 
             var relevantTokens = await this.TokenRepository.GetAccessTokens(DateTimeOffset.UtcNow);
 
@@ -161,7 +161,7 @@
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
-                this.logger.ErrorFormat("The specified user is not authenticated");
+                this.logger.Error("The specified user is not authenticated");
 
                 return null;
             }
@@ -197,12 +197,12 @@
 
             if (insertResult != null)
             {
-                this.logger.DebugFormat("Successfully created and stored authorization code");
+                this.logger.Debug("Successfully created and stored authorization code");
 
                 return new TokenCreationResult<IAuthorizationCode>(createResult.Token, insertResult);
             }
 
-            this.logger.ErrorFormat("Unable to create and/or store authorization code");
+            this.logger.Error("Unable to create and/or store authorization code");
 
             return null;
         }
@@ -218,7 +218,7 @@
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
-                this.logger.ErrorFormat("The specified principal is not authenticated");
+                this.logger.Error("The specified principal is not authenticated");
 
                 return null;
             }
@@ -246,12 +246,12 @@
 
             if (insertResult != null)
             {
-                this.logger.DebugFormat("Successfully created and stored access token");
+                this.logger.Debug("Successfully created and stored access token");
 
                 return new TokenCreationResult<IAccessToken>(createResult.Token, insertResult);
             }
 
-            this.logger.ErrorFormat("Unable to create and/or store access token");
+            this.logger.Error("Unable to create and/or store access token");
 
             return null;
         }
@@ -267,7 +267,7 @@
         {
             if (!userPrincipal.Identity.IsAuthenticated)
             {
-                this.logger.ErrorFormat("The specified principal is not authenticated");
+                this.logger.Error("The specified principal is not authenticated");
 
                 return null;
             }
@@ -297,12 +297,12 @@
 
             if (insertResult != null)
             {
-                this.logger.DebugFormat("Successfully created and stored refresh token");
+                this.logger.Debug("Successfully created and stored refresh token");
 
                 return new TokenCreationResult<IRefreshToken>(createResult.Token, insertResult);
             }
 
-            this.logger.ErrorFormat("Unable to create and/or store refresh token");
+            this.logger.Error("Unable to create and/or store refresh token");
 
             return null;
         }

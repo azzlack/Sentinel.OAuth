@@ -76,7 +76,7 @@
         /// <returns>Task to enable asynchronous execution</returns>
         public override async Task ValidateClientRedirectUri(OAuthValidateClientRedirectUriContext context)
         {
-            this.options.Logger.DebugFormat("Validating client id and redirect uri");
+            this.options.Logger.Debug("Validating client id and redirect uri");
 
             // Only proceed if client id and redirect uri is provided
             if (string.IsNullOrEmpty(context.ClientId) || string.IsNullOrEmpty(context.RedirectUri))
@@ -119,7 +119,7 @@
         /// <returns>Task to enable asynchronous execution</returns>
         public override async Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
         {
-            this.options.Logger.DebugFormat("Validating client id and secret");
+            this.options.Logger.Debug("Validating client id and secret");
 
             string clientId;
             string clientSecret;
@@ -130,7 +130,7 @@
             {
                 context.SetError("invalid_request");
 
-                this.options.Logger.ErrorFormat("Redirect URI was not specified, the token request is not valid");
+                this.options.Logger.Error("Redirect URI was not specified, the token request is not valid");
 
                 return;
             }
@@ -192,7 +192,7 @@
         {
             if (this.options.Events.UnknownGrantTypeReceived != null)
             {
-                this.options.Logger.DebugFormat("Authenticating token request using custom grant type");
+                this.options.Logger.Debug("Authenticating token request using custom grant type");
 
                 await this.options.Events.UnknownGrantTypeReceived(new UnknownGrantTypeReceivedEventArgs(context));
             }
@@ -217,7 +217,7 @@
 
             if (context.Scope == null || !context.Scope.Any())
             {
-                this.options.Logger.WarnFormat("No scope/redirect uri was specified in the request. Request is invalid.");
+                this.options.Logger.Warn("No scope/redirect uri was specified in the request. Request is invalid.");
 
                 context.Rejected();
 
@@ -256,7 +256,7 @@
 
             context.Rejected();
 
-            this.options.Logger.WarnFormat("Client could not be authenticated");
+            this.options.Logger.Warn("Client could not be authenticated");
         }
 
         /// <summary>

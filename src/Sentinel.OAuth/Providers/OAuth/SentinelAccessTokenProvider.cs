@@ -126,7 +126,7 @@
 
             context.SetToken(accessToken);
 
-            this.options.Logger.DebugFormat("Created access token");
+            this.options.Logger.Debug("Created access token");
         }
 
         /// <summary>
@@ -136,7 +136,7 @@
         /// <returns/>
         private void ReceiveAccessToken(AuthenticationTokenReceiveContext context)
         {
-            this.options.Logger.DebugFormat("Received access token");
+            this.options.Logger.Debug("Received access token");
 
             var tcs = new TaskCompletionSource<AuthenticationTicket>();
             Task.Run(
