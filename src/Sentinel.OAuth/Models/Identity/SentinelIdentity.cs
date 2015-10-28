@@ -1,16 +1,15 @@
 ﻿namespace Sentinel.OAuth.Models.Identity
 {
+    using Newtonsoft.Json;
+    using Sentinel.OAuth.Converters;
+    using Sentinel.OAuth.Core.Constants.Identity;
+    using Sentinel.OAuth.Core.Interfaces.Identity;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Security.Claims;
     using System.Security.Principal;
-
-    using Newtonsoft.Json;
-
-    using Sentinel.OAuth.Converters;
-    using Sentinel.OAuth.Core.Interfaces.Identity;
 
     /// <summary>A JSON-serializable identity.</summary>
     [DebuggerDisplay("AuthenticationType: {AuthenticationType}, IsAuthenticated: {IsAuthenticated}, Name: {Name}, Claims: {Claims.Count()}")]
@@ -173,7 +172,7 @@
                 // Get name from claims if not specified
                 if (string.IsNullOrEmpty(this.name))
                 {
-                    var nameClaim = this.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name);
+                    var nameClaim = this.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name || x.Type == JwtClaimType.Subject);
 
                     if (nameClaim != null)
                     {
@@ -282,13 +281,7 @@
         /// <returns>A <see cref="string" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return
-                string.Format(
-                    "AuthenticationType: {0}, IsAuthenticated: {1}, Name: {2}, Claims: [{3}]",
-                    this.AuthenticationType,
-                    this.IsAuthenticated,
-                    this.Name,
-                    this.Claims != null ? string.Join(", ", this.Claims) : string.Empty);
+            return $"AuthenticationType: {this.AuthenticationType}, IsAuthenticated: {this.IsAuthenticated}, Name: {this.Name}, Claims: [{(this.Claims != null ? string.Join(", ", this.Claims) : string.Empty)}]";
         }
     }
 }

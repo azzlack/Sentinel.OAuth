@@ -1,5 +1,6 @@
 ﻿namespace Sentinel.OAuth.Models.Identity
 {
+    using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Extensions;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using System;
@@ -83,7 +84,7 @@
         {
             get
             {
-                var expireClaim = this.Identity.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Expiration);
+                var expireClaim = this.Identity.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Expiration || x.Type == JwtClaimType.ExpirationTime);
 
                 long unixTime;
                 if (expireClaim != null && long.TryParse(expireClaim.Value, out unixTime))
