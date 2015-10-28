@@ -71,7 +71,7 @@
                             // Store id token in context if scope contains openid
                             if (context.OwinContext.GetOAuthContext().Scope.Contains("openid"))
                             {
-                                context.OwinContext.Set("id_token", createResult.Entity.Ticket);
+                                context.OwinContext.GetOAuthContext().IdToken = createResult.Entity.Ticket;
                             }
 
                             tcs.SetResult(createResult.Token);
@@ -110,7 +110,7 @@
                             // Store id token in context if scope contains openid
                             if (context.OwinContext.GetOAuthContext().Scope.Contains("openid"))
                             {
-                                context.OwinContext.Set("id_token", createResult.Entity.Ticket);
+                                context.OwinContext.GetOAuthContext().IdToken = createResult.Entity.Ticket;
                             }
 
                             tcs.SetResult(createResult.Token);

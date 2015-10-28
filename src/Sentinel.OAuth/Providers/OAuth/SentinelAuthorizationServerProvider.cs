@@ -363,6 +363,12 @@
             user.Identity.RemoveClaim(x => x.Type == ClaimType.GrantType);
             user.Identity.AddClaim(ClaimType.GrantType, GrantType.RefreshToken);
 
+            // Set scopes from refresh token
+            if (user.Identity.HasClaim(x => x.Type == ClaimType.Scope))
+            {
+                context.OwinContext.GetOAuthContext().Scope = user.Identity.Claims.Where(x => x.Type == ClaimType.Scope).Select(x => x.Value);
+            }
+
             // Activate event if subscribed to
             if (this.options.Events.PrincipalCreated != null)
             {
@@ -384,7 +390,7 @@
             if (context.TokenIssued)
             {
                 // Add id_token to output if it was set
-                var idToken = context.OwinContext.Get<string>("id_token");
+                var idToken = context.OwinContext.GetOAuthContext().IdToken;
                 if (!string.IsNullOrEmpty(idToken))
                 {
                     context.AdditionalResponseParameters.Add("id_token", idToken);

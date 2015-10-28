@@ -153,6 +153,16 @@
             Assert.AreNotEqual(token.RefreshToken, newToken.RefreshToken);
         }
 
+        [TestCase("azzlack", "aabbccddee")]
+        public async void Authenticate_WhenGivenOpenIdScopeAndValidRefreshToken_ShouldReturnIdToken(string userName, string password)
+        {
+            var token = await this.client.Authenticate(userName, password, new[] { "openid" });
+
+            var newToken = await this.client.RefreshAuthentication(token.RefreshToken);
+
+            Assert.IsNotNullOrEmpty(newToken.IdToken, "The token endpoint did not return an ID token");
+        }
+
         [Test]
         [ExpectedException(typeof(SecurityException))]
         public async void Authenticate_WhenGivenInvalidRefreshToken_ShouldThrowException()

@@ -8,7 +8,6 @@
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Security;
-    using System.Text;
     using System.Threading.Tasks;
 
     /// <summary>OAuth client for Sentinel.</summary>
@@ -125,13 +124,13 @@
                 Scope = scope != null ? string.Join(" ", scope) : null
             };
 
-            var accessTokenRequestMessage = new HttpRequestMessage(HttpMethod.Post, "oauth/token")
+            var requests = new HttpRequestMessage(HttpMethod.Post, "oauth/token")
             {
                 Content = new FormUrlEncodedContent(accessTokenRequest.Properties)
             };
-            accessTokenRequestMessage.Headers.Authorization = new BasicAuthenticationHeaderValue(this.Settings.ClientId, this.Settings.ClientSecret);
+            requests.Headers.Authorization = new BasicAuthenticationHeaderValue(this.Settings.ClientId, this.Settings.ClientSecret);
 
-            var accessTokenResponseMessage = await this.Client.SendAsync(accessTokenRequestMessage).ConfigureAwait(false);
+            var accessTokenResponseMessage = await this.Client.SendAsync(requests).ConfigureAwait(false);
 
             if (accessTokenResponseMessage.IsSuccessStatusCode)
             {
@@ -140,7 +139,7 @@
                 return accessTokenResponse;
             }
 
-            throw new SecurityException($"Unable to get access token for user {{ {accessTokenRequestMessage} }}.\r\n", new HttpRequestException(await accessTokenResponseMessage.Content.ReadAsStringAsync()));
+            throw new SecurityException($"Unable to get access token for user {{ {requests} }}.\r\n", new HttpRequestException(await accessTokenResponseMessage.Content.ReadAsStringAsync()));
         }
 
         /// <summary>Re-authenticates by refreshing the access token.</summary>
@@ -161,10 +160,7 @@
             {
                 Content = new FormUrlEncodedContent(accessTokenRequest.Properties)
             };
-            request.Headers.Authorization = new AuthenticationHeaderValue(
-                "Basic",
-                Convert.ToBase64String(
-                    Encoding.UTF8.GetBytes(string.Format("{0}:{1}", this.Settings.ClientId, this.Settings.ClientSecret))));
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue(this.Settings.ClientId, this.Settings.ClientSecret);
 
             var response = await this.Client.SendAsync(request).ConfigureAwait(false);
 

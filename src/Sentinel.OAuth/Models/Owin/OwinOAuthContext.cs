@@ -1,9 +1,8 @@
 ﻿namespace Sentinel.OAuth.Models.Owin
 {
+    using Microsoft.Owin;
     using System.Collections.Generic;
     using System.Linq;
-
-    using Microsoft.Owin;
 
     public class OwinOAuthContext
     {
@@ -75,6 +74,21 @@
             set
             {
                 this.context.Set("oauth.Scope", value);
+            }
+        }
+
+        /// <summary>Gets or sets the identifier token.</summary>
+        /// <value>The identifier token.</value>
+        public string IdToken
+        {
+            get
+            {
+                return this.context.Get<string>("openid.IdToken");
+            }
+
+            set
+            {
+                this.context.Set("openid.IdToken", value);
             }
         }
     }
