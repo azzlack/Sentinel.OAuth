@@ -33,11 +33,9 @@
         public void ConvertToIdentity_WhenGivenValidJwt_ReturnsValidIdentity(string expectedAlgorithm, string expectedAudience, string expectedIssuer, long expectedValidFrom, long expectedExpires, string expectedSubject, string[] expectedRoles, string token)
         {
             var jwt = new JsonWebToken(token);
-            var cookieIdentity = new SentinelIdentity(DefaultAuthenticationTypes.ApplicationCookie, jwt.Payload.Select(x => new SentinelClaim(x.Key, x.Value.ToString())).ToArray());
+            var cookieIdentity = new SentinelIdentity(DefaultAuthenticationTypes.ApplicationCookie, jwt);
 
             CollectionAssert.AreEquivalent(expectedRoles, cookieIdentity.Claims.Where(x => x.Type == "role").Select(x => x.Value).ToArray());
-
-            // TODO: Create constructor in SentinelIdentity that accepts an authentication type and a JsonWebToken
         }
     }
 }

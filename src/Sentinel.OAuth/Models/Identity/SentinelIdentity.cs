@@ -107,6 +107,8 @@
                     return;
                 }
 
+                // TODO: Add converter between JWT keys and ClaimsIdentity keys
+
                 var value = item.Value.ToString();
 
                 if (!this.HasClaim(x => x.Type == item.Key && x.Value == value))
