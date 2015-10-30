@@ -1,5 +1,6 @@
 ﻿namespace Sentinel.OAuth.Models.Identity
 {
+    using Newtonsoft.Json;
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Extensions;
     using Sentinel.OAuth.Core.Interfaces.Identity;
@@ -34,7 +35,7 @@
         {
             if (identity == null)
             {
-                throw new ArgumentNullException("identity");
+                throw new ArgumentNullException(nameof(identity));
             }
 
             this.Identity = identity;
@@ -98,6 +99,7 @@
 
         /// <summary>Gets the roles.</summary>
         /// <value>The roles.</value>
+        [JsonIgnore]
         public IEnumerable<string> Roles
         {
             get

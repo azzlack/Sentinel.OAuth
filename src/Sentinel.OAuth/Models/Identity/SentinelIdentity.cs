@@ -176,8 +176,8 @@
         /// Gets the type of the authentication.
         /// </summary>
         /// <value>The type of the authentication.</value>
-        [JsonProperty]
-        public string AuthenticationType { get; }
+        [JsonProperty()]
+        public string AuthenticationType { get; private set; }
 
         /// <summary>
         /// Gets the claims.

@@ -218,6 +218,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Unit\IdentityResponseJsonConverterTests.cs" />
     <Compile Include="Unit\JsonWebTokenTests.cs" />
+    <Compile Include="Unit\SentinelIdentityTests.cs" />
     <Compile Include="Unit\SqlTokenRepositoryTests.cs" />
     <Compile Include="Unit\RedisTokenRepositoryTests.cs" />
     <Compile Include="Unit\RavenDbTokenRepositoryTests.cs" />
