@@ -4,6 +4,7 @@
     using Sentinel.OAuth.Converters;
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
+    using Sentinel.OAuth.Core.Models.Tokens;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -42,7 +43,7 @@
         {
             if (identity == null)
             {
-                throw new ArgumentNullException("identity");
+                throw new ArgumentNullException(nameof(identity));
             }
 
             this.Name = identity.Name;
@@ -54,7 +55,15 @@
             {
                 foreach (var claim in claimsIdentity.Claims)
                 {
-                    this.AddClaim(claim);
+                    if (claim.Value == null)
+                    {
+                        return;
+                    }
+
+                    if (!this.HasClaim(x => x.Type == claim.Type && x.Value == claim.Value))
+                    {
+                        this.AddClaim(claim.Type, claim.Value);
+                    }
                 }
             }
 
@@ -64,7 +73,45 @@
             {
                 foreach (var claim in sentinelIdentity.Claims)
                 {
-                    this.AddClaim(claim);
+                    if (claim.Value == null)
+                    {
+                        return;
+                    }
+
+                    if (!this.HasClaim(x => x.Type == claim.Type && x.Value == claim.Value))
+                    {
+                        this.AddClaim(claim.Type, claim.Value);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SentinelIdentity" /> class.
+        /// </summary>
+        /// <param name="authenticationType">The type of the authentication.</param>
+        /// <param name="jwt">The Json Web Token.</param>
+        public SentinelIdentity(string authenticationType, JsonWebToken jwt)
+        {
+            if (jwt == null)
+            {
+                throw new ArgumentNullException(nameof(jwt));
+            }
+
+            this.AuthenticationType = authenticationType;
+
+            foreach (var item in jwt.Payload)
+            {
+                if (item.Value == null)
+                {
+                    return;
+                }
+
+                var value = item.Value.ToString();
+
+                if (!this.HasClaim(x => x.Type == item.Key && x.Value == value))
+                {
+                    this.AddClaim(item.Key, value);
                 }
             }
         }
@@ -90,7 +137,7 @@
         {
             if (claims == null)
             {
-                throw new ArgumentNullException("claims");
+                throw new ArgumentNullException(nameof(claims));
             }
 
             this.AuthenticationType = authenticationType;
@@ -98,7 +145,15 @@
 
             foreach (var claim in claims)
             {
-                this.AddClaim(claim);
+                if (claim.Value == null)
+                {
+                    return;
+                }
+
+                if (!this.HasClaim(x => x.Type == claim.Type && x.Value == claim.Value))
+                {
+                    this.AddClaim(claim.Type, claim.Value);
+                }
             }
         }
 
@@ -113,20 +168,14 @@
 
         /// <summary>Gets an unauthorized/anonymous Sentinel identity object.</summary>
         /// <value>An unauthorized/anonymous Sentinel identity object.</value>
-        public static ISentinelIdentity Anonymous
-        {
-            get
-            {
-                return new SentinelIdentity();
-            }
-        }
+        public static ISentinelIdentity Anonymous => new SentinelIdentity();
 
         /// <summary>
         /// Gets the type of the authentication.
         /// </summary>
         /// <value>The type of the authentication.</value>
         [JsonProperty]
-        public string AuthenticationType { get; private set; }
+        public string AuthenticationType { get; }
 
         /// <summary>
         /// Gets the claims.
@@ -152,13 +201,7 @@
         /// For this value to be true, both AuthenticationType and Name must set to a non-null value.
         /// </summary>
         /// <value><c>true</c> if this instance is authenticated; otherwise, <c>false</c>.</value>
-        public bool IsAuthenticated
-        {
-            get
-            {
-                return !string.IsNullOrEmpty(this.Name) && !string.IsNullOrEmpty(this.AuthenticationType);
-            }
-        }
+        public bool IsAuthenticated => !string.IsNullOrEmpty(this.Name) && !string.IsNullOrEmpty(this.AuthenticationType);
 
         /// <summary>
         /// Gets the name.

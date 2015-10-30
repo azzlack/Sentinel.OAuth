@@ -71,7 +71,7 @@
         /// <summary>Adds an item to the <see cref="T:System.Collections.Generic.ICollection`1"/>.</summary>
         /// <param name="key">The key to add to the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
         /// <param name="value">The value to add to the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
-        public void Add(string key, string value)
+        public void Add(string key, object value)
         {
             this.inner.Add(new KeyValuePair<string, object>(key, value));
         }

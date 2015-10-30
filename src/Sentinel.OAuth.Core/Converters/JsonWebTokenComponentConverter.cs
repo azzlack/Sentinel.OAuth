@@ -58,7 +58,17 @@
 
             foreach (var property in obj)
             {
-                ((JsonWebTokenComponent)result).Add(property.Key, property.Value.ToString());
+                if (property.Value is JArray)
+                {
+                    foreach (var item in property.Value)
+                    {
+                        ((JsonWebTokenComponent)result).Add(property.Key, item.Value<string>());
+                    }
+                }
+                else
+                {
+                    ((JsonWebTokenComponent)result).Add(property.Key, property.Value.ToString());
+                }
             }
 
             return result;

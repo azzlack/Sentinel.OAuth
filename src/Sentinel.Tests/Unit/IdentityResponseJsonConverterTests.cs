@@ -21,11 +21,9 @@
             Assert.AreEqual("{\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name\":\"azzlack\",\"urn:oauth:issuer\":\"Sentinel.OAuth\",\"urn:oauth:scope\":\"read\",\"urn:oauth:scope\":\"write\"}", json);
         }
 
-        [Test]
-        public void ReadJson_WhenGivenValidObject_ReturnsProperJson()
+        [TestCase("{\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name\":\"azzlack\",\"urn:oauth:issuer\":\"Sentinel.OAuth\",\"urn:oauth:scope\":\"read\",\"urn:oauth:scope\":\"write\"}")]
+        public void ReadJson_WhenGivenValidObject_ReturnsProperJson(string json)
         {
-            var json = "{\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name\":\"azzlack\",\"urn:oauth:issuer\":\"Sentinel.OAuth\",\"urn:oauth:scope\":\"read\",\"urn:oauth:scope\":\"write\"}";
-
             var o = JsonConvert.DeserializeObject<IdentityResponse>(json);
 
             Assert.AreEqual("azzlack", o.Subject);

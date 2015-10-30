@@ -10,7 +10,7 @@
     using System.Linq;
 
     [JsonConverter(typeof(IdentityResponseJsonConverter))]
-    public class IdentityResponse : Collection<KeyValuePair<string, string>>
+    public class IdentityResponse : Collection<KeyValuePair<string, object>>
     {
         /// <summary>Initializes a new instance of the <see cref="IdentityResponse" /> class.</summary>
         /// <param name="claims">A variable-length parameters list containing claims.</param>
@@ -18,7 +18,7 @@
         {
             foreach (var claim in claims)
             {
-                this.Add(new KeyValuePair<string, string>(claim.Key, claim.Value));
+                this.Add(new KeyValuePair<string, object>(claim.Key, claim.Value));
             }
         }
 
@@ -28,7 +28,7 @@
         {
             foreach (var claim in claims)
             {
-                this.Add(new KeyValuePair<string, string>(claim.Type, claim.Value));
+                this.Add(new KeyValuePair<string, object>(claim.Type, claim.Value));
             }
         }
 
@@ -40,7 +40,7 @@
             {
                 var claim = this.FirstOrDefault(x => x.Key == "jti" || x.Key == ClaimType.Id);
 
-                return claim.Value;
+                return claim.Value.ToString();
             }
         }
 
@@ -52,7 +52,7 @@
             {
                 var claim = this.FirstOrDefault(x => x.Key == "iss" || x.Key == ClaimType.Issuer);
 
-                return claim.Value;
+                return claim.Value.ToString();
             }
         }
 
@@ -64,7 +64,7 @@
             {
                 var claim = this.FirstOrDefault(x => x.Key == "sub" || x.Key == ClaimType.Name);
 
-                return claim.Value;
+                return claim.Value.ToString();
             }
         }
 
@@ -76,7 +76,7 @@
             {
                 var claim = this.FirstOrDefault(x => x.Key == "aud" || x.Key == ClaimType.RedirectUri);
 
-                return claim.Value;
+                return claim.Value.ToString();
             }
         }
 
@@ -90,7 +90,7 @@
 
                 if (scopes.Any())
                 {
-                    return scopes.Select(x => x.Value);
+                    return scopes.Select(x => x.Value.ToString());
                 }
 
                 return Enumerable.Empty<string>();
@@ -106,7 +106,7 @@
                 DateTimeOffset dt;
                 var claim = this.FirstOrDefault(x => x.Key == "exp" || x.Key == ClaimType.Expiration);
 
-                if (DateTimeOffset.TryParse(claim.Value, out dt))
+                if (DateTimeOffset.TryParse(claim.Value.ToString(), out dt))
                 {
                     return dt;
                 }
@@ -124,7 +124,7 @@
                 DateTimeOffset dt;
                 var claim = this.FirstOrDefault(x => x.Key == "nbf" || x.Key == ClaimType.ValidFrom);
 
-                if (DateTimeOffset.TryParse(claim.Value, out dt))
+                if (DateTimeOffset.TryParse(claim.Value.ToString(), out dt))
                 {
                     return dt;
                 }
@@ -142,7 +142,7 @@
                 DateTimeOffset dt;
                 var claim = this.FirstOrDefault(x => x.Key == "iat" || x.Key == ClaimType.AuthenticationInstant);
 
-                if (DateTimeOffset.TryParse(claim.Value, out dt))
+                if (DateTimeOffset.TryParse(claim.Value.ToString(), out dt))
                 {
                     return dt;
                 }
