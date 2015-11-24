@@ -34,6 +34,7 @@
             var hash = p.CreateHash(size);
             var raw = Convert.FromBase64String(hash);
 
+            Console.WriteLine($"Hash: {hash}");
             Console.WriteLine($"Hash Size: {size / 8} bits");
             Console.WriteLine($"Raw Size: {raw.Length} bits");
 
