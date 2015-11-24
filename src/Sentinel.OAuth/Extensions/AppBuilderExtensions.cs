@@ -47,7 +47,7 @@
 
             if (options.TokenCryptoProvider == null)
             {
-                options.TokenCryptoProvider = new SHA2CryptoProvider(HashAlgorithm.SHA512);
+                options.TokenCryptoProvider = new SHA2CryptoProvider(HashAlgorithm.SHA256);
             }
 
             if (options.PasswordCryptoProvider == null)

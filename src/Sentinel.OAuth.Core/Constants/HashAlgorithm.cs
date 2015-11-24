@@ -3,16 +3,15 @@
     public enum HashAlgorithm
     {
         /// <summary>The sha256 hash algorithm.</summary>
-        SHA256,
+        SHA256 = 256,
 
         /// <summary>The sha384 hash algorithm.</summary>
-        SHA384,
+        SHA384 = 384,
 
         /// <summary>The sha512 hash algorithm.</summary>
-        SHA512,
-
+        SHA512 = 512,
 
         /// <summary>The PBKDF2 hash algorithm.</summary>
-        PBKDF2
+        PBKDF2 = 0
     }
 }

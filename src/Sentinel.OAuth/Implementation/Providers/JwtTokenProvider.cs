@@ -24,12 +24,8 @@
         /// <summary>The token handler.</summary>
         private readonly JwtSecurityTokenHandler tokenHandler;
 
-        /// <summary>
-        /// Initializes a new instance of the Sentinel.OAuth.Implementation.Providers.JwtTokenProvider
-        /// class.
-        /// </summary>
-        /// <param name="configuration"> The configuration.</param>
-        /// <param name="cryptoProvider">The crypto provider.</param>
+        /// <summary>Initializes a new instance of the Sentinel.OAuth.Implementation.Providers.JwtTokenProvider class.</summary>
+        /// <param name="configuration">The configuration.</param>
         public JwtTokenProvider(JwtTokenProviderConfiguration configuration)
         {
             this.configuration = configuration;

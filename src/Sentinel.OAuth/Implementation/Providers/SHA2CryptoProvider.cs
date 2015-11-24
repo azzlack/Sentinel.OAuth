@@ -88,7 +88,7 @@
         {
             var text = this.GenerateText(length);
 
-            return this.CreateHash(text);
+            return this.CreateHash(text, false);
         }
 
         /// <summary>
