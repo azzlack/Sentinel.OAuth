@@ -11,6 +11,8 @@
     using System.Security.Cryptography;
     using System.Text;
 
+    using HashAlgorithm = Sentinel.OAuth.Core.Constants.HashAlgorithm;
+
     [TestFixture]
     [Category("Unit")]
     public class SHA2CryptoProviderTests
@@ -21,6 +23,21 @@
         public void SetUp()
         {
             this.provider = new SHA2CryptoProvider(OAuth.Core.Constants.HashAlgorithm.SHA256);
+        }
+
+        [TestCase(256)]
+        [TestCase(384)]
+        [TestCase(512)]
+        public void Create_WhenGivenValidLength_ReturnsValidHash(int size)
+        {
+            var p = new SHA2CryptoProvider((HashAlgorithm)Enum.Parse(typeof(HashAlgorithm), size.ToString()));
+            var hash = p.CreateHash(size);
+            var raw = Convert.FromBase64String(hash);
+
+            Console.WriteLine($"Hash Size: {size / 8} bits");
+            Console.WriteLine($"Raw Size: {raw.Length} bits");
+
+            Assert.AreEqual(size / 8, raw.Length);
         }
 
         [TestCase("aabbccddee")]
