@@ -18,8 +18,12 @@
         /// <returns>The client principal.</returns>
         public async Task<ISentinelPrincipal> AuthenticateClientAsync(string clientId, string redirectUri)
         {
-            // Just return an authenticated principal with the client id as name (allows all clients)
-            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
+            if (clientId == "NUnit" && redirectUri == "http://localhost")
+            {
+                return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
+            }
+
+            return SentinelPrincipal.Anonymous;
         }
 
         /// <summary>
@@ -30,8 +34,12 @@
         /// <returns>The client principal.</returns>
         public async Task<ISentinelPrincipal> AuthenticateClientAsync(string clientId, IEnumerable<string> scope)
         {
-            // Just return an authenticated principal with the client id as name (allows all clients)
-            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
+            if (clientId == "NUnit")
+            {
+                return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
+            }
+
+            return SentinelPrincipal.Anonymous;
         }
 
         /// <summary>Authenticates the client credentials using client id and secret.</summary>

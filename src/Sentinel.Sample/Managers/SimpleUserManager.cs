@@ -19,7 +19,15 @@
             // Just return an authenticated principal with the username as name if the username matches the password
             if (username == password)
             {
-                return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, username)));
+                // Name is required to authenticate a user
+                // NameIdentifier and IdentityProvider is required for MVC's AntiForgeryToken. Can be overridden by setting AntiForgeryConfig.UniqueClaimTypeIdentifier.
+                return
+                    new SentinelPrincipal(
+                        new SentinelIdentity(
+                            AuthenticationType.OAuth,
+                            new SentinelClaim(ClaimTypes.Name, username),
+                            new SentinelClaim(ClaimTypes.NameIdentifier, username),
+                            new SentinelClaim(ClaimType.IdentityProvider, "Sentinel")));
             }
 
             return SentinelPrincipal.Anonymous;

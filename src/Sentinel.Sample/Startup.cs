@@ -6,12 +6,19 @@ using Sentinel.Sample;
 
 namespace Sentinel.Sample
 {
+    using System;
+    using System.Configuration;
     using System.Web.Http;
+    using System.Web.Mvc;
+    using System.Web.Routing;
 
     using Common.Logging;
 
     using log4net.Config;
 
+    using Microsoft.AspNet.Identity;
+    using Microsoft.Owin.Infrastructure;
+    using Microsoft.Owin.Security.Cookies;
     using Microsoft.Owin.Security.OAuth;
 
     using Owin;
@@ -27,12 +34,27 @@ namespace Sentinel.Sample
             // Configure log4net
             XmlConfigurator.Configure();
 
+            var apiUrl = new Uri(ConfigurationManager.AppSettings["ApiUrl"]);
+
+            // Set up cookie authentication
+            app.UseCookieAuthentication(
+                    new CookieAuthenticationOptions()
+                    {
+                        AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                        CookieDomain = apiUrl.Host,
+                        CookieName = "SENTINEL_AUTH",
+                        LoginPath = new PathString("/authentication/login"),
+                        LogoutPath = new PathString("/authentication/logout")
+                    });
+
             // The easiest way to use Sentinel
-            app.UseSentinelAuthorizationServer(new SentinelAuthorizationServerOptions()
-                                                   {
-                                                       ClientManager = new SimpleClientManager(),
-                                                       UserManager = new SimpleUserManager()
-                                                   });
+            app.UseSentinelAuthorizationServer(
+                new SentinelAuthorizationServerOptions()
+                    {
+                        IssuerUri = apiUrl,
+                        ClientManager = new SimpleClientManager(),
+                        UserManager = new SimpleUserManager()
+                    });
 
             // Start up web api
             var httpConfig = new HttpConfiguration();
@@ -44,6 +66,13 @@ namespace Sentinel.Sample
             httpConfig.EnsureInitialized();
 
             app.UseWebApi(httpConfig);
+
+            // Configure mvc
+            AreaRegistration.RegisterAllAreas(httpConfig);
+            GlobalFilters.Filters.Add(new HandleErrorAttribute());
+            RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            RouteTable.Routes.MapMvcAttributeRoutes();
+            RouteTable.Routes.MapRoute(name: "Default", url: "{controller}/{action}/{id}", defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional });
 
             LogManager.GetLogger<Startup>().Info("Application started");
         }

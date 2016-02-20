@@ -130,7 +130,7 @@
             }
             else
             {
-                this.log.Warn("The hash was invalid");
+                this.log.Debug("The hash was invalid");
             }
 
             return result;
@@ -147,7 +147,7 @@
             // Create random key generator
             var pdb = new Rfc2898DeriveBytes(key, Encoding.UTF8.GetBytes(key));
 
-            // Encrypt the principal
+            // Encrypt the text
             byte[] encrypted;
 
             using (var rijAlg = new RijndaelManaged() { Key = pdb.GetBytes(32), IV = pdb.GetBytes(16) })
@@ -173,10 +173,10 @@
             return Convert.ToBase64String(encrypted);
         }
 
-        /// <summary>Decrypts the principal.</summary>
-        /// <param name="ticket">The encrypted principal.</param>
+        /// <summary>Decrypts the text.</summary>
+        /// <param name="ticket">The encrypted text.</param>
         /// <param name="key">The key.</param>
-        /// <returns>The principal.</returns>
+        /// <returns>The original text.</returns>
         public string Decrypt(string ticket, string key)
         {
             this.log.DebugFormat("Decrypting '{0}'", ticket);

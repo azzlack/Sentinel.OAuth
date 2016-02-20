@@ -20,7 +20,7 @@
 
     [TestFixture]
     [Category("Facade")]
-    public class SentinelTokenAuthorizationServerTests : AuthorizationServerTests
+    public class SentinelTokenAuthorizationServerTests : BaseAuthorizationServerTests
     {
         [TestFixtureSetUp]
         public override void TestFixtureSetUp()

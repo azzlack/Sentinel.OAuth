@@ -1,0 +1,31 @@
+﻿@model Sentinel.Sample.ViewModels.OAuthAuthorizeViewModel
+
+@{
+    ViewBag.Title = "Authorize";
+}
+
+<div class="authorize">
+    <div class="page-header">
+        <h1>Authorize</h1>
+        <p>The application <b>@Model.ClientId</b> wants to access your account.</p>
+        <p>Do you want to let it?</p>
+    </div>
+    <div class="buttons">
+        <form method="POST" action="#" name="allow" role="form">
+            @Html.AntiForgeryToken()
+            @Html.Hidden("Grant", true)
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-lg btn-primary">Allow</button>
+            </div>
+        </form>
+        <form method="POST" action="#" name="cancel" role="form">
+            @Html.AntiForgeryToken()
+            @Html.Hidden("Grant", false)
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-lg btn-default">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>

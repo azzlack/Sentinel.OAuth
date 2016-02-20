@@ -22,7 +22,7 @@
 
     [TestFixture]
     [Category("Facade")]
-    public class JwtAuthorizationServerTests : AuthorizationServerTests
+    public class JwtAuthorizationServerTests : BaseAuthorizationServerTests
     {
         public JwtAuthorizationServerTests()
         {

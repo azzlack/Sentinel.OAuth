@@ -112,6 +112,9 @@
                         {
                             this.options.Logger.Debug("Authorization code is valid");
 
+                            // Add scope claims to context
+                            context.OwinContext.GetOAuthContext().Scope = principal.Identity.Claims.Where(x => x.Type == ClaimType.Scope).Select(x => x.Value);
+
                             /* Override the validation parameters.
                              * This is because OWIN thinks the principal.Identity.Name should 
                              * be the same as the client_id from ValidateClientAuthentication method,

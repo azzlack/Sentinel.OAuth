@@ -23,6 +23,9 @@
         /// <summary>The valid from claim type.</summary>
         public const string ValidFrom = "urn:oauth:validfrom";
 
+        /// <summary>The identity provider claim type.</summary>
+        public const string IdentityProvider = "http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider";
+
         /// <summary>The name claim type.</summary>
         public const string Name = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
 

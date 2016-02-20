@@ -28,13 +28,7 @@
 
         /// <summary>Gets the events.</summary>
         /// <value>The events.</value>
-        public SentinelAuthorizationServerEvents Events
-        {
-            get
-            {
-                return this.events ?? (this.events = new SentinelAuthorizationServerEvents());
-            }
-        }
+        public SentinelAuthorizationServerEvents Events => this.events ?? (this.events = new SentinelAuthorizationServerEvents());
 
         /// <summary>Gets or sets the logger.</summary>
         /// <value>The logger.</value>
