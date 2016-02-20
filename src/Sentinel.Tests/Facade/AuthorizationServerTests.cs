@@ -30,7 +30,6 @@
         }
 
         [TestCase("NUnit", "http://localhost")]
-        [Category("Selenium")]
         public async void GetAuthorizationCode_WhenGivenValidClientIdAndRedirectUri_ShouldReturnValidResponse(string clientId, string redirectUri)
         {
             string code;
@@ -66,7 +65,6 @@
         }
 
         [TestCase("NUnit", "http://localhost")]
-        [Category("Selenium")]
         public async void GetAuthorizationCode_WhenConsentIsNotGuven_ShouldReturnErrorRedirect(string clientId, string redirectUri)
         {
             // Get authorization code
@@ -101,7 +99,6 @@
 
         [TestCase("NUnit", "notanurl")]
         [TestCase("NUnit", "http://www.eyecatch.no")]
-        [Category("Selenium")]
         public async void GetAuthorizationCode_WhenGivenValidClientAndInvalidRedirectUri_ShouldReturnInvalidRequest(string clientId, string redirectUri)
         {
             // Get authorization code
@@ -116,7 +113,6 @@
         }
 
         [TestCase("NUnit", "NUnit", "http://localhost")]
-        [Category("Selenium")]
         public async void GetAccessToken_WhenGivenValidAuthorizationCodeAndInvalidRedirectUri_ShouldReturnInvalidGrant(string clientId, string clientSecret, string redirectUri)
         {
             var code = string.Empty;
@@ -172,7 +168,6 @@
         }
 
         [TestCase("NUnit", "NUnit", "http://localhost")]
-        [Category("Selenium")]
         public async void GetAccessToken_WhenGivenValidAuthorizationCodeAndNoRedirectUri_ShouldReturnInvalidRequest(string clientId, string clientSecret, string redirectUri)
         {
             var code = string.Empty;
@@ -227,7 +222,6 @@
         }
 
         [TestCase("NUnit", "NUnit", "http://localhost")]
-        [Category("Selenium")]
         public async void GetAccessToken_WhenGivenValidAuthorizationCodeAndValidRedirectUri_ShouldReturnAccessToken(string clientId, string clientSecret, string redirectUri)
         {
             var code = string.Empty;
@@ -285,7 +279,6 @@
         }
 
         [TestCase("NUnit", "NUnit", "http://localhost")]
-        [Category("Selenium")]
         public async void GetAccessToken_WhenGivenValidAuthorizationCodeAndOpenIdScope_ShouldReturnIdToken(string clientId, string clientSecret, string redirectUri)
         {
             var code = string.Empty;
