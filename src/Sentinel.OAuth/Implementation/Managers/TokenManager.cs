@@ -278,7 +278,7 @@
             // Add scope claims
             if (scope != null)
             {
-                userPrincipal.Identity.AddClaim(scope.Select(x => new SentinelClaim(ClaimType.Scope, x)).ToArray());
+                userPrincipal.Identity.AddClaim(scope.Where(x => !userPrincipal.Identity.HasClaim(ClaimType.Scope, x)).Select(x => new SentinelClaim(ClaimType.Scope, x)).ToArray());
             }
 
             this.logger.DebugFormat("Creating refresh token for client '{0}', redirect uri '{1}' and user '{2}'", clientId, redirectUri, userPrincipal.Identity.Name);
