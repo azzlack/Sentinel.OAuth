@@ -177,7 +177,7 @@
         /// <returns>The identity.</returns>
         public async Task<IdentityResponse> GetIdentity(string token)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "openid/identity");
+            var request = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await this.Client.SendAsync(request).ConfigureAwait(false);

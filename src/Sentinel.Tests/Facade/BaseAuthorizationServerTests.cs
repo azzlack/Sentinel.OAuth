@@ -75,7 +75,7 @@
 
             Assert.IsNotNullOrEmpty(content.AccessToken, "No access token returned");
 
-            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/identity");
+            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
             identityRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", content.AccessToken);
 
             var identityResponse = await this.Client.SendAsync(identityRequest);
@@ -212,7 +212,7 @@
 
             Assert.IsNotNullOrEmpty(token.AccessToken, "No access token returned");
 
-            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/identity");
+            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
             identityRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
 
             var identityResponse = await this.Client.SendAsync(identityRequest);
@@ -247,7 +247,7 @@
         [Test]
         public async void GetIdentity_WhenNotAuthorized_ShouldReturn401Unauthorized()
         {
-            var url = "openid/identity";
+            var url = "openid/userinfo";
 
             var c = new HttpClient(this.Server.Handler) { BaseAddress = this.Server.BaseAddress };
 
@@ -263,7 +263,7 @@
         [Test]
         public async void GetIdentity_WhenNotAuthorized_ShouldReturnCorrectWwwAuthenticateHeader()
         {
-            var url = "openid/identity";
+            var url = "openid/userinfo";
 
             var c = new HttpClient(this.Server.Handler) { BaseAddress = this.Server.BaseAddress };
 
@@ -325,7 +325,7 @@
             Console.WriteLine();
             Console.WriteLine("Using access token: {0}", authenticationContent.AccessToken);
 
-            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/identity");
+            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
             identityRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authenticationContent.AccessToken);
 
             Console.WriteLine("Request: {0}", identityRequest.RequestUri);
@@ -376,7 +376,7 @@
             Console.WriteLine();
             Console.WriteLine("Using access token: {0}", token.AccessToken);
 
-            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/identity");
+            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
             identityRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
 
             Console.WriteLine("Request: {0}", identityRequest.RequestUri);
@@ -438,7 +438,7 @@
             Console.WriteLine();
             Console.WriteLine("Using access token: {0}", accessToken2.AccessToken);
 
-            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/identity");
+            var identityRequest = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
             identityRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken2.AccessToken);
 
             Console.WriteLine("Request: {0}", identityRequest.RequestUri);
