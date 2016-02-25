@@ -106,10 +106,7 @@
             }
 
             // Validate at_hash
-            var accessTokenHash = new SHA2CryptoProvider(HashAlgorithm.SHA256).CreateHash(e.Item1.AccessToken, false);
-            var digest = Convert.ToBase64String(Encoding.ASCII.GetBytes(accessTokenHash.ToCharArray(), 0, accessTokenHash.Length / 2));
-
-            Assert.AreEqual(jwt.Payload.AccessTokenHash, digest);
+            Assert.IsTrue(jwt.ValidateAccessToken(e.Item1.AccessToken));
         }
     }
 }
