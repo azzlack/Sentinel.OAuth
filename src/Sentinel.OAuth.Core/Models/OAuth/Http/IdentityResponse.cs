@@ -40,7 +40,7 @@
             {
                 var claim = this.FirstOrDefault(x => x.Key == "jti" || x.Key == ClaimType.Id);
 
-                return claim.Value.ToString();
+                return claim.Value?.ToString();
             }
         }
 
@@ -52,7 +52,7 @@
             {
                 var claim = this.FirstOrDefault(x => x.Key == "iss" || x.Key == ClaimType.Issuer);
 
-                return claim.Value.ToString();
+                return claim.Value?.ToString();
             }
         }
 
@@ -64,7 +64,7 @@
             {
                 var claim = this.FirstOrDefault(x => x.Key == "sub" || x.Key == ClaimType.Name);
 
-                return claim.Value.ToString();
+                return claim.Value?.ToString();
             }
         }
 
@@ -76,7 +76,7 @@
             {
                 var claim = this.FirstOrDefault(x => x.Key == "aud" || x.Key == ClaimType.RedirectUri);
 
-                return claim.Value.ToString();
+                return claim.Value?.ToString();
             }
         }
 
@@ -106,7 +106,7 @@
                 DateTimeOffset dt;
                 var claim = this.FirstOrDefault(x => x.Key == "exp" || x.Key == ClaimType.Expiration);
 
-                if (DateTimeOffset.TryParse(claim.Value.ToString(), out dt))
+                if (DateTimeOffset.TryParse(claim.Value?.ToString(), out dt))
                 {
                     return dt;
                 }
@@ -124,7 +124,7 @@
                 DateTimeOffset dt;
                 var claim = this.FirstOrDefault(x => x.Key == "nbf" || x.Key == ClaimType.ValidFrom);
 
-                if (DateTimeOffset.TryParse(claim.Value.ToString(), out dt))
+                if (DateTimeOffset.TryParse(claim.Value?.ToString(), out dt))
                 {
                     return dt;
                 }
@@ -142,7 +142,7 @@
                 DateTimeOffset dt;
                 var claim = this.FirstOrDefault(x => x.Key == "iat" || x.Key == ClaimType.AuthenticationInstant);
 
-                if (DateTimeOffset.TryParse(claim.Value.ToString(), out dt))
+                if (DateTimeOffset.TryParse(claim.Value?.ToString(), out dt))
                 {
                     return dt;
                 }
