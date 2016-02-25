@@ -1,5 +1,7 @@
 ﻿namespace Sentinel.OAuth.Core.Models.Tokens
 {
+    using System;
+
     using Newtonsoft.Json;
     using Sentinel.OAuth.Core.Converters;
     using System.Collections;
@@ -19,21 +21,41 @@
             this.inner = new Collection<KeyValuePair<string, object>>();
         }
 
+        /// <summary>Gets the item with the specified key.</summary>
+        /// <typeparam name="T">The item type.</typeparam>
+        /// <param name="key">The item key.</param>
+        /// <returns>The item.</returns>
+        public T Get<T>(string key)
+        {
+            var item = this.Get(key);
+
+            if (item != null)
+            {
+                var json = JsonConvert.SerializeObject(item);
+
+                try
+                {
+                    return JsonConvert.DeserializeObject<T>(json);
+                }
+                catch (JsonSerializationException)
+                {
+                    return default(T);
+                }
+            }
+
+            return default(T);
+        }
+
         /// <summary>Indexer to get items within this collection using array index syntax.</summary>
         /// <param name="key">The key.</param>
         /// <returns>The value.</returns>
-        protected object this[string key]
+        public object this[string key]
         {
             get
             {
-                var item = this.FirstOrDefault(x => x.Key == key);
+                var item = this.Get(key);
 
-                if (item.Key != key)
-                {
-                    return null;
-                }
-
-                return item.Value;
+                return item;
             }
         }
 
@@ -158,5 +180,25 @@
         /// true if the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only; otherwise, false.
         /// </returns>
         public bool IsReadOnly => false;
+
+        /// <summary>Gets the item with the specified key.</summary>
+        /// <param name="key">The item key.</param>
+        /// <returns>The item.</returns>
+        private object Get(string key)
+        {
+            if (this.Any(x => x.Key == key))
+            {
+                var values = this.Where(x => x.Key == key);
+
+                if (values.Count() > 1)
+                {
+                    return values.Select(x => x.Value);
+                }
+
+                return values.First().Value;
+            }
+
+            return null;
+        }
     }
 }

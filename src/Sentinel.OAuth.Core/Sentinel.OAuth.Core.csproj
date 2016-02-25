@@ -97,6 +97,7 @@
     <Compile Include="Interfaces\Providers\ITokenProvider.cs" />
     <Compile Include="Interfaces\Repositories\IUserRepository.cs" />
     <Compile Include="Interfaces\Repositories\IClientRepository.cs" />
+    <Compile Include="Interfaces\Validators\ITokenValidator.cs" />
     <Compile Include="Models\OAuth\AccessToken.cs" />
     <Compile Include="Constants\Identity\AuthenticationType.cs" />
     <Compile Include="Models\OAuth\AuthorizationCode.cs" />

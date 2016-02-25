@@ -48,15 +48,15 @@
             DateTimeOffset expireTime)
         {
 
-            string token;
-            var hashedToken = this.configuration.CryptoProvider.CreateHash(out token, 256);
+            string code;
+            var hashedCode = this.configuration.CryptoProvider.CreateHash(out code, 256);
 
-            // Create authorization code hash
-            var codeHash = this.configuration.CryptoProvider.CreateHash(token, false).ToCharArray();
+            // Create a separate authorization code hash
+            var codeHash = Convert.FromBase64String(this.configuration.CryptoProvider.CreateHash(code, false));
 
             // Add extra claims
             userPrincipal.Identity.AddClaim(JwtClaimType.Subject, userPrincipal.Identity.Name);
-            userPrincipal.Identity.AddClaim(JwtClaimType.AuthorizationCodeHash, Convert.ToBase64String(Encoding.ASCII.GetBytes(codeHash, 0, codeHash.Length / 2)));
+            userPrincipal.Identity.AddClaim(JwtClaimType.AuthorizationCodeHash, Convert.ToBase64String(codeHash.Take(16).ToArray()));
 
             var jwt = new JwtSecurityToken(
                 this.configuration.Issuer.AbsoluteUri,
@@ -74,12 +74,12 @@
                 RedirectUri = redirectUri,
                 Subject = userPrincipal.Identity.Name,
                 Scope = scope,
-                Code = hashedToken,
+                Code = hashedCode,
                 Ticket = ticket,
                 ValidTo = expireTime
             };
 
-            return new TokenCreationResult<IAuthorizationCode>(token, authorizationCode);
+            return new TokenCreationResult<IAuthorizationCode>(code, authorizationCode);
         }
 
         /// <summary>Validates an authorization code.</summary>
@@ -130,11 +130,11 @@
             var hashedToken = this.configuration.CryptoProvider.CreateHash(out token, 512);
 
             // Create access token hash
-            var tokenHash = this.configuration.CryptoProvider.CreateHash(token, false).ToCharArray();
+            var tokenHash = Convert.FromBase64String(this.configuration.CryptoProvider.CreateHash(token, false));
 
             // Add extra claims
             userPrincipal.Identity.AddClaim(JwtClaimType.Subject, userPrincipal.Identity.Name);
-            userPrincipal.Identity.AddClaim(JwtClaimType.AccessTokenHash, Convert.ToBase64String(Encoding.ASCII.GetBytes(tokenHash, 0, tokenHash.Length / 2)));
+            userPrincipal.Identity.AddClaim(JwtClaimType.AccessTokenHash, Convert.ToBase64String(tokenHash.Take(16).ToArray()));
 
             var jwt = new JwtSecurityToken(
                 this.configuration.Issuer.AbsoluteUri,

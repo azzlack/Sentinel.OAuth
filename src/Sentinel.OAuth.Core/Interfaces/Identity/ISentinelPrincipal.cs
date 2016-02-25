@@ -18,5 +18,9 @@
         /// <summary>Gets the roles.</summary>
         /// <value>The roles.</value>
         IEnumerable<string> Roles { get; }
+
+        /// <summary>Gets the scopes.</summary>
+        /// <value>The scopes.</value>
+        IEnumerable<string> Scopes { get; } 
     }
 }

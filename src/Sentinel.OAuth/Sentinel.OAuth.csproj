@@ -107,6 +107,7 @@
     <Compile Include="Implementation\Providers\SentinelTokenProvider.cs" />
     <Compile Include="Implementation\Providers\SHA2CryptoProvider.cs" />
     <Compile Include="Implementation\Repositories\MemoryTokenRepository.cs" />
+    <Compile Include="Implementation\Validators\TokenValidator.cs" />
     <Compile Include="Middleware\UserInfoMiddleware.cs" />
     <Compile Include="Models\Identity\SentinelClaim.cs" />
     <Compile Include="Models\Identity\SentinelIdentity.cs" />
@@ -130,9 +131,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Implementation\Handlers\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

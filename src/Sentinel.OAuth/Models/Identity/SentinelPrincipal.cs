@@ -108,6 +108,17 @@
             }
         }
 
+        /// <summary>Gets the scopes.</summary>
+        /// <value>The scopes.</value>
+        [JsonIgnore]
+        public IEnumerable<string> Scopes
+        {
+            get
+            {
+                return this.Identity.Claims.Where(x => x.Type == ClaimType.Scope).Select(x => x.Value);
+            }
+        }
+
         /// <summary>
         /// Gets the actual identity.
         /// </summary>

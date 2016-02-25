@@ -9,9 +9,14 @@
     using System;
     using System.Collections.Generic;
     using System.Configuration;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Threading.Tasks;
+    
+    using Sentinel.OAuth.Core.Models.Tokens;
+    using Sentinel.OAuth.Extensions;
+    using Sentinel.OAuth.Models.Identity;
 
     [TestFixture]
     [Category("Selenium")]
@@ -279,7 +284,7 @@
         }
 
         [TestCase("NUnit", "NUnit", "http://localhost")]
-        public async void GetAccessToken_WhenGivenValidAuthorizationCodeAndOpenIdScope_ShouldReturnIdToken(string clientId, string clientSecret, string redirectUri)
+        public async void GetAccessToken_WhenGivenValidAuthorizationCodeAndOpenIdScope_ShouldReturnValidIdToken(string clientId, string clientSecret, string redirectUri)
         {
             var code = string.Empty;
 
@@ -330,8 +335,21 @@
 
             Console.WriteLine("Response: [{0} {1}] {2}", (int)response.StatusCode, response.StatusCode, await response.Content.ReadAsStringAsync());
 
+            var jwt = new JsonWebToken(accessTokenResponse.IdToken);
+            var principal = new SentinelPrincipal(jwt.ToIdentity());
+
+            Console.WriteLine($"Header: {JsonConvert.SerializeObject(jwt.Header)}");
+            Console.WriteLine($"Payload: {JsonConvert.SerializeObject(jwt.Payload)}");
+
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.IsNotNullOrEmpty(accessTokenResponse.IdToken);
+            Assert.AreEqual("user", jwt.Payload.Subject);
+            Assert.IsTrue(principal.Scopes.Count(x => x == "openid") == 1, "The openid scope was included more than once or not at all");
+
+            Assert.IsTrue(jwt.ValidateAuthorizationCode(code), "The authentication code is invalid for this JWT");
+            Assert.IsTrue(jwt.ValidateAccessToken(accessTokenResponse.AccessToken), "The access token is invalid for this JWT");
+
+            //Assert.IsTrue(jwt.ValidateSignature(clientSecret));
         }
     }
 }

@@ -7,6 +7,10 @@
     using Sentinel.OAuth.Models.Identity;
     using System;
     using System.Linq;
+    using System.Security.Cryptography;
+    using System.Text;
+
+    using Sentinel.OAuth.Extensions;
 
     [TestFixture]
     public class JsonWebTokenTests
@@ -36,6 +40,22 @@
             var cookieIdentity = new SentinelIdentity(DefaultAuthenticationTypes.ApplicationCookie, jwt);
 
             CollectionAssert.AreEquivalent(expectedRoles, cookieIdentity.Claims.Where(x => x.Type == "role").Select(x => x.Value).ToArray());
+        }
+
+        [TestCase("QAXDyzzUPZG_JNXEvPQKCh@0F5zKioy@", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1bmlxdWVfbmFtZSI6InVzZXIiLCJuYW1laWQiOiJ1c2VyIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS9hY2Nlc3Njb250cm9sc2VydmljZS8yMDEwLzA3L2NsYWltcy9pZGVudGl0eXByb3ZpZGVyIjoiU2VudGluZWwiLCJ1cm46b2F1dGg6Y2xpZW50IjoiTlVuaXQiLCJ1cm46b2F1dGg6c2NvcGUiOiJvcGVuaWQiLCJjX2hhc2giOiJSWDRtRlZNMGRjdWQ5NTlBM3hIMjhnPT0iLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjU1MzQ4LyIsImF1ZCI6Ik5Vbml0IiwiZXhwIjoxNDU2NDEwMjgxLCJuYmYiOjE0NTY0MDY2ODEsInVybjpvYXV0aDpncmFudHR5cGUiOiJhdXRob3JpemF0aW9uX2NvZGUiLCJzdWIiOiJ1c2VyIiwiYXRfaGFzaCI6ImMybG1UeXRhTkhCWVFWRktaV3N5ZVhVM2VEaFljUT09In0.J-t0QmVtidiM3BmZklKVMUxwXdDkvgE0qDsG32A4u6Q")]
+        public void ValidateAuthorizationCode_WhenGivenValidCodeAndHash_ReturnsTrue(string code, string idToken)
+        {
+            var jwt = new JsonWebToken(idToken);
+
+            Assert.IsTrue(jwt.ValidateAuthorizationCode(code));
+        }
+
+        [TestCase("!ooDLKT_GZaj0W1iF_AgQ7kNCaF6PDnUWAiaG0etThykr!ACnhPAzywZSX$RKxc_", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1bmlxdWVfbmFtZSI6InVzZXIiLCJuYW1laWQiOiJ1c2VyIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS9hY2Nlc3Njb250cm9sc2VydmljZS8yMDEwLzA3L2NsYWltcy9pZGVudGl0eXByb3ZpZGVyIjoiU2VudGluZWwiLCJ1cm46b2F1dGg6Y2xpZW50IjoiTlVuaXQiLCJ1cm46b2F1dGg6c2NvcGUiOiJvcGVuaWQiLCJjX2hhc2giOiJHbEhyUVE5UVJiVzRqVDBLSkZwdWpBPT0iLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjU1MzQ4LyIsImF1ZCI6Ik5Vbml0IiwiZXhwIjoxNDU2NDEzNDk1LCJuYmYiOjE0NTY0MDk4OTUsInVybjpvYXV0aDpncmFudHR5cGUiOiJhdXRob3JpemF0aW9uX2NvZGUiLCJzdWIiOiJ1c2VyIiwiYXRfaGFzaCI6InEwYkh0RmRVdUE5MHkyZDlVSktGSVE9PSJ9.k5QiSnP-etA8OxhJAFhJyO2y1u6K-IHpUsNWYnyXKXk")]
+        public void ValidateAccessToken_WhenGivenValidTokenAndHash_ReturnsTrue(string accessToken, string idToken)
+        {
+            var jwt = new JsonWebToken(idToken);
+
+            Assert.IsTrue(jwt.ValidateAccessToken(accessToken));
         }
     }
 }
