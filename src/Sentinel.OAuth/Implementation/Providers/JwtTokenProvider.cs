@@ -55,6 +55,8 @@
             var codeHash = Convert.FromBase64String(this.configuration.CryptoProvider.CreateHash(code, false));
 
             // Add extra claims
+            userPrincipal.Identity.RemoveClaim(x => x.Type == JwtClaimType.Subject);
+            userPrincipal.Identity.RemoveClaim(x => x.Type == JwtClaimType.AuthorizationCodeHash);
             userPrincipal.Identity.AddClaim(JwtClaimType.Subject, userPrincipal.Identity.Name);
             userPrincipal.Identity.AddClaim(JwtClaimType.AuthorizationCodeHash, Convert.ToBase64String(codeHash.Take(16).ToArray()));
 
@@ -133,6 +135,8 @@
             var tokenHash = Convert.FromBase64String(this.configuration.CryptoProvider.CreateHash(token, false));
 
             // Add extra claims
+            userPrincipal.Identity.RemoveClaim(x => x.Type == JwtClaimType.Subject);
+            userPrincipal.Identity.RemoveClaim(x => x.Type == JwtClaimType.AccessTokenHash);
             userPrincipal.Identity.AddClaim(JwtClaimType.Subject, userPrincipal.Identity.Name);
             userPrincipal.Identity.AddClaim(JwtClaimType.AccessTokenHash, Convert.ToBase64String(tokenHash.Take(16).ToArray()));
 

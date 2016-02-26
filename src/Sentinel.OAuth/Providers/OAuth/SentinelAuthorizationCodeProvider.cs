@@ -36,8 +36,8 @@
 
             this.options = options;
 
-            this.OnCreate += this.CreateAuthenticationCode;
-            this.OnReceive += this.ReceiveAuthenticationCode;
+            this.OnCreate += this.CreateAuthorizationCode;
+            this.OnReceive += this.ReceiveAuthorizationCode;
         }
 
         /// <summary>
@@ -45,7 +45,7 @@
         /// </summary>
         /// <param name="context">The authentication context.</param>
         /// <returns/>
-        public void CreateAuthenticationCode(AuthenticationTokenCreateContext context)
+        public void CreateAuthorizationCode(AuthenticationTokenCreateContext context)
         {
             this.options.Logger.DebugFormat("Creating authorization code for client '{0}' and redirect uri '{1}'", context.Request.Query["client_id"], context.Request.Query["redirect_uri"]);
 
@@ -90,7 +90,7 @@
         /// </summary>
         /// <param name="context">The authentication context.</param>
         /// <returns/>
-        public void ReceiveAuthenticationCode(AuthenticationTokenReceiveContext context)
+        public void ReceiveAuthorizationCode(AuthenticationTokenReceiveContext context)
         {
             var tcs = new TaskCompletionSource<AuthenticationTicket>();
             Task.Run(
