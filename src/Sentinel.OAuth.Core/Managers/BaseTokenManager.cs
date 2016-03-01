@@ -51,9 +51,8 @@
         /// <summary>Authenticates the refresh token.</summary>
         /// <param name="clientId">The client id.</param>
         /// <param name="refreshToken">The refresh token.</param>
-        /// <param name="redirectUri">The redirect URI.</param>
         /// <returns>The user principal.</returns>
-        public abstract Task<ISentinelPrincipal> AuthenticateRefreshTokenAsync(string clientId, string refreshToken, string redirectUri);
+        public abstract Task<ISentinelPrincipal> AuthenticateRefreshTokenAsync(string clientId, string refreshToken);
 
         /// <summary>Generates an authorization code for the specified client.</summary>
         /// <param name="userPrincipal">The user principal.</param>

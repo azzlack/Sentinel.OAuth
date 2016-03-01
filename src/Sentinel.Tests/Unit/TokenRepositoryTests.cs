@@ -352,7 +352,7 @@
 
             var treshold = DateTimeOffset.UtcNow;
 
-            var refreshTokens = await this.TokenRepository.GetRefreshTokens("NUnit", "http://localhost", treshold);
+            var refreshTokens = await this.TokenRepository.GetClientRefreshTokens("NUnit", treshold);
 
             Assert.GreaterOrEqual(refreshTokens.Count(), 1);
             Assert.That(refreshTokens.All(x => x.ValidTo.CompareTo(treshold) > 0), "Got back token that was supposed to be expired");
@@ -366,7 +366,7 @@
 
             var treshold = DateTimeOffset.UtcNow;
 
-            var refreshTokens = await this.TokenRepository.GetRefreshTokens("ovea", treshold);
+            var refreshTokens = await this.TokenRepository.GetUserRefreshTokens("ovea", treshold);
 
             Assert.GreaterOrEqual(refreshTokens.Count(), 1);
             Assert.That(refreshTokens.All(x => x.ValidTo.CompareTo(treshold) > 0), "Got back token that was supposed to be expired");
@@ -378,7 +378,7 @@
             var insertResult = await this.TokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTimeOffset.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
 
             var deleteResult = await this.TokenRepository.DeleteRefreshToken(insertResult);
-            var refreshTokens = await this.TokenRepository.GetRefreshTokens("NUnit2", "http://localhost", DateTimeOffset.UtcNow.AddMinutes(1));
+            var refreshTokens = await this.TokenRepository.GetClientRefreshTokens("NUnit2", DateTimeOffset.UtcNow.AddMinutes(1));
 
             Assert.IsTrue(deleteResult);
             Assert.IsTrue(refreshTokens.All(x => !x.Equals(insertResult)), "The refresh token was 'deleted' but is still retrievable");
@@ -390,7 +390,7 @@
             var insertResult = await this.TokenRepository.InsertRefreshToken(new RefreshToken { Token = "123456789", ValidTo = DateTimeOffset.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
 
             var deleteResult = await this.TokenRepository.DeleteRefreshToken(insertResult.GetIdentifier());
-            var refreshTokens = await this.TokenRepository.GetRefreshTokens("NUnit2", "http://localhost", DateTimeOffset.UtcNow.AddMinutes(1));
+            var refreshTokens = await this.TokenRepository.GetClientRefreshTokens("NUnit2", DateTimeOffset.UtcNow.AddMinutes(1));
 
             Assert.IsTrue(deleteResult);
             Assert.IsTrue(refreshTokens.All(x => !x.Equals(insertResult)), "The refresh token was 'deleted' but is still retrievable");
@@ -402,7 +402,7 @@
             var insertResult = await this.TokenRepository.InsertRefreshToken(new RefreshToken() { Token = "123456789", ValidTo = DateTimeOffset.UtcNow, ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
 
             var deleteResult = await this.TokenRepository.DeleteRefreshTokens(DateTimeOffset.UtcNow);
-            var refreshTokens = await this.TokenRepository.GetRefreshTokens(insertResult.ClientId, insertResult.RedirectUri, DateTimeOffset.UtcNow);
+            var refreshTokens = await this.TokenRepository.GetClientRefreshTokens(insertResult.ClientId, DateTimeOffset.UtcNow);
 
             Assert.Greater(deleteResult, 0);
             Assert.IsTrue(refreshTokens.All(x => !x.Equals(insertResult)), "The refresh token was 'deleted' but is still retrievable");
@@ -414,7 +414,7 @@
             var insertResult = await this.TokenRepository.InsertRefreshToken(new RefreshToken() { Token = "123456789", ValidTo = DateTimeOffset.UtcNow.AddMinutes(1), ClientId = "NUnit", RedirectUri = "http://localhost", Subject = "ovea" });
 
             var deleteResult = await this.TokenRepository.DeleteRefreshTokens(insertResult.ClientId, insertResult.RedirectUri, insertResult.Subject);
-            var refreshTokens = await this.TokenRepository.GetRefreshTokens(insertResult.ClientId, insertResult.RedirectUri, DateTimeOffset.UtcNow);
+            var refreshTokens = await this.TokenRepository.GetClientRefreshTokens(insertResult.ClientId, DateTimeOffset.UtcNow);
 
             Assert.Greater(deleteResult, 0);
             Assert.IsTrue(refreshTokens.All(x => !x.Equals(insertResult)), "The refresh token was 'deleted' but is still retrievable");

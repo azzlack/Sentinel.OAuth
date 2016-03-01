@@ -488,23 +488,22 @@
         }
 
         /// <summary>
-        /// Gets all refresh tokens that matches the specified redirect uri and expires after the
-        /// specified date. Called when authentication a refresh token to limit the number of tokens to
-        /// go through when validating the hash.
+        /// Gets all refresh tokens for the specified client id that expires after the specified date.
+        /// Called when authentication a refresh token to limit the number of tokens to go through when
+        /// validating the hash.
         /// </summary>
         /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTimeOffset expires)
+        public async Task<IEnumerable<IRefreshToken>> GetClientRefreshTokens(string clientId, DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
                 var data =
                     await
                     connection.QueryAsync(
-                        "SELECT * FROM RefreshTokens WHERE ClientId = @ClientId AND RedirectUri = @RedirectUri AND ValidTo > @Expires",
-                        new { ClientId = clientId, RedirectUri = redirectUri, Expires = expires });
+                        "SELECT * FROM RefreshTokens WHERE ClientId = @ClientId AND ValidTo > @Expires",
+                        new { ClientId = clientId, Expires = expires });
 
                 var tokens =
                     data.Select(
@@ -531,7 +530,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTimeOffset expires)
+        public async Task<IEnumerable<IRefreshToken>> GetUserRefreshTokens(string subject, DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {

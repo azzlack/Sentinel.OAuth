@@ -242,7 +242,7 @@
 
             Console.WriteLine("Token: {0}", token.Token);
 
-            var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", "http://localhost", token.Token);
+            var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", token.Token);
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating refresh token took {this.testStopwatch.Elapsed - createRefreshTokenElapsed} seconds");
@@ -270,7 +270,7 @@
 
             Console.WriteLine("Token: {0}", token.Token);
 
-            var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", "http://localhost", token.Token);
+            var user = await this.TokenManager.AuthenticateRefreshTokenAsync("NUnit", token.Token);
 
             Console.WriteLine();
             Console.WriteLine($"Authenticating refresh token took {this.testStopwatch.Elapsed - createRefreshTokenElapsed} seconds");

@@ -108,15 +108,14 @@
         Task<IRefreshToken> GetRefreshToken(string identifier);
 
         /// <summary>
-        /// Gets all refresh tokens that matches the specified redirect uri and expires after the
-        /// specified date. Called when authentication a refresh token to limit the number of tokens to
-        /// go through when validating the hash.
+        /// Gets all refresh tokens for the specified client id that expires after the specified date.
+        /// Called when authentication a refresh token to limit the number of tokens to go through when
+        /// validating the hash.
         /// </summary>
         /// <param name="clientId">Identifier for the client.</param>
-        /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string clientId, string redirectUri, DateTimeOffset expires);
+        Task<IEnumerable<IRefreshToken>> GetClientRefreshTokens(string clientId, DateTimeOffset expires);
 
         /// <summary>
         /// Gets all refresh tokens for the specified user that expires **after** the specified date. 
@@ -124,7 +123,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        Task<IEnumerable<IRefreshToken>> GetRefreshTokens(string subject, DateTimeOffset expires);
+        Task<IEnumerable<IRefreshToken>> GetUserRefreshTokens(string subject, DateTimeOffset expires);
 
         /// <summary>
         /// Inserts the specified refresh token.

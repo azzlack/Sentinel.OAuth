@@ -106,7 +106,7 @@
                 {
                     try
                     {
-                        var principal = await this.options.TokenManager.AuthenticateRefreshTokenAsync(clientId, redirectUri, context.Token);
+                        var principal = await this.options.TokenManager.AuthenticateRefreshTokenAsync(clientId, context.Token);
 
                         if (principal.Identity.IsAuthenticated)
                         {

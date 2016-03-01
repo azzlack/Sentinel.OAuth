@@ -124,17 +124,6 @@
             string clientId;
             string clientSecret;
 
-            // Validate that redirect uri is specified
-            // 'redirect_uri' must be specified for all calls that are not 'client_credentials' grants.
-            if (context.Parameters["redirect_uri"] == null && context.Parameters["grant_type"] != "client_credentials")
-            {
-                context.SetError("invalid_request");
-
-                this.options.Logger.Error("Redirect URI was not specified, the token request is not valid");
-
-                return;
-            }
-
             if (context.TryGetBasicCredentials(out clientId, out clientSecret)
                 || context.TryGetFormCredentials(out clientId, out clientSecret))
             {

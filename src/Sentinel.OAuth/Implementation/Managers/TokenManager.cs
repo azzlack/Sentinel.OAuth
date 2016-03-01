@@ -104,19 +104,18 @@
         /// <summary>Authenticates the refresh token.</summary>
         /// <param name="clientId">The client id.</param>
         /// <param name="refreshToken">The refresh token.</param>
-        /// <param name="redirectUri">The redirect URI.</param>
         /// <returns>The user principal.</returns>
-        public override async Task<ISentinelPrincipal> AuthenticateRefreshTokenAsync(string clientId, string redirectUri, string refreshToken)
+        public override async Task<ISentinelPrincipal> AuthenticateRefreshTokenAsync(string clientId, string refreshToken)
         {
-            this.logger.DebugFormat("Authenticating refresh token for client '{0}' and redirect uri '{1}'", clientId, redirectUri);
+            this.logger.DebugFormat("Authenticating refresh token for client '{0}'", clientId);
 
-            var relevantTokens = await this.TokenRepository.GetRefreshTokens(clientId, redirectUri, DateTimeOffset.UtcNow);
+            var relevantTokens = await this.TokenRepository.GetClientRefreshTokens(clientId, DateTimeOffset.UtcNow);
 
             var validationResult = await this.TokenProvider.ValidateRefreshToken(relevantTokens, refreshToken);
 
             if (validationResult.IsValid)
             {
-                if (validationResult.Entity.ClientId == clientId && validationResult.Entity.RedirectUri == redirectUri)
+                if (validationResult.Entity.ClientId == clientId)
                 {
                     this.logger.DebugFormat("Refresh token is valid. It belongs to the user '{0}', client '{1}' and redirect uri '{2}'", validationResult.Entity.Subject, validationResult.Entity.ClientId, validationResult.Entity.RedirectUri);
 
