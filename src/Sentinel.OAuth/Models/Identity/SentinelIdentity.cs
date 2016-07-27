@@ -53,6 +53,12 @@
 
             if (claimsIdentity != null)
             {
+                // Add subject claim because the JwtTokenHandler will not add it
+                if (!claimsIdentity.HasClaim(x => x.Type == JwtClaimType.Subject))
+                { 
+                    claimsIdentity.AddClaim(new Claim(JwtClaimType.Subject, claimsIdentity.Name));
+                }
+
                 foreach (var claim in claimsIdentity.Claims)
                 {
                     if (claim.Value == null)
@@ -282,14 +288,16 @@
         {
             lock (this.locker)
             {
-                var claim = this.Claims.FirstOrDefault(expression);
-
-                if (claim != null)
+                var claims = this.Claims.Where(expression);
+                if (claims.Any())
                 {
-                    var claims = this.Claims.ToList();
-                    claims.Remove(claim);
+                    var c = this.Claims.ToList();
+                    foreach (var claim in claims)
+                    {
+                        c.Remove(claim);
+                    }
 
-                    this.Claims = claims;
+                    this.Claims = c;
                 }
             }
         }

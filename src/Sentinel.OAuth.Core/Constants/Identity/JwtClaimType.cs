@@ -37,5 +37,8 @@
 
         /// <summary>The name claim type.</summary>
         public const string Name = "unique_name";
+
+        /// <summary>The name identifier claim type.</summary>
+        public const string NameIdentifier = "nameid";
     }
 }
