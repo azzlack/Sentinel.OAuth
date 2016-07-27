@@ -20,7 +20,7 @@
         {
             if (clientId == "NUnit" && redirectUri == "http://localhost")
             {
-                return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
+                return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, clientId)));
             }
 
             return SentinelPrincipal.Anonymous;
@@ -36,7 +36,7 @@
         {
             if (clientId == "NUnit")
             {
-                return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
+                return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, clientId)));
             }
 
             return SentinelPrincipal.Anonymous;
@@ -51,7 +51,7 @@
             // Return an authenticated principal if the client secret matches the client id
             if (clientId == clientSecret)
             {
-                return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, clientId)));
+                return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, clientId)));
             }
 
             return SentinelPrincipal.Anonymous;

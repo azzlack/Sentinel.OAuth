@@ -33,10 +33,10 @@
                     new SentinelPrincipal(
                         new SentinelIdentity(
                             AuthenticationType.OAuth,
-                            new SentinelClaim(ClaimTypes.Name, user.UserId),
+                            new SentinelClaim(JwtClaimType.Name, user.UserId),
                             new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.UserCredentials),
-                            new SentinelClaim(ClaimTypes.GivenName, user.FirstName),
-                            new SentinelClaim(ClaimTypes.Surname, user.LastName)));
+                            new SentinelClaim(JwtClaimType.GivenName, user.FirstName),
+                            new SentinelClaim(JwtClaimType.FamilyName, user.LastName)));
 
                 if (principal.Identity.IsAuthenticated)
                 {
@@ -70,10 +70,10 @@
                     new SentinelPrincipal(
                         new SentinelIdentity(
                             AuthenticationType.OAuth,
-                            new SentinelClaim(ClaimTypes.Name, user.UserId),
+                            new SentinelClaim(JwtClaimType.Name, user.UserId),
                             new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.UserId),
-                            new SentinelClaim(ClaimTypes.GivenName, user.FirstName),
-                            new SentinelClaim(ClaimTypes.Surname, user.LastName)));
+                            new SentinelClaim(JwtClaimType.GivenName, user.FirstName),
+                            new SentinelClaim(JwtClaimType.FamilyName, user.LastName)));
 
                 if (principal.Identity.IsAuthenticated)
                 {

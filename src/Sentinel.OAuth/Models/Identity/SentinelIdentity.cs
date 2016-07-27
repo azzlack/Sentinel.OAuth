@@ -62,7 +62,7 @@
 
                     if (!this.HasClaim(x => x.Type == claim.Type && x.Value == claim.Value))
                     {
-                        this.AddClaim(claim.Type, claim.Value);
+                        this.AddClaim(claim);
                     }
                 }
             }
@@ -217,7 +217,7 @@
                 // Get name from claims if not specified
                 if (string.IsNullOrEmpty(this.name))
                 {
-                    var nameClaim = this.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name || x.Type == JwtClaimType.Subject);
+                    var nameClaim = this.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name || x.Type == JwtClaimType.Name);
 
                     if (nameClaim != null)
                     {

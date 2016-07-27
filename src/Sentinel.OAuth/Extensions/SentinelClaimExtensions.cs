@@ -17,7 +17,7 @@
             {
                 if (claim is SentinelClaim)
                 {
-                    yield return claim as Claim;
+                    yield return (SentinelClaim)claim;
                 }
                 else
                 {

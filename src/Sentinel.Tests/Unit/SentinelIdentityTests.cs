@@ -14,7 +14,7 @@
         public void Deserialize_WhenGivenValidJson_ShouldReturnCorrectIdentity()
         {
             var json =
-                "{\"AuthenticationType\":\"OAuth\",\"Claims\":[{\"Type\":\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name\",\"Alias\":null,\"Value\":\"ovea\"}],\"IsAuthenticated\":true,\"Name\":\"ovea\"}";
+                "{\"AuthenticationType\":\"OAuth\",\"Claims\":[{\"Type\":\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name\",\"Value\":\"ovea\"}],\"IsAuthenticated\":true,\"Name\":\"ovea\"}";
 
             var i = JsonConvert.DeserializeObject<SentinelIdentity>(json);
 
@@ -32,7 +32,7 @@
 
             Console.WriteLine(json);
 
-            Assert.AreEqual("{\"AuthenticationType\":\"OAuth\",\"Claims\":[{\"Type\":\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name\",\"Alias\":null,\"Value\":\"ovea\"}],\"IsAuthenticated\":true,\"Name\":\"ovea\"}", json);
+            Assert.AreEqual("{\"AuthenticationType\":\"OAuth\",\"Claims\":[{\"Type\":\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name\",\"Value\":\"ovea\"}],\"IsAuthenticated\":true,\"Name\":\"ovea\"}", json);
         }
     }
 }

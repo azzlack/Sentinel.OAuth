@@ -36,7 +36,7 @@
                     new SentinelPrincipal(
                         new SentinelIdentity(
                             AuthenticationType.OAuth,
-                            new SentinelClaim(ClaimTypes.Name, clientId),
+                            new SentinelClaim(JwtClaimType.Name, clientId),
                             new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
                             new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ClientId)));
 
@@ -67,7 +67,7 @@
                         new SentinelPrincipal(
                             new SentinelIdentity(
                                 AuthenticationType.OAuth,
-                                new SentinelClaim(ClaimTypes.Name, clientId),
+                                new SentinelClaim(JwtClaimType.Name, clientId),
                                 new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
                                 new SentinelClaim(ClaimType.Scope, string.Join(" ", scope)),
                                 new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ClientId)));
@@ -99,7 +99,7 @@
                         new SentinelPrincipal(
                             new SentinelIdentity(
                                 AuthenticationType.OAuth,
-                                new SentinelClaim(ClaimTypes.Name, client.ClientId),
+                                new SentinelClaim(JwtClaimType.Name, client.ClientId),
                                 new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
                                 new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ClientCredentials)));
 

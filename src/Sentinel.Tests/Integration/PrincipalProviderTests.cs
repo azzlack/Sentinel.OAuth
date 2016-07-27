@@ -6,6 +6,7 @@
 
     using NUnit.Framework;
 
+    using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Implementation;
     using Sentinel.OAuth.Implementation.Providers;
@@ -27,7 +28,7 @@
         [TestCase("123456789")]
         public void Encrypt_WhenGivenValidPrincipal_ReturnsEncryptedPrincipal(string key)
         {
-            var c1 = new SentinelPrincipal(new SentinelIdentity("Test", new SentinelClaim(ClaimTypes.Name, "azzlack")));
+            var c1 = new SentinelPrincipal(new SentinelIdentity("Test", new SentinelClaim(JwtClaimType.Name, "azzlack")));
 
             var r = this.principalProvider.Encrypt(c1, key);
 
@@ -40,7 +41,7 @@
         [TestCase("123456789")]
         public void Decrypt_WhenGivenValidPrincipal_ReturnsDecryptedPrincipal(string key)
         {
-            var c1 = new SentinelPrincipal(new SentinelIdentity("Test", new SentinelClaim(ClaimTypes.Name, "azzlack")));
+            var c1 = new SentinelPrincipal(new SentinelIdentity("Test", new SentinelClaim(JwtClaimType.Name, "azzlack")));
 
             var r = this.principalProvider.Encrypt(c1, key);
 

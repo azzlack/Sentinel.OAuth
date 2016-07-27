@@ -92,7 +92,7 @@
                this.TokenProvider.CreateAuthorizationCode(
                    "NUnit",
                    "http://localhost",
-                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                    null,
                    DateTimeOffset.UtcNow.AddMinutes(5));
 
@@ -113,7 +113,7 @@
                this.TokenProvider.CreateAuthorizationCode(
                    "NUnit",
                    "http://localhost",
-                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                    null,
                    DateTimeOffset.UtcNow.AddMinutes(5));
 
@@ -130,7 +130,7 @@
                this.TokenProvider.CreateAuthorizationCode(
                    "NUnit",
                    "http://localhost",
-                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                    null,
                    DateTimeOffset.UtcNow.AddMinutes(5));
 
@@ -147,7 +147,7 @@
                this.TokenProvider.CreateAccessToken(
                    "NUnit",
                    "http://localhost",
-                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                    null,
                    DateTimeOffset.UtcNow.AddMinutes(5));
 
@@ -168,7 +168,7 @@
                this.TokenProvider.CreateAccessToken(
                    "NUnit",
                    "http://localhost",
-                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                    null,
                    DateTimeOffset.UtcNow.AddMinutes(5));
 
@@ -185,7 +185,7 @@
                this.TokenProvider.CreateAccessToken(
                    "NUnit",
                    "http://localhost",
-                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                    null,
                    DateTimeOffset.UtcNow.AddMinutes(5));
 
@@ -202,7 +202,7 @@
                this.TokenProvider.CreateRefreshToken(
                    "NUnit",
                    "http://localhost",
-                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                    null,
                    DateTimeOffset.UtcNow.AddMinutes(5));
 
@@ -222,7 +222,7 @@
                this.TokenProvider.CreateRefreshToken(
                    "NUnit",
                    "http://localhost",
-                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                    null,
                    DateTimeOffset.UtcNow.AddMinutes(5));
 
@@ -239,7 +239,7 @@
                this.TokenProvider.CreateRefreshToken(
                    "NUnit",
                    "http://localhost",
-                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
+                   new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, "azzlack"), new SentinelClaim(ClaimType.Client, "NUnit"))),
                    null,
                    DateTimeOffset.UtcNow.AddMinutes(5));
 

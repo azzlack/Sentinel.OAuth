@@ -28,5 +28,14 @@
 
         /// <summary>The authorization code hash claim type.</summary>
         public const string AuthorizationCodeHash = "c_hash";
+
+        /// <summary>The first name claim type.</summary>
+        public const string GivenName = "given_name";
+
+        /// <summary>The last name claim type.</summary>
+        public const string FamilyName = "family_name";
+
+        /// <summary>The name claim type.</summary>
+        public const string Name = "unique_name";
     }
 }

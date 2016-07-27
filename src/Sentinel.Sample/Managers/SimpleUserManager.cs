@@ -25,8 +25,8 @@
                     new SentinelPrincipal(
                         new SentinelIdentity(
                             AuthenticationType.OAuth,
-                            new SentinelClaim(ClaimTypes.Name, username),
-                            new SentinelClaim(ClaimTypes.NameIdentifier, username),
+                            new SentinelClaim(JwtClaimType.Name, username),
+                            new SentinelClaim(JwtClaimType.Subject, username),
                             new SentinelClaim(ClaimType.IdentityProvider, "Sentinel")));
             }
 
@@ -41,7 +41,7 @@
         /// <returns>The user principal.</returns>
         public async Task<ISentinelPrincipal> AuthenticateUserAsync(string username)
         {
-            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(ClaimTypes.Name, username)));
+            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, username)));
         }
     }
 }
