@@ -5,6 +5,7 @@
     using System.Security.Claims;
 
     using Sentinel.OAuth.Core.Interfaces.Identity;
+    using Sentinel.OAuth.Models.Identity;
 
     public static class SentinelClaimExtensions
     {
@@ -15,14 +16,14 @@
         {
             foreach (var claim in claims)
             {
-                var c = new Claim(claim.Type, claim.Value);
-
-                if (!string.IsNullOrEmpty(claim.Alias))
+                if (claim is SentinelClaim)
                 {
-                    c.Properties.Add(JwtSecurityTokenHandler.ShortClaimTypeProperty, claim.Alias);
+                    yield return claim as Claim;
                 }
-
-                yield return c;
+                else
+                {
+                    yield return new Claim(claim.Type, claim.Value);
+                }
             }
         } 
     }

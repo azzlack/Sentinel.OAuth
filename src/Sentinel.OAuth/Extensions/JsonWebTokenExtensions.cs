@@ -13,20 +13,29 @@
 
     public static class JsonWebTokenExtensions
     {
-        /// <summary>A JsonWebToken extension method that converts a jwt to an identity.</summary>
-        /// <param name="jwt">The token to act on.</param>
-        /// <returns>jwt as an ISentinelIdentity.</returns>
+        /// <summary>Converts the token to an ISentinelIdentity.</summary>
+        /// <param name="jwt">The token.</param>
+        /// <returns>The token as an ISentinelIdentity.</returns>
         public static ISentinelIdentity ToIdentity(this JsonWebToken jwt)
         {
-            return new SentinelIdentity("", jwt);
+            return new SentinelIdentity("JWT", jwt);
+        }
+
+        /// <summary>Converts the token to an ISentinelIdentity.</summary>
+        /// <param name="jwt">The token.</param>
+        /// <param name="authenticationType">The aythentication type.</param>
+        /// <returns>The token as an ISentinelIdentity.</returns>
+        public static ISentinelIdentity ToIdentity(this JsonWebToken jwt, string authenticationType)
+        {
+            return new SentinelIdentity(authenticationType, jwt);
         }
 
         /// <summary>Converts the Json Web Token to a list of <see cref="Claim"/>.</summary>
         /// <param name="jwt">The token to act on.</param>
         /// <returns>The claims.</returns>
-        public static IEnumerable<Claim> ToClaims(this JsonWebToken jwt)
+        public static IEnumerable<ISentinelClaim> ToClaims(this JsonWebToken jwt)
         {
-            return jwt.Payload.Select(x => new Claim(x.Key, x.Value.ToString()));
+            return jwt.Payload.Select(x => new SentinelClaim(x.Key, x.Value.ToString()));
         }
 
         /// <summary>Validates the authorization code.</summary>

@@ -1,7 +1,6 @@
 ﻿namespace Sentinel.OAuth.Implementation.Validators
 {
     using System;
-    using System.IdentityModel.Tokens;
     using System.Linq;
     using System.Security.Cryptography;
     using System.Text;

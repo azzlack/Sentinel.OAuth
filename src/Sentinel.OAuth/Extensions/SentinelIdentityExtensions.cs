@@ -30,14 +30,7 @@
 
             foreach (var claim in identity.Claims)
             {
-                if (!string.IsNullOrEmpty(claim.Alias))
-                {
-                    claims.Add(new KeyValuePair<string, string>(claim.Alias, claim.Value));
-                }
-                else
-                {
-                    claims.Add(new KeyValuePair<string, string>(claim.Type, claim.Value));
-                }
+                claims.Add(new KeyValuePair<string, string>(claim.Type, claim.Value));
             }
 
             return new IdentityResponse(claims);

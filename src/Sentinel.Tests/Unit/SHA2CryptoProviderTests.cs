@@ -97,7 +97,7 @@
         [TestCase(128, "aabbccddee")]
         public void Create_WhenGivenValidString_ReturnsHash(int saltByteSize, string text)
         {
-            var p = new SHA2CryptoProvider(Sentinel.OAuth.Core.Constants.HashAlgorithm.SHA512, saltByteSize);
+            var p = new SHA2CryptoProvider(Sentinel.OAuth.Core.Constants.HashAlgorithm.SHA256, saltByteSize);
 
             var hash = p.CreateHash(text);
 

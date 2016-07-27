@@ -6,6 +6,9 @@
     using System.Diagnostics;
     using System.IdentityModel.Tokens;
     using System.Security.Claims;
+    using System.IdentityModel.Claims;
+
+    using Claim = System.Security.Claims.Claim;
 
     /// <summary>A JSON-serializable claim.</summary>
     [DebuggerDisplay("Type: {Type}, Value: {Value}")]
@@ -17,13 +20,16 @@
         /// <param name="claim">The claim.</param>
         public SentinelClaim(Claim claim)
         {
-            this.Type = claim.Type;
-            this.Value = claim.Value;
-
-            if (claim.Properties.ContainsKey(JwtSecurityTokenHandler.ShortClaimTypeProperty))
+            if (JwtSecurityTokenHandler.OutboundClaimTypeMap.ContainsKey(claim.Type))
             {
-                this.Alias = claim.Properties[JwtSecurityTokenHandler.ShortClaimTypeProperty];
+                this.Type = JwtSecurityTokenHandler.OutboundClaimTypeMap[claim.Type];
             }
+            else
+            {
+                this.Type = claim.Type;
+            }
+
+            this.Value = claim.Value;
         }
 
         /// <summary>
@@ -42,10 +48,6 @@
         [JsonProperty]
         public string Type { get; }
 
-        /// <summary>Gets the alias.</summary>
-        /// <value>The alias.</value>
-        public string Alias { get; }
-
         /// <summary>Gets the value.</summary>
         /// <value>The value.</value>
         [JsonProperty]
@@ -58,12 +60,15 @@
         /// <returns>The result of the conversion.</returns>
         public static implicit operator Claim(SentinelClaim m)
         {
-            var c = new Claim(m.Type, m.Value);
+            Claim c;
 
-            // Add Alias if Claim was made from a JWT
-            if (!string.IsNullOrEmpty(m.Alias))
+            if (JwtSecurityTokenHandler.InboundClaimTypeMap.ContainsKey(m.Type))
             {
-                c.Properties.Add(JwtSecurityTokenHandler.ShortClaimTypeProperty, m.Alias);
+                c = new Claim(JwtSecurityTokenHandler.InboundClaimTypeMap[m.Type], m.Value);
+            }
+            else
+            {
+                c = new Claim(m.Type, m.Value);
             }
 
             return c;
