@@ -11,7 +11,8 @@
     [TestFixture]
     public class SentinelClaimTests
     {
-        [TestCase("sub", ClaimTypes.NameIdentifier)]
+        [TestCase(ClaimTypes.NameIdentifier, ClaimTypes.NameIdentifier)]
+        [TestCase("sub", "sub")]
         [TestCase("unique_name", ClaimTypes.Name)]
         [TestCase("given_name", ClaimTypes.GivenName)]
         [TestCase("family_name", ClaimTypes.Surname)]
@@ -27,7 +28,8 @@
             Console.WriteLine($"{s.Type} => {r.Type}");
         }
 
-        [TestCase(ClaimTypes.NameIdentifier, "nameid")]
+        [TestCase(ClaimTypes.NameIdentifier, ClaimTypes.NameIdentifier)]
+        [TestCase("sub", "sub")]
         [TestCase(ClaimTypes.Name, "unique_name")]
         [TestCase(ClaimTypes.GivenName, "given_name")]
         [TestCase(ClaimTypes.Surname, "family_name")]
