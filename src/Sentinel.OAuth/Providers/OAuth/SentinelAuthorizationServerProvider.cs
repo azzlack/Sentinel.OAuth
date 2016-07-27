@@ -245,7 +245,7 @@
                     this.options.Logger.Warn($"Client '{context.ClientId}' does not have a valid redirect uri, validation will not work.");
                 }
 
-                var ticket = new AuthenticationTicket(client.Identity.AsClaimsIdentity(), new AuthenticationProperties());
+                var ticket = new AuthenticationTicket(client.Identity.ToClaimsIdentity(), new AuthenticationProperties());
 
                 context.Validated(ticket);
 
@@ -305,7 +305,7 @@
             var principal = this.options.PrincipalProvider.Create(context.Options.AuthenticationType, user.Identity.Claims.ToArray());
 
             // Validate ticket
-            var ticket = new AuthenticationTicket(principal.Identity.AsClaimsIdentity(), new AuthenticationProperties());
+            var ticket = new AuthenticationTicket(principal.Identity.ToClaimsIdentity(), new AuthenticationProperties());
 
             context.Validated(ticket);
 
@@ -335,7 +335,7 @@
             user.Identity.RemoveClaim(x => x.Type == ClaimType.GrantType);
             user.Identity.AddClaim(ClaimType.GrantType, GrantType.AuthorizationCode);
 
-            context.Validated(user.Identity.AsClaimsIdentity());
+            context.Validated(user.Identity.ToClaimsIdentity());
         }
 
         /// <summary>
@@ -379,7 +379,7 @@
                 user = new SentinelPrincipal(args.Principal);
             }
 
-            context.Validated(user.Identity.AsClaimsIdentity());
+            context.Validated(user.Identity.ToClaimsIdentity());
         }
 
         /// <summary>Called before the TokenEndpoint redirects its response to the caller.</summary>

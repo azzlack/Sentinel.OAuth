@@ -29,7 +29,7 @@
             {
                 context.Response.ContentType = "application/json";
                 var identity = new SentinelIdentity(context.Authentication.User.Identity);
-                await context.Response.WriteAsync(JsonConvert.SerializeObject(identity.AsIdentityResponse()));
+                await context.Response.WriteAsync(JsonConvert.SerializeObject(identity.ToIdentityResponse()));
             }
             else
             {

@@ -61,7 +61,7 @@
                     IsPersistent = true,
                     ExpiresUtc = DateTimeOffset.UtcNow.Add(context.Options.AccessTokenExpireTimeSpan)
                 },
-                cookiePrincipal.Identity.AsClaimsIdentity());
+                cookiePrincipal.Identity.ToClaimsIdentity());
         }
     }
 }

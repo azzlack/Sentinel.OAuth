@@ -14,7 +14,7 @@
         /// </summary>
         /// <param name="identity">The identity.</param>
         /// <returns>A ClaimsIdentity.</returns>
-        public static ClaimsIdentity AsClaimsIdentity(this ISentinelIdentity identity)
+        public static ClaimsIdentity ToClaimsIdentity(this ISentinelIdentity identity)
         {
             return new ClaimsIdentity(identity.Claims.ToClaims(), identity.AuthenticationType);
         }
@@ -24,7 +24,7 @@
         /// </summary>
         /// <param name="identity">The identity.</param>
         /// <returns>An IdentityResponse.</returns>
-        public static IdentityResponse AsIdentityResponse(this ISentinelIdentity identity)
+        public static IdentityResponse ToIdentityResponse(this ISentinelIdentity identity)
         {
             var claims = new List<KeyValuePair<string, string>>();
 

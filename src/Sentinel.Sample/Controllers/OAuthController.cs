@@ -90,7 +90,7 @@
             var identity = new SentinelIdentity(OAuthDefaults.AuthenticationType, this.Authentication.User.Identity);
 
             this.Authentication.SignOut(OAuthDefaults.AuthenticationType);
-            this.Authentication.SignIn(identity.AsClaimsIdentity());
+            this.Authentication.SignIn(identity.ToClaimsIdentity());
 
             return await Task.FromResult(new EmptyResult());
         }

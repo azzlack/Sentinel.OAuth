@@ -63,7 +63,7 @@
                         ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1),
                         RedirectUri = model.ReturnUrl
                     },
-                    cookieIdentity.AsClaimsIdentity());
+                    cookieIdentity.ToClaimsIdentity());
 
                 if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                 {

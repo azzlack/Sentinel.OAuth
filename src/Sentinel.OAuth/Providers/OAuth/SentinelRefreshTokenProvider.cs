@@ -141,7 +141,7 @@
                                 }
                             }
 
-                            tcs.SetResult(new AuthenticationTicket(user.Identity.AsClaimsIdentity(), props));
+                            tcs.SetResult(new AuthenticationTicket(user.Identity.ToClaimsIdentity(), props));
                         }
                         else
                         {

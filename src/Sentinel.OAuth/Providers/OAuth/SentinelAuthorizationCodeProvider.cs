@@ -125,7 +125,7 @@
                             props.RedirectUri = parameters["redirect_uri"];
                             props.ExpiresUtc = DateTimeOffset.UtcNow.Add(this.options.AuthorizationCodeLifetime);
 
-                            tcs.SetResult(new AuthenticationTicket(principal.Identity.AsClaimsIdentity(), props));
+                            tcs.SetResult(new AuthenticationTicket(principal.Identity.ToClaimsIdentity(), props));
                         }
                         else
                         {

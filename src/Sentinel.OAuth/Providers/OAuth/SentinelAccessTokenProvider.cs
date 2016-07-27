@@ -163,7 +163,7 @@
                                 props.Dictionary.Add("client_id", principal.Identity.Claims.First(x => x.Type == ClaimType.Client).Value);
                             }
 
-                            tcs.SetResult(new AuthenticationTicket(principal.Identity.AsClaimsIdentity(), props));
+                            tcs.SetResult(new AuthenticationTicket(principal.Identity.ToClaimsIdentity(), props));
                         }
                         else
                         {

@@ -1,7 +1,6 @@
 ﻿namespace Sentinel.OAuth.Extensions
 {
     using System.Collections.Generic;
-    using System.IdentityModel.Tokens;
     using System.Security.Claims;
 
     using Sentinel.OAuth.Core.Interfaces.Identity;
