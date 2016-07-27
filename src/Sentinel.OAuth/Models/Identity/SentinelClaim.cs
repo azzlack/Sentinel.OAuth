@@ -6,7 +6,8 @@
     using System.Diagnostics;
     using System.IdentityModel.Tokens;
     using System.Security.Claims;
-    using System.IdentityModel.Claims;
+
+    using Sentinel.OAuth.Core.Constants.Identity;
 
     using Claim = System.Security.Claims.Claim;
 
@@ -22,7 +23,16 @@
         {
             if (JwtSecurityTokenHandler.OutboundClaimTypeMap.ContainsKey(claim.Type))
             {
-                this.Type = JwtSecurityTokenHandler.OutboundClaimTypeMap[claim.Type];
+                // The 'sub' claim must be converted in its original form, 
+                // because the JwtTokenHandler will convert it to the wrong claim type (NameIdentifier)
+                if (claim.Type == ClaimTypes.NameIdentifier)
+                {
+                    this.Type = ClaimTypes.NameIdentifier;
+                }
+                else
+                {
+                    this.Type = JwtSecurityTokenHandler.OutboundClaimTypeMap[claim.Type];
+                }
             }
             else
             {
@@ -64,7 +74,16 @@
 
             if (JwtSecurityTokenHandler.InboundClaimTypeMap.ContainsKey(m.Type))
             {
-                c = new Claim(JwtSecurityTokenHandler.InboundClaimTypeMap[m.Type], m.Value);
+                // The NameIdentifier claim must be converted manually, 
+                // because the JwtTokenHandler will convert it to the wrong claim type (nameid)
+                if (m.Type == JwtClaimType.Subject)
+                {
+                    c = new Claim(m.Type, m.Value);
+                }
+                else
+                {
+                    c = new Claim(JwtSecurityTokenHandler.InboundClaimTypeMap[m.Type], m.Value);
+                }
             }
             else
             {

@@ -16,7 +16,15 @@
         /// <returns>A ClaimsIdentity.</returns>
         public static ClaimsIdentity ToClaimsIdentity(this ISentinelIdentity identity)
         {
-            return new ClaimsIdentity(identity.Claims.ToClaims(), identity.AuthenticationType);
+            var i = new ClaimsIdentity(identity.Claims.ToClaims(), identity.AuthenticationType);
+
+            // Add name identifier claim if it doesnt exist
+            if (!i.HasClaim(x => x.Type == ClaimTypes.NameIdentifier))
+            {
+                i.AddClaim(new Claim(ClaimTypes.NameIdentifier, i.Name));
+            }
+
+            return i;
         }
 
         /// <summary>

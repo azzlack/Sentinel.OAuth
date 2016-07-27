@@ -1,0 +1,13 @@
+﻿@{
+    ViewBag.Title = "Home";
+}
+
+<div class="home">
+    <h1>Claims</h1>
+    <ul>
+        @foreach (var c in this.Request.GetOwinContext().Authentication.User.Claims)
+        {
+            <li>@c.Type: @c.Value</li>
+        }
+    </ul>
+</div>

@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Security.Claims;
 
+    using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Models.Identity;
 
@@ -13,17 +14,21 @@
         /// <returns>The claim.</returns>
         public static IEnumerable<Claim> ToClaims(this IEnumerable<ISentinelClaim> claims)
         {
+            var result = new List<Claim>();
+
             foreach (var claim in claims)
             {
                 if (claim is SentinelClaim)
                 {
-                    yield return (SentinelClaim)claim;
+                    result.Add((SentinelClaim)claim);
                 }
                 else
                 {
-                    yield return new Claim(claim.Type, claim.Value);
+                    result.Add(new Claim(claim.Type, claim.Value));
                 }
             }
+
+            return result;
         } 
     }
 }

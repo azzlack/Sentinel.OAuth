@@ -8,5 +8,11 @@
         {
             return this.View();
         }
+
+        [Authorize]
+        public ActionResult Profile()
+        {
+            return this.View();
+        }
     }
 }
