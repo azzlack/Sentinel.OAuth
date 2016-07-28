@@ -30,12 +30,6 @@
     {
         protected override async Task<AuthenticationTicket> AuthenticateCoreAsync()
         {
-            // If already logged in with Sentinel handler, return at once
-            if (this.Context.Authentication.User != null && this.Context.Authentication.User.Identity.IsAuthenticated && this.Context.Authentication.User.Identity.AuthenticationType == Constants.DefaultAuthenticationType)
-            {
-                return new AuthenticationTicket((ClaimsIdentity)this.Context.Authentication.User.Identity, new AuthenticationProperties());
-            }
-
             try
             {
                 var query = this.Request.Query;

@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Net.Http;
     using System.Security.Claims;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Web;
     using System.Web.Mvc;
@@ -15,9 +16,11 @@
 
     using Sentinel.OAuth.Client.Interfaces;
     using Sentinel.OAuth.Client.Mvc5.Models;
+    using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Models.OAuth.Http;
     using Sentinel.OAuth.Core.Models.Tokens;
     using Sentinel.OAuth.Extensions;
+    using Sentinel.OAuth.Models.Identity;
 
     using Constants = Sentinel.OAuth.Client.Mvc5.Constants;
 
@@ -53,21 +56,44 @@
 
         public virtual async Task<ActionResult> Index(LoginModel model)
         {
+            ActionResult result = null;
+
             if (this.ModelState.IsValid)
             {
-                return await this.ProcessLogin(model);
+                var loginResult = await this.ProcessLogin(model);
+
+                if (loginResult.IsAuthenticated)
+                {
+                    if (!string.IsNullOrEmpty(model.ReturnUrl) && this.Url.IsLocalUrl(model.ReturnUrl))
+                    {
+                        result = this.Redirect(model.ReturnUrl);
+                    }
+                    else
+                    {
+                        result = this.Redirect("/");
+                    }
+                }
+            }
+            else
+            {
+                model.Password = "";
+                model.Errors = this.ModelState.Keys.SelectMany(x => this.ModelState[x].Errors).Select(x => x.ErrorMessage).ToList();
             }
 
-            model.Password = "";
-            model.Errors = this.ModelState.Keys.SelectMany(x => this.ModelState[x].Errors).Select(x => x.ErrorMessage).ToList();
-
-            return new JsonResult { Data = model };
+            if (this.Request.AcceptTypes.Contains("text/html"))
+            {
+                return result ?? this.View(model);
+            }
+            else
+            {
+                return new JsonResult() { Data = model };
+            }
         }
 
         /// <summary>Processes the login using the specified username and password.</summary>
         /// <param name="model">The login model.</param>
         /// <returns>An action result.</returns>
-        public virtual async Task<ActionResult> ProcessLogin(LoginModel model)
+        public virtual async Task<ISentinelIdentity> ProcessLogin(LoginModel model)
         {
             AccessTokenResponse tokenResponse = null;
 
@@ -81,7 +107,7 @@
 
                 this.ModelState.AddModelError("Common", "The server seems to be having some problems right now, please try again later");
 
-                return this.View(model);
+                return SentinelIdentity.Anonymous;
             }
             catch (Exception ex)
             {
@@ -92,20 +118,10 @@
             {
                 this.ModelState.AddModelError("Common", "Username or password is invalid");
 
-                return this.View(model);
+                return SentinelIdentity.Anonymous;
             }
 
-            if (await this.ProcessTokenResponse(tokenResponse, true, model.ReturnUrl))
-            {
-                if (!string.IsNullOrEmpty(model.ReturnUrl) && this.Url.IsLocalUrl(model.ReturnUrl))
-                {
-                    return this.Redirect(model.ReturnUrl);
-                }
-
-                return this.Redirect("/");
-            }
-
-            return this.View(model);
+            return await this.ProcessTokenResponse(tokenResponse, model.RememberMe, model.ReturnUrl);
         }
 
         /// <summary>Process the token response from the API.</summary>
@@ -113,7 +129,7 @@
         /// <param name="rememberMe">true to remember login.</param>
         /// <param name="returnUrl">The return url.</param>
         /// <returns>A Task.</returns>
-        private async Task<bool> ProcessTokenResponse(AccessTokenResponse tokenResponse, bool rememberMe, string returnUrl)
+        private async Task<ISentinelIdentity> ProcessTokenResponse(AccessTokenResponse tokenResponse, bool rememberMe, string returnUrl)
         {
             // Log in using Sentinel authentication handler
             if (!string.IsNullOrEmpty(tokenResponse.IdToken))
@@ -133,14 +149,12 @@
                 // Sign in temporarily
                 this.Authentication.SignIn(props, cookieIdentity);
 
-                return true;
-            }
-            else
-            {
-                this.log.Warn($"No id_token received, unable to log in using {DefaultAuthenticationTypes.ApplicationCookie}");
+                return new SentinelIdentity(cookieIdentity);
             }
 
-            return false;
+            this.log.Warn($"No id_token received, unable to log in using {DefaultAuthenticationTypes.ApplicationCookie}");
+
+            return SentinelIdentity.Anonymous;
         }
     }
 }
