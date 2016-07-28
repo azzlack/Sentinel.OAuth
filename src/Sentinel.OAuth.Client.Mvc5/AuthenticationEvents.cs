@@ -175,7 +175,15 @@
         /// <returns>A Task.</returns>
         public virtual Task OnAuthenticated(IOwinContext context, ClaimsIdentity identity, AuthenticationProperties properties, SentinelAuthenticationOptions options)
         {
-            // TODO: Last minute claims changes
+            if (properties.Dictionary.ContainsKey("access_token") && !identity.HasClaim(x => x.Type == "access_token"))
+            {
+                identity.AddClaim(new Claim("access_token", properties.Dictionary["access_token"]));
+            }
+
+            if (properties.Dictionary.ContainsKey("refresh_token") && !identity.HasClaim(x => x.Type == "refresh_token"))
+            {
+                identity.AddClaim(new Claim("refresh_token", properties.Dictionary["refresh_token"]));
+            }
 
             return Task.FromResult<object>(null);
         }
