@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Net.Http;
+    using System.Security.Claims;
     using System.Threading.Tasks;
     using System.Web;
     using System.Web.Mvc;
@@ -17,6 +18,8 @@
     using Sentinel.OAuth.Core.Models.OAuth.Http;
     using Sentinel.OAuth.Core.Models.Tokens;
     using Sentinel.OAuth.Extensions;
+
+    using Constants = Sentinel.OAuth.Client.Mvc5.Constants;
 
     public class SentinelAuthenticationController : Controller
     {
@@ -42,6 +45,9 @@
         
         public virtual async Task<ActionResult> Index(string returnUrl = "")
         {
+            this.Authentication.SignOut(Constants.DefaultAuthenticationType);
+            this.Authentication.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+
             return this.View(new LoginModel() { ReturnUrl = returnUrl });
         }
 
@@ -122,6 +128,7 @@
 
                 // Create identity
                 var cookieIdentity = jwt.ToIdentity(DefaultAuthenticationTypes.ApplicationCookie).ToClaimsIdentity();
+                cookieIdentity.AddClaim(new Claim("access_token", tokenResponse.AccessToken));
 
                 // Sign in temporarily
                 this.Authentication.SignIn(props, cookieIdentity);

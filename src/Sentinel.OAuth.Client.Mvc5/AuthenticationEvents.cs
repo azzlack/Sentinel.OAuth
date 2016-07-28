@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
+    using System.Web.Helpers;
     using System.Web.Mvc;
 
     using Microsoft.AspNet.Identity;
@@ -73,50 +74,6 @@
                 }
 
                 context.Authentication.SignIn(props, cookieIdentity);
-
-                // Save access token, refresh token and identity token as cookies
-                if (options.CookieConfiguration.SaveTokens)
-                {
-                    var accessToken = props.Dictionary.ContainsKey("access_token") ? props.Dictionary["access_token"] : null;
-                    var refreshToken = props.Dictionary.ContainsKey("refresh_token") ? props.Dictionary["refresh_token"] : null;
-                    var identityToken = props.Dictionary.ContainsKey("id_token") ? props.Dictionary["id_token"] : null;
-
-                    if (!string.IsNullOrEmpty(accessToken))
-                    {
-                        context.Response.Cookies.Append(
-                            $"{options.CookieConfiguration.Name}_AT",
-                            accessToken,
-                            new CookieOptions()
-                            {
-                                Expires = props.ExpiresUtc?.DateTime,
-                                Secure = context.Request.IsSecure
-                            });
-                    }
-
-                    if (!string.IsNullOrEmpty(refreshToken))
-                    {
-                        context.Response.Cookies.Append(
-                            $"{options.CookieConfiguration.Name}_RT",
-                            refreshToken,
-                            new CookieOptions()
-                            {
-                                Expires = props.ExpiresUtc?.DateTime.Add(options.RefreshTokenLifetime),
-                                Secure = context.Request.IsSecure
-                            });
-                    }
-
-                    if (!string.IsNullOrEmpty(identityToken))
-                    {
-                        context.Response.Cookies.Append(
-                            $"{options.CookieConfiguration.Name}_IT",
-                            identityToken,
-                            new CookieOptions()
-                            {
-                                Expires = props.ExpiresUtc?.DateTime,
-                                Secure = context.Request.IsSecure
-                            });
-                    }
-                }
 
                 // Redirect to returnurl if valid
                 if (context.Request.IsLocalUrl(props.RedirectUri))

@@ -9,8 +9,10 @@
     using System.Security.Claims;
     using System.Text;
     using System.Threading.Tasks;
+    using System.Web.Helpers;
 
     using Microsoft.AspNet.Identity;
+    using Microsoft.Owin;
     using Microsoft.Owin.Logging;
     using Microsoft.Owin.Security;
     using Microsoft.Owin.Security.Infrastructure;
@@ -126,6 +128,68 @@
 
                 return null;
             }
+        }
+
+        protected override Task ApplyResponseGrantAsync()
+        {
+            var signin = this.Helper.LookupSignIn(this.Options.AuthenticationType);
+            var signout = this.Helper.LookupSignOut(this.Options.AuthenticationType, this.Options.AuthenticationMode);
+
+            if (signin != null)
+            {
+                // Save access token, refresh token and identity token as cookies
+                if (this.Options.CookieConfiguration.SaveTokens)
+                {
+                    var accessToken = signin.Properties.Dictionary.ContainsKey("access_token") ? signin.Properties.Dictionary["access_token"] : null;
+                    var refreshToken = signin.Properties.Dictionary.ContainsKey("refresh_token") ? signin.Properties.Dictionary["refresh_token"] : null;
+                    var identityToken = signin.Properties.Dictionary.ContainsKey("id_token") ? signin.Properties.Dictionary["id_token"] : null;
+
+                    if (!string.IsNullOrEmpty(accessToken))
+                    {
+                        this.Context.Response.Cookies.Append(
+                            $"{this.Options.CookieConfiguration.Name}_AT",
+                            accessToken,
+                            new CookieOptions()
+                            {
+                                Expires = signin.Properties.ExpiresUtc?.DateTime,
+                                Secure = this.Context.Request.IsSecure
+                            });
+                    }
+
+                    if (!string.IsNullOrEmpty(refreshToken))
+                    {
+                        this.Context.Response.Cookies.Append(
+                            $"{this.Options.CookieConfiguration.Name}_RT",
+                            refreshToken,
+                            new CookieOptions()
+                            {
+                                Expires = signin.Properties.ExpiresUtc?.DateTime.Add(this.Options.RefreshTokenLifetime),
+                                Secure = this.Context.Request.IsSecure
+                            });
+                    }
+
+                    if (!string.IsNullOrEmpty(identityToken))
+                    {
+                        this.Context.Response.Cookies.Append(
+                            $"{this.Options.CookieConfiguration.Name}_IT",
+                            identityToken,
+                            new CookieOptions()
+                            {
+                                Expires = signin.Properties.ExpiresUtc?.DateTime,
+                                Secure = this.Context.Request.IsSecure
+                            });
+                    }
+                }
+            }
+            else if (signout != null)
+            {
+                // Remove cookies
+                this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_AT");
+                this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_RT");
+                this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_IT");
+            }
+
+            return base.ApplyResponseGrantAsync();
         }
 
         protected override async Task ApplyResponseChallengeAsync()
