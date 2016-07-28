@@ -43,5 +43,8 @@
 
         /// <summary>The email claim type.</summary>
         public const string Email = "email";
+
+        /// <summary>The role claim type.</summary>
+        public const string Role = "role";
     }
 }

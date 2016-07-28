@@ -8,7 +8,7 @@
     public static class ClaimsIdentityExtensions
     {
         /// <summary>
-        ///     A ClaimsPrincipal extension method that converts a principal to a sentinel principal.
+        ///     A ClaimsIdentity extension method that converts a principal to a sentinel principal.
         /// </summary>
         /// <param name="identity">The identity.</param>
         /// <returns>A SentinelPrincipal.</returns>

@@ -20,23 +20,23 @@
         private readonly Lazy<ClaimsPrincipal> current = new Lazy<ClaimsPrincipal>(() => ClaimsPrincipal.Current);
 
         /// <summary>
-        ///     Initializes a new instance of the Sentinel.OAuth.Implementation.PrincipalProvider
-        ///     class.
+        /// Initializes a new instance of the <see cref="PrincipalProvider" /> class.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when one or more required arguments are null.
+        /// </exception>
         /// <param name="cryptoProvider">The crypto provider.</param>
         public PrincipalProvider(ICryptoProvider cryptoProvider)
         {
             if (cryptoProvider == null)
             {
-                throw new ArgumentNullException("cryptoProvider");
+                throw new ArgumentNullException(nameof(cryptoProvider));
             }
 
             this.cryptoProvider = cryptoProvider;
         }
 
-        /// <summary>
-        /// Creates an anonymous claims principal.
-        /// </summary>
+        /// <summary>Gets a new anonymous claims principal.</summary>
         /// <value>An anonymous claims principal.</value>
         public ISentinelPrincipal Anonymous
         {
@@ -68,7 +68,7 @@
         {
             if (claims == null)
             {
-                throw new ArgumentNullException("claims");
+                throw new ArgumentNullException(nameof(claims));
             }
 
             return new SentinelPrincipal(new SentinelIdentity(authenticationType, claims));

@@ -100,24 +100,12 @@
         /// <summary>Gets the roles.</summary>
         /// <value>The roles.</value>
         [JsonIgnore]
-        public IEnumerable<string> Roles
-        {
-            get
-            {
-                return this.Identity.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value);
-            }
-        }
+        public IEnumerable<string> Roles => this.Identity.Roles;
 
         /// <summary>Gets the scopes.</summary>
         /// <value>The scopes.</value>
         [JsonIgnore]
-        public IEnumerable<string> Scopes
-        {
-            get
-            {
-                return this.Identity.Claims.Where(x => x.Type == ClaimType.Scope).Select(x => x.Value);
-            }
-        }
+        public IEnumerable<string> Scopes => this.Identity.Scopes;
 
         /// <summary>
         /// Gets the actual identity.
@@ -132,7 +120,7 @@
         /// </returns>
         public bool IsInRole(string role)
         {
-            return this.Identity.Claims.Any(x => x.Type == ClaimTypes.Role && x.Value == role);
+            return this.Identity.IsInRole(role);
         }
 
         /// <summary>

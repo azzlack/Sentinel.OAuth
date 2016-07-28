@@ -21,6 +21,6 @@
 
         /// <summary>Gets the scopes.</summary>
         /// <value>The scopes.</value>
-        IEnumerable<string> Scopes { get; } 
+        IEnumerable<string> Scopes { get; }
     }
 }

@@ -204,6 +204,28 @@
             }
         }
 
+        /// <summary>Gets the roles.</summary>
+        /// <value>The roles.</value>
+        [JsonIgnore]
+        public IEnumerable<string> Roles
+        {
+            get
+            {
+                return this.Claims.Where(x => x.Type == JwtClaimType.Role || x.Type == ClaimTypes.Role).Select(x => x.Value);
+            }
+        }
+
+        /// <summary>Gets the scopes.</summary>
+        /// <value>The scopes.</value>
+        [JsonIgnore]
+        public IEnumerable<string> Scopes
+        {
+            get
+            {
+                return this.Claims.Where(x => x.Type == ClaimType.Scope).Select(x => x.Value);
+            }
+        }
+
         /// <summary>
         /// Gets a value indicating whether this instance is authenticated.
         /// For this value to be true, both AuthenticationType and Name must set to a non-null value.
@@ -307,6 +329,16 @@
         public string ToJson()
         {
             return JsonConvert.SerializeObject(this);
+        }
+
+        /// <summary>Determines whether the current identity belongs to the specified role.</summary>
+        /// <param name="role">The name of the role for which to check membership.</param>
+        /// <returns>
+        /// true if the current identity is a member of the specified role; otherwise, false.
+        /// </returns>
+        public bool IsInRole(string role)
+        {
+            return this.Claims.Any(x => (x.Type == JwtClaimType.Role || x.Type == ClaimTypes.Role) && x.Value == role);
         }
 
         /// <summary>Runs the specified expression against the claimset and returns true if it contains a claim matching the predicate.</summary>

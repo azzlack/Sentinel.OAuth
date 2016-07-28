@@ -10,7 +10,22 @@
         /// <summary>Gets the claims.</summary>
         /// <value>The claims.</value>
         IEnumerable<ISentinelClaim> Claims { get; }
-        
+
+        /// <summary>Gets the roles.</summary>
+        /// <value>The roles.</value>
+        IEnumerable<string> Roles { get; }
+
+        /// <summary>Gets the scopes.</summary>
+        /// <value>The scopes.</value>
+        IEnumerable<string> Scopes { get; }
+
+        /// <summary>Determines whether the current identity belongs to the specified role.</summary>
+        /// <param name="role">The name of the role for which to check membership.</param>
+        /// <returns>
+        /// true if the current identity is a member of the specified role; otherwise, false.
+        /// </returns>
+        bool IsInRole(string role);
+
         /// <summary>Runs the specified expression against the claimset and returns true if it contains a claim matching the predicate.</summary>
         /// <param name="expression">The expression.</param>
         /// <returns><c>true</c> if the claim exists, <c>false</c> if not.</returns>

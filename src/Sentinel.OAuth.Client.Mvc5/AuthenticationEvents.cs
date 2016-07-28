@@ -119,7 +119,7 @@
                 }
 
                 // Redirect to returnurl if valid
-                if (!string.IsNullOrEmpty(props.RedirectUri) && context.Request.IsLocalUrl(props.RedirectUri))
+                if (context.Request.IsLocalUrl(props.RedirectUri))
                 {
                     context.Response.Redirect(props.RedirectUri);
                 }

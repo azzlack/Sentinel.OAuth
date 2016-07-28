@@ -94,6 +94,7 @@
     <Compile Include="Converters\SentinelClaimConverter.cs" />
     <Compile Include="Extensions\AppBuilderExtensions.cs" />
     <Compile Include="Extensions\ClaimsIdentityExtensions.cs" />
+    <Compile Include="Extensions\ClaimsPrincipalExtensions.cs" />
     <Compile Include="Extensions\JsonWebTokenExtensions.cs" />
     <Compile Include="Extensions\OwinContextExtensions.cs" />
     <Compile Include="Extensions\SentinelClaimExtensions.cs" />
