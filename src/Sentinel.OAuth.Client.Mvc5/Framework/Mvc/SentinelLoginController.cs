@@ -24,7 +24,7 @@
 
     using Constants = Sentinel.OAuth.Client.Mvc5.Constants;
 
-    public class SentinelAuthenticationController : Controller
+    public abstract class SentinelLoginController : Controller
     {
         /// <summary>The oauth client.</summary>
         private readonly IOAuthClient oauthClient;
@@ -36,11 +36,11 @@
         private IAuthenticationManager Authentication => this.HttpContext.GetOwinContext().Authentication;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SentinelAuthenticationController" /> class.
+        /// Initializes a new instance of the <see cref="SentinelLoginController" /> class.
         /// </summary>
         /// <param name="oauthClient">The oauth client.</param>
         /// <param name="log">The log.</param>
-        public SentinelAuthenticationController(IOAuthClient oauthClient, ILog log)
+        protected SentinelLoginController(IOAuthClient oauthClient, ILog log)
         {
             this.oauthClient = oauthClient;
             this.log = log;

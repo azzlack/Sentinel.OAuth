@@ -111,7 +111,9 @@
     <Compile Include="AuthenticationEndpoints.cs" />
     <Compile Include="AuthenticationEvents.cs" />
     <Compile Include="Extensions\OwinRequestExtensions.cs" />
-    <Compile Include="Framework\Mvc\SentinelAuthenticationController.cs" />
+    <Compile Include="Framework\Mvc\AliasModelBinder.cs" />
+    <Compile Include="Framework\Mvc\SentinelOAuthController.cs" />
+    <Compile Include="Framework\Mvc\SentinelLoginController.cs" />
     <Compile Include="Framework\Owin\AppBuilderExtensions.cs" />
     <Compile Include="Framework\Owin\SentinelAuthenticationHandler.cs" />
     <Compile Include="Framework\Owin\SentinelAuthenticationMiddleware.cs" />
@@ -119,6 +121,7 @@
     <Compile Include="CookieConfiguration.cs" />
     <Compile Include="Models\Http\QueryBuilder.cs" />
     <Compile Include="Models\LoginModel.cs" />
+    <Compile Include="Models\OAuthLoginViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
