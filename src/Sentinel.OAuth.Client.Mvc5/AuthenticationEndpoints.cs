@@ -2,6 +2,19 @@
 {
     public class AuthenticationEndpoints
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthenticationEndpoints" /> class.
+        /// </summary>
+        public AuthenticationEndpoints()
+        {
+            this.AuthorizationCodeEndpointUrl = "/oauth/authorize";
+            this.TokenEndpointUrl = "/oauth/token";
+            this.IdentityEndpointUrl = "/openid/userinfo";
+            this.LoginEndpointUrl = "/sentinel_auth/login";
+            this.LogoutEndpointUrl = "/sentinel_auth/logout";
+            this.ErrorEndpointUrl = "/sentinel_auth/error";
+        }
+
         /// <summary>Gets or sets the authorize endpoint.</summary>
         /// <value>The authorization code endpoint URL.</value>
         public string AuthorizationCodeEndpointUrl { get; set; }

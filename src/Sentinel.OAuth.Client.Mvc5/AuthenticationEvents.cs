@@ -49,7 +49,7 @@
             if (context.Authentication.User != null && context.Authentication.User.Identity.IsAuthenticated)
             {
                 var sentinelIdentity = context.Authentication.User.Identities.FirstOrDefault(x => x.AuthenticationType == Constants.DefaultAuthenticationType);
-
+                
                 if (sentinelIdentity == null)
                 {
                     return;

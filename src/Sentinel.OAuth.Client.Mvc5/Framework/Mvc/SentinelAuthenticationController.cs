@@ -27,7 +27,7 @@
         private readonly ILog log;
 
         /// <summary>The authentication context.</summary>
-        private readonly IAuthenticationManager authentication;
+        private IAuthenticationManager Authentication => this.HttpContext.GetOwinContext().Authentication;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SentinelAuthenticationController" /> class.
@@ -38,19 +38,13 @@
         {
             this.oauthClient = oauthClient;
             this.log = log;
-
-            this.authentication = this.HttpContext.GetOwinContext().Authentication;
         }
         
-        [AllowAnonymous]
         public virtual async Task<ActionResult> Index(string returnUrl = "")
         {
             return this.View(new LoginModel() { ReturnUrl = returnUrl });
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [AllowAnonymous]
         public virtual async Task<ActionResult> Index(LoginModel model)
         {
             if (this.ModelState.IsValid)
@@ -130,7 +124,9 @@
                 var cookieIdentity = jwt.ToIdentity(DefaultAuthenticationTypes.ApplicationCookie).ToClaimsIdentity();
 
                 // Sign in temporarily
-                this.authentication.SignIn(props, cookieIdentity);
+                this.Authentication.SignIn(props, cookieIdentity);
+
+                return true;
             }
             else
             {

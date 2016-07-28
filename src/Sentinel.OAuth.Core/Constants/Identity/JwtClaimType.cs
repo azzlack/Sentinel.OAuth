@@ -40,5 +40,8 @@
 
         /// <summary>The name identifier claim type.</summary>
         public const string NameIdentifier = "nameid";
+
+        /// <summary>The email claim type.</summary>
+        public const string Email = "email";
     }
 }

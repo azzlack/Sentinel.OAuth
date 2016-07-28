@@ -36,7 +36,7 @@
                                      AuthorizationCodeEndpointUrl = $"{this.AuthenticationServerUrl}/oauth/authorize",
                                      TokenEndpointUrl = $"{this.AuthenticationServerUrl}/oauth/token",
                                      IdentityEndpointUrl = $"{this.AuthenticationServerUrl}/openid/userinfo"
-                                 };
+                                };
         }
 
         internal ILogger Logger { get; set; }

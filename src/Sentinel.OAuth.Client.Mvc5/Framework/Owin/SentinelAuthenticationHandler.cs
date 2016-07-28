@@ -159,7 +159,7 @@
             {
                 var jwt = new JsonWebToken(tokenResponse.IdToken);
 
-                identity = jwt.ToIdentity(DefaultAuthenticationTypes.ApplicationCookie).ToClaimsIdentity();
+                identity = jwt.ToIdentity(Constants.DefaultAuthenticationType).ToClaimsIdentity();
             }
             else
             {
