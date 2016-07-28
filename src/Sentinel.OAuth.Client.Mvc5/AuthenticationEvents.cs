@@ -4,11 +4,13 @@
     using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
+    using System.Web.Mvc;
 
     using Microsoft.AspNet.Identity;
     using Microsoft.Owin;
     using Microsoft.Owin.Security;
 
+    using Sentinel.OAuth.Client.Mvc5.Extensions;
     using Sentinel.OAuth.Client.Mvc5.Framework.Owin;
     using Sentinel.OAuth.Core.Models.OAuth.Http;
 
@@ -117,15 +119,9 @@
                 }
 
                 // Redirect to returnurl if valid
-                if (!string.IsNullOrEmpty(props.RedirectUri))
+                if (!string.IsNullOrEmpty(props.RedirectUri) && context.Request.IsLocalUrl(props.RedirectUri))
                 {
-                    var host = new Uri(context.Request.Uri.GetLeftPart(UriPartial.Authority));
-                    var returnUrl = new Uri(props.RedirectUri);
-
-                    if (!returnUrl.IsAbsoluteUri || host.IsBaseOf(returnUrl))
-                    {
-                        context.Response.Redirect(returnUrl.ToString());
-                    }
+                    context.Response.Redirect(props.RedirectUri);
                 }
                 else
                 {
@@ -206,7 +202,16 @@
             context.Authentication.SignOut(Constants.DefaultAuthenticationType);
             context.Authentication.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
 
-            context.Response.Redirect("/");
+            var returnUrl = context.Request.Query["ReturnUrl"];
+
+            if (!string.IsNullOrEmpty(returnUrl) && context.Request.IsLocalUrl(returnUrl))
+            {
+                context.Response.Redirect(returnUrl);
+            }
+            else
+            {
+                context.Response.Redirect("/");
+            }
 
             return Task.FromResult<object>(null);
         }
