@@ -199,6 +199,10 @@
     <Compile Include="ViewModels\OAuthAuthorizeViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Sentinel.OAuth.Client.Mvc5\Sentinel.OAuth.Client.Mvc5.csproj">
+      <Project>{D988BEA0-A598-41CB-AA78-212E796ED22D}</Project>
+      <Name>Sentinel.OAuth.Client.Mvc5</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sentinel.OAuth.Core\Sentinel.OAuth.Core.csproj">
       <Project>{3590e38c-f48f-4dc6-bb12-06eb919a70e3}</Project>
       <Name>Sentinel.OAuth.Core</Name>

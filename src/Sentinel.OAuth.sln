@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sentinel.OAuth.Core", "Sentinel.OAuth.Core\Sentinel.OAuth.Core.csproj", "{3590E38C-F48F-4DC6-BB12-06EB919A70E3}"
 EndProject
@@ -30,6 +30,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ClientManagers", "ClientManagers", "{41C05C8A-B544-4ED1-8AEF-26F05D099361}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlServerClientRepository", "Sentinel.OAuth.ClientManagers.SqlServerClientRepository\SqlServerClientRepository.csproj", "{88416938-B37F-4289-A6A0-6521A5370CE0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sentinel.OAuth.Client.Mvc5", "Sentinel.OAuth.Client.Mvc5\Sentinel.OAuth.Client.Mvc5.csproj", "{D988BEA0-A598-41CB-AA78-212E796ED22D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -127,6 +129,14 @@ Global
 		{88416938-B37F-4289-A6A0-6521A5370CE0}.Staging|Any CPU.Build.0 = Release|Any CPU
 		{88416938-B37F-4289-A6A0-6521A5370CE0}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{88416938-B37F-4289-A6A0-6521A5370CE0}.Test|Any CPU.Build.0 = Release|Any CPU
+		{D988BEA0-A598-41CB-AA78-212E796ED22D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D988BEA0-A598-41CB-AA78-212E796ED22D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D988BEA0-A598-41CB-AA78-212E796ED22D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D988BEA0-A598-41CB-AA78-212E796ED22D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D988BEA0-A598-41CB-AA78-212E796ED22D}.Staging|Any CPU.ActiveCfg = Release|Any CPU
+		{D988BEA0-A598-41CB-AA78-212E796ED22D}.Staging|Any CPU.Build.0 = Release|Any CPU
+		{D988BEA0-A598-41CB-AA78-212E796ED22D}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{D988BEA0-A598-41CB-AA78-212E796ED22D}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

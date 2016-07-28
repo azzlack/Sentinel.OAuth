@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Sentinel.OAuth.Client.Mvc5</id>
+    <version>1.0.0</version>
+    <title>Sentinel OAuth Client</title>
+    <authors>Ove Andersen</authors>
+    <owners>EyeCatch</owners>
+    <licenseUrl>http://www.eyecatch.no/licenses/apache-20/</licenseUrl>
+    <projectUrl>https://github.com/azzlack/Sentinel.OAuth</projectUrl>
+    <iconUrl>http://www.eyecatch.no/favicon.ico</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>An easy to use OAuth 2 authentication provider for ASP.NET MVC5 and OWIN.</description>
+    <summary>An easy to use OAuth 2 authentication provider for ASP.NET MVC5 and OWIN.</summary>
+	<releaseNotes></releaseNotes>
+    <copyright>Copyright EyeCatch 2016</copyright>
+    <language>en-US</language>
+    <tags>oauth webapi mvc owin security authentication authorization eyecatch</tags>
+    <dependencies>
+      <dependency id="Sentinel.OAuth.Core" version="2.0.0" />
+      <dependency id="Sentinel.OAuth.Client" version="2.0.0" />
+      <dependency id="Sentinel.OAuth" version="2.1.0" />
+	  <dependency id="Common.Logging.Core" version="3.1.0" />
+	  <dependency id="Microsoft.AspNet.Mvc" version="5.2.0" />
+	  <dependency id="Microsoft.Owin.Security.Cookies" version="3.0.0" />
+	  <dependency id="Microsoft.Owin.Security.OAuth" version="3.0.0" />
+	  <dependency id="Microsoft.AspNet.Identity.Core" version="2.2.0" />
+	  <dependency id="Microsoft.Owin.Host.SystemWeb" version="3.0.0" />
+    </dependencies> 
+  </metadata>
+  <files>
+	<file src="..\..\src\Sentinel.OAuth.Client.Mvc5\bin\Release\Sentinel.OAuth.Client.Mvc5.dll" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.Client.Mvc5\bin\Release\Sentinel.OAuth.Client.Mvc5.pdb" target="lib\net45" />
+	<file src="..\..\src\Sentinel.OAuth.Client.Mvc5\**\*.cs" exclude="**\obj\**\*.*" target="src" />
+  </files>
+</package>
