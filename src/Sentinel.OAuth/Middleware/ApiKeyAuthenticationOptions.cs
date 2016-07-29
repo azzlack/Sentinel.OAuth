@@ -12,7 +12,7 @@
     {
         /// <summary>Initializes a new instance of the <see cref="ApiKeyAuthenticationOptions" /> class.</summary>
         public ApiKeyAuthenticationOptions()
-            : base("Basic")
+            : base("ApiKey")
         {
         }
 
