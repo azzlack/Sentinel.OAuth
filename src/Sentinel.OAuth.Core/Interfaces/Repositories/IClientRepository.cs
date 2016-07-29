@@ -1,8 +1,9 @@
 ﻿namespace Sentinel.OAuth.Core.Interfaces.Repositories
 {
-    using Sentinel.OAuth.Core.Interfaces.Models;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+
+    using Sentinel.OAuth.Core.Interfaces.Models;
 
     public interface IClientRepository
     {
@@ -14,5 +15,12 @@
         /// <param name="clientId">Identifier for the client.</param>
         /// <returns>The client.</returns>
         Task<IClient> GetClient(string clientId);
+
+        /// <summary>Updates the specified client.</summary>
+        /// <typeparam name="T">The primary key type.</typeparam>
+        /// <param name="id">The client identifier.</param>
+        /// <param name="client">The client.</param>
+        /// <returns>The updated client.</returns>
+        Task<IClient> Update<T>(T id, IClient client);
     }
 }

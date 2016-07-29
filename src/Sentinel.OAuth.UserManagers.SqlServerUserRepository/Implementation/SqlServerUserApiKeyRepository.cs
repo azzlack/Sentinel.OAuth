@@ -27,7 +27,7 @@
         /// <summary>Gets the api keys for the specified user.</summary>
         /// <param name="userId">The user identifier.</param>
         /// <returns>A collection of api keys.</returns>
-        public async Task<IEnumerable<IUserApiKey>> GetForUserAsync(string userId)
+        public async Task<IEnumerable<IUserApiKey>> GetForUser(string userId)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -51,6 +51,41 @@
                         });
 
                 return apiKeys;
+            }
+        }
+
+        /// <summary>Updates the specified api key.</summary>
+        /// <typeparam name="T">The primary key type.</typeparam>
+        /// <param name="id">The api key identifier.</param>
+        /// <param name="apiKey">The api key.</param>
+        /// <returns>The updated key.</returns>
+        public async Task<IUserApiKey> Update<T>(T id, IUserApiKey apiKey)
+        {
+            using (var connection = await this.OpenConnection())
+            {
+                var k = (SqlUserApiKey)apiKey;
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        connection.Execute(
+                            "UPDATE UserApiKeys SET UserId = @UserId, ApiKey = @ApiKey, Name = @Name, Description = @Description, LastUsed = @LastUsed, Created = @Created WHERE Id = @Id",
+                            new { Id = id, k.UserId, k.ApiKey, k.Name, k.Description, k.LastUsed, k.Created },
+                            transaction);
+
+                        transaction.Commit();
+
+                        var result = await connection.QueryAsync<SqlUserApiKey>("SELECT * FROM UserApiKeys WHERE Id = @Id", new { Id = id });
+
+                        return result.FirstOrDefault();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
             }
         }
 

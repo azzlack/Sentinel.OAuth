@@ -83,6 +83,41 @@
             }
         }
 
+        /// <summary>Updates the specified client.</summary>
+        /// <typeparam name="T">The primary key type.</typeparam>
+        /// <param name="id">The client identifier.</param>
+        /// <param name="client">The client.</param>
+        /// <returns>The updated client.</returns>
+        public async Task<IClient> Update<T>(T id, IClient client)
+        {
+            using (var connection = await this.OpenConnection())
+            {
+                var k = (SqlClient)client;
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        connection.Execute(
+                            "UPDATE Clients SET ClientId = @ClientId, ClientSecret = @ClientSecret, Name = @Name, RedirectUri = @RedirectUri, Enabled = @Enabled, LastUsed = @LastUsed, Created = @Created WHERE Id = @Id",
+                            new { Id = id, k.ClientId, k.ClientSecret, k.Name, k.RedirectUri, k.Enabled, k.LastUsed, k.Created },
+                            transaction);
+
+                        transaction.Commit();
+
+                        var result = await connection.QueryAsync<SqlClient>("SELECT * FROM Clients WHERE Id = @Id", new { Id = id });
+
+                        return result.FirstOrDefault();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
         /// <summary>Opens the connection.</summary>
         /// <returns>A SqlConnection.</returns>
         private async Task<SqlConnection> OpenConnection()

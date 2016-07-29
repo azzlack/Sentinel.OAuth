@@ -84,6 +84,41 @@
             }
         }
 
+        /// <summary>Updates the specified user.</summary>
+        /// <typeparam name="T">The primary key type.</typeparam>
+        /// <param name="id">The user identifier.</param>
+        /// <param name="user">The user.</param>
+        /// <returns>The updated user.</returns>
+        public async Task<IUser> Update<T>(T id, IUser user)
+        {
+            using (var connection = await this.OpenConnection())
+            {
+                var k = (SqlUser)user;
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        connection.Execute(
+                            "UPDATE Users SET UserId = @UserId, Password = @Password, FirstName = @FirstName, LastName = @LastName, Enabled = @Enabled, LastLogin = @LastLogin, Created = @Created WHERE Id = @Id",
+                            new { Id = id, k.UserId, k.Password, k.FirstName, k.LastName, k.Enabled, k.LastLogin, k.Created },
+                            transaction);
+
+                        transaction.Commit();
+
+                        var result = await connection.QueryAsync<SqlUser>("SELECT * FROM Users WHERE Id = @Id", new { Id = id });
+
+                        return result.FirstOrDefault();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
         /// <summary>Opens the connection.</summary>
         /// <returns>A SqlConnection.</returns>
         private async Task<SqlConnection> OpenConnection()

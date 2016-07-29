@@ -1,5 +1,7 @@
 ﻿namespace Sentinel.OAuth.Implementation.Managers
 {
+    using System;
+
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Providers;
@@ -42,7 +44,8 @@
 
                 if (principal.Identity.IsAuthenticated)
                 {
-                    // TODO: Update lastused date
+                    client.LastUsed = DateTimeOffset.UtcNow;
+                    await this.ClientRepository.Update(clientId, client);
 
                     return principal;
                 }
@@ -74,7 +77,8 @@
 
                 if (principal.Identity.IsAuthenticated)
                 {
-                    // TODO: Update lastused date
+                    client.LastUsed = DateTimeOffset.UtcNow;
+                    await this.ClientRepository.Update(clientId, client);
 
                     return principal;
                 }
@@ -105,7 +109,8 @@
 
                     if (principal.Identity.IsAuthenticated)
                     {
-                        // TODO: Update lastused date
+                        client.LastUsed = DateTimeOffset.UtcNow;
+                        await this.ClientRepository.Update(clientId, client);
 
                         return principal;
                     }

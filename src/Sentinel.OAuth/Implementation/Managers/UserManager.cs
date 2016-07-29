@@ -11,7 +11,6 @@
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.Core.Managers;
     using Sentinel.OAuth.Core.Models;
-    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Models.Identity;
 
     public class UserManager : BaseUserManager
@@ -47,12 +46,8 @@
 
                 if (principal.Identity.IsAuthenticated)
                 {
-                    // TODO: Update last login date
-                    //await
-                    //    connection.ExecuteAsync(
-                    //        "UPDATE Users SET LastLogin = @LastLogin WHERE Username = @Username",
-                    //        new { LastLogin = DateTimeOffset.UtcNow, Username = user.Username },
-                    //        transaction);
+                    user.LastLogin = DateTimeOffset.UtcNow;
+                    await this.UserRepository.Update(username, user);
 
                     return principal;
                 }
@@ -84,12 +79,8 @@
 
                 if (principal.Identity.IsAuthenticated)
                 {
-                    // TODO: Update last login date
-                    //await
-                    //    connection.ExecuteAsync(
-                    //        "UPDATE Users SET LastLogin = @LastLogin WHERE Username = @Username",
-                    //        new { LastLogin = DateTimeOffset.UtcNow, Username = user.Username },
-                    //        transaction);
+                    user.LastLogin = DateTimeOffset.UtcNow;
+                    await this.UserRepository.Update(username, user);
 
                     return principal;
                 }
@@ -98,9 +89,12 @@
             return SentinelPrincipal.Anonymous;
         }
 
+        /// <summary>Authenticate the user using an API key.</summary>
+        /// <param name="digest">The digest.</param>
+        /// <returns>The user principal.</returns>
         public override async Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(ApiKeyAuthenticationDigest digest)
         {
-            var userKeys = await this.UserApiKeyRepository.GetForUserAsync(digest.UserId);
+            var userKeys = await this.UserApiKeyRepository.GetForUser(digest.UserId);
 
             IUserApiKey matchingKey = null;
             foreach (var key in userKeys)
@@ -141,9 +135,11 @@
                                 new SentinelClaim(JwtClaimType.GivenName, user.FirstName),
                                 new SentinelClaim(JwtClaimType.FamilyName, user.LastName)));
 
-                    // TODO: Update last login date
-                    //matchingKey.LastUsed = DateTime.UtcNow;
-                    //await this.UserApiKeyRepository.UpdateAsync(matchingKey.GetIdentifier(), matchingKey);
+                    user.LastLogin = DateTimeOffset.UtcNow;
+                    await this.UserRepository.Update(matchingKey.UserId, user);
+
+                    matchingKey.LastUsed = DateTimeOffset.UtcNow;
+                    await this.UserApiKeyRepository.Update(matchingKey.GetIdentifier(), matchingKey);
 
                     return principal;
                 }
