@@ -27,7 +27,10 @@
             query.Add("error", ex.Message);
             query.Add("error_uri", context.Request.Uri.ToString());
 
-            context.Response.Redirect($"{options.Endpoints.ErrorEndpointUrl}{query}");
+            if (context.Request.IsLocalUrl(options.Endpoints.ErrorEndpointUrl))
+            { 
+                context.Response.Redirect($"{options.Endpoints.ErrorEndpointUrl}{query}");
+            }
 
             return Task.FromResult<object>(null);
         }
@@ -45,8 +48,11 @@
             query.Add("error", errorTitle);
             query.Add("error_description", errorDescription);
             query.Add("error_uri", errorUri);
-
-            context.Response.Redirect($"{options.Endpoints.ErrorEndpointUrl}{query}");
+            
+            if (context.Request.IsLocalUrl(options.Endpoints.ErrorEndpointUrl))
+            {
+                context.Response.Redirect($"{options.Endpoints.ErrorEndpointUrl}{query}");
+            }
 
             return Task.FromResult<object>(null);
         }
@@ -126,7 +132,10 @@
             query.Add("error", errorType);
             query.Add("error_uri", context.Request.Uri.ToString());
 
-            context.Response.Redirect($"{options.Endpoints.ErrorEndpointUrl}{query}");
+            if (context.Request.IsLocalUrl(options.Endpoints.ErrorEndpointUrl))
+            {
+                context.Response.Redirect($"{options.Endpoints.ErrorEndpointUrl}{query}");
+            }
 
             return Task.FromResult<object>(null);
         }
@@ -142,7 +151,10 @@
             query.Add("error", "invalid_token");
             query.Add("error_uri", context.Request.Uri.ToString());
 
-            context.Response.Redirect($"{options.Endpoints.ErrorEndpointUrl}{query}");
+            if (context.Request.IsLocalUrl(options.Endpoints.ErrorEndpointUrl))
+            {
+                context.Response.Redirect($"{options.Endpoints.ErrorEndpointUrl}{query}");
+            }
 
             return Task.FromResult<object>(null);
         }
@@ -192,7 +204,7 @@
 
             var returnUrl = context.Request.Query["ReturnUrl"];
 
-            if (!string.IsNullOrEmpty(returnUrl) && context.Request.IsLocalUrl(returnUrl))
+            if (context.Request.IsLocalUrl(returnUrl))
             {
                 context.Response.Redirect(returnUrl);
             }
