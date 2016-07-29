@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
@@ -33,6 +34,34 @@
             try
             {
                 var query = this.Request.Query;
+
+                // Try to refresh token if allowrefresh is true
+                if (this.Context.Authentication.User != null && !this.Context.Authentication.User.Identity.IsAuthenticated)
+                {
+                    var refreshCookie = this.Context.Request.Cookies.FirstOrDefault(x => x.Key == $"{this.Options.CookieConfiguration.Name}_RT");
+
+                    if (refreshCookie.Value != null)
+                    {
+                        var refreshTokenResponse = await this.RefreshTokenAsync(refreshCookie.Value, this.Options.RedirectUri);
+
+                        if (refreshTokenResponse != null)
+                        {
+                            // Sign in as sentinel identity
+                            var props = new AuthenticationProperties()
+                                            {
+                                                RedirectUri = this.Context.Request.Uri.ToString()
+                                            };
+                            var ticket = await this.SignInAsync(refreshTokenResponse, props);
+
+                            await this.Options.Events.OnTokenRefreshed(this.Context, ticket, this.Options);
+
+                            return ticket;
+                        }
+
+                        // Delete refresh token if it didnt work
+                        this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_RT");
+                    }
+                }
 
                 // Check for errors
                 var error = query["error"];
@@ -188,22 +217,22 @@
 
         protected override async Task ApplyResponseChallengeAsync()
         {
-            if (this.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
-            {
-                var challenge = this.Helper.LookupChallenge(this.Options.AuthenticationType, this.Options.AuthenticationMode);
+            var sentinelChallenge = this.Helper.LookupChallenge(this.Options.AuthenticationType, this.Options.AuthenticationMode);
 
-                if (challenge != null)
+            if (sentinelChallenge != null)
+            {
+                if (this.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
                 {
                     // Set RedirectUri if not set
-                    if (string.IsNullOrEmpty(challenge.Properties.RedirectUri))
+                    if (string.IsNullOrEmpty(sentinelChallenge.Properties.RedirectUri))
                     {
-                        challenge.Properties.RedirectUri = this.Request.Uri.ToString();
+                        sentinelChallenge.Properties.RedirectUri = this.Request.Uri.ToString();
                     }
 
                     // Set correlation to prevent CSRF
-                    this.GenerateCorrelationId(challenge.Properties);
+                    this.GenerateCorrelationId(sentinelChallenge.Properties);
 
-                    this.Response.Redirect(this.BuildChallengeUrl(challenge.Properties, this.Options.RedirectUri));
+                    this.Response.Redirect(this.BuildChallengeUrl(sentinelChallenge.Properties, this.Options.RedirectUri));
                 }
             }
         }
@@ -256,6 +285,32 @@
             this.Context.Authentication.AuthenticationResponseGrant = new AuthenticationResponseGrant(identity, properties);
 
             return new AuthenticationTicket(identity, properties);
+        }
+
+        protected virtual async Task<AccessTokenResponse> RefreshTokenAsync(string refreshToken, string redirectUri)
+        {
+            // Build up the body for the token request
+            var tokenRequestParameters = new Dictionary<string, string>
+                                             {
+                                                 { "grant_type", "refresh_token" },
+                                                 { "refresh_token", refreshToken },
+                                                 { "redirect_uri", redirectUri }
+                                             };
+
+            var requestContent = new FormUrlEncodedContent(tokenRequestParameters);
+
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, this.Options.Endpoints.TokenEndpointUrl);
+            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            requestMessage.Headers.Authorization = new BasicAuthenticationHeaderValue(this.Options.ClientId, this.Options.ClientSecret);
+            requestMessage.Content = requestContent;
+            var response = await this.Options.Backchannel.SendAsync(requestMessage);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<AccessTokenResponse>(await response.Content.ReadAsStringAsync());
+            }
+
+            return null;
         }
 
         protected virtual async Task<AccessTokenResponse> ExchangeCodeAsync(string code, string redirectUri)

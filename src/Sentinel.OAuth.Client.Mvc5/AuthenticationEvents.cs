@@ -4,8 +4,6 @@
     using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
-    using System.Web.Helpers;
-    using System.Web.Mvc;
 
     using Microsoft.AspNet.Identity;
     using Microsoft.Owin;
@@ -41,6 +39,25 @@
             // TODO: Redirect to error endpoint with the error as query parameters
 
             return Task.FromResult<object>(null);
+        }
+
+        /// <summary>Executes the token refreshed action.</summary>
+        /// <param name="context">The current OWIN context.</param>
+        /// <param name="ticket">The ticket.</param>
+        /// <param name="options">The authentication options.</param>
+        /// <returns>A Task.</returns>
+        public virtual async Task OnTokenRefreshed(IOwinContext context, AuthenticationTicket ticket, SentinelAuthenticationOptions options)
+        {
+            // Login with cookie identity at once
+            var cookieIdentity = new ClaimsIdentity(ticket.Identity.Claims, DefaultAuthenticationTypes.ApplicationCookie);
+
+            // Persist cookie if it has an expire date
+            if (ticket.Properties.ExpiresUtc != null)
+            {
+                ticket.Properties.IsPersistent = true;
+            }
+
+            context.Authentication.SignIn(ticket.Properties, cookieIdentity);
         }
 
         /// <summary>Executes the authorize callback action.</summary>
