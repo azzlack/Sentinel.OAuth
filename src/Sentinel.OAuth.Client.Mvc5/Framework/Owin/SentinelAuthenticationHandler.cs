@@ -10,7 +10,6 @@
     using System.Security.Claims;
     using System.Text;
     using System.Threading.Tasks;
-    using System.Web.Helpers;
 
     using Microsoft.AspNet.Identity;
     using Microsoft.Owin;
@@ -25,8 +24,6 @@
     using Sentinel.OAuth.Core.Models.Tokens;
     using Sentinel.OAuth.Extensions;
 
-    using Constants = Sentinel.OAuth.Client.Mvc5.Constants;
-
     public class SentinelAuthenticationHandler : AuthenticationHandler<SentinelAuthenticationOptions>
     {
         protected override async Task<AuthenticationTicket> AuthenticateCoreAsync()
@@ -35,7 +32,7 @@
             {
                 var query = this.Request.Query;
 
-                // Try to refresh token if allowrefresh is true
+                // Try to refresh token if a cookie exists
                 if (this.Context.Authentication.User != null && !this.Context.Authentication.User.Identity.IsAuthenticated)
                 {
                     var refreshCookie = this.Context.Request.Cookies.FirstOrDefault(x => x.Key == $"{this.Options.CookieConfiguration.Name}_RT");
@@ -57,6 +54,8 @@
 
                             return ticket;
                         }
+
+                        this.Options.Logger.WriteError("Refresh token found, but was unable to use it to retrieve a new access token");
 
                         // Delete refresh token if it didnt work
                         this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_RT");

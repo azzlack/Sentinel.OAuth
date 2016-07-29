@@ -11,6 +11,7 @@
 
     using Sentinel.OAuth.Client.Mvc5.Extensions;
     using Sentinel.OAuth.Client.Mvc5.Framework.Owin;
+    using Sentinel.OAuth.Client.Mvc5.Models.Http;
     using Sentinel.OAuth.Core.Models.OAuth.Http;
 
     public class AuthenticationEvents
@@ -22,7 +23,11 @@
         /// <returns>A Task.</returns>
         public virtual Task OnException(IOwinContext context, SentinelAuthenticationOptions options, Exception ex)
         {
-            // TODO: Redirect to error endpoint with the error as query parameters. 
+            var query = new QueryBuilder();
+            query.Add("error", ex.Message);
+            query.Add("error_uri", context.Request.Uri.ToString());
+
+            context.Response.Redirect($"{options.Endpoints.ErrorEndpointUrl}{query}");
 
             return Task.FromResult<object>(null);
         }
@@ -36,7 +41,12 @@
         /// <returns>A Task.</returns>
         public virtual Task OnAuthorizeError(IOwinContext context, SentinelAuthenticationOptions options, string errorTitle, string errorDescription, string errorUri)
         {
-            // TODO: Redirect to error endpoint with the error as query parameters
+            var query = new QueryBuilder();
+            query.Add("error", errorTitle);
+            query.Add("error_description", errorDescription);
+            query.Add("error_uri", errorUri);
+
+            context.Response.Redirect($"{options.Endpoints.ErrorEndpointUrl}{query}");
 
             return Task.FromResult<object>(null);
         }
@@ -112,19 +122,11 @@
         /// <returns>A Task.</returns>
         public virtual Task OnStateError(IOwinContext context, SentinelAuthenticationOptions options, AuthenticationProperties properties, string errorType)
         {
-            // TODO: Redirect to error endpoint with the error as query parameters
+            var query = new QueryBuilder();
+            query.Add("error", errorType);
+            query.Add("error_uri", context.Request.Uri.ToString());
 
-            return Task.FromResult<object>(null);
-        }
-
-        /// <summary>Gets or sets the code error handler.</summary>
-        /// <param name="context">The current OWIN context.</param>
-        /// <param name="options">The authentication options.</param>
-        /// <param name="code">The code.</param>
-        /// <returns>A Task.</returns>
-        public virtual Task OnCodeError(IOwinContext context, SentinelAuthenticationOptions options, string code)
-        {
-            // TODO: Redirect to error endpoint with the error as query parameters
+            context.Response.Redirect($"{options.Endpoints.ErrorEndpointUrl}{query}");
 
             return Task.FromResult<object>(null);
         }
@@ -136,7 +138,11 @@
         /// <returns>A Task.</returns>
         public virtual Task OnTokenError(IOwinContext context, SentinelAuthenticationOptions options, AccessTokenResponse tokenResponse)
         {
-            // TODO: Redirect to error endpoint with the error as query parameters. 
+            var query = new QueryBuilder();
+            query.Add("error", "invalid_token");
+            query.Add("error_uri", context.Request.Uri.ToString());
+
+            context.Response.Redirect($"{options.Endpoints.ErrorEndpointUrl}{query}");
 
             return Task.FromResult<object>(null);
         }
