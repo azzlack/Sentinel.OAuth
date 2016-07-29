@@ -26,6 +26,6 @@
 
         /// <summary>Gets the identifier.</summary>
         /// <returns>The identifier.</returns>
-        string GetIdentifier();
+        object GetIdentifier();
     }
 }

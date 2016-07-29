@@ -45,7 +45,7 @@
                 if (principal.Identity.IsAuthenticated)
                 {
                     client.LastUsed = DateTimeOffset.UtcNow;
-                    await this.ClientRepository.Update(clientId, client);
+                    await this.ClientRepository.Update(client.GetIdentifier(), client);
 
                     return principal;
                 }
@@ -78,7 +78,7 @@
                 if (principal.Identity.IsAuthenticated)
                 {
                     client.LastUsed = DateTimeOffset.UtcNow;
-                    await this.ClientRepository.Update(clientId, client);
+                    await this.ClientRepository.Update(client.GetIdentifier(), client);
 
                     return principal;
                 }
@@ -110,7 +110,7 @@
                     if (principal.Identity.IsAuthenticated)
                     {
                         client.LastUsed = DateTimeOffset.UtcNow;
-                        await this.ClientRepository.Update(clientId, client);
+                        await this.ClientRepository.Update(client.GetIdentifier(), client);
 
                         return principal;
                     }

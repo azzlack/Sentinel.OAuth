@@ -47,7 +47,7 @@
                 if (principal.Identity.IsAuthenticated)
                 {
                     user.LastLogin = DateTimeOffset.UtcNow;
-                    await this.UserRepository.Update(username, user);
+                    await this.UserRepository.Update(user.GetIdentifier(), user);
 
                     return principal;
                 }
@@ -80,7 +80,7 @@
                 if (principal.Identity.IsAuthenticated)
                 {
                     user.LastLogin = DateTimeOffset.UtcNow;
-                    await this.UserRepository.Update(username, user);
+                    await this.UserRepository.Update(user.GetIdentifier(), user);
 
                     return principal;
                 }
@@ -136,7 +136,7 @@
                                 new SentinelClaim(JwtClaimType.FamilyName, user.LastName)));
 
                     user.LastLogin = DateTimeOffset.UtcNow;
-                    await this.UserRepository.Update(matchingKey.UserId, user);
+                    await this.UserRepository.Update(user.GetIdentifier(), user);
 
                     matchingKey.LastUsed = DateTimeOffset.UtcNow;
                     await this.UserApiKeyRepository.Update(matchingKey.GetIdentifier(), matchingKey);

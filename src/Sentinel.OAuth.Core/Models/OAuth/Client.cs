@@ -60,7 +60,7 @@
 
         /// <summary>Gets the identifier.</summary>
         /// <returns>The identifier.</returns>
-        public virtual string GetIdentifier()
+        public virtual object GetIdentifier()
         {
             return $"{this.ClientId}|{this.RedirectUri}";
         }
@@ -68,10 +68,11 @@
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
         /// </summary>
-        /// <returns>
-        /// true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false.
-        /// </returns>
         /// <param name="other">An object to compare with this object.</param>
+        /// <returns>
+        /// true if the current object is equal to the <paramref name="other"/> parameter; otherwise,
+        /// false.
+        /// </returns>
         public virtual bool Equals(IClient other)
         {
             if (this.ClientId == other.ClientId && this.RedirectUri == other.RedirectUri)

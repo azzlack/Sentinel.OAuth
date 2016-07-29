@@ -7,12 +7,12 @@
 
     public class SqlClient : Client
     {
-        /// <summary>Initializes a new instance of the Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models.OAuth.SqlClient class.</summary>
+        /// <summary>Initializes a new instance of the <see cref="SqlClient" /> class.</summary>
         public SqlClient()
         {
         }
 
-        /// <summary>Initializes a new instance of the Sentinel.OAuth.TokenManagers.SqlServerTokenRepository.Models.OAuth.SqlClient class.</summary>
+        /// <summary>Initializes a new instance of the <see cref="SqlClient" /> class.</summary>
         /// <param name="client">The client.</param>
         public SqlClient(IClient client)
             : base(client)
@@ -32,5 +32,12 @@
         /// <summary>Gets or sets the created.</summary>
         /// <value>The created.</value>
         public DateTimeOffset Created { get; set; }
+
+        /// <summary>Gets the identifier.</summary>
+        /// <returns>The identifier.</returns>
+        public override object GetIdentifier()
+        {
+            return this.Id;
+        }
     }
 }

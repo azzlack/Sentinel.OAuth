@@ -32,5 +32,12 @@
         /// <summary>Gets or sets the created.</summary>
         /// <value>The created.</value>
         public DateTimeOffset Created { get; set; }
+
+        /// <summary>Gets the identifier.</summary>
+        /// <returns>The identifier.</returns>
+        public override object GetIdentifier()
+        {
+            return this.Id;
+        }
     }
 }

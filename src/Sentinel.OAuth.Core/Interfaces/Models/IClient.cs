@@ -4,33 +4,23 @@
 
     public interface IClient : IEquatable<IClient>
     {
-        /// <summary>
-        /// Gets or sets the id.
-        /// </summary>
+        /// <summary>Gets or sets the id.</summary>
         /// <value>The id.</value>
         string ClientId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the client secret.
-        /// </summary>
+        /// <summary>Gets or sets the client secret.</summary>
         /// <value>The client secret.</value>
         string ClientSecret { get; set; }
 
-        /// <summary>
-        /// Gets or sets the redirect uri.
-        /// </summary>
+        /// <summary>Gets or sets the redirect uri.</summary>
         /// <value>The redirect uri.</value>
         string RedirectUri { get; set; }
 
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
+        /// <summary>Gets or sets the name.</summary>
         /// <value>The name.</value>
         string Name { get; set; }
 
-        /// <summary>
-        /// Gets or sets the last used date.
-        /// </summary>
+        /// <summary>Gets or sets the last used date.</summary>
         /// <value>The last used date.</value>
         DateTimeOffset LastUsed { get; set; }
 
@@ -42,6 +32,6 @@
 
         /// <summary>Gets the identifier.</summary>
         /// <returns>The identifier.</returns>
-        string GetIdentifier();
+        object GetIdentifier();
     }
 }

@@ -93,7 +93,6 @@
 
         [TestCase(64, "aabbccddee")]
         [TestCase(48, "123")]
-        [TestCase(64, "aabbccddee")]
         [TestCase(128, "aabbccddee")]
         public void Create_WhenGivenValidString_ReturnsHash(int saltByteSize, string text)
         {
