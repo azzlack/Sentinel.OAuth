@@ -13,6 +13,7 @@
             this.LoginEndpointUrl = "/sentinel_auth/login";
             this.LogoutEndpointUrl = "/sentinel_auth/logout";
             this.ErrorEndpointUrl = "/sentinel_auth/error";
+            this.RefreshEndpointUrl = "/sentinel_auth/refresh";
         }
 
         /// <summary>Gets or sets the authorize endpoint.</summary>
@@ -38,5 +39,9 @@
         /// <summary>Gets or sets the logout endpoint.</summary>
         /// <value>The logout endpoint URL.</value>
         public string LogoutEndpointUrl { get; set; }
+
+        /// <summary>Gets or sets the refresh endpoint.</summary>
+        /// <value>The refresh endpoint URL.</value>
+        public string RefreshEndpointUrl { get; set; }
     }
 }

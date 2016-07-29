@@ -1,18 +1,25 @@
 ﻿namespace Sentinel.OAuth.Client.Mvc5
 {
     using System;
+    using System.IO;
     using System.Linq;
+    using System.Net;
+    using System.Net.Http;
     using System.Security.Claims;
     using System.Threading.Tasks;
 
     using Microsoft.AspNet.Identity;
     using Microsoft.Owin;
+    using Microsoft.Owin.Logging;
     using Microsoft.Owin.Security;
+
+    using Newtonsoft.Json;
 
     using Sentinel.OAuth.Client.Mvc5.Extensions;
     using Sentinel.OAuth.Client.Mvc5.Framework.Owin;
     using Sentinel.OAuth.Client.Mvc5.Models.Http;
     using Sentinel.OAuth.Core.Models.OAuth.Http;
+    using Sentinel.OAuth.Models.Identity;
 
     public class AuthenticationEvents
     {
@@ -214,6 +221,55 @@
             }
 
             return Task.FromResult<object>(null);
+        }
+
+        /// <summary>Refreshes the token.</summary>
+        /// <param name="context">The current OWIN context.</param>
+        /// <param name="options">The authentication options.</param>
+        /// <returns>A Task.</returns>
+        public virtual async Task OnRefresh(IOwinContext context, SentinelAuthenticationOptions options)
+        {
+            var user = new SentinelPrincipal(context.Authentication.User);
+
+            // Always return json from this endpoint
+            context.Response.ContentType = "application/json";
+
+            // Dont refresh if user is authenticated and more than 1 minute remains of its validness
+            if (user.Identity.IsAuthenticated && user.ValidTo.Subtract(DateTimeOffset.UtcNow) > TimeSpan.FromMinutes(1))
+            {
+                return;
+            }
+
+            var refreshCookie = context.Request.Cookies.FirstOrDefault(x => x.Key == $"{options.CookieConfiguration.Name}_RT");
+
+            if (refreshCookie.Value != null)
+            {
+                var refreshTokenResponse = await options.TicketHandler.RefreshTokenAsync(context, options, refreshCookie.Value, options.RedirectUri);
+
+                if (refreshTokenResponse != null)
+                {
+                    // Sign in as sentinel identity
+                    var props = new AuthenticationProperties()
+                    {
+                        RedirectUri = context.Request.Uri.ToString()
+                    };
+                    var ticket = await options.TicketHandler.SignInAsync(context, options, refreshTokenResponse, props);
+
+                    await options.Events.OnTokenRefreshed(context, ticket, options);
+
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(refreshTokenResponse));
+
+                    return;
+                }
+
+                options.Logger.WriteError("Refresh token found, but was unable to use it to retrieve a new access token");
+
+                // Delete refresh token if it didnt work
+                context.Response.Cookies.Delete($"{options.CookieConfiguration.Name}_RT");
+            }
+
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            await context.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorResponse("invalid_refresh_token")));
         }
     }
 }

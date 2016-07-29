@@ -62,6 +62,17 @@
                                 });
                     });
 
+            app.Map(
+                options.Endpoints.RefreshEndpointUrl,
+                builder =>
+                    {
+                        builder.Run(
+                            async context =>
+                                {
+                                    await options.Events.OnRefresh(context, options);
+                                });
+                    });
+
             app.MapWhen(
                 context =>
                     {

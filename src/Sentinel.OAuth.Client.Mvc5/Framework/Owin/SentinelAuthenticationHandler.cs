@@ -19,6 +19,7 @@
 
     using Newtonsoft.Json;
 
+    using Sentinel.OAuth.Client.Mvc5.Extensions;
     using Sentinel.OAuth.Client.Mvc5.Models.Http;
     using Sentinel.OAuth.Core.Models.OAuth.Http;
     using Sentinel.OAuth.Core.Models.Tokens;
@@ -28,6 +29,11 @@
     {
         protected override async Task<AuthenticationTicket> AuthenticateCoreAsync()
         {
+            if (!this.ValidateRequest())
+            {
+                return null;
+            }
+
             try
             {
                 var query = this.Request.Query;
@@ -39,7 +45,7 @@
 
                     if (refreshCookie.Value != null)
                     {
-                        var refreshTokenResponse = await this.RefreshTokenAsync(refreshCookie.Value, this.Options.RedirectUri);
+                        var refreshTokenResponse = await this.Options.TicketHandler.RefreshTokenAsync(this.Context, this.Options, refreshCookie.Value, this.Options.RedirectUri);
 
                         if (refreshTokenResponse != null)
                         {
@@ -48,7 +54,7 @@
                                             {
                                                 RedirectUri = this.Context.Request.Uri.ToString()
                                             };
-                            var ticket = await this.SignInAsync(refreshTokenResponse, props);
+                            var ticket = await this.Options.TicketHandler.SignInAsync(this.Context, this.Options, refreshTokenResponse, props);
 
                             await this.Options.Events.OnTokenRefreshed(this.Context, ticket, this.Options);
 
@@ -129,7 +135,7 @@
                     return null;
                 }
 
-                var tokenResponse = await this.ExchangeCodeAsync(code, this.Options.RedirectUri);
+                var tokenResponse = await this.Options.TicketHandler.ExchangeCodeAsync(this.Context, this.Options, code, this.Options.RedirectUri);
 
                 if (string.IsNullOrEmpty(tokenResponse.AccessToken))
                 {
@@ -140,7 +146,7 @@
                     return null;
                 }
 
-                return await this.SignInAsync(tokenResponse, properties);
+                return await this.Options.TicketHandler.SignInAsync(this.Context, this.Options, tokenResponse, properties);
             }
             catch (Exception ex)
             {
@@ -236,107 +242,26 @@
             }
         }
 
-        protected virtual async Task<AuthenticationTicket> SignInAsync(AccessTokenResponse tokenResponse, AuthenticationProperties properties)
+        /// <summary>Validates that the request should be acted upon.</summary>
+        /// <returns>true if it the request should be acted upon, otherwise false.</returns>
+        private bool ValidateRequest()
         {
-            // Get user identity
-            var identity = new ClaimsIdentity();
-
-            if (!string.IsNullOrEmpty(tokenResponse.IdToken))
+            if (this.Context.Request.IsSameUrl(this.Options.Endpoints.ErrorEndpointUrl))
             {
-                var jwt = new JsonWebToken(tokenResponse.IdToken);
-
-                identity = jwt.ToIdentity(Mvc5.Constants.DefaultAuthenticationType).ToClaimsIdentity();
-            }
-            else
-            {
-                // TODO: Get user by making a request to the userinfo endpoint
+                return false;
             }
 
-            // Add tokens to ticket
-            properties.Dictionary.Add("access_token", tokenResponse.AccessToken);
-
-            if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
+            if (this.Context.Request.IsSameUrl(this.Options.Endpoints.RefreshEndpointUrl))
             {
-                properties.Dictionary.Add("refresh_token", tokenResponse.RefreshToken);
+                return false;
             }
 
-            if (!string.IsNullOrEmpty(tokenResponse.IdToken))
+            if (this.Context.Request.IsSameUrl(this.Options.Endpoints.LogoutEndpointUrl))
             {
-                properties.Dictionary.Add("id_token", tokenResponse.IdToken);
+                return false;
             }
 
-            if (!string.IsNullOrEmpty(tokenResponse.TokenType))
-            {
-                properties.Dictionary.Add("token_type", tokenResponse.TokenType);
-            }
-
-            if (tokenResponse.ExpiresIn > 0)
-            {
-                var expiresAt = this.Options.SystemClock.UtcNow + TimeSpan.FromSeconds(tokenResponse.ExpiresIn);
-
-                properties.Dictionary.Add("expires_in", tokenResponse.ExpiresIn.ToString(CultureInfo.InvariantCulture));
-                properties.ExpiresUtc = expiresAt;
-            }
-
-            await this.Options.Events.OnAuthenticated(this.Context, identity, properties, this.Options);
-
-            // Add authentication response grant so it is accessible in the callback
-            this.Context.Authentication.AuthenticationResponseGrant = new AuthenticationResponseGrant(identity, properties);
-
-            return new AuthenticationTicket(identity, properties);
-        }
-
-        protected virtual async Task<AccessTokenResponse> RefreshTokenAsync(string refreshToken, string redirectUri)
-        {
-            // Build up the body for the token request
-            var tokenRequestParameters = new Dictionary<string, string>
-                                             {
-                                                 { "grant_type", "refresh_token" },
-                                                 { "refresh_token", refreshToken },
-                                                 { "redirect_uri", redirectUri }
-                                             };
-
-            var requestContent = new FormUrlEncodedContent(tokenRequestParameters);
-
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, this.Options.Endpoints.TokenEndpointUrl);
-            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            requestMessage.Headers.Authorization = new BasicAuthenticationHeaderValue(this.Options.ClientId, this.Options.ClientSecret);
-            requestMessage.Content = requestContent;
-            var response = await this.Options.Backchannel.SendAsync(requestMessage);
-
-            if (response.IsSuccessStatusCode)
-            {
-                return JsonConvert.DeserializeObject<AccessTokenResponse>(await response.Content.ReadAsStringAsync());
-            }
-
-            return null;
-        }
-
-        protected virtual async Task<AccessTokenResponse> ExchangeCodeAsync(string code, string redirectUri)
-        {
-            // Build up the body for the token request
-            var tokenRequestParameters = new Dictionary<string, string>
-                                             {
-                                                 { "grant_type", "authorization_code" },
-                                                 { "code", code },
-                                                 { "redirect_uri", redirectUri },
-                                                 { "client_id", this.Options.ClientId },
-                                                 { "client_secret", this.Options.ClientSecret }
-                                             };
-
-            var requestContent = new FormUrlEncodedContent(tokenRequestParameters);
-
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, this.Options.Endpoints.TokenEndpointUrl);
-            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            requestMessage.Content = requestContent;
-            var response = await this.Options.Backchannel.SendAsync(requestMessage);
-
-            if (response.IsSuccessStatusCode)
-            {
-                return JsonConvert.DeserializeObject<AccessTokenResponse>(await response.Content.ReadAsStringAsync());
-            }
-
-            return null;
+            return true;
         }
 
         private string BuildChallengeUrl(AuthenticationProperties properties, string redirectUri)

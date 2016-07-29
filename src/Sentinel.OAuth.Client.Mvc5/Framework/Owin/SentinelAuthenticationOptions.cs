@@ -31,6 +31,7 @@
                                                Name = clientId
                                            };
             this.Events = new AuthenticationEvents();
+            this.TicketHandler = new TicketHandler();
             this.Endpoints = new AuthenticationEndpoints()
                                  {
                                      AuthorizationCodeEndpointUrl = $"{this.AuthenticationServerUrl}/oauth/authorize",
@@ -67,7 +68,11 @@
 
         /// <summary>Gets the events.</summary>
         /// <value>The events.</value>
-        public AuthenticationEvents Events { get; }
+        public AuthenticationEvents Events { get; set; }
+
+        /// <summary>Gets the ticket handler.</summary>
+        /// <value>The ticket handler.</value>
+        public TicketHandler TicketHandler { get; set; }
 
         /// <summary>Gets or sets the backchannel HTTP handler.</summary>
         /// <value>The backchannel HTTP handler.</value>
