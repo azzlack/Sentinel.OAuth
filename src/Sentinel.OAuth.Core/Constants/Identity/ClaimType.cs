@@ -23,6 +23,9 @@
         /// <summary>The valid from claim type.</summary>
         public const string ValidFrom = "urn:oauth:validfrom";
 
+        /// <summary>The authentication source claim type.</summary>
+        public const string AuthenticationSource = "urn:sentinel:authenticationsource";
+
         /// <summary>The identity provider claim type.</summary>
         public const string IdentityProvider = "http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider";
 

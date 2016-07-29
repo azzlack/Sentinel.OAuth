@@ -93,11 +93,15 @@
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
     <Compile Include="Interfaces\Models\IToken.cs" />
+    <Compile Include="Interfaces\Models\IUserApiKey.cs" />
     <Compile Include="Interfaces\Models\IUser.cs" />
+    <Compile Include="Interfaces\Providers\IAsymmetricCryptoProvider.cs" />
     <Compile Include="Interfaces\Providers\ITokenProvider.cs" />
+    <Compile Include="Interfaces\Repositories\IUserApiKeyRepository.cs" />
     <Compile Include="Interfaces\Repositories\IUserRepository.cs" />
     <Compile Include="Interfaces\Repositories\IClientRepository.cs" />
     <Compile Include="Interfaces\Validators\ITokenValidator.cs" />
+    <Compile Include="Models\ApiKeyAuthenticationDigest.cs" />
     <Compile Include="Models\OAuth\AccessToken.cs" />
     <Compile Include="Constants\Identity\AuthenticationType.cs" />
     <Compile Include="Models\OAuth\AuthorizationCode.cs" />
@@ -126,6 +130,7 @@
     <Compile Include="Models\OAuth\Http\ErrorResponse.cs" />
     <Compile Include="Models\OAuth\Http\IdentityResponse.cs" />
     <Compile Include="Models\OAuth\RefreshToken.cs" />
+    <Compile Include="Models\OAuth\UserApiKey.cs" />
     <Compile Include="Models\OAuth\User.cs" />
     <Compile Include="Models\SentinelAuthorizationServerEvents.cs" />
     <Compile Include="Models\SentinelAuthorizationServerOptions.cs" />

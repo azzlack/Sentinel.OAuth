@@ -1,21 +1,28 @@
 ﻿namespace Sentinel.OAuth.Implementation.Managers
 {
+    using System;
+    using System.Security.Claims;
+    using System.Threading.Tasks;
+
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using Sentinel.OAuth.Core.Managers;
+    using Sentinel.OAuth.Core.Models;
+    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Models.Identity;
-    using System.Security.Claims;
-    using System.Threading.Tasks;
 
     public class UserManager : BaseUserManager
     {
         /// <summary>Initializes a new instance of the <see cref="UserManager" /> class.</summary>
         /// <param name="cryptoProvider">The crypto provider.</param>
+        /// <param name="asymmetricCryptoProvider">The asymmetric crypto provider.</param>
         /// <param name="userRepository">The user repository.</param>
-        public UserManager(ICryptoProvider cryptoProvider, IUserRepository userRepository)
-            : base(cryptoProvider, userRepository)
+        /// <param name="userApiKeyRepository">The user API key repository.</param>
+        public UserManager(ICryptoProvider cryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IUserRepository userRepository, IUserApiKeyRepository userApiKeyRepository)
+            : base(cryptoProvider, asymmetricCryptoProvider, userRepository, userApiKeyRepository)
         {
         }
 
@@ -23,7 +30,7 @@
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>The client principal.</returns>
-        public async override Task<ISentinelPrincipal> AuthenticateUserWithPasswordAsync(string username, string password)
+        public override async Task<ISentinelPrincipal> AuthenticateUserWithPasswordAsync(string username, string password)
         {
             var user = await this.UserRepository.GetUser(username);
 
@@ -83,6 +90,60 @@
                     //        "UPDATE Users SET LastLogin = @LastLogin WHERE Username = @Username",
                     //        new { LastLogin = DateTimeOffset.UtcNow, Username = user.Username },
                     //        transaction);
+
+                    return principal;
+                }
+            }
+
+            return SentinelPrincipal.Anonymous;
+        }
+
+        public override async Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(ApiKeyAuthenticationDigest digest)
+        {
+            var userKeys = await this.UserApiKeyRepository.GetForUserAsync(digest.UserId);
+
+            IUserApiKey matchingKey = null;
+            foreach (var key in userKeys)
+            {
+                try
+                {
+                    // Validate signature using RSA and api key
+                    var valid = this.AsymmetricCryptoProvider.ValidateSignature(
+                        digest.GetData(),
+                        digest.Signature,
+                        key.ApiKey);
+
+                    if (valid)
+                    {
+                        matchingKey = key;
+                        break;
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    // Signature was invalid, proceed to next
+                }
+            }
+
+            if (matchingKey != null)
+            {
+                var user = await this.UserRepository.GetUser(matchingKey.UserId);
+
+                if (user != null)
+                {
+                    var principal =
+                        new SentinelPrincipal(
+                            new SentinelIdentity(
+                                AuthenticationType.ApiKey,
+                                new SentinelClaim(JwtClaimType.Name, user.UserId),
+                                new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ApiKey),
+                                new SentinelClaim(ClaimType.AuthenticationSource, "local"),
+                                new SentinelClaim(JwtClaimType.GivenName, user.FirstName),
+                                new SentinelClaim(JwtClaimType.FamilyName, user.LastName)));
+
+                    // TODO: Update last login date
+                    //matchingKey.LastUsed = DateTime.UtcNow;
+                    //await this.UserApiKeyRepository.UpdateAsync(matchingKey.GetIdentifier(), matchingKey);
 
                     return principal;
                 }

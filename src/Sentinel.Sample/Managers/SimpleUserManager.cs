@@ -6,6 +6,7 @@
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
+    using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Models.Identity;
 
     public class SimpleUserManager : IUserManager
@@ -42,6 +43,11 @@
         public async Task<ISentinelPrincipal> AuthenticateUserAsync(string username)
         {
             return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, username)));
+        }
+
+        public async Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(ApiKeyAuthenticationDigest digest)
+        {
+            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.ApiKey, new SentinelClaim(JwtClaimType.Name, digest.UserId)));
         }
     }
 }

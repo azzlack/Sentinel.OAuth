@@ -84,6 +84,7 @@
       <HintPath>..\packages\System.IdentityModel.Tokens.Jwt.4.0.2.206221351\lib\net45\System.IdentityModel.Tokens.Jwt.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -102,6 +103,7 @@
     <Compile Include="Implementation\Managers\ClientManager.cs" />
     <Compile Include="Implementation\Managers\TokenManager.cs" />
     <Compile Include="Implementation\Managers\UserManager.cs" />
+    <Compile Include="Implementation\Providers\AsymmetricCryptoProvider.cs" />
     <Compile Include="Implementation\Providers\JwtTokenProvider.cs" />
     <Compile Include="Implementation\Providers\PBKDF2CryptoProvider.cs" />
     <Compile Include="Implementation\Providers\PrincipalProvider.cs" />
@@ -109,6 +111,9 @@
     <Compile Include="Implementation\Providers\SHA2CryptoProvider.cs" />
     <Compile Include="Implementation\Repositories\MemoryTokenRepository.cs" />
     <Compile Include="Implementation\Validators\TokenValidator.cs" />
+    <Compile Include="Middleware\ApiKeyAuthenticationHandler.cs" />
+    <Compile Include="Middleware\ApiKeyAuthenticationMiddleware.cs" />
+    <Compile Include="Middleware\ApiKeyAuthenticationOptions.cs" />
     <Compile Include="Middleware\UserInfoMiddleware.cs" />
     <Compile Include="Models\Identity\SentinelClaim.cs" />
     <Compile Include="Models\Identity\SentinelIdentity.cs" />

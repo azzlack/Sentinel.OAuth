@@ -3,12 +3,11 @@
     using System.Threading.Tasks;
 
     using Sentinel.OAuth.Core.Interfaces.Identity;
+    using Sentinel.OAuth.Core.Models;
 
     public interface IUserManager
     {
-        /// <summary>
-        /// Authenticates the user using username and password.
-        /// </summary>
+        /// <summary>Authenticates the user using username and password.</summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>The user principal.</returns>
@@ -21,5 +20,10 @@
         /// <param name="username">The username.</param>
         /// <returns>The user principal.</returns>
         Task<ISentinelPrincipal> AuthenticateUserAsync(string username);
+
+        /// <summary>Authenticate the user using an API key.</summary>
+        /// <param name="digest">The digest.</param>
+        /// <returns>The user principal.</returns>
+        Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(ApiKeyAuthenticationDigest digest);
     }
 }

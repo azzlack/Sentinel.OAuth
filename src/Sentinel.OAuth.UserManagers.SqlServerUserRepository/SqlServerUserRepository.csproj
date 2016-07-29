@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Implementation\SqlServerUserApiKeyRepository.cs" />
+    <Compile Include="Models\SqlUserApiKey.cs" />
     <Compile Include="Models\SqlUser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Implementation\SqlServerUserRepository.cs" />

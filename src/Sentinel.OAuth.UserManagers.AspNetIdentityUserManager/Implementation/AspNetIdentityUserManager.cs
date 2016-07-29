@@ -1,6 +1,8 @@
 ﻿namespace Sentinel.OAuth.UserManagers.AspNetIdentityUserManager.Implementation
 {
+    using System;
     using System.Linq;
+    using System.Security.Claims;
     using System.Threading.Tasks;
 
     using Microsoft.AspNet.Identity;
@@ -8,6 +10,8 @@
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
+    using Sentinel.OAuth.Core.Interfaces.Models;
+    using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Implementation;
     using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.Models.Identity;
@@ -66,6 +70,14 @@
             }
 
             return SentinelPrincipal.Anonymous;
+        }
+
+        /// <summary>Authenticate the user using an API key.</summary>
+        /// <param name="digest">The digest.</param>
+        /// <returns>The user principal.</returns>
+        public async Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(ApiKeyAuthenticationDigest digest)
+        {
+            throw new NotImplementedException();
         }
     }
 }

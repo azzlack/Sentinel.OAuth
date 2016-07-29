@@ -18,12 +18,16 @@
         public SentinelAuthorizationServerOptions()
         {
             // Set default options
+            this.EnableApiKeyAuthentication = true;
+            this.EnableBasicAuthentication = false;
             this.AccessTokenLifetime = TimeSpan.FromHours(1);
             this.AuthorizationCodeLifetime = TimeSpan.FromMinutes(5);
             this.RefreshTokenLifetime = TimeSpan.FromDays(90);
             this.AuthorizationCodeEndpointUrl = "/oauth/authorize";
             this.TokenEndpointUrl = "/oauth/token";
             this.IdentityEndpointUrl = "/openid/userinfo";
+            this.Realm = "Sentinel";
+            this.MaximumClockSkew = TimeSpan.FromSeconds(300);
         }
 
         /// <summary>Gets the events.</summary>
@@ -33,6 +37,26 @@
         /// <summary>Gets or sets the logger.</summary>
         /// <value>The logger.</value>
         public ILog Logger { get; set; }
+
+        /// <summary>Gets or sets the realm.</summary>
+        /// <value>The realm.</value>
+        public string Realm { get; set; }
+
+        /// <summary>Gets or sets the maximum clock skew.</summary>
+        /// <value>The maximum clock skew.</value>
+        public TimeSpan MaximumClockSkew { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether API key authentication is enabled.
+        /// </summary>
+        /// <value>true if enable API key authentication, false if not.</value>
+        public bool EnableApiKeyAuthentication { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether basic authentication is enabled.
+        /// </summary>
+        /// <value>true if enable basic authentication, false if not.</value>
+        public bool EnableBasicAuthentication { get; set; }
 
         /// <summary>Gets or sets the access token lifetime.</summary>
         /// <value>The access token lifetime.</value>
@@ -87,6 +111,10 @@
         /// <value>The user repository.</value>
         public IUserRepository UserRepository { get; set; }
 
+        /// <summary>Gets or sets the user API key repository.</summary>
+        /// <value>The user API key repository.</value>
+        public IUserApiKeyRepository UserApiKeyRepository { get; set; }
+
         /// <summary>Gets or sets the principal provider.</summary>
         /// <value>The principal provider.</value>
         public IPrincipalProvider PrincipalProvider { get; set; }
@@ -98,6 +126,10 @@
         /// <summary>Gets or sets the password crypto provider.</summary>
         /// <value>The password crypto provider.</value>
         public ICryptoProvider PasswordCryptoProvider { get; set; }
+
+        /// <summary>Gets or sets the API key crypto provider.</summary>
+        /// <value>The API key crypto provider.</value>
+        public IAsymmetricCryptoProvider ApiKeyCryptoProvider { get; set; }
 
         /// <summary>Gets or sets URL of the authorization code endpoint.</summary>
         /// <remarks>There must be a page answering on this url that is capable of logging in the user.</remarks>

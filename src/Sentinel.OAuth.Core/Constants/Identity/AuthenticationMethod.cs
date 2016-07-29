@@ -13,5 +13,8 @@
 
         /// <summary>Authenticated using user id only.</summary>
         public const string UserId = "user_id";
+
+        /// <summary>Authenticated using API key.</summary>
+        public const string ApiKey = "api_key";
     }
 }

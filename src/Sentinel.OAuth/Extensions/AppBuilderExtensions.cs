@@ -14,6 +14,8 @@
     using Sentinel.OAuth.Providers.OAuth;
     using System;
 
+    using Sentinel.OAuth.Core.Interfaces.Managers;
+
     /// <summary>
     /// Extension methods to add Authorization Server capabilities to an OWIN pipeline
     /// </summary>
@@ -55,6 +57,11 @@
                 options.PasswordCryptoProvider = new PBKDF2CryptoProvider();
             }
 
+            if (options.ApiKeyCryptoProvider == null)
+            {
+                options.ApiKeyCryptoProvider = new AsymmetricCryptoProvider();
+            }
+
             if (options.PrincipalProvider == null)
             {
                 options.PrincipalProvider = new PrincipalProvider(options.TokenCryptoProvider);
@@ -87,12 +94,26 @@
 
             if (options.UserManager == null && options.UserRepository != null)
             {
-                options.UserManager = new UserManager(options.PasswordCryptoProvider, options.UserRepository);
+                options.UserManager = new UserManager(options.PasswordCryptoProvider, options.ApiKeyCryptoProvider, options.UserRepository, options.UserApiKeyRepository);
             }
 
             if (options.ClientManager == null && options.ClientRepository != null)
             {
                 options.ClientManager = new ClientManager(options.PasswordCryptoProvider, options.ClientRepository);
+            }
+
+            // Initialize api key auth if specified
+            if (options.EnableApiKeyAuthentication)
+            {
+                var basicAuthenticationOptions = new ApiKeyAuthenticationOptions()
+                {
+                    ClientManager = options.ClientManager,
+                    UserManager = options.UserManager,
+                    Logger = options.Logger,
+                    Realm = options.Realm,
+                    MaximumClockSkew = options.MaximumClockSkew
+                };
+                app.Use<ApiKeyAuthenticationMiddleware>(basicAuthenticationOptions);
             }
 
             // Initialize underlying OWIN OAuth system

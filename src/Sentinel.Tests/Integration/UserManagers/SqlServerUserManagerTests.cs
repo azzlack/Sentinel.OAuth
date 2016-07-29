@@ -64,7 +64,9 @@
 
             this.UserManager = new UserManager(
                 new PBKDF2CryptoProvider(),
-                new SqlServerUserRepository(connectionStringBuilder.ToString()));
+                new AsymmetricCryptoProvider(), 
+                new SqlServerUserRepository(connectionStringBuilder.ToString()),
+                new SqlServerUserApiKeyRepository(connectionStringBuilder.ToString()));
 
             base.SetUp();
         }
