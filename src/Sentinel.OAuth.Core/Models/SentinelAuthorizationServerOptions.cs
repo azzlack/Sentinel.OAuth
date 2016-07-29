@@ -1,10 +1,11 @@
 ﻿namespace Sentinel.OAuth.Core.Models
 {
-    using Common.Logging;
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using System;
+
+    using Common.Logging;
 
     /// <summary>The Sentinel authorization server options used for controlling the authoriztion system behavior.</summary>
     public class SentinelAuthorizationServerOptions
