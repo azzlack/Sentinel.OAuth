@@ -35,7 +35,7 @@
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>The user principal.</returns>
-        public async Task<ISentinelPrincipal> AuthenticateUserWithPasswordAsync(string username, string password)
+        public virtual async Task<ISentinelPrincipal> AuthenticateUserWithPasswordAsync(string username, string password)
         {
             var user = await this.FindByNameAsync(username);
 
@@ -59,7 +59,7 @@
         /// </summary>
         /// <param name="username">The username.</param>
         /// <returns>The user principal.</returns>
-        public async Task<ISentinelPrincipal> AuthenticateUserAsync(string username)
+        public virtual async Task<ISentinelPrincipal> AuthenticateUserAsync(string username)
         {
             var user = await this.FindByNameAsync(username);
 
@@ -75,7 +75,7 @@
         /// <summary>Authenticate the user using an API key.</summary>
         /// <param name="digest">The digest.</param>
         /// <returns>The user principal.</returns>
-        public async Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(ApiKeyAuthenticationDigest digest)
+        public virtual async Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(ApiKeyAuthenticationDigest digest)
         {
             throw new NotImplementedException();
         }

@@ -24,7 +24,7 @@
 
         /// <summary>Gets the clients in this collection.</summary>
         /// <returns>An enumerator that allows foreach to be used to process the clients in this collection.</returns>
-        public async Task<IEnumerable<IClient>> GetClients()
+        public virtual async Task<IEnumerable<IClient>> GetClients()
         {
             using (var connection = await this.OpenConnection())
             {
@@ -54,7 +54,7 @@
         /// <summary>Gets the client with the specified id.</summary>
         /// <param name="clientId">Identifier for the client.</param>
         /// <returns>The client.</returns>
-        public async Task<IClient> GetClient(string clientId)
+        public virtual async Task<IClient> GetClient(string clientId)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -88,7 +88,7 @@
         /// <param name="id">The client identifier.</param>
         /// <param name="client">The client.</param>
         /// <returns>The updated client.</returns>
-        public async Task<IClient> Update<T>(T id, IClient client)
+        public virtual async Task<IClient> Update<T>(T id, IClient client)
         {
             using (var connection = await this.OpenConnection())
             {

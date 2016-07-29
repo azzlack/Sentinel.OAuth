@@ -27,7 +27,7 @@
         /// <summary>Gets the api keys for the specified user.</summary>
         /// <param name="userId">The user identifier.</param>
         /// <returns>A collection of api keys.</returns>
-        public async Task<IEnumerable<IUserApiKey>> GetForUser(string userId)
+        public virtual async Task<IEnumerable<IUserApiKey>> GetForUser(string userId)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -59,7 +59,7 @@
         /// <param name="id">The api key identifier.</param>
         /// <param name="apiKey">The api key.</param>
         /// <returns>The updated key.</returns>
-        public async Task<IUserApiKey> Update<T>(T id, IUserApiKey apiKey)
+        public virtual async Task<IUserApiKey> Update<T>(T id, IUserApiKey apiKey)
         {
             using (var connection = await this.OpenConnection())
             {

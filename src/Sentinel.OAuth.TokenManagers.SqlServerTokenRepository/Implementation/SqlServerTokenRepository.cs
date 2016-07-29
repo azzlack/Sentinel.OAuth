@@ -27,7 +27,7 @@
         /// <summary>Gets the specified authorization code.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The authorization code.</returns>
-        public async Task<IAuthorizationCode> GetAuthorizationCode(object identifier)
+        public virtual async Task<IAuthorizationCode> GetAuthorizationCode(object identifier)
         {
             if (identifier == null)
             {
@@ -68,7 +68,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The authorization codes.</returns>
-        public async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTimeOffset expires)
+        public virtual async Task<IEnumerable<IAuthorizationCode>> GetAuthorizationCodes(string redirectUri, DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -104,7 +104,7 @@
         /// <returns>
         /// The inserted authorization code. <c>null</c> if the insertion was unsuccessful.
         /// </returns>
-        public async Task<IAuthorizationCode> InsertAuthorizationCode(IAuthorizationCode authorizationCode)
+        public virtual async Task<IAuthorizationCode> InsertAuthorizationCode(IAuthorizationCode authorizationCode)
         {
             var code = new SqlAuthorizationCode(authorizationCode);
 
@@ -158,7 +158,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted codes.</returns>
-        public async Task<int> DeleteAuthorizationCodes(DateTimeOffset expires)
+        public virtual async Task<int> DeleteAuthorizationCodes(DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -175,7 +175,7 @@
         /// <summary>Deletes the specified authorization code.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAuthorizationCode(object identifier)
+        public virtual async Task<bool> DeleteAuthorizationCode(object identifier)
         {
             if (identifier == null)
             {
@@ -197,7 +197,7 @@
         /// <summary>Deletes the specified authorization code.</summary>
         /// <param name="authorizationCode">The authorization code.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
+        public virtual async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -214,7 +214,7 @@
         /// <summary>Gets the specified access token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The access token.</returns>
-        public async Task<IAccessToken> GetAccessToken(object identifier)
+        public virtual async Task<IAccessToken> GetAccessToken(object identifier)
         {
             if (identifier == null)
             {
@@ -254,7 +254,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The access tokens.</returns>
-        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTimeOffset expires)
+        public virtual async Task<IEnumerable<IAccessToken>> GetAccessTokens(DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -291,7 +291,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The access tokens.</returns>
-        public async Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTimeOffset expires)
+        public virtual async Task<IEnumerable<IAccessToken>> GetAccessTokens(string subject, DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -324,7 +324,7 @@
         /// <summary>Inserts the specified access token. Called when creating an access token.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns>The inserted access token. <c>null</c> if the insertion was unsuccessful.</returns>
-        public async Task<IAccessToken> InsertAccessToken(IAccessToken accessToken)
+        public virtual async Task<IAccessToken> InsertAccessToken(IAccessToken accessToken)
         {
             var token = new SqlAccessToken(accessToken);
 
@@ -379,7 +379,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteAccessTokens(DateTimeOffset expires)
+        public virtual async Task<int> DeleteAccessTokens(DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -398,7 +398,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="subject">The subject.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteAccessTokens(string clientId, string redirectUri, string subject)
+        public virtual async Task<int> DeleteAccessTokens(string clientId, string redirectUri, string subject)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -415,7 +415,7 @@
         /// <summary>Deletes the specified access token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAccessToken(object identifier)
+        public virtual async Task<bool> DeleteAccessToken(object identifier)
         {
             if (identifier == null)
             {
@@ -437,7 +437,7 @@
         /// <summary>Deletes the specified access token.</summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAccessToken(IAccessToken accessToken)
+        public virtual async Task<bool> DeleteAccessToken(IAccessToken accessToken)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -454,7 +454,7 @@
         /// <summary>Gets the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The refresh token.</returns>
-        public async Task<IRefreshToken> GetRefreshToken(object identifier)
+        public virtual async Task<IRefreshToken> GetRefreshToken(object identifier)
         {
             if (identifier == null)
             {
@@ -495,7 +495,7 @@
         /// <param name="clientId">Identifier for the client.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetClientRefreshTokens(string clientId, DateTimeOffset expires)
+        public virtual async Task<IEnumerable<IRefreshToken>> GetClientRefreshTokens(string clientId, DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -530,7 +530,7 @@
         /// <param name="subject">The subject.</param>
         /// <param name="expires">The expire date.</param>
         /// <returns>The refresh tokens.</returns>
-        public async Task<IEnumerable<IRefreshToken>> GetUserRefreshTokens(string subject, DateTimeOffset expires)
+        public virtual async Task<IEnumerable<IRefreshToken>> GetUserRefreshTokens(string subject, DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -562,7 +562,7 @@
         /// <summary>Inserts the specified refresh token. Called when creating a refresh token.</summary>
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns>The inserted refresh token. <c>null</c> if the insertion was unsuccessful.</returns>
-        public async Task<IRefreshToken> InsertRefreshToken(IRefreshToken refreshToken)
+        public virtual async Task<IRefreshToken> InsertRefreshToken(IRefreshToken refreshToken)
         {
             var token = new SqlRefreshToken(refreshToken);
 
@@ -616,7 +616,7 @@
         /// </summary>
         /// <param name="expires">The expire date.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteRefreshTokens(DateTimeOffset expires)
+        public virtual async Task<int> DeleteRefreshTokens(DateTimeOffset expires)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -635,7 +635,7 @@
         /// <param name="redirectUri">The redirect uri.</param>
         /// <param name="subject">The subject.</param>
         /// <returns>The number of deleted tokens.</returns>
-        public async Task<int> DeleteRefreshTokens(string clientId, string redirectUri, string subject)
+        public virtual async Task<int> DeleteRefreshTokens(string clientId, string redirectUri, string subject)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -655,7 +655,7 @@
         /// </summary>
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteRefreshToken(IRefreshToken refreshToken)
+        public virtual async Task<bool> DeleteRefreshToken(IRefreshToken refreshToken)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -672,7 +672,7 @@
         /// <summary>Deletes the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteRefreshToken(object identifier)
+        public virtual async Task<bool> DeleteRefreshToken(object identifier)
         {
             if (identifier == null)
             {
@@ -693,7 +693,7 @@
 
         /// <summary>Deletes all access tokens, refresh tokens and authorization codes.</summary>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> Purge()
+        public virtual async Task<bool> Purge()
         {
             using (var connection = await this.OpenConnection())
             {

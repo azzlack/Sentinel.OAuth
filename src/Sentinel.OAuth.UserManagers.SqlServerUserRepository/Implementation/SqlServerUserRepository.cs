@@ -26,7 +26,7 @@
 
         /// <summary>Gets the users.</summary>
         /// <returns>The users.</returns>
-        public async Task<IEnumerable<IUser>> GetUsers()
+        public virtual async Task<IEnumerable<IUser>> GetUsers()
         {
             using (var connection = await this.OpenConnection())
             {
@@ -56,7 +56,7 @@
         /// <summary>Gets a user.</summary>
         /// <param name="userId">Identifier for the user.</param>
         /// <returns>The user.</returns>
-        public async Task<IUser> GetUser(string userId)
+        public virtual async Task<IUser> GetUser(string userId)
         {
             using (var connection = await this.OpenConnection())
             {
@@ -89,7 +89,7 @@
         /// <param name="id">The user identifier.</param>
         /// <param name="user">The user.</param>
         /// <returns>The updated user.</returns>
-        public async Task<IUser> Update<T>(T id, IUser user)
+        public virtual async Task<IUser> Update<T>(T id, IUser user)
         {
             using (var connection = await this.OpenConnection())
             {
