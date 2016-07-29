@@ -30,7 +30,7 @@
 
         /// <summary>Gets the identifier.</summary>
         /// <returns>The identifier.</returns>
-        string GetIdentifier();
+        object GetIdentifier();
 
         /// <summary>Check if this object is valid.</summary>
         /// <returns><c>true</c> if valid, <c>false</c> if not.</returns>

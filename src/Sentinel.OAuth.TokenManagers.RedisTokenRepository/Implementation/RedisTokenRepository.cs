@@ -32,15 +32,15 @@
         /// <summary>Gets the specified authorization code.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The authorization code.</returns>
-        public async Task<IAuthorizationCode> GetAuthorizationCode(string identifier)
+        public async Task<IAuthorizationCode> GetAuthorizationCode(object identifier)
         {
-            if (string.IsNullOrEmpty(identifier))
+            if (identifier == null)
             {
                 throw new ArgumentNullException(nameof(identifier));
             }
 
             var db = this.GetDatabase();
-            var key = $"{this.Configuration.AuthorizationCodePrefix}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(identifier))}";
+            var key = $"{this.Configuration.AuthorizationCodePrefix}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(identifier.ToString()))}";
 
             var hashEntries = await db.HashGetAllAsync(key);
 
@@ -188,9 +188,9 @@
         /// <summary>Deletes the specified authorization code.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAuthorizationCode(string identifier)
+        public async Task<bool> DeleteAuthorizationCode(object identifier)
         {
-            if (string.IsNullOrEmpty(identifier))
+            if (identifier == null)
             {
                 throw new ArgumentNullException(nameof(identifier));
             }
@@ -201,13 +201,13 @@
             // Remove items from indexes
             tran.SortedSetRemoveAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", $"{this.Configuration.AuthorizationCodePrefix}:{identifier}");
 
-            var hashEntries = await db.HashGetAllAsync(identifier);
+            var hashEntries = await db.HashGetAllAsync(identifier.ToString());
 
             if (hashEntries.Any())
             {
                 var code = new RedisAuthorizationCode(hashEntries);
 
-                tran.HashDeleteAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:redirecturi:{code.RedirectUri}", identifier);
+                tran.HashDeleteAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:redirecturi:{code.RedirectUri}", identifier.ToString());
             }
 
             // Remove key
@@ -224,7 +224,7 @@
             var db = this.GetDatabase();
             var tran = db.CreateTransaction();
 
-            var key = Convert.ToBase64String(Encoding.UTF8.GetBytes(authorizationCode.GetIdentifier()));
+            var key = Convert.ToBase64String(Encoding.UTF8.GetBytes(authorizationCode.GetIdentifier().ToString()));
 
             // Remove items from indexes
             tran.SortedSetRemoveAsync($"{this.Configuration.AuthorizationCodePrefix}:_index:expires", $"{this.Configuration.AuthorizationCodePrefix}:{key}");
@@ -239,15 +239,15 @@
         /// <summary>Gets the specified access token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The access token.</returns>
-        public async Task<IAccessToken> GetAccessToken(string identifier)
+        public async Task<IAccessToken> GetAccessToken(object identifier)
         {
-            if (string.IsNullOrEmpty(identifier))
+            if (identifier == null)
             {
                 throw new ArgumentNullException(nameof(identifier));
             }
 
             var db = this.GetDatabase();
-            var key = Convert.ToBase64String(Encoding.UTF8.GetBytes(identifier));
+            var key = Convert.ToBase64String(Encoding.UTF8.GetBytes(identifier.ToString()));
 
             var hashEntries = await db.HashGetAllAsync($"{this.Configuration.AccessTokenPrefix}:{key}");
 
@@ -472,9 +472,9 @@
         /// <summary>Deletes the specified access token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAccessToken(string identifier)
+        public async Task<bool> DeleteAccessToken(object identifier)
         {
-            if (string.IsNullOrEmpty(identifier))
+            if (identifier == null)
             {
                 throw new ArgumentNullException(nameof(identifier));
             }
@@ -493,13 +493,13 @@
             var tran = db.CreateTransaction();
 
             // Remove items from indexes
-            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:client:{accessToken.ClientId}", accessToken.GetIdentifier());
-            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{accessToken.RedirectUri}", accessToken.GetIdentifier());
-            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{accessToken.Subject}", accessToken.GetIdentifier());
-            tran.SortedSetRemoveAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", accessToken.GetIdentifier());
+            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:client:{accessToken.ClientId}", accessToken.GetIdentifier().ToString());
+            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:redirecturi:{accessToken.RedirectUri}", accessToken.GetIdentifier().ToString());
+            tran.HashDeleteAsync($"{this.Configuration.AccessTokenPrefix}:_index:subject:{accessToken.Subject}", accessToken.GetIdentifier().ToString());
+            tran.SortedSetRemoveAsync($"{this.Configuration.AccessTokenPrefix}:_index:expires", accessToken.GetIdentifier().ToString());
 
             // Remove key
-            tran.KeyDeleteAsync(accessToken.GetIdentifier());
+            tran.KeyDeleteAsync(accessToken.GetIdentifier().ToString());
 
             return await tran.ExecuteAsync(CommandFlags.HighPriority);
         }
@@ -507,15 +507,15 @@
         /// <summary>Gets the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The refresh token.</returns>
-        public async Task<IRefreshToken> GetRefreshToken(string identifier)
+        public async Task<IRefreshToken> GetRefreshToken(object identifier)
         {
-            if (string.IsNullOrEmpty(identifier))
+            if (identifier == null)
             {
                 throw new ArgumentNullException(nameof(identifier));
             }
 
             var db = this.GetDatabase();
-            var key = $"{this.Configuration.RefreshTokenPrefix}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(identifier))}";
+            var key = $"{this.Configuration.RefreshTokenPrefix}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(identifier.ToString()))}";
 
             var hashEntries = await db.HashGetAllAsync(key);
 
@@ -729,9 +729,9 @@
         /// <summary>Deletes the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteRefreshToken(string identifier)
+        public async Task<bool> DeleteRefreshToken(object identifier)
         {
-            if (string.IsNullOrEmpty(identifier))
+            if (identifier == null)
             {
                 throw new ArgumentNullException(nameof(identifier));
             }
@@ -785,7 +785,7 @@
         /// <returns>The key.</returns>
         protected string GenerateKeyPath(RedisAccessToken accessToken)
         {
-            return this.Configuration.AccessTokenPrefix + ":" + Convert.ToBase64String(Encoding.UTF8.GetBytes(accessToken.GetIdentifier()));
+            return this.Configuration.AccessTokenPrefix + ":" + Convert.ToBase64String(Encoding.UTF8.GetBytes(accessToken.GetIdentifier().ToString()));
         }
 
         /// <summary>Generates a key.</summary>
@@ -793,7 +793,7 @@
         /// <returns>The key.</returns>
         protected string GenerateKeyPath(RedisRefreshToken refreshToken)
         {
-            return this.Configuration.RefreshTokenPrefix + ":" + Convert.ToBase64String(Encoding.UTF8.GetBytes(refreshToken.GetIdentifier()));
+            return this.Configuration.RefreshTokenPrefix + ":" + Convert.ToBase64String(Encoding.UTF8.GetBytes(refreshToken.GetIdentifier().ToString()));
         }
 
         /// <summary>Generates a key.</summary>
@@ -801,7 +801,7 @@
         /// <returns>The key.</returns>
         protected string GenerateKeyPath(RedisAuthorizationCode authorizationCode)
         {
-            return this.Configuration.AuthorizationCodePrefix + ":" + Convert.ToBase64String(Encoding.UTF8.GetBytes(authorizationCode.GetIdentifier()));
+            return this.Configuration.AuthorizationCodePrefix + ":" + Convert.ToBase64String(Encoding.UTF8.GetBytes(authorizationCode.GetIdentifier().ToString()));
         }
 
         /// <summary>Gets a reference to the database.</summary>

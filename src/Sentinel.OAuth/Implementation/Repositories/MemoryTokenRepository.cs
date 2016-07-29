@@ -34,9 +34,9 @@
         /// <summary>Gets the specified authorization code.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The authorization code.</returns>
-        public async Task<IAuthorizationCode> GetAuthorizationCode(string identifier)
+        public async Task<IAuthorizationCode> GetAuthorizationCode(object identifier)
         {
-            if (string.IsNullOrEmpty(identifier))
+            if (identifier == null)
             {
                 throw new ArgumentNullException(nameof(identifier));
             }
@@ -103,19 +103,19 @@
         /// <summary>Deletes the specified authorization code.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAuthorizationCode(string identifier)
+        public async Task<bool> DeleteAuthorizationCode(object identifier)
         {
-            if (string.IsNullOrEmpty(identifier))
+            if (identifier == null)
             {
                 throw new ArgumentNullException(nameof(identifier));
             }
 
-            var exists = this.authorizationCodes.Any(x => x.Key == identifier);
+            var exists = this.authorizationCodes.Any(x => x.Key == identifier.ToString());
 
             if (exists)
             {
                 AuthorizationCode removedCode;
-                return this.authorizationCodes.TryRemove(identifier, out removedCode);
+                return this.authorizationCodes.TryRemove(identifier.ToString(), out removedCode);
             }
 
             return false;
@@ -126,12 +126,12 @@
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
         public async Task<bool> DeleteAuthorizationCode(IAuthorizationCode authorizationCode)
         {
-            var exists = this.authorizationCodes.Any(x => x.Key == authorizationCode.GetIdentifier());
+            var exists = this.authorizationCodes.Any(x => x.Key == authorizationCode.GetIdentifier().ToString());
 
             if (exists)
             {
                 AuthorizationCode removedCode;
-                return this.authorizationCodes.TryRemove(authorizationCode.GetIdentifier(), out removedCode);
+                return this.authorizationCodes.TryRemove(authorizationCode.GetIdentifier().ToString(), out removedCode);
             }
 
             return false;
@@ -140,9 +140,9 @@
         /// <summary>Gets the specified access token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The access token.</returns>
-        public async Task<IAccessToken> GetAccessToken(string identifier)
+        public async Task<IAccessToken> GetAccessToken(object identifier)
         {
-            if (string.IsNullOrEmpty(identifier))
+            if (identifier == null)
             {
                 throw new ArgumentNullException(nameof(identifier));
             }
@@ -184,7 +184,7 @@
                 throw new ArgumentException($"The access token is invalid: {JsonConvert.SerializeObject(token)}", nameof(accessToken));
             }
 
-            if (this.accessTokens.TryAdd(token.GetIdentifier(), token))
+            if (this.accessTokens.TryAdd(token.GetIdentifier().ToString(), token))
             {
                 return token;
             }
@@ -239,9 +239,9 @@
         /// <summary>Deletes the specified access token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteAccessToken(string identifier)
+        public async Task<bool> DeleteAccessToken(object identifier)
         {
-            if (string.IsNullOrEmpty(identifier))
+            if (identifier == null)
             {
                 throw new ArgumentNullException(nameof(identifier));
             }
@@ -280,9 +280,9 @@
         /// <summary>Gets the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The refresh token.</returns>
-        public async Task<IRefreshToken> GetRefreshToken(string identifier)
+        public async Task<IRefreshToken> GetRefreshToken(object identifier)
         {
-            if (string.IsNullOrEmpty(identifier))
+            if (identifier == null)
             {
                 throw new ArgumentNullException(nameof(identifier));
             }
@@ -403,9 +403,9 @@
         /// <summary>Deletes the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        public async Task<bool> DeleteRefreshToken(string identifier)
+        public async Task<bool> DeleteRefreshToken(object identifier)
         {
-            if (string.IsNullOrEmpty(identifier))
+            if (identifier == null)
             {
                 throw new ArgumentNullException(nameof(identifier));
             }

@@ -1,9 +1,10 @@
 ﻿namespace Sentinel.OAuth.Core.Interfaces.Repositories
 {
-    using Sentinel.OAuth.Core.Interfaces.Models;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+
+    using Sentinel.OAuth.Core.Interfaces.Models;
 
     /// <summary>Interface for token repository.</summary>
     public interface ITokenRepository
@@ -11,7 +12,7 @@
         /// <summary>Gets the specified authorization code.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The authorization code.</returns>
-        Task<IAuthorizationCode> GetAuthorizationCode(string identifier);
+        Task<IAuthorizationCode> GetAuthorizationCode(object identifier);
 
         /// <summary>
         /// Gets all authorization codes that matches the specified redirect uri and expires after the specified date.
@@ -41,7 +42,7 @@
         /// <summary>Deletes the specified authorization code.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        Task<bool> DeleteAuthorizationCode(string identifier);
+        Task<bool> DeleteAuthorizationCode(object identifier);
 
         /// <summary>Deletes the specified authorization code.</summary>
         /// <param name="authorizationCode">The authorization code.</param>
@@ -51,7 +52,7 @@
         /// <summary>Gets the specified access token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The access token.</returns>
-        Task<IAccessToken> GetAccessToken(string identifier);
+        Task<IAccessToken> GetAccessToken(object identifier);
 
         /// <summary>
         /// Gets all access tokens that expires **after** the specified date.
@@ -95,7 +96,7 @@
         /// <summary>Deletes the specified access token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        Task<bool> DeleteAccessToken(string identifier);
+        Task<bool> DeleteAccessToken(object identifier);
 
         /// <summary>Deletes the specified access token.</summary>
         /// <param name="accessToken">The access token.</param>
@@ -105,7 +106,7 @@
         /// <summary>Gets the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>The refresh token.</returns>
-        Task<IRefreshToken> GetRefreshToken(string identifier);
+        Task<IRefreshToken> GetRefreshToken(object identifier);
 
         /// <summary>
         /// Gets all refresh tokens for the specified client id that expires after the specified date.
@@ -151,7 +152,7 @@
         /// <summary>Deletes the specified refresh token.</summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns><c>True</c> if successful, <c>false</c> otherwise.</returns>
-        Task<bool> DeleteRefreshToken(string identifier);
+        Task<bool> DeleteRefreshToken(object identifier);
 
         /// <summary>Deletes the specified refresh token.</summary>
         /// <param name="refreshToken">The refresh token.</param>
