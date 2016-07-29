@@ -7,7 +7,7 @@
 
     using Microsoft.Owin;
 
-    public class QueryBuilder : IEnumerable<KeyValuePair<string, string>>
+    internal class QueryBuilder : IEnumerable<KeyValuePair<string, string>>
     {
         private IList<KeyValuePair<string, string>> parameters;
 

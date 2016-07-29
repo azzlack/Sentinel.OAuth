@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Web.Mvc;
 
-    public class AliasModelBinder : DefaultModelBinder
+    internal class AliasModelBinder : DefaultModelBinder
     {
         /// <summary>
         /// Returns the properties of the model by using the specified controller context and binding context.

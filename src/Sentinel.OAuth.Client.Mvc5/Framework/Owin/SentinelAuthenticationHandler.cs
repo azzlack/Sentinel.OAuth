@@ -245,7 +245,7 @@
             {
                 var jwt = new JsonWebToken(tokenResponse.IdToken);
 
-                identity = jwt.ToIdentity(Constants.DefaultAuthenticationType).ToClaimsIdentity();
+                identity = jwt.ToIdentity(Mvc5.Constants.DefaultAuthenticationType).ToClaimsIdentity();
             }
             else
             {

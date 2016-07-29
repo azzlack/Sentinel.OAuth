@@ -5,7 +5,7 @@
     using Sentinel.OAuth.Client.Mvc5.Framework.Mvc;
 
     [ModelBinder(typeof(AliasModelBinder))]
-    public class OAuthLoginViewModel
+    public class AuthorizeViewModel
     {
         [BindAlias("client_id")]
         public string ClientId { get; set; }

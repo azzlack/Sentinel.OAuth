@@ -39,7 +39,7 @@
         /// </exception>
         /// <param name="model">The consent screen viewmodel.</param>
         /// <returns>An action result</returns>
-        public virtual async Task<ActionResult> Index(OAuthLoginViewModel model)
+        public virtual async Task<ActionResult> Index(AuthorizeViewModel model)
         {
             if (model == null)
             {
@@ -65,7 +65,7 @@
         /// <summary>Handles the user consent action.</summary>
         /// <param name="model">The consent screen viewmodel.</param>
         /// <returns>An action result</returns>
-        public virtual async Task<ActionResult> Authorize(OAuthLoginViewModel model)
+        public virtual async Task<ActionResult> Authorize(AuthorizeViewModel model)
         {
             if (!this.ModelState.IsValid)
             {
@@ -89,7 +89,7 @@
             return this.View(model);
         }
 
-        public virtual Task SignIn(OAuthLoginViewModel model)
+        public virtual Task SignIn(AuthorizeViewModel model)
         {
             var identity = new SentinelIdentity(OAuthDefaults.AuthenticationType, this.Authentication.User.Identity);
 
