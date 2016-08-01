@@ -206,14 +206,15 @@
         /// <returns>A Task.</returns>
         public virtual Task OnSignOut(IOwinContext context, SentinelAuthenticationOptions options)
         {
-            context.Authentication.SignOut(Constants.DefaultAuthenticationType);
-            context.Authentication.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+            var props = new AuthenticationProperties() { RedirectUri = context.Request.Query["ReturnUrl"] };
 
-            var returnUrl = context.Request.Query["ReturnUrl"];
+            context.Authentication.SignOut(props, Constants.DefaultAuthenticationType);
+            context.Authentication.SignOut(props, DefaultAuthenticationTypes.ApplicationCookie);
 
-            if (context.Request.IsLocalUrl(returnUrl))
+            // Redirect to returnurl if specified, otherwise base url
+            if (context.Request.IsLocalUrl(props.RedirectUri))
             {
-                context.Response.Redirect(returnUrl);
+                context.Response.Redirect(props.RedirectUri);
             }
             else
             {
@@ -265,7 +266,7 @@
                 options.Logger.WriteError("Refresh token found, but was unable to use it to retrieve a new access token");
 
                 // Delete refresh token if it didnt work
-                context.Response.Cookies.Delete($"{options.CookieConfiguration.Name}_RT");
+                context.Response.Cookies.Delete($"{options.CookieConfiguration.Name}_RT", new CookieOptions() { Domain = context.Request.Uri.Host });
             }
 
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;

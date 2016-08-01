@@ -8,6 +8,7 @@
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Security.Claims;
+    using System.Security.Principal;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -29,7 +30,7 @@
     {
         protected override async Task<AuthenticationTicket> AuthenticateCoreAsync()
         {
-            if (!this.ValidateRequest())
+            if (!this.ShouldAuthenticate())
             {
                 return null;
             }
@@ -64,7 +65,7 @@
                         this.Options.Logger.WriteError("Refresh token found, but was unable to use it to retrieve a new access token");
 
                         // Delete refresh token if it didnt work
-                        this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_RT");
+                        this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_RT", new CookieOptions() { Domain = this.Request.Uri.Host });
                     }
                 }
 
@@ -211,10 +212,17 @@
             }
             else if (signout != null)
             {
-                // Remove cookies
-                this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_AT");
-                this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_RT");
-                this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_IT");
+                var opts = new CookieOptions() { Domain = this.Request.Uri.Host };
+
+                // Remove cookies from response
+                this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_AT", opts);
+                this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_RT", opts);
+                this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_IT", opts);
+
+                // Set authentication properties to prevent further processing
+                this.Context.Authentication.User = new GenericPrincipal(new GenericIdentity("signout"), new []{ "urn:oauth:noauth" });
+
+                return Task.FromResult<object>(null);
             }
 
             return base.ApplyResponseGrantAsync();
@@ -244,7 +252,7 @@
 
         /// <summary>Validates that the request should be acted upon.</summary>
         /// <returns>true if it the request should be acted upon, otherwise false.</returns>
-        private bool ValidateRequest()
+        private bool ShouldAuthenticate()
         {
             if (this.Context.Request.IsSameUrl(this.Options.Endpoints.ErrorEndpointUrl))
             {
@@ -257,6 +265,11 @@
             }
 
             if (this.Context.Request.IsSameUrl(this.Options.Endpoints.LogoutEndpointUrl))
+            {
+                return false;
+            }
+
+            if (this.Helper.LookupSignOut(this.Options.AuthenticationType, this.Options.AuthenticationMode) != null)
             {
                 return false;
             }
