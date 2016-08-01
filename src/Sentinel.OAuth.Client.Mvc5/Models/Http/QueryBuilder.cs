@@ -37,15 +37,16 @@
         public override string ToString()
         {
             var builder = new StringBuilder();
-            bool first = true;
-            for (int i = 0; i < this.parameters.Count; i++)
+            var first = true;
+
+            foreach (var pair in this.parameters)
             {
-                var pair = this.parameters[i];
                 builder.Append(first ? "?" : "&");
                 first = false;
+                s
                 builder.Append(Uri.EscapeDataString(pair.Key));
                 builder.Append("=");
-                builder.Append(Uri.EscapeDataString(pair.Value));
+                builder.Append(pair.Value != null ? Uri.EscapeDataString(pair.Value) : string.Empty);
             }
 
             return builder.ToString();
