@@ -272,5 +272,25 @@
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             await context.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorResponse("invalid_refresh_token")));
         }
+
+        /// <summary>Handles the error endpoint requests.</summary>
+        /// <param name="context">The current OWIN context.</param>
+        /// <param name="options">The authentication options.</param>
+        /// <returns>A Task.</returns>
+        public virtual async Task OnError(IOwinContext context, SentinelAuthenticationOptions options)
+        {
+            var error = context.Request.Query["error"];
+            var errorDescription = context.Request.Query["error_description"];
+            var errorUri = context.Request.Query["error_uri"];
+
+            var response = new ErrorResponse(error)
+                               {
+                                   ErrorDescription = errorDescription,
+                                   ErrorUri = errorUri
+                               };
+
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
+        }
     }
 }

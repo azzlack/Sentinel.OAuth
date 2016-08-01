@@ -73,6 +73,17 @@
                                 });
                     });
 
+            app.Map(
+                options.Endpoints.ErrorEndpointUrl,
+                builder =>
+                {
+                    builder.Run(
+                        async context =>
+                        {
+                            await options.Events.OnError(context, options);
+                        });
+                });
+
             app.MapWhen(
                 context =>
                     {
