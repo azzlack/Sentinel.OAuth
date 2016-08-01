@@ -43,7 +43,7 @@
             {
                 builder.Append(first ? "?" : "&");
                 first = false;
-                s
+                
                 builder.Append(Uri.EscapeDataString(pair.Key));
                 builder.Append("=");
                 builder.Append(pair.Value != null ? Uri.EscapeDataString(pair.Value) : string.Empty);
