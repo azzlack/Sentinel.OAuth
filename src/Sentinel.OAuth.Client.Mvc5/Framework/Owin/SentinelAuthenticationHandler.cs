@@ -1,30 +1,19 @@
 ﻿namespace Sentinel.OAuth.Client.Mvc5.Framework.Owin
 {
     using System;
-    using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using System.Net;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
-    using System.Security.Claims;
     using System.Security.Principal;
     using System.Text;
     using System.Threading.Tasks;
 
-    using Microsoft.AspNet.Identity;
     using Microsoft.Owin;
     using Microsoft.Owin.Logging;
     using Microsoft.Owin.Security;
     using Microsoft.Owin.Security.Infrastructure;
 
-    using Newtonsoft.Json;
-
     using Sentinel.OAuth.Client.Mvc5.Extensions;
     using Sentinel.OAuth.Client.Mvc5.Models.Http;
-    using Sentinel.OAuth.Core.Models.OAuth.Http;
-    using Sentinel.OAuth.Core.Models.Tokens;
-    using Sentinel.OAuth.Extensions;
 
     public class SentinelAuthenticationHandler : AuthenticationHandler<SentinelAuthenticationOptions>
     {
@@ -64,8 +53,8 @@
 
                         this.Options.Logger.WriteError("Refresh token found, but was unable to use it to retrieve a new access token");
 
-                        // Delete refresh token if it didnt work
-                        this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_RT", new CookieOptions() { Domain = this.Request.Uri.Host });
+                        // Delete refresh token if it didnt work to prevent retries with an invalid token
+                        this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_RT", new CookieOptions() { Domain = this.Request.Uri.Host, Secure = this.Request.IsSecure });
                     }
                 }
 
@@ -212,7 +201,7 @@
             }
             else if (signout != null)
             {
-                var opts = new CookieOptions() { Domain = this.Request.Uri.Host };
+                var opts = new CookieOptions() { Domain = this.Request.Uri.Host, Secure = this.Request.IsSecure };
 
                 // Remove cookies from response
                 this.Context.Response.Cookies.Delete($"{this.Options.CookieConfiguration.Name}_AT", opts);
