@@ -266,7 +266,7 @@
                 options.Logger.WriteError("Refresh token found, but was unable to use it to retrieve a new access token");
 
                 // Delete refresh token if it didnt work
-                context.Response.Cookies.Delete($"{options.CookieConfiguration.Name}_RT", new CookieOptions() { Domain = context.Request.Uri.Host });
+                context.Response.Cookies.Delete($"{options.CookieConfiguration.Name}_RT", new CookieOptions() { Domain = context.Request.Uri.Host, Secure = context.Request.IsSecure});
             }
 
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
