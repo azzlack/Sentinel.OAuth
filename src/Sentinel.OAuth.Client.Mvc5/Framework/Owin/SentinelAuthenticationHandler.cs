@@ -17,6 +17,11 @@
 
     public class SentinelAuthenticationHandler : AuthenticationHandler<SentinelAuthenticationOptions>
     {
+        /// <summary>
+        /// The core authentication logic which must be provided by the handler. Will be invoked at most
+        /// once per request. Do not call directly, call the wrapping Authenticate method instead.
+        /// </summary>
+        /// <returns>The ticket data provided by the authentication logic.</returns>
         protected override async Task<AuthenticationTicket> AuthenticateCoreAsync()
         {
             if (!this.ShouldAuthenticate())
@@ -169,6 +174,7 @@
                             accessToken,
                             new CookieOptions()
                             {
+                                Domain = this.Context.Request.Uri.Host,
                                 Expires = signin.Properties.ExpiresUtc?.DateTime,
                                 Secure = this.Context.Request.IsSecure
                             });
@@ -181,6 +187,7 @@
                             refreshToken,
                             new CookieOptions()
                             {
+                                Domain = this.Context.Request.Uri.Host,
                                 Expires = signin.Properties.ExpiresUtc?.DateTime.Add(this.Options.RefreshTokenLifetime),
                                 Secure = this.Context.Request.IsSecure
                             });
@@ -193,6 +200,7 @@
                             identityToken,
                             new CookieOptions()
                             {
+                                Domain = this.Context.Request.Uri.Host,
                                 Expires = signin.Properties.ExpiresUtc?.DateTime,
                                 Secure = this.Context.Request.IsSecure
                             });
