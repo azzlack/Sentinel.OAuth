@@ -114,6 +114,7 @@
         }
 
         [TestCase("NUnit", "")]
+        [TestCase("NUnit", "eeddccbbaa")]
         public async void AuthenticateClientWithApiKeyAsync_WhenGivenInvalidBasicAuthenticationDigest_ReturnsNotAuthenticatedIdentity(string username, string password)
         {
             var client = await this.ClientManager.AuthenticateClientCredentialsAsync(new BasicAuthenticationDigest(username, password));

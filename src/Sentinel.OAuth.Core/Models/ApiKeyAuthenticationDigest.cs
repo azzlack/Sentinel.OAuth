@@ -12,7 +12,7 @@
         /// <param name="timestamp">The timestamp in seconds since epoch (UTC).</param>
         /// <param name="nonce">The nonce.</param>
         /// <param name="signature">The signature.</param>
-        public ApiKeyAuthenticationDigest(string userId, string clientId, string redirectUri, Uri requestUrl, long timestamp, string nonce, string signature)
+        public ApiKeyAuthenticationDigest(string userId, string clientId, string redirectUri, Uri requestUrl, long timestamp, string nonce, string signature = null)
         {
             this.UserId = userId;
             this.ClientId = clientId;
@@ -49,13 +49,20 @@
 
         /// <summary>Gets the signature.</summary>
         /// <value>The signature.</value>
-        public string Signature { get; }
+        public string Signature { get; private set; }
 
         /// <summary>Gets the data.</summary>
         /// <returns>The data.</returns>
         public string GetData()
         {
             return $"client_id={this.ClientId},redirect_uri={this.RedirectUri},request_url={this.RequestUrl},timestamp={this.Timestamp},nonce={this.Nonce}";
+        }
+
+        /// <summary>Sets the signature.</summary>
+        /// <param name="signature">The signature.</param>
+        public void SetSignature(string signature)
+        {
+            this.Signature = signature;
         }
     }
 }

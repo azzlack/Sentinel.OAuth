@@ -127,6 +127,9 @@
             return SentinelPrincipal.Anonymous;
         }
 
+        /// <summary>Authenticate the user using an API key.</summary>
+        /// <param name="digest">The digest.</param>
+        /// <returns>The user principal.</returns>
         public override async Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(BasicAuthenticationDigest digest)
         {
             string data;
