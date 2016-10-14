@@ -49,5 +49,10 @@
         {
             return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.ApiKey, new SentinelClaim(JwtClaimType.Name, digest.UserId)));
         }
+
+        public async Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(BasicAuthenticationDigest digest)
+        {
+            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.ApiKey, new SentinelClaim(JwtClaimType.Name, digest.UserId)));
+        }
     }
 }

@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
+    using Sentinel.OAuth.Core.Models;
+
     public interface IClientManager
     {
         /// <summary>
@@ -23,6 +25,11 @@
         /// <param name="scope">The redirect URI.</param>
         /// <returns>The client principal.</returns>
         Task<ISentinelPrincipal> AuthenticateClientAsync(string clientId, IEnumerable<string> scope);
+
+        /// <summary>Authenticate the client using an API key.</summary>
+        /// <param name="digest">The digest.</param>
+        /// <returns>The client principal.</returns>
+        Task<ISentinelPrincipal> AuthenticateClientCredentialsAsync(BasicAuthenticationDigest digest);
 
         /// <summary>
         /// Authenticates the client credentials using client id and secret.

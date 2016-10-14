@@ -79,5 +79,10 @@
         {
             throw new NotImplementedException();
         }
+
+        public Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(BasicAuthenticationDigest digest)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

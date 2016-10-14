@@ -111,8 +111,11 @@
     <Compile Include="Implementation\Providers\SHA2CryptoProvider.cs" />
     <Compile Include="Implementation\Repositories\MemoryTokenRepository.cs" />
     <Compile Include="Implementation\Validators\TokenValidator.cs" />
+    <Compile Include="Middleware\BasicAuthenticationHandler.cs" />
     <Compile Include="Middleware\ApiKeyAuthenticationHandler.cs" />
+    <Compile Include="Middleware\BasicAuthenticationMiddleware.cs" />
     <Compile Include="Middleware\ApiKeyAuthenticationMiddleware.cs" />
+    <Compile Include="Middleware\BasicAuthenticationOptions.cs" />
     <Compile Include="Middleware\ApiKeyAuthenticationOptions.cs" />
     <Compile Include="Middleware\UserInfoMiddleware.cs" />
     <Compile Include="Models\Identity\SentinelClaim.cs" />

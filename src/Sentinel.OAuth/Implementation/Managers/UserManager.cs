@@ -1,6 +1,7 @@
 ﻿namespace Sentinel.OAuth.Implementation.Managers
 {
     using System;
+    using System.Collections.Generic;
     using System.Security.Claims;
     using System.Threading.Tasks;
 
@@ -96,29 +97,7 @@
         {
             var userKeys = await this.UserApiKeyRepository.GetForUser(digest.UserId);
 
-            IUserApiKey matchingKey = null;
-            foreach (var key in userKeys)
-            {
-                try
-                {
-                    // Validate signature using RSA and api key
-                    var valid = this.AsymmetricCryptoProvider.ValidateSignature(
-                        digest.GetData(),
-                        digest.Signature,
-                        key.ApiKey);
-
-                    if (valid)
-                    {
-                        matchingKey = key;
-                        break;
-                    }
-                }
-                catch (ArgumentException)
-                {
-                    // Signature was invalid, proceed to next
-                }
-            }
-
+            var matchingKey = this.ValidateApiKey(userKeys, digest.GetData(), digest.Signature);
             if (matchingKey != null)
             {
                 var user = await this.UserRepository.GetUser(matchingKey.UserId);
@@ -146,6 +125,81 @@
             }
 
             return SentinelPrincipal.Anonymous;
+        }
+
+        public override async Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(BasicAuthenticationDigest digest)
+        {
+            string data;
+            string signature;
+
+            try
+            {
+                data = this.CryptoProvider.CreateHash(256);
+                signature = this.AsymmetricCryptoProvider.Sign(data, digest.Password);
+            }
+            catch (ArgumentException)
+            {
+                return SentinelPrincipal.Anonymous;
+            }
+            catch (FormatException)
+            {
+                return SentinelPrincipal.Anonymous;
+            }
+
+            var userKeys = await this.UserApiKeyRepository.GetForUser(digest.UserId);
+
+            var matchingKey = this.ValidateApiKey(userKeys, data, signature);
+            if (matchingKey != null)
+            {
+                var user = await this.UserRepository.GetUser(matchingKey.UserId);
+
+                if (user != null)
+                {
+                    var principal =
+                        new SentinelPrincipal(
+                            new SentinelIdentity(
+                                AuthenticationType.ApiKey,
+                                new SentinelClaim(JwtClaimType.Name, user.UserId),
+                                new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ApiKey),
+                                new SentinelClaim(ClaimType.AuthenticationSource, "local"),
+                                new SentinelClaim(JwtClaimType.GivenName, user.FirstName),
+                                new SentinelClaim(JwtClaimType.FamilyName, user.LastName)));
+
+                    user.LastLogin = DateTimeOffset.UtcNow;
+                    await this.UserRepository.Update(user.GetIdentifier(), user);
+
+                    matchingKey.LastUsed = DateTimeOffset.UtcNow;
+                    await this.UserApiKeyRepository.Update(matchingKey.GetIdentifier(), matchingKey);
+
+                    return principal;
+                }
+            }
+
+            return SentinelPrincipal.Anonymous;
+        }
+
+        private IUserApiKey ValidateApiKey(IEnumerable<IUserApiKey> userKeys, string data, string signature)
+        {
+            foreach (var key in userKeys)
+            {
+                try
+                {
+                    // Validate signature using RSA and api key
+                    var valid = this.AsymmetricCryptoProvider.ValidateSignature(data, signature, key.ApiKey);
+
+                    if (valid)
+                    {
+                        return key;
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    // Signature was invalid, proceed to next
+                    continue;
+                }
+            }
+
+            return null;
         }
     }
 }

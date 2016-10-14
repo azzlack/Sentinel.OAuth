@@ -8,6 +8,8 @@
     using System.Text;
 
     using Sentinel.OAuth.Core.Interfaces.Providers;
+    using Sentinel.OAuth.Core.Models;
+    using Sentinel.OAuth.Models.Providers;
 
     public class AsymmetricCryptoProvider : IAsymmetricCryptoProvider
     {
@@ -42,7 +44,7 @@
 
         /// <summary>Creates a private/public key pair.</summary>
         /// <returns>The private/public key pair, base-64 encoded.</returns>
-        public KeyValuePair<string, string> GenerateKeys()
+        public KeyPair GenerateKeys()
         {
             using (var rsa = new RSACryptoServiceProvider(this.keySize))
             {
@@ -50,7 +52,7 @@
                 var privateKey = rsa.ToXmlString(true);
                 var publicKey = rsa.ToXmlString(false);
 
-                return new KeyValuePair<string, string>(Convert.ToBase64String(Encoding.UTF8.GetBytes(privateKey)), Convert.ToBase64String(Encoding.UTF8.GetBytes(publicKey)));
+                return new KeyPair(Convert.ToBase64String(Encoding.UTF8.GetBytes(privateKey)), Convert.ToBase64String(Encoding.UTF8.GetBytes(publicKey)));
             }
         }
 

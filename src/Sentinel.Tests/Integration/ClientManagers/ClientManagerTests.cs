@@ -5,6 +5,8 @@
     using System;
     using System.Diagnostics;
 
+    using Sentinel.OAuth.Core.Models;
+
     public abstract class ClientManagerTests
     {
         private Stopwatch testFixtureStopwatch;
@@ -101,6 +103,22 @@
             var user = await this.ClientManager.AuthenticateClientCredentialsAsync("NUnit", "xyz");
 
             Assert.IsFalse(user.Identity.IsAuthenticated, "The client was authenticated");
+        }
+
+        [TestCase("NUnit", "aabbccddee")]
+        public async void AuthenticateClientWithApiKeyAsync_WhenGivenValidBasicAuthenticationDigest_ReturnsAuthenticatedIdentity(string username, string password)
+        {
+            var client = await this.ClientManager.AuthenticateClientCredentialsAsync(new BasicAuthenticationDigest(username, password));
+
+            Assert.IsTrue(client.Identity.IsAuthenticated, "The client was not authenticated");
+        }
+
+        [TestCase("NUnit", "")]
+        public async void AuthenticateClientWithApiKeyAsync_WhenGivenInvalidBasicAuthenticationDigest_ReturnsNotAuthenticatedIdentity(string username, string password)
+        {
+            var client = await this.ClientManager.AuthenticateClientCredentialsAsync(new BasicAuthenticationDigest(username, password));
+
+            Assert.IsFalse(client.Identity.IsAuthenticated, "The client was authenticated");
         }
     }
 }

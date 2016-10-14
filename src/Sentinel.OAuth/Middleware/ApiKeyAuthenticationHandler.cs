@@ -44,7 +44,7 @@
             var authorizationHeader = this.Request.Headers.Get("Authorization");
 
             if (string.IsNullOrEmpty(authorizationHeader)
-                || !authorizationHeader.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase)
+                || !authorizationHeader.StartsWith("ApiKey ", StringComparison.OrdinalIgnoreCase)
                 || this.Request.Path == new PathString("/oauth/token")
                 || this.Request.Path == new PathString("/oauth/authorize"))
             {
@@ -53,12 +53,12 @@
 
             if (!this.Request.IsSecure)
             {
-                throw new AuthenticationException("Basic authentication requires a secure connection");
+                throw new AuthenticationException("ApiKey authentication requires a secure connection");
             }
 
-            this.options.Logger.Debug("Authenticating user using API key and Basic authentication");
+            this.options.Logger.Debug("Authenticating user using ApiKey authentication");
 
-            var parameter = authorizationHeader.Substring(5).Trim();
+            var parameter = authorizationHeader.Substring(6).Trim();
             var digest = this.ParseParameter(parameter);
 
             if (digest == null || !this.ValidateDigest(digest))
@@ -84,7 +84,7 @@
             this.options.Logger.WarnFormat("User could not be authenticated");
 
             // Add challenge to response
-            this.Response.Headers.AppendValues("WWW-Authenticate", $"Basic realm={this.options.Realm}");
+            this.Response.Headers.AppendValues("WWW-Authenticate", $"ApiKey realm={this.options.Realm}");
 
             return new AuthenticationTicket(null, new AuthenticationProperties());
         }
@@ -103,7 +103,7 @@
             }
             catch (FormatException)
             {
-                this.options.Logger.Warn("The Basic parameter is not Base-64 encoded");
+                this.options.Logger.Warn("The ApiKey parameter is not Base-64 encoded");
 
                 return null;
             }
@@ -111,7 +111,7 @@
             var splitParameter = decodedParameter.Split(':');
             if (splitParameter.Length != 2)
             {
-                this.options.Logger.Warn("The Basic parameter is invalid");
+                this.options.Logger.Warn("The ApiKey parameter is invalid");
 
                 return null;
             }

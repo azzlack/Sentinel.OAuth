@@ -102,7 +102,19 @@
                 options.ClientManager = new ClientManager(options.PasswordCryptoProvider, options.ClientRepository);
             }
 
-            // Initialize api key auth if specified
+            // Initialize basic auth if specified
+            if (options.EnableBasicAuthentication)
+            {
+                var basicAuthenticationOptions = new BasicAuthenticationOptions()
+                {
+                    ClientManager = options.ClientManager,
+                    UserManager = options.UserManager,
+                    Logger = options.Logger,
+                    Realm = options.Realm
+                };
+                app.Use<BasicAuthenticationMiddleware>(basicAuthenticationOptions);
+            }
+
             if (options.EnableApiKeyAuthentication)
             {
                 var basicAuthenticationOptions = new ApiKeyAuthenticationOptions()

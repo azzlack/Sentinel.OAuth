@@ -12,6 +12,8 @@
     using System.Security.Claims;
     using System.Threading.Tasks;
 
+    using Sentinel.OAuth.Core.Models;
+
     public class ClientManager : BaseClientManager
     {
         /// <summary>Initializes a new instance of the <see cref="ClientManager" /> class.</summary>

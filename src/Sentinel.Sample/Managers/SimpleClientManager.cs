@@ -8,6 +8,8 @@
     using System.Security.Claims;
     using System.Threading.Tasks;
 
+    using Sentinel.OAuth.Core.Models;
+
     public class SimpleClientManager : IClientManager
     {
         /// <summary>
@@ -40,6 +42,11 @@
             }
 
             return SentinelPrincipal.Anonymous;
+        }
+
+        public Task<ISentinelPrincipal> AuthenticateClientCredentialsAsync(BasicAuthenticationDigest digest)
+        {
+            return this.AuthenticateClientCredentialsAsync(digest.UserId, digest.Password);
         }
 
         /// <summary>Authenticates the client credentials using client id and secret.</summary>
