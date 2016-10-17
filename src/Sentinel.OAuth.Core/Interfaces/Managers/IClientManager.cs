@@ -4,10 +4,18 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Models;
 
     public interface IClientManager
     {
+        /// <summary>Creates a client.</summary>
+        /// <param name="clientId">The client id.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="redirectUri">The redirect URI.</param>
+        /// <returns>The new client.</returns>
+        Task<CreateClientResult> CreateClient(string clientId, string name, string redirectUri);
+
         /// <summary>
         /// Authenticates the client. Used when authenticating with the authorization_code grant type.
         /// </summary>

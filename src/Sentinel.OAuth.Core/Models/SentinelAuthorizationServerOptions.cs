@@ -131,7 +131,7 @@
 
         /// <summary>Gets or sets the password crypto provider.</summary>
         /// <value>The password crypto provider.</value>
-        public ICryptoProvider PasswordCryptoProvider { get; set; }
+        public IPasswordCryptoProvider PasswordCryptoProvider { get; set; }
 
         /// <summary>Gets or sets the API key crypto provider.</summary>
         /// <value>The API key crypto provider.</value>

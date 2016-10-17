@@ -12,6 +12,11 @@
 
     public class SimpleClientManager : IClientManager
     {
+        public Task<CreateClientResult> CreateClient(string clientId, string name, string redirectUri)
+        {
+            throw new System.NotImplementedException();
+        }
+
         /// <summary>
         ///     Authenticates the client. Used when authenticating with the authorization_code grant type.
         /// </summary>

@@ -57,6 +57,17 @@
         }
 
         [Test]
+        public async void CreateClient_WhenGivenValidParams_ReturnsInsertedClient()
+        {
+            var c = await this.ClientManager.CreateClient(Guid.NewGuid().ToString("N"), "Test", "http://localhost");
+
+            Assert.IsNotNull(c);
+            Assert.AreEqual("Test", c.Client.Name);
+            Assert.IsNotNullOrEmpty(c.ClientSecret);
+            Assert.IsNotNullOrEmpty(c.PrivateKey);
+        }
+
+        [Test]
         public async void Authenticate_WhenGivenValidClientIdAndScope_ReturnsAuthenticatedIdentity()
         {
             var user = await this.ClientManager.AuthenticateClientAsync("NUnit", new string[0]);

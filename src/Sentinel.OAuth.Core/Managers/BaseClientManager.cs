@@ -7,6 +7,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Models;
 
     /// <summary>A base client manager.</summary>
@@ -14,12 +15,13 @@
     {
         /// <summary>Initializes a new instance of the <see cref="BaseClientManager" /> class.</summary>
         /// <param name="cryptoProvider">The crypto provider.</param>
+        /// <param name="passwordCryptoProvider">The password crypto provider.</param>
         /// <param name="asymmetricCryptoProvider">The asymmetric crypto provider.</param>
         /// <param name="clientRepository">The client repository.</param>
-        protected BaseClientManager(ICryptoProvider cryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IClientRepository clientRepository)
+        protected BaseClientManager(IPasswordCryptoProvider passwordCryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IClientRepository clientRepository)
         {
-            this.CryptoProvider = cryptoProvider;
             this.AsymmetricCryptoProvider = asymmetricCryptoProvider;
+            this.PasswordCryptoProvider = passwordCryptoProvider;
             this.ClientRepository = clientRepository;
         }
 
@@ -34,6 +36,17 @@
         /// <summary>Gets the asymmetric crypto provider.</summary>
         /// <value>The asymmetric crypto provider.</value>
         protected IAsymmetricCryptoProvider AsymmetricCryptoProvider { get; private set; }
+
+        /// <summary>Gets the password crypto provider.</summary>
+        /// <value>The password crypto provider.</value>
+        protected IPasswordCryptoProvider PasswordCryptoProvider { get; private set; }
+
+        /// <summary>Creates a client.</summary>
+        /// <param name="clientId">The client id.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="redirectUri">The redirect URI.</param>
+        /// <returns>The new client.</returns>
+        public abstract Task<CreateClientResult> CreateClient(string clientId, string name, string redirectUri);
 
         /// <summary>
         /// Authenticates the client. Used when authenticating with the authorization_code grant type.

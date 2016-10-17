@@ -10,31 +10,21 @@
     using HashAlgorithm = Sentinel.OAuth.Core.Constants.HashAlgorithm;
 
     /// <summary>A <c>PBKDF2</c> crypto provider for creating and validating hashes.</summary>
-    public class PBKDF2CryptoProvider : ICryptoProvider
+    public class PBKDF2CryptoProvider : IPasswordCryptoProvider
     {
-        /// <summary>
-        /// The salt size.
-        /// </summary>
+        /// <summary>The salt size.</summary>
         private readonly int saltByteSize;
 
-        /// <summary>
-        /// The hash size.
-        /// </summary>
+        /// <summary>The hash size.</summary>
         private readonly int hashByteSize;
 
-        /// <summary>
-        /// The number of iterations used by the PBKDF2 algorithm.
-        /// </summary>
+        /// <summary>The number of iterations used by the PBKDF2 algorithm.</summary>
         private readonly int iterations;
 
-        /// <summary>
-        /// The hash components delimiter.
-        /// </summary>
+        /// <summary>The hash components delimiter.</summary>
         private readonly char[] delimiter;
 
-        /// <summary>
-        /// The random number generator.
-        /// </summary>
+        /// <summary>The random number generator.</summary>
         private readonly RandomNumberGenerator rng;
 
         /// <summary>The log.</summary>

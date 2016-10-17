@@ -100,8 +100,43 @@
                     try
                     {
                         connection.Execute(
-                            "UPDATE Clients SET ClientId = @ClientId, ClientSecret = @ClientSecret, Name = @Name, RedirectUri = @RedirectUri, Enabled = @Enabled, LastUsed = @LastUsed, Created = @Created WHERE Id = @Id",
-                            new { Id = id, k.ClientId, k.ClientSecret, k.Name, k.RedirectUri, k.Enabled, k.LastUsed, k.Created },
+                            "UPDATE Clients SET ClientId = @ClientId, ClientSecret = @ClientSecret, PublicKey = @PublicKey, Name = @Name, RedirectUri = @RedirectUri, Enabled = @Enabled, LastUsed = @LastUsed, Created = @Created WHERE Id = @Id",
+                            new { Id = id, k.ClientId, k.ClientSecret, k.PublicKey, k.Name, k.RedirectUri, k.Enabled, k.LastUsed, k.Created },
+                            transaction);
+
+                        transaction.Commit();
+
+                        var result = await connection.QueryAsync<SqlClient>("SELECT * FROM Clients WHERE Id = @Id", new { Id = id });
+
+                        return result.FirstOrDefault();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
+        /// <summary>Creates a new client.</summary>
+        /// <param name="client">The client.</param>
+        /// <returns>The created client.</returns>
+        public async Task<IClient> Create(IClient client)
+        {
+            using (var connection = await this.OpenConnection())
+            {
+                var k = new SqlClient(client);
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        k.Created = DateTimeOffset.UtcNow;
+
+                        var id = connection.ExecuteScalar<long>(
+                            "INSERT INTO Clients (ClientId, ClientSecret, PublicKey, Name, RedirectUri, Enabled, Created) VALUES (@ClientId, @ClientSecret, @PublicKey, @Name, @RedirectUri, @Enabled, @Created); SELECT SCOPE_IDENTITY()",
+                            new { k.ClientId, k.ClientSecret, k.PublicKey, k.Name, k.RedirectUri, k.Enabled, Created = k.Created.ToString("s") },
                             transaction);
 
                         transaction.Commit();

@@ -14,17 +14,49 @@
 
     using Microsoft.Owin.Security.OAuth;
 
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Models;
+    using Sentinel.OAuth.Core.Models.OAuth;
 
     public class ClientManager : BaseClientManager
     {
         /// <summary>Initializes a new instance of the <see cref="ClientManager" /> class.</summary>
-        /// <param name="cryptoProvider">The crypto provider.</param>
+        /// <param name="passwordCryptoProvider">The password crypto provider.</param>
         /// <param name="asymmetricCryptoProvider">The asymmetric crypto provider.</param>
         /// <param name="clientRepository">The client repository.</param>
-        public ClientManager(ICryptoProvider cryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IClientRepository clientRepository)
-            : base(cryptoProvider, asymmetricCryptoProvider, clientRepository)
+        public ClientManager(IPasswordCryptoProvider passwordCryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IClientRepository clientRepository)
+            : base(passwordCryptoProvider, asymmetricCryptoProvider, clientRepository)
         {
+        }
+
+        /// <summary>Creates a client.</summary>
+        /// <param name="clientId">The client id.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="redirectUri">The redirect URI.</param>
+        /// <returns>The new client.</returns>
+        public override async Task<CreateClientResult> CreateClient(string clientId, string name, string redirectUri)
+        {
+            var client = new Client() { ClientId = clientId, Name = name, RedirectUri = redirectUri, Enabled = true };
+
+            string clientSecret;
+            string privateKey;
+
+            client.ClientSecret = this.PasswordCryptoProvider.CreateHash(out clientSecret, 8);
+            client.PublicKey = this.AsymmetricCryptoProvider.GenerateKeys(out privateKey);
+
+            var result = await this.ClientRepository.Create(client);
+
+            if (result != null)
+            {
+                return new CreateClientResult()
+                           {
+                               Client = result,
+                               ClientSecret = clientSecret,
+                               PrivateKey = privateKey
+                           };
+            }
+
+            return null;
         }
 
         /// <summary>

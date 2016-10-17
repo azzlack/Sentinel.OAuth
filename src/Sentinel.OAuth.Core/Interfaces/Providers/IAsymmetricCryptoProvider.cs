@@ -10,6 +10,11 @@
         /// <returns>The private/public key pair, base-64 encoded.</returns>
         KeyPair GenerateKeys();
 
+        /// <summary>Creates a private/public key pair.</summary>
+        /// <param name="privateKey">[out] The private key, base-64 encoded.</param>
+        /// <returns>The public key, base-64 encoded.</returns>
+        string GenerateKeys(out string privateKey);
+
         /// <summary>Signs the data using the specified key.</summary>
         /// <param name="data">The data.</param>
         /// <param name="privateKey">The private key, base-64 encoded.</param>

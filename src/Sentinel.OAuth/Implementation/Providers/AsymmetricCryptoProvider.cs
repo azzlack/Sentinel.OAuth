@@ -56,6 +56,18 @@
             }
         }
 
+        /// <summary>Creates a private/public key pair.</summary>
+        /// <param name="privateKey">[out] The private key, base-64 encoded.</param>
+        /// <returns>The public key, base-64 encoded.</returns>
+        public string GenerateKeys(out string privateKey)
+        {
+            var keys = this.GenerateKeys();
+
+            privateKey = keys.PrivateKey;
+
+            return keys.PublicKey;
+        }
+
         /// <summary>Signs the data using the specified key.</summary>
         /// <param name="data">The data.</param>
         /// <param name="privateKey">The private key, base-64 encoded.</param>

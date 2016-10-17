@@ -96,12 +96,14 @@
     <Compile Include="Interfaces\Models\IUserApiKey.cs" />
     <Compile Include="Interfaces\Models\IUser.cs" />
     <Compile Include="Interfaces\Providers\IAsymmetricCryptoProvider.cs" />
+    <Compile Include="Interfaces\Providers\IPasswordCryptoProvider.cs" />
     <Compile Include="Interfaces\Providers\ITokenProvider.cs" />
     <Compile Include="Interfaces\Repositories\IUserApiKeyRepository.cs" />
     <Compile Include="Interfaces\Repositories\IUserRepository.cs" />
     <Compile Include="Interfaces\Repositories\IClientRepository.cs" />
     <Compile Include="Interfaces\Validators\ITokenValidator.cs" />
     <Compile Include="Models\BasicAuthenticationDigest.cs" />
+    <Compile Include="Models\CreateClientResult.cs" />
     <Compile Include="Models\SignatureAuthenticationDigest.cs" />
     <Compile Include="Models\KeyPair.cs" />
     <Compile Include="Models\OAuth\AccessToken.cs" />

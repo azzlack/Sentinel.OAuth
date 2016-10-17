@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
 
     using Sentinel.OAuth.Core.Interfaces.Models;
+    using Sentinel.OAuth.Core.Models.OAuth;
 
     public interface IClientRepository
     {
@@ -22,5 +23,10 @@
         /// <param name="client">The client.</param>
         /// <returns>The updated client.</returns>
         Task<IClient> Update<T>(T id, IClient client);
+
+        /// <summary>Creates a new client</summary>
+        /// <param name="client">The client.</param>
+        /// <returns>The created client.</returns>
+        Task<IClient> Create(IClient client);
     }
 }
