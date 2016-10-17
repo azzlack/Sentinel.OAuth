@@ -25,10 +25,13 @@
         [TestFixtureSetUp]
         public override void TestFixtureSetUp()
         {
+            base.TestFixtureSetUp();
+
             var client = new Client()
             {
                 ClientId = "NUnit",
-                ClientSecret = "10000:gW7zpVeugKl8IFu7TcpPskcgQjy4185eAwBk9fFlZK6JNd1I45tLyCYtJrzWzE+kVCUP7lMSY8o808EjUgfavBzYU/ZtWypcdCdCJ0BMfMcf8Mk+XIYQCQLiFpt9Rjrf5mAY86NuveUtd1yBdPjxX5neMXEtquNYhu9I6iyzcN4=:Lk2ZkpmTDkNtO/tsB/GskMppdAX2bXehP+ED4oLis0AAv3Q1VeI8KL0SxIIWdxjKH0NJKZ6qniRFkfZKZRS2hS4SB8oyB34u/jyUlmv+RZGZSt9nJ9FYJn1percd/yFA7sSQOpkGljJ6OTwdthe0Bw0A/8qlKHbO2y2M5BFgYHY=",
+                ClientSecret = this.PasswordCryptoProvider.CreateHash("PFJTQUtleVZhbHVlPjxNb2R1bHVzPnFKMEtXaXZWSjUxUWtKWGdIU1hidkxOTEJsa09rOE9uSWtvRTljU1FrRzhOZm5VYXBrWHpkTlEvb3FLZE9BSWxYK1hFMnNwN0xFcS9KRnJMaDRNblhRPT08L01vZHVsdXM+PEV4cG9uZW50PkFRQUI8L0V4cG9uZW50PjxQPnljRXBJUDJseG1oa0hRMGRrKzRBVk1lZDhWRUFFVHN5TXgvL3NaNS9TbFU9PC9QPjxRPjFmTEVGWU1JMk1TMUJQbzYwcnYyQmhkYWNBaTI2d2Z0V1N2OVl0aUdnT2s9PC9RPjxEUD5uZ0dYTW0wejdXVklNckJZMzhmZm5vWVBIalR2dG84RHk2SmQ0RDlmTlZrPTwvRFA+PERRPk5FZEQzclhNSFp2RFY5b0ZNYVU0TXJqV0luWWVyRU9kbmFLQUlmMGlzTEU9PC9EUT48SW52ZXJzZVE+ZGQzNVh6T0RvUlZQaXQxb2REL0lKRHpXdUtYMXZrb2NjcXQ4REZGVTlwVT08L0ludmVyc2VRPjxEPkFBcC80VW1oSmFJcm9DcWJ5eXdRbDViY0xFMXNSSkwxek50dllkdGxNTCsxWVFRdWx6YzVPRkh1WUcxQW56OE8vbXU2MXNDN0dNVm04ZTVqSUp6SldRPT08L0Q+PC9SU0FLZXlWYWx1ZT4="),
+                //ClientSecret = "10000:gW7zpVeugKl8IFu7TcpPskcgQjy4185eAwBk9fFlZK6JNd1I45tLyCYtJrzWzE+kVCUP7lMSY8o808EjUgfavBzYU/ZtWypcdCdCJ0BMfMcf8Mk+XIYQCQLiFpt9Rjrf5mAY86NuveUtd1yBdPjxX5neMXEtquNYhu9I6iyzcN4=:Lk2ZkpmTDkNtO/tsB/GskMppdAX2bXehP+ED4oLis0AAv3Q1VeI8KL0SxIIWdxjKH0NJKZ6qniRFkfZKZRS2hS4SB8oyB34u/jyUlmv+RZGZSt9nJ9FYJn1percd/yFA7sSQOpkGljJ6OTwdthe0Bw0A/8qlKHbO2y2M5BFgYHY=",
                 PublicKey = "PFJTQUtleVZhbHVlPjxNb2R1bHVzPnFKMEtXaXZWSjUxUWtKWGdIU1hidkxOTEJsa09rOE9uSWtvRTljU1FrRzhOZm5VYXBrWHpkTlEvb3FLZE9BSWxYK1hFMnNwN0xFcS9KRnJMaDRNblhRPT08L01vZHVsdXM+PEV4cG9uZW50PkFRQUI8L0V4cG9uZW50PjwvUlNBS2V5VmFsdWU+",
                 RedirectUri = "http://localhost",
                 Enabled = true
@@ -36,7 +39,8 @@
             var user = new User()
             {
                 UserId = "azzlack",
-                Password = "10000:gW7zpVeugKl8IFu7TcpPskcgQjy4185eAwBk9fFlZK6JNd1I45tLyCYtJrzWzE+kVCUP7lMSY8o808EjUgfavBzYU/ZtWypcdCdCJ0BMfMcf8Mk+XIYQCQLiFpt9Rjrf5mAY86NuveUtd1yBdPjxX5neMXEtquNYhu9I6iyzcN4=:Lk2ZkpmTDkNtO/tsB/GskMppdAX2bXehP+ED4oLis0AAv3Q1VeI8KL0SxIIWdxjKH0NJKZ6qniRFkfZKZRS2hS4SB8oyB34u/jyUlmv+RZGZSt9nJ9FYJn1percd/yFA7sSQOpkGljJ6OTwdthe0Bw0A/8qlKHbO2y2M5BFgYHY=",
+                Password = this.PasswordCryptoProvider.CreateHash("aabbccddee"),
+                //Password = "10000:gW7zpVeugKl8IFu7TcpPskcgQjy4185eAwBk9fFlZK6JNd1I45tLyCYtJrzWzE+kVCUP7lMSY8o808EjUgfavBzYU/ZtWypcdCdCJ0BMfMcf8Mk+XIYQCQLiFpt9Rjrf5mAY86NuveUtd1yBdPjxX5neMXEtquNYhu9I6iyzcN4=:Lk2ZkpmTDkNtO/tsB/GskMppdAX2bXehP+ED4oLis0AAv3Q1VeI8KL0SxIIWdxjKH0NJKZ6qniRFkfZKZRS2hS4SB8oyB34u/jyUlmv+RZGZSt9nJ9FYJn1percd/yFA7sSQOpkGljJ6OTwdthe0Bw0A/8qlKHbO2y2M5BFgYHY=",
                 FirstName = "Ove",
                 LastName = "Andersen",
                 Enabled = true
@@ -87,8 +91,6 @@
 
                         app.UseWebApi(httpConfig);
                     });
-
-            base.TestFixtureSetUp();
         }
     }
 }

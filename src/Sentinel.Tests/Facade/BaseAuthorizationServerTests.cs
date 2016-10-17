@@ -32,12 +32,15 @@
 
         protected IAsymmetricCryptoProvider AsymmetricCryptoProvider;
 
+        protected ICryptoProvider PasswordCryptoProvider;
+
         protected EventHandler<Tuple<AccessTokenResponse, IdentityResponse>> ValidateTokenEventHandler;
 
         [TestFixtureSetUp]
         public virtual void TestFixtureSetUp()
         {
             this.AsymmetricCryptoProvider = new AsymmetricCryptoProvider();
+            this.PasswordCryptoProvider = new PBKDF2CryptoProvider();
         }
 
         [TestFixtureTearDown]
@@ -58,7 +61,7 @@
         public async void AuthenticateResourceOwner_WhenGivenValidClientAndUserAndPassword_ShouldReturnAccessToken(string username, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
-            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "aabbccddee");
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "PFJTQUtleVZhbHVlPjxNb2R1bHVzPnFKMEtXaXZWSjUxUWtKWGdIU1hidkxOTEJsa09rOE9uSWtvRTljU1FrRzhOZm5VYXBrWHpkTlEvb3FLZE9BSWxYK1hFMnNwN0xFcS9KRnJMaDRNblhRPT08L01vZHVsdXM+PEV4cG9uZW50PkFRQUI8L0V4cG9uZW50PjxQPnljRXBJUDJseG1oa0hRMGRrKzRBVk1lZDhWRUFFVHN5TXgvL3NaNS9TbFU9PC9QPjxRPjFmTEVGWU1JMk1TMUJQbzYwcnYyQmhkYWNBaTI2d2Z0V1N2OVl0aUdnT2s9PC9RPjxEUD5uZ0dYTW0wejdXVklNckJZMzhmZm5vWVBIalR2dG84RHk2SmQ0RDlmTlZrPTwvRFA+PERRPk5FZEQzclhNSFp2RFY5b0ZNYVU0TXJqV0luWWVyRU9kbmFLQUlmMGlzTEU9PC9EUT48SW52ZXJzZVE+ZGQzNVh6T0RvUlZQaXQxb2REL0lKRHpXdUtYMXZrb2NjcXQ4REZGVTlwVT08L0ludmVyc2VRPjxEPkFBcC80VW1oSmFJcm9DcWJ5eXdRbDViY0xFMXNSSkwxek50dllkdGxNTCsxWVFRdWx6YzVPRkh1WUcxQW56OE8vbXU2MXNDN0dNVm04ZTVqSUp6SldRPT08L0Q+PC9SU0FLZXlWYWx1ZT4=");
             request.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
                                                         {
                                                             { "grant_type", GrantType.Password },
@@ -103,7 +106,7 @@
         public async void AuthenticateResourceOwner_WhenGivenInvalidClientAndUserAndPassword_ShouldReturnInvalidGrant(string username, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
-            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "aabbccddee");
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "PFJTQUtleVZhbHVlPjxNb2R1bHVzPnFKMEtXaXZWSjUxUWtKWGdIU1hidkxOTEJsa09rOE9uSWtvRTljU1FrRzhOZm5VYXBrWHpkTlEvb3FLZE9BSWxYK1hFMnNwN0xFcS9KRnJMaDRNblhRPT08L01vZHVsdXM+PEV4cG9uZW50PkFRQUI8L0V4cG9uZW50PjxQPnljRXBJUDJseG1oa0hRMGRrKzRBVk1lZDhWRUFFVHN5TXgvL3NaNS9TbFU9PC9QPjxRPjFmTEVGWU1JMk1TMUJQbzYwcnYyQmhkYWNBaTI2d2Z0V1N2OVl0aUdnT2s9PC9RPjxEUD5uZ0dYTW0wejdXVklNckJZMzhmZm5vWVBIalR2dG84RHk2SmQ0RDlmTlZrPTwvRFA+PERRPk5FZEQzclhNSFp2RFY5b0ZNYVU0TXJqV0luWWVyRU9kbmFLQUlmMGlzTEU9PC9EUT48SW52ZXJzZVE+ZGQzNVh6T0RvUlZQaXQxb2REL0lKRHpXdUtYMXZrb2NjcXQ4REZGVTlwVT08L0ludmVyc2VRPjxEPkFBcC80VW1oSmFJcm9DcWJ5eXdRbDViY0xFMXNSSkwxek50dllkdGxNTCsxWVFRdWx6YzVPRkh1WUcxQW56OE8vbXU2MXNDN0dNVm04ZTVqSUp6SldRPT08L0Q+PC9SU0FLZXlWYWx1ZT4=");
             request.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
                                                         {
                                                             { "grant_type", GrantType.Password },
@@ -127,7 +130,7 @@
         public async void AuthenticateResourceOwner_WhenGivenValidRefreshToken_ShouldReturnNewAccessToken(string username, string password)
         {
             var request1 = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
-            request1.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "aabbccddee");
+            request1.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "PFJTQUtleVZhbHVlPjxNb2R1bHVzPnFKMEtXaXZWSjUxUWtKWGdIU1hidkxOTEJsa09rOE9uSWtvRTljU1FrRzhOZm5VYXBrWHpkTlEvb3FLZE9BSWxYK1hFMnNwN0xFcS9KRnJMaDRNblhRPT08L01vZHVsdXM+PEV4cG9uZW50PkFRQUI8L0V4cG9uZW50PjxQPnljRXBJUDJseG1oa0hRMGRrKzRBVk1lZDhWRUFFVHN5TXgvL3NaNS9TbFU9PC9QPjxRPjFmTEVGWU1JMk1TMUJQbzYwcnYyQmhkYWNBaTI2d2Z0V1N2OVl0aUdnT2s9PC9RPjxEUD5uZ0dYTW0wejdXVklNckJZMzhmZm5vWVBIalR2dG84RHk2SmQ0RDlmTlZrPTwvRFA+PERRPk5FZEQzclhNSFp2RFY5b0ZNYVU0TXJqV0luWWVyRU9kbmFLQUlmMGlzTEU9PC9EUT48SW52ZXJzZVE+ZGQzNVh6T0RvUlZQaXQxb2REL0lKRHpXdUtYMXZrb2NjcXQ4REZGVTlwVT08L0ludmVyc2VRPjxEPkFBcC80VW1oSmFJcm9DcWJ5eXdRbDViY0xFMXNSSkwxek50dllkdGxNTCsxWVFRdWx6YzVPRkh1WUcxQW56OE8vbXU2MXNDN0dNVm04ZTVqSUp6SldRPT08L0Q+PC9SU0FLZXlWYWx1ZT4=");
             request1.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
                                                         {
                                                             { "grant_type", GrantType.Password },
@@ -150,7 +153,7 @@
             Assert.IsNotNullOrEmpty(content1.RefreshToken, "No refresh token returned");
 
             var request2 = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
-            request2.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "aabbccddee");
+            request2.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "PFJTQUtleVZhbHVlPjxNb2R1bHVzPnFKMEtXaXZWSjUxUWtKWGdIU1hidkxOTEJsa09rOE9uSWtvRTljU1FrRzhOZm5VYXBrWHpkTlEvb3FLZE9BSWxYK1hFMnNwN0xFcS9KRnJMaDRNblhRPT08L01vZHVsdXM+PEV4cG9uZW50PkFRQUI8L0V4cG9uZW50PjxQPnljRXBJUDJseG1oa0hRMGRrKzRBVk1lZDhWRUFFVHN5TXgvL3NaNS9TbFU9PC9QPjxRPjFmTEVGWU1JMk1TMUJQbzYwcnYyQmhkYWNBaTI2d2Z0V1N2OVl0aUdnT2s9PC9RPjxEUD5uZ0dYTW0wejdXVklNckJZMzhmZm5vWVBIalR2dG84RHk2SmQ0RDlmTlZrPTwvRFA+PERRPk5FZEQzclhNSFp2RFY5b0ZNYVU0TXJqV0luWWVyRU9kbmFLQUlmMGlzTEU9PC9EUT48SW52ZXJzZVE+ZGQzNVh6T0RvUlZQaXQxb2REL0lKRHpXdUtYMXZrb2NjcXQ4REZGVTlwVT08L0ludmVyc2VRPjxEPkFBcC80VW1oSmFJcm9DcWJ5eXdRbDViY0xFMXNSSkwxek50dllkdGxNTCsxWVFRdWx6YzVPRkh1WUcxQW56OE8vbXU2MXNDN0dNVm04ZTVqSUp6SldRPT08L0Q+PC9SU0FLZXlWYWx1ZT4=");
             request2.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
                                                         {
                                                             { "grant_type", GrantType.RefreshToken },
@@ -176,7 +179,7 @@
         public async void AuthenticateResourceOwner_WhenGivenValidClientAndInvalidRedirectUri_ShouldReturnInvalidRequest(string username, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
-            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "aabbccddee");
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "PFJTQUtleVZhbHVlPjxNb2R1bHVzPnFKMEtXaXZWSjUxUWtKWGdIU1hidkxOTEJsa09rOE9uSWtvRTljU1FrRzhOZm5VYXBrWHpkTlEvb3FLZE9BSWxYK1hFMnNwN0xFcS9KRnJMaDRNblhRPT08L01vZHVsdXM+PEV4cG9uZW50PkFRQUI8L0V4cG9uZW50PjxQPnljRXBJUDJseG1oa0hRMGRrKzRBVk1lZDhWRUFFVHN5TXgvL3NaNS9TbFU9PC9QPjxRPjFmTEVGWU1JMk1TMUJQbzYwcnYyQmhkYWNBaTI2d2Z0V1N2OVl0aUdnT2s9PC9RPjxEUD5uZ0dYTW0wejdXVklNckJZMzhmZm5vWVBIalR2dG84RHk2SmQ0RDlmTlZrPTwvRFA+PERRPk5FZEQzclhNSFp2RFY5b0ZNYVU0TXJqV0luWWVyRU9kbmFLQUlmMGlzTEU9PC9EUT48SW52ZXJzZVE+ZGQzNVh6T0RvUlZQaXQxb2REL0lKRHpXdUtYMXZrb2NjcXQ4REZGVTlwVT08L0ludmVyc2VRPjxEPkFBcC80VW1oSmFJcm9DcWJ5eXdRbDViY0xFMXNSSkwxek50dllkdGxNTCsxWVFRdWx6YzVPRkh1WUcxQW56OE8vbXU2MXNDN0dNVm04ZTVqSUp6SldRPT08L0Q+PC9SU0FLZXlWYWx1ZT4=");
             request.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
                                                         {
                                                             { "grant_type", GrantType.Password },
@@ -198,7 +201,7 @@
         public async void AuthenticateClientCredentials_WhenGivenValidClientIdAndSecret_ShouldReturnAccessToken()
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
-            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "aabbccddee");
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "PFJTQUtleVZhbHVlPjxNb2R1bHVzPnFKMEtXaXZWSjUxUWtKWGdIU1hidkxOTEJsa09rOE9uSWtvRTljU1FrRzhOZm5VYXBrWHpkTlEvb3FLZE9BSWxYK1hFMnNwN0xFcS9KRnJMaDRNblhRPT08L01vZHVsdXM+PEV4cG9uZW50PkFRQUI8L0V4cG9uZW50PjxQPnljRXBJUDJseG1oa0hRMGRrKzRBVk1lZDhWRUFFVHN5TXgvL3NaNS9TbFU9PC9QPjxRPjFmTEVGWU1JMk1TMUJQbzYwcnYyQmhkYWNBaTI2d2Z0V1N2OVl0aUdnT2s9PC9RPjxEUD5uZ0dYTW0wejdXVklNckJZMzhmZm5vWVBIalR2dG84RHk2SmQ0RDlmTlZrPTwvRFA+PERRPk5FZEQzclhNSFp2RFY5b0ZNYVU0TXJqV0luWWVyRU9kbmFLQUlmMGlzTEU9PC9EUT48SW52ZXJzZVE+ZGQzNVh6T0RvUlZQaXQxb2REL0lKRHpXdUtYMXZrb2NjcXQ4REZGVTlwVT08L0ludmVyc2VRPjxEPkFBcC80VW1oSmFJcm9DcWJ5eXdRbDViY0xFMXNSSkwxek50dllkdGxNTCsxWVFRdWx6YzVPRkh1WUcxQW56OE8vbXU2MXNDN0dNVm04ZTVqSUp6SldRPT08L0Q+PC9SU0FLZXlWYWx1ZT4=");
             request.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
                                                         {
                                                             { "grant_type", GrantType.ClientCredentials },
@@ -234,7 +237,7 @@
         public async void AuthenticateClientCredentials_WhenGivenInvalidClientIdAndSecret_ShouldReturnInvalidGrant()
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
-            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit66", "aabbccddee");
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit66", "PFJTQUtleVZhbHVlPjxNb2R1bHVzPnFKMEtXaXZWSjUxUWtKWGdIU1hidkxOTEJsa09rOE9uSWtvRTljU1FrRzhOZm5VYXBrWHpkTlEvb3FLZE9BSWxYK1hFMnNwN0xFcS9KRnJMaDRNblhRPT08L01vZHVsdXM+PEV4cG9uZW50PkFRQUI8L0V4cG9uZW50PjxQPnljRXBJUDJseG1oa0hRMGRrKzRBVk1lZDhWRUFFVHN5TXgvL3NaNS9TbFU9PC9QPjxRPjFmTEVGWU1JMk1TMUJQbzYwcnYyQmhkYWNBaTI2d2Z0V1N2OVl0aUdnT2s9PC9RPjxEUD5uZ0dYTW0wejdXVklNckJZMzhmZm5vWVBIalR2dG84RHk2SmQ0RDlmTlZrPTwvRFA+PERRPk5FZEQzclhNSFp2RFY5b0ZNYVU0TXJqV0luWWVyRU9kbmFLQUlmMGlzTEU9PC9EUT48SW52ZXJzZVE+ZGQzNVh6T0RvUlZQaXQxb2REL0lKRHpXdUtYMXZrb2NjcXQ4REZGVTlwVT08L0ludmVyc2VRPjxEPkFBcC80VW1oSmFJcm9DcWJ5eXdRbDViY0xFMXNSSkwxek50dllkdGxNTCsxWVFRdWx6YzVPRkh1WUcxQW56OE8vbXU2MXNDN0dNVm04ZTVqSUp6SldRPT08L0Q+PC9SU0FLZXlWYWx1ZT4=");
             request.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
                                                         {
                                                             { "grant_type", GrantType.ClientCredentials },
@@ -312,7 +315,7 @@
         public async void GetIdentity_WhenAuthenticated_ReturnsClaims()
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
-            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "aabbccddee");
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "PFJTQUtleVZhbHVlPjxNb2R1bHVzPnFKMEtXaXZWSjUxUWtKWGdIU1hidkxOTEJsa09rOE9uSWtvRTljU1FrRzhOZm5VYXBrWHpkTlEvb3FLZE9BSWxYK1hFMnNwN0xFcS9KRnJMaDRNblhRPT08L01vZHVsdXM+PEV4cG9uZW50PkFRQUI8L0V4cG9uZW50PjxQPnljRXBJUDJseG1oa0hRMGRrKzRBVk1lZDhWRUFFVHN5TXgvL3NaNS9TbFU9PC9QPjxRPjFmTEVGWU1JMk1TMUJQbzYwcnYyQmhkYWNBaTI2d2Z0V1N2OVl0aUdnT2s9PC9RPjxEUD5uZ0dYTW0wejdXVklNckJZMzhmZm5vWVBIalR2dG84RHk2SmQ0RDlmTlZrPTwvRFA+PERRPk5FZEQzclhNSFp2RFY5b0ZNYVU0TXJqV0luWWVyRU9kbmFLQUlmMGlzTEU9PC9EUT48SW52ZXJzZVE+ZGQzNVh6T0RvUlZQaXQxb2REL0lKRHpXdUtYMXZrb2NjcXQ4REZGVTlwVT08L0ludmVyc2VRPjxEPkFBcC80VW1oSmFJcm9DcWJ5eXdRbDViY0xFMXNSSkwxek50dllkdGxNTCsxWVFRdWx6YzVPRkh1WUcxQW56OE8vbXU2MXNDN0dNVm04ZTVqSUp6SldRPT08L0Q+PC9SU0FLZXlWYWx1ZT4=");
             request.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
                                                         {
                                                             { "grant_type", GrantType.Password },
@@ -362,7 +365,7 @@
         public async void GetIdentity_WhenUsingOpenId_ReturnsValidAccessToken()
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
-            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "aabbccddee");
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "PFJTQUtleVZhbHVlPjxNb2R1bHVzPnFKMEtXaXZWSjUxUWtKWGdIU1hidkxOTEJsa09rOE9uSWtvRTljU1FrRzhOZm5VYXBrWHpkTlEvb3FLZE9BSWxYK1hFMnNwN0xFcS9KRnJMaDRNblhRPT08L01vZHVsdXM+PEV4cG9uZW50PkFRQUI8L0V4cG9uZW50PjxQPnljRXBJUDJseG1oa0hRMGRrKzRBVk1lZDhWRUFFVHN5TXgvL3NaNS9TbFU9PC9QPjxRPjFmTEVGWU1JMk1TMUJQbzYwcnYyQmhkYWNBaTI2d2Z0V1N2OVl0aUdnT2s9PC9RPjxEUD5uZ0dYTW0wejdXVklNckJZMzhmZm5vWVBIalR2dG84RHk2SmQ0RDlmTlZrPTwvRFA+PERRPk5FZEQzclhNSFp2RFY5b0ZNYVU0TXJqV0luWWVyRU9kbmFLQUlmMGlzTEU9PC9EUT48SW52ZXJzZVE+ZGQzNVh6T0RvUlZQaXQxb2REL0lKRHpXdUtYMXZrb2NjcXQ4REZGVTlwVT08L0ludmVyc2VRPjxEPkFBcC80VW1oSmFJcm9DcWJ5eXdRbDViY0xFMXNSSkwxek50dllkdGxNTCsxWVFRdWx6YzVPRkh1WUcxQW56OE8vbXU2MXNDN0dNVm04ZTVqSUp6SldRPT08L0Q+PC9SU0FLZXlWYWx1ZT4=");
             request.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
                                                         {
                                                             { "grant_type", GrantType.Password },
@@ -416,7 +419,7 @@
         public async void AuthenticateRefreshToken_WhenGivenValidRefreshToken_ReturnsCorrectScope()
         {
             var accessTokenRequest = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
-            accessTokenRequest.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "aabbccddee");
+            accessTokenRequest.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "PFJTQUtleVZhbHVlPjxNb2R1bHVzPnFKMEtXaXZWSjUxUWtKWGdIU1hidkxOTEJsa09rOE9uSWtvRTljU1FrRzhOZm5VYXBrWHpkTlEvb3FLZE9BSWxYK1hFMnNwN0xFcS9KRnJMaDRNblhRPT08L01vZHVsdXM+PEV4cG9uZW50PkFRQUI8L0V4cG9uZW50PjxQPnljRXBJUDJseG1oa0hRMGRrKzRBVk1lZDhWRUFFVHN5TXgvL3NaNS9TbFU9PC9QPjxRPjFmTEVGWU1JMk1TMUJQbzYwcnYyQmhkYWNBaTI2d2Z0V1N2OVl0aUdnT2s9PC9RPjxEUD5uZ0dYTW0wejdXVklNckJZMzhmZm5vWVBIalR2dG84RHk2SmQ0RDlmTlZrPTwvRFA+PERRPk5FZEQzclhNSFp2RFY5b0ZNYVU0TXJqV0luWWVyRU9kbmFLQUlmMGlzTEU9PC9EUT48SW52ZXJzZVE+ZGQzNVh6T0RvUlZQaXQxb2REL0lKRHpXdUtYMXZrb2NjcXQ4REZGVTlwVT08L0ludmVyc2VRPjxEPkFBcC80VW1oSmFJcm9DcWJ5eXdRbDViY0xFMXNSSkwxek50dllkdGxNTCsxWVFRdWx6YzVPRkh1WUcxQW56OE8vbXU2MXNDN0dNVm04ZTVqSUp6SldRPT08L0Q+PC9SU0FLZXlWYWx1ZT4=");
             accessTokenRequest.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
                                                         {
                                                             { "grant_type", GrantType.Password },
@@ -431,7 +434,7 @@
             var accessToken1 = JsonConvert.DeserializeObject<AccessTokenResponse>(accessTokenContent);
 
             var refreshTokenRequest = new HttpRequestMessage(HttpMethod.Post, "oauth/token");
-            refreshTokenRequest.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "aabbccddee");
+            refreshTokenRequest.Headers.Authorization = new BasicAuthenticationHeaderValue("NUnit", "PFJTQUtleVZhbHVlPjxNb2R1bHVzPnFKMEtXaXZWSjUxUWtKWGdIU1hidkxOTEJsa09rOE9uSWtvRTljU1FrRzhOZm5VYXBrWHpkTlEvb3FLZE9BSWxYK1hFMnNwN0xFcS9KRnJMaDRNblhRPT08L01vZHVsdXM+PEV4cG9uZW50PkFRQUI8L0V4cG9uZW50PjxQPnljRXBJUDJseG1oa0hRMGRrKzRBVk1lZDhWRUFFVHN5TXgvL3NaNS9TbFU9PC9QPjxRPjFmTEVGWU1JMk1TMUJQbzYwcnYyQmhkYWNBaTI2d2Z0V1N2OVl0aUdnT2s9PC9RPjxEUD5uZ0dYTW0wejdXVklNckJZMzhmZm5vWVBIalR2dG84RHk2SmQ0RDlmTlZrPTwvRFA+PERRPk5FZEQzclhNSFp2RFY5b0ZNYVU0TXJqV0luWWVyRU9kbmFLQUlmMGlzTEU9PC9EUT48SW52ZXJzZVE+ZGQzNVh6T0RvUlZQaXQxb2REL0lKRHpXdUtYMXZrb2NjcXQ4REZGVTlwVT08L0ludmVyc2VRPjxEPkFBcC80VW1oSmFJcm9DcWJ5eXdRbDViY0xFMXNSSkwxek50dllkdGxNTCsxWVFRdWx6YzVPRkh1WUcxQW56OE8vbXU2MXNDN0dNVm04ZTVqSUp6SldRPT08L0Q+PC9SU0FLZXlWYWx1ZT4=");
             refreshTokenRequest.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
                                                         {
                                                             { "grant_type", GrantType.RefreshToken },
@@ -541,7 +544,7 @@
             Assert.AreEqual(response.StatusCode, HttpStatusCode.Unauthorized, "User was authenticated");
         }
 
-        [TestCase("NUnit", "aabbccddee")]
+        [TestCase("NUnit", "PFJTQUtleVZhbHVlPjxNb2R1bHVzPnFKMEtXaXZWSjUxUWtKWGdIU1hidkxOTEJsa09rOE9uSWtvRTljU1FrRzhOZm5VYXBrWHpkTlEvb3FLZE9BSWxYK1hFMnNwN0xFcS9KRnJMaDRNblhRPT08L01vZHVsdXM+PEV4cG9uZW50PkFRQUI8L0V4cG9uZW50PjxQPnljRXBJUDJseG1oa0hRMGRrKzRBVk1lZDhWRUFFVHN5TXgvL3NaNS9TbFU9PC9QPjxRPjFmTEVGWU1JMk1TMUJQbzYwcnYyQmhkYWNBaTI2d2Z0V1N2OVl0aUdnT2s9PC9RPjxEUD5uZ0dYTW0wejdXVklNckJZMzhmZm5vWVBIalR2dG84RHk2SmQ0RDlmTlZrPTwvRFA+PERRPk5FZEQzclhNSFp2RFY5b0ZNYVU0TXJqV0luWWVyRU9kbmFLQUlmMGlzTEU9PC9EUT48SW52ZXJzZVE+ZGQzNVh6T0RvUlZQaXQxb2REL0lKRHpXdUtYMXZrb2NjcXQ4REZGVTlwVT08L0ludmVyc2VRPjxEPkFBcC80VW1oSmFJcm9DcWJ5eXdRbDViY0xFMXNSSkwxek50dllkdGxNTCsxWVFRdWx6YzVPRkh1WUcxQW56OE8vbXU2MXNDN0dNVm04ZTVqSUp6SldRPT08L0Q+PC9SU0FLZXlWYWx1ZT4=")]
         public async void GetResource_WhenGivenValidClientBasicAuthentication_ReturnsData(string username, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
