@@ -18,6 +18,7 @@ Please note that this library is for people wanting to make their own authentica
 ## Features
 - Simple setup
 - Supports authorization codes and refresh tokens out of the box
+- Supports basic authentication and signature authentication
 - Easy to extend and configure
 
 ## Contributing
@@ -98,7 +99,7 @@ The above setup will configure the OAuth server with the default settings, which
 | Refresh Token Lifetime | 3 months (90 days) |
 | Token Endpoint | `/oauth/token` |
 | Authorization Code Endpoint | `/oauth/authorize` |
-| UserInfo Endpoint | `/openid/identity` |
+| UserInfo Endpoint | `/openid/userinfo` |
 | Token Format | `JWT` (Using a `SHA-512` hashing algorithm to encrypt the token) |
 
 ### Notes
@@ -125,8 +126,8 @@ A client has a `ClientSecret` and a `PublicKey` property. Both should be populat
 ### User
 A user has a `Password` field that can be used to authenticate the user using Basic authentication. In addition, it is possible to use an api key to authenticate using Basic or Signature authentication.
 
-## UserApiKey
-A user can have multiple api keys. The private key generated when creating a client can be used with both Basic and Signature authentication.
+### UserApiKey
+A user can have multiple api keys. The private key generated when creating an api key can be used with both Basic and Signature authentication.
 
 ## Authentication Types
 ### OAuth 2.0 / OpenID Connect
