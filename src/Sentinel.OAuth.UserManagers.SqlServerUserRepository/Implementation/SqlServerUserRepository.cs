@@ -119,6 +119,41 @@
             }
         }
 
+        /// <summary>Creates a new user.</summary>
+        /// <param name="user">The user.</param>
+        /// <returns>The created user.</returns>
+        public async Task<IUser> Create(IUser user)
+        {
+            using (var connection = await this.OpenConnection())
+            {
+                var k = new SqlUser(user);
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        k.Created = DateTimeOffset.UtcNow;
+
+                        var id = connection.ExecuteScalar<long>(
+                            "INSERT INTO Users (UserId, Password, FirstName, LastName, Enabled, Created) VALUES (@UserId, @Password, @FirstName, @LastName, @Enabled, @Created); SELECT SCOPE_IDENTITY()",
+                            new { k.UserId, k.Password, k.FirstName, k.LastName, k.Enabled, Created = k.Created.ToString("s") },
+                            transaction);
+
+                        transaction.Commit();
+
+                        var result = await connection.QueryAsync<SqlUser>("SELECT * FROM Users WHERE Id = @Id", new { Id = id });
+
+                        return result.FirstOrDefault();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
         /// <summary>Opens the connection.</summary>
         /// <returns>A SqlConnection.</returns>
         private async Task<SqlConnection> OpenConnection()

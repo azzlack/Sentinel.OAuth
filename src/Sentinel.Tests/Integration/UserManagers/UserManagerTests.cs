@@ -8,6 +8,7 @@
     using Sentinel.OAuth.Core.Extensions;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Models;
+    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Implementation.Providers;
 
     public abstract class UserManagerTests
@@ -54,6 +55,26 @@
             Console.WriteLine();
             Console.WriteLine($"Time taken for test: {this.testStopwatch.Elapsed.ToString("g")}");
             Console.WriteLine($"##teamcity[buildStatisticValue key='{this.GetType().Name}.{TestContext.CurrentContext.Test.Name}' value='{this.testStopwatch.ElapsedMilliseconds}']");
+        }
+
+        [Test]
+        public async void CreateUser_WhenGivenValidParameters_ReturnsUser()
+        {
+            var result = await this.UserManager.CreateUser("NUnit", "NUnit", "NUnit");
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual("NUnit", result.User.UserId);
+            Assert.IsNotNullOrEmpty(result.Password);
+        }
+
+        [Test]
+        public async void CreateUserApiKey_WhenGivenValidParameters_ReturnsUserApiKey()
+        {
+            var result = await this.UserManager.CreateApiKey("NUnit", "NUnit", "NUnit");
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual("NUnit", result.ApiKey.Name);
+            Assert.IsNotNullOrEmpty(result.PrivateKey);
         }
 
         [Test]

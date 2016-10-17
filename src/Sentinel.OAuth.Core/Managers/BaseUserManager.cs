@@ -6,19 +6,20 @@
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using System.Threading.Tasks;
 
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Models;
 
     /// <summary>A base user manager.</summary>
     public abstract class BaseUserManager : IUserManager
     {
         /// <summary>Initializes a new instance of the BaseUserManager class.</summary>
-        /// <param name="cryptoProvider">The crypto provider.</param>
+        /// <param name="passwordCryptoProvider">The crypto provider.</param>
         /// <param name="asymmetricCryptoProvider">The asymmetric crypto provider.</param>
         /// <param name="userRepository">The user repository.</param>
         /// <param name="userApiKeyRepository">The user API key repository.</param>
-        protected BaseUserManager(ICryptoProvider cryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IUserRepository userRepository, IUserApiKeyRepository userApiKeyRepository)
+        protected BaseUserManager(IPasswordCryptoProvider passwordCryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IUserRepository userRepository, IUserApiKeyRepository userApiKeyRepository)
         {
-            this.CryptoProvider = cryptoProvider;
+            this.PasswordCryptoProvider = passwordCryptoProvider;
             this.AsymmetricCryptoProvider = asymmetricCryptoProvider;
             this.UserRepository = userRepository;
             this.UserApiKeyRepository = userApiKeyRepository;
@@ -26,7 +27,7 @@
 
         /// <summary>Gets the crypto provider.</summary>
         /// <value>The crypto provider.</value>
-        protected ICryptoProvider CryptoProvider { get; private set; }
+        protected IPasswordCryptoProvider PasswordCryptoProvider { get; private set; }
 
         /// <summary>Gets the asymmetric crypto provider.</summary>
         /// <value>The asymmetric crypto provider.</value>
@@ -39,6 +40,20 @@
         /// <summary>Gets the user API key repository.</summary>
         /// <value>The user API key repository.</value>
         protected IUserApiKeyRepository UserApiKeyRepository { get; private set; }
+
+        /// <summary>Creates a user.</summary>
+        /// <param name="userId">Identifier for the user.</param>
+        /// <param name="firstName">The person's first name.</param>
+        /// <param name="lastName">The person's last name.</param>
+        /// <returns>The new user.</returns>
+        public abstract Task<CreateUserResult> CreateUser(string userId, string firstName, string lastName);
+
+        /// <summary>Creates an API key.</summary>
+        /// <param name="userId">Identifier for the user.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="description">The description.</param>
+        /// <returns>The new API key.</returns>
+        public abstract Task<CreateUserApiKeyResult> CreateApiKey(object userId, string name, string description);
 
         /// <summary>Authenticates the user using username and password.</summary>
         /// <param name="username">The username.</param>

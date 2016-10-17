@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
 
     using Sentinel.OAuth.Core.Interfaces.Models;
+    using Sentinel.OAuth.Core.Models.OAuth;
 
     public interface IUserRepository
     {
@@ -22,5 +23,10 @@
         /// <param name="user">The user.</param>
         /// <returns>The updated user.</returns>
         Task<IUser> Update<T>(T id, IUser user);
+
+        /// <summary>Creates a new user</summary>
+        /// <param name="user">The user.</param>
+        /// <returns>The created user.</returns>
+        Task<IUser> Create(IUser user);
     }
 }

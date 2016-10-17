@@ -6,21 +6,21 @@
 
     public class AspNetIdentityPasswordHasher : PasswordHasher
     {
-        private readonly ICryptoProvider cryptoProvider;
+        private readonly IPasswordCryptoProvider passwordCryptoProvider;
 
-        public AspNetIdentityPasswordHasher(ICryptoProvider cryptoProvider)
+        public AspNetIdentityPasswordHasher(IPasswordCryptoProvider passwordCryptoProvider)
         {
-            this.cryptoProvider = cryptoProvider;
+            this.passwordCryptoProvider = passwordCryptoProvider;
         }
 
         public override string HashPassword(string password)
         {
-            return this.cryptoProvider.CreateHash(password);
+            return this.passwordCryptoProvider.CreateHash(password);
         }
 
         public override PasswordVerificationResult VerifyHashedPassword(string hashedPassword, string providedPassword)
         {
-            return this.cryptoProvider.ValidateHash(hashedPassword, providedPassword) ? PasswordVerificationResult.Success : PasswordVerificationResult.Failed;
+            return this.passwordCryptoProvider.ValidateHash(hashedPassword, providedPassword) ? PasswordVerificationResult.Success : PasswordVerificationResult.Failed;
         }
     }
 }

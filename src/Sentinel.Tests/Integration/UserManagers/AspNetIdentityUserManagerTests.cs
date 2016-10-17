@@ -11,8 +11,10 @@
     using NUnit.Framework;
 
     using Sentinel.OAuth.Core.Interfaces.Managers;
+    using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.UserManagers.AspNetIdentityUserManager;
     using Sentinel.OAuth.UserManagers.AspNetIdentityUserManager.Implementation;
+    using Sentinel.OAuth.UserManagers.SqlServerUserRepository.Implementation;
 
     using User = Sentinel.OAuth.UserManagers.AspNetIdentityUserManager.Models.User;
 
@@ -60,7 +62,7 @@
         [SetUp]
         public void SetUp()
         {
-            this.userManager = new AspNetIdentityUserManager(new UserStore<User>(new SentinelContext(this.connectionString)));
+            this.userManager = new AspNetIdentityUserManager(new UserStore<User>(new SentinelContext(this.connectionString)), new SqlServerUserApiKeyRepository(this.connectionString), new PBKDF2CryptoProvider(), new AsymmetricCryptoProvider());
 
             // Add a user to the database
             ((UserManager<User>)this.userManager).Create(new User() { UserName = "azzlack", FirstName = "Ove", LastName = "Andersen" }, "aabbccddee");
@@ -113,10 +115,7 @@
         [TestFixtureTearDown]
         public void TestFixtureTearDown()
         {
-            if (this.instance != null)
-            {
-                this.instance.Dispose();
-            }
+            this.instance?.Dispose();
         }
     }
 }

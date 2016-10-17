@@ -89,6 +89,41 @@
             }
         }
 
+        /// <summary>Creates a new API key.</summary>
+        /// <param name="apiKey">The api key.</param>
+        /// <returns>The created API key.</returns>
+        public async Task<IUserApiKey> Create(IUserApiKey apiKey)
+        {
+            using (var connection = await this.OpenConnection())
+            {
+                var k = new SqlUserApiKey(apiKey);
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        k.Created = DateTimeOffset.UtcNow;
+
+                        var id = connection.ExecuteScalar<long>(
+                            "INSERT INTO UserApiKeys (UserId, ApiKey, Name, Description, Created) VALUES (@UserId, @ApiKey, @Name, @Description, @Created); SELECT SCOPE_IDENTITY()",
+                            new { k.UserId, k.ApiKey, k.Name, k.Description, Created = k.Created.ToString("s") },
+                            transaction);
+
+                        transaction.Commit();
+
+                        var result = await connection.QueryAsync<SqlUserApiKey>("SELECT * FROM UserApiKeys WHERE Id = @Id", new { Id = id });
+
+                        return result.FirstOrDefault();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
         /// <summary>Opens the connection.</summary>
         /// <returns>A SqlConnection.</returns>
         private async Task<SqlConnection> OpenConnection()

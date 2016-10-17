@@ -6,11 +6,52 @@
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
     using Sentinel.OAuth.Core.Interfaces.Managers;
+    using Sentinel.OAuth.Core.Interfaces.Models;
+    using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Core.Models;
+    using Sentinel.OAuth.Core.Models.OAuth;
     using Sentinel.OAuth.Models.Identity;
 
     public class SimpleUserManager : IUserManager
     {
+        private readonly IAsymmetricCryptoProvider asymmetricCryptoProvider;
+
+        private readonly IPasswordCryptoProvider passwordCryptoProvider;
+
+        public SimpleUserManager(IPasswordCryptoProvider passwordCryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider)
+        {
+            this.passwordCryptoProvider = passwordCryptoProvider;
+            this.asymmetricCryptoProvider = asymmetricCryptoProvider;
+        }
+
+        public async Task<CreateUserResult> CreateUser(string userId, string firstName, string lastName)
+        {
+            var user = new User() { UserId = userId, FirstName = firstName, LastName = lastName, Enabled = true };
+
+            string password;
+            user.Password = this.passwordCryptoProvider.CreateHash(out password, 8);
+
+            return new CreateUserResult()
+                       {
+                           User = user,
+                           Password = password
+                       };
+        }
+
+        public async Task<CreateUserApiKeyResult> CreateApiKey(object userId, string name, string description)
+        {
+            var apiKey = new UserApiKey() { UserId = userId.ToString(), Name = name, Description = description };
+
+            string privateKey;
+            apiKey.ApiKey = this.asymmetricCryptoProvider.GenerateKeys(out privateKey);
+
+            return new CreateUserApiKeyResult()
+            {
+                ApiKey = apiKey,
+                PrivateKey = privateKey
+            };
+        }
+
         /// <summary>Authenticates the user using username and password.</summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>

@@ -12,19 +12,20 @@
     
     using Sentinel.OAuth.Core.Interfaces.Managers;
     using Sentinel.OAuth.Extensions;
+    using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.OAuth.Models.Identity;
     using Sentinel.Sample.Managers;
     using Sentinel.Sample.ViewModels;
 
     public class AuthenticationController : Controller
     {
-        private IUserManager userManager;
+        private readonly IUserManager userManager;
 
         private IAuthenticationManager Authentication => this.HttpContext.GetOwinContext().Authentication;
 
         public AuthenticationController()
         {
-            this.userManager = new SimpleUserManager();
+            this.userManager = new SimpleUserManager(new PBKDF2CryptoProvider(), new AsymmetricCryptoProvider());
         }
 
         [Route("authentication/login")]

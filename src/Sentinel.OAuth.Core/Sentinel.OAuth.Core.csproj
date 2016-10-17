@@ -104,6 +104,8 @@
     <Compile Include="Interfaces\Validators\ITokenValidator.cs" />
     <Compile Include="Models\BasicAuthenticationDigest.cs" />
     <Compile Include="Models\CreateClientResult.cs" />
+    <Compile Include="Models\CreateUserResult.cs" />
+    <Compile Include="Models\CreateUserApiKeyResult.cs" />
     <Compile Include="Models\SignatureAuthenticationDigest.cs" />
     <Compile Include="Models\KeyPair.cs" />
     <Compile Include="Models\OAuth\AccessToken.cs" />

@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
 
     using Sentinel.OAuth.Core.Interfaces.Models;
+    using Sentinel.OAuth.Core.Models.OAuth;
 
     public interface IUserApiKeyRepository
     {
@@ -18,5 +19,10 @@
         /// <param name="apiKey">The api key.</param>
         /// <returns>The updated key.</returns>
         Task<IUserApiKey> Update<T>(T id, IUserApiKey apiKey);
+
+        /// <summary>Creates a new API key</summary>
+        /// <param name="apiKey">The api key.</param>
+        /// <returns>The created API key.</returns>
+        Task<IUserApiKey> Create(IUserApiKey apiKey);
     }
 }

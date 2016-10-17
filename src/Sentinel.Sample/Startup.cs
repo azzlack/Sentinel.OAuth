@@ -25,6 +25,7 @@ namespace Sentinel.Sample
 
     using Sentinel.OAuth.Core.Models;
     using Sentinel.OAuth.Extensions;
+    using Sentinel.OAuth.Implementation.Providers;
     using Sentinel.Sample.Managers;
 
     public class Startup
@@ -53,7 +54,7 @@ namespace Sentinel.Sample
                     {
                         IssuerUri = apiUrl,
                         ClientManager = new SimpleClientManager(),
-                        UserManager = new SimpleUserManager()
+                        UserManager = new SimpleUserManager(new PBKDF2CryptoProvider(), new AsymmetricCryptoProvider())
                     });
 
             // Start up web api

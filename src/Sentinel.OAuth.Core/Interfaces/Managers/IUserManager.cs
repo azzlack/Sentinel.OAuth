@@ -3,10 +3,25 @@
     using System.Threading.Tasks;
 
     using Sentinel.OAuth.Core.Interfaces.Identity;
+    using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Models;
 
     public interface IUserManager
     {
+        /// <summary>Creates a user.</summary>
+        /// <param name="userId">Identifier for the user.</param>
+        /// <param name="firstName">The person's first name.</param>
+        /// <param name="lastName">The person's last name.</param>
+        /// <returns>The new user.</returns>
+        Task<CreateUserResult> CreateUser(string userId, string firstName, string lastName);
+
+        /// <summary>Creates an API key.</summary>
+        /// <param name="userId">Identifier for the user.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="description">The description.</param>
+        /// <returns>The new API key.</returns>
+        Task<CreateUserApiKeyResult> CreateApiKey(object userId, string name, string description);
+
         /// <summary>Authenticates the user using username and password.</summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
