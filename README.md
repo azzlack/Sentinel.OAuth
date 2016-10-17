@@ -219,6 +219,4 @@ Below you can find an overview of claims with explanations.
 | `urn:oauth:refreshtoken` | The refresh token for the current user object |
 
 ## TODO (Roadmap)
-- Add support and example on how to use Google, Microsoft, Facebook, Twitter accounts with Sentinel
-- Add support for two-factor authentication
 - Add support for scope handling
