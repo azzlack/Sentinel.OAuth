@@ -18,6 +18,7 @@ Please note that this library is for people wanting to make their own authentica
 ## Features
 - Simple setup
 - Supports authorization codes and refresh tokens out of the box
+- Supports basic authentication and signature authentication
 - Easy to extend and configure
 
 ## Contributing
@@ -125,7 +126,7 @@ A client has a `ClientSecret` and a `PublicKey` property. Both should be populat
 ### User
 A user has a `Password` field that can be used to authenticate the user using Basic authentication. In addition, it is possible to use an api key to authenticate using Basic or Signature authentication.
 
-## UserApiKey
+### UserApiKey
 A user can have multiple api keys. The private key generated when creating an api key can be used with both Basic and Signature authentication.
 
 ## Authentication Types
