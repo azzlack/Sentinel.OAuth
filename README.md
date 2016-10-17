@@ -124,11 +124,13 @@ A client has a `ClientSecret` and a `PublicKey` property. Both should be populat
 A user has a `Password` field that can be used to authenticate the user using Basic authentication. In addition, it is possible to use an api key to authenticate using Basic or Signature authentication.
 
 ## UserApiKey
-A user can have multiple api keys
-
+A user can have multiple api keys. The private key generated when creating a client can be used with both Basic and Signature authentication.
 
 ## Authentication Types
 ### OAuth 2.0 / OpenID Connect
+This follows the standard OAuth 2.0 authentication flows. 
+
+**NOTE: The `redirect_uri` parameter must be present on all authentication requests.**
 
 ### Basic Authentication
 [Basic authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) can be enabled by setting the `EnableBasicAuthentication` property to `true` when setting up the Authorization server.
