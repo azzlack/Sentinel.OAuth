@@ -39,6 +39,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\AuthenticationEndpoints.cs" />
+    <Compile Include="Models\Constants.cs" />
     <Compile Include="SignatureAuthenticationHeaderValue.cs" />
     <Compile Include="BasicAuthenticationHeaderValue.cs" />
     <Compile Include="Interfaces\IOAuthClient.cs" />
@@ -71,9 +73,7 @@
       <Name>Sentinel.OAuth.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Helpers\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

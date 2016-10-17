@@ -1,4 +1,4 @@
-﻿namespace Sentinel.OAuth.Client.Mvc5
+﻿namespace Sentinel.OAuth.Client.Models
 {
     public class AuthenticationEndpoints
     {

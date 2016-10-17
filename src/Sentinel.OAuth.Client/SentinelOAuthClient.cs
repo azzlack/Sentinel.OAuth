@@ -85,7 +85,7 @@
                 Scope = scope != null ? string.Join(" ", scope) : null
             };
 
-            var request = new HttpRequestMessage(HttpMethod.Post, "oauth/token")
+            var request = new HttpRequestMessage(HttpMethod.Post, this.Settings.Endpoints.TokenEndpointUrl)
             {
                 Content = new FormUrlEncodedContent(accessTokenRequest.Properties)
             };
@@ -124,7 +124,7 @@
                 Scope = scope != null ? string.Join(" ", scope) : null
             };
 
-            var requests = new HttpRequestMessage(HttpMethod.Post, "oauth/token")
+            var requests = new HttpRequestMessage(HttpMethod.Post, this.Settings.Endpoints.TokenEndpointUrl)
             {
                 Content = new FormUrlEncodedContent(accessTokenRequest.Properties)
             };
@@ -156,7 +156,7 @@
                 GrantType = "refresh_token"
             };
 
-            var request = new HttpRequestMessage(HttpMethod.Post, "oauth/token")
+            var request = new HttpRequestMessage(HttpMethod.Post, this.Settings.Endpoints.TokenEndpointUrl)
             {
                 Content = new FormUrlEncodedContent(accessTokenRequest.Properties)
             };
@@ -177,7 +177,7 @@
         /// <returns>The identity.</returns>
         public async Task<IdentityResponse> GetIdentity(string token)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
+            var request = new HttpRequestMessage(HttpMethod.Get, this.Settings.Endpoints.IdentityEndpointUrl);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await this.Client.SendAsync(request).ConfigureAwait(false);

@@ -13,6 +13,7 @@
 
     using Newtonsoft.Json;
 
+    using Sentinel.OAuth.Client.Models;
     using Sentinel.OAuth.Client.Mvc5.Framework.Owin;
     using Sentinel.OAuth.Core.Models.OAuth.Http;
     using Sentinel.OAuth.Core.Models.Tokens;
@@ -29,7 +30,7 @@
             {
                 var jwt = new JsonWebToken(tokenResponse.IdToken);
 
-                identity = jwt.ToIdentity(Mvc5.Constants.DefaultAuthenticationType).ToClaimsIdentity();
+                identity = jwt.ToIdentity(Constants.DefaultAuthenticationType).ToClaimsIdentity();
             }
             else
             {

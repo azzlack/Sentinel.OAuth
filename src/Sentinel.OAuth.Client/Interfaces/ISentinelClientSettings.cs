@@ -2,6 +2,8 @@
 {
     using System;
 
+    using Sentinel.OAuth.Client.Models;
+
     public interface ISentinelClientSettings
     {
         /// <summary>
@@ -33,5 +35,9 @@
         /// </summary>
         /// <value>The refresh token lifetime.</value>
         TimeSpan RefreshTokenLifetime { get; }
+
+        /// <summary>Gets the endpoints.</summary>
+        /// <value>The endpoints.</value>
+        AuthenticationEndpoints Endpoints { get; }
     }
 }

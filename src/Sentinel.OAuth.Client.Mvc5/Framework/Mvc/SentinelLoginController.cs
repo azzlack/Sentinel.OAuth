@@ -21,7 +21,7 @@
     using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.Models.Identity;
 
-    using Constants = Sentinel.OAuth.Client.Mvc5.Constants;
+    using Constants = Sentinel.OAuth.Client.Models.Constants;
 
     public abstract class SentinelLoginController : Controller
     {

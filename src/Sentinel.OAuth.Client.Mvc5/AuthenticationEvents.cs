@@ -21,6 +21,8 @@
     using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.Models.Identity;
 
+    using Constants = Sentinel.OAuth.Client.Models.Constants;
+
     public class AuthenticationEvents
     {
         /// <summary>Gets or sets the exception handler.</summary>

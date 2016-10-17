@@ -3,24 +3,27 @@
     using System;
 
     using Sentinel.OAuth.Client.Interfaces;
+    using Sentinel.OAuth.Client.Models;
 
     public class SentinelClientSettings : ISentinelClientSettings
     {
         /// <summary>
-        ///     Initializes a new instance of the Sentinel.OAuth.Client.SentinelClientSettings class.
+        /// Initializes a new instance of the Sentinel.OAuth.Client.SentinelClientSettings class.
         /// </summary>
         /// <param name="uri">URI of the document.</param>
         /// <param name="clientId">Identifier for the client.</param>
         /// <param name="clientSecret">The client secret.</param>
         /// <param name="redirectUri">URI of the redirect.</param>
         /// <param name="refreshTokenLifetime">The refresh token lifetime.</param>
-        public SentinelClientSettings(Uri uri, string clientId, string clientSecret, string redirectUri, TimeSpan refreshTokenLifetime)
+        /// <param name="endpoints">The endpoints.</param>
+        public SentinelClientSettings(Uri uri, string clientId, string clientSecret, string redirectUri, TimeSpan refreshTokenLifetime, AuthenticationEndpoints endpoints)
         {
             this.Url = uri;
             this.ClientId = clientId;
             this.ClientSecret = clientSecret;
             this.RedirectUri = redirectUri;
             this.RefreshTokenLifetime = refreshTokenLifetime;
+            this.Endpoints = endpoints;
         }
 
         /// <summary>Gets the URL.</summary>
@@ -42,5 +45,9 @@
         /// <summary>Gets the refresh token lifetime.</summary>
         /// <value>The refresh token lifetime.</value>
         public TimeSpan RefreshTokenLifetime { get; private set; }
+
+        /// <summary>Gets the endpoints.</summary>
+        /// <value>The endpoints.</value>
+        public AuthenticationEndpoints Endpoints { get; private set; }
     }
 }

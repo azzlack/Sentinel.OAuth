@@ -9,6 +9,8 @@
     using Microsoft.Owin.Logging;
     using Microsoft.Owin.Security;
 
+    using Sentinel.OAuth.Client.Models;
+
     public class SentinelAuthenticationOptions : AuthenticationOptions
     {
         /// <summary>

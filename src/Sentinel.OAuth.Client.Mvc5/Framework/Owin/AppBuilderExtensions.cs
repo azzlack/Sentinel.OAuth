@@ -7,7 +7,7 @@
     using Microsoft.AspNet.Identity;
     using Microsoft.Owin.Security.Cookies;
 
-    using Constants = Sentinel.OAuth.Client.Mvc5.Constants;
+    using Constants = Sentinel.OAuth.Client.Models.Constants;
 
     public static class AppBuilderExtensions
     {
