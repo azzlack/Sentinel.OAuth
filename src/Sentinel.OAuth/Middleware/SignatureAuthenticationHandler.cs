@@ -60,7 +60,7 @@
 
                 this.options.Logger.Debug("Authenticating user using Signature authentication");
 
-                var parameter = authorizationHeader.Substring(6).Trim();
+                var parameter = authorizationHeader.Substring(this.options.AuthenticationType.Length).Trim();
                 var digest = this.ParseParameter(parameter);
 
                 if (digest == null || !this.ValidateDigest(digest))

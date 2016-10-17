@@ -54,7 +54,7 @@
 
             this.options.Logger.Debug("Authenticating user using Basic authentication");
 
-            var parameter = authorizationHeader.Substring(5).Trim();
+            var parameter = authorizationHeader.Substring(this.options.AuthenticationType.Length).Trim();
             var digest = this.ParseParameter(parameter);
 
             var identity = await this.GetIdentity(digest);
