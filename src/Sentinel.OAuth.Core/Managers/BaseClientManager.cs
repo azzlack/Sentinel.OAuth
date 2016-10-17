@@ -14,7 +14,6 @@
     public abstract class BaseClientManager : IClientManager
     {
         /// <summary>Initializes a new instance of the <see cref="BaseClientManager" /> class.</summary>
-        /// <param name="cryptoProvider">The crypto provider.</param>
         /// <param name="passwordCryptoProvider">The password crypto provider.</param>
         /// <param name="asymmetricCryptoProvider">The asymmetric crypto provider.</param>
         /// <param name="clientRepository">The client repository.</param>
@@ -28,10 +27,6 @@
         /// <summary>Gets the client repository.</summary>
         /// <value>The client repository.</value>
         protected IClientRepository ClientRepository { get; private set; }
-
-        /// <summary>Gets the crypto provider.</summary>
-        /// <value>The crypto provider.</value>
-        protected ICryptoProvider CryptoProvider { get; private set; }
 
         /// <summary>Gets the asymmetric crypto provider.</summary>
         /// <value>The asymmetric crypto provider.</value>

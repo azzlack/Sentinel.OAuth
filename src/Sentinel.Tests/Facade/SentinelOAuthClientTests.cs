@@ -17,6 +17,8 @@
     using System.Security;
     using System.Web.Http;
 
+    using Sentinel.OAuth.Client.Models;
+
     [TestFixture]
     [Category("Facade")]
     public class SentinelOAuthClientTests
@@ -84,6 +86,7 @@
             apiSettings.Setup(x => x.ClientId).Returns("NUnit");
             apiSettings.Setup(x => x.ClientSecret).Returns("aabbccddee");
             apiSettings.Setup(x => x.RedirectUri).Returns("http://localhost");
+            apiSettings.Setup(x => x.Endpoints).Returns(new AuthenticationEndpoints());
 
             this.client = new SentinelOAuthClient(apiSettings.Object, this.server.Handler);
         }

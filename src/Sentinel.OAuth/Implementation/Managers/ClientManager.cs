@@ -130,7 +130,7 @@
 
             if (client != null && client.Enabled)
             {
-                if (this.CryptoProvider.ValidateHash(digest.Password, client.ClientSecret))
+                if (this.PasswordCryptoProvider.ValidateHash(digest.Password, client.ClientSecret))
                 {
                     var principal =
                         new SentinelPrincipal(
@@ -164,7 +164,7 @@
 
             if (client != null && client.Enabled)
             {
-                if (this.CryptoProvider.ValidateHash(clientSecret, client.ClientSecret))
+                if (this.PasswordCryptoProvider.ValidateHash(clientSecret, client.ClientSecret))
                 {
                     var principal =
                         new SentinelPrincipal(
