@@ -20,7 +20,7 @@
         {
             // Set default options
             this.RequireSecureConnection = true;
-            this.EnableApiKeyAuthentication = true;
+            this.EnableSignatureAuthentication = false;
             this.EnableBasicAuthentication = false;
             this.AccessTokenLifetime = TimeSpan.FromHours(1);
             this.AuthorizationCodeLifetime = TimeSpan.FromMinutes(5);
@@ -52,7 +52,7 @@
         /// Gets or sets a value indicating whether API key authentication is enabled.
         /// </summary>
         /// <value>true if enable API key authentication, false if not.</value>
-        public bool EnableApiKeyAuthentication { get; set; }
+        public bool EnableSignatureAuthentication { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether basic authentication is enabled.
@@ -135,7 +135,7 @@
 
         /// <summary>Gets or sets the API key crypto provider.</summary>
         /// <value>The API key crypto provider.</value>
-        public IAsymmetricCryptoProvider ApiKeyCryptoProvider { get; set; }
+        public IAsymmetricCryptoProvider SignatureCryptoProvider { get; set; }
 
         /// <summary>Gets or sets URL of the authorization code endpoint.</summary>
         /// <remarks>There must be a page answering on this url that is capable of logging in the user.</remarks>
