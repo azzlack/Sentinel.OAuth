@@ -2,22 +2,23 @@
 {
     using Microsoft.Owin;
     using Microsoft.Owin.Security.Infrastructure;
+    using Microsoft.Owin.Security.OAuth;
 
     public class SignatureAuthenticationMiddleware : AuthenticationMiddleware<SignatureAuthenticationOptions>
     {
-        /// <summary>Initializes a new instance of the <see cref="SignatureAuthenticationMiddleware" /> class.</summary>
-        /// <param name="next">The next.</param>
-        /// <param name="options">Options for controlling the operation.</param>
-        public SignatureAuthenticationMiddleware(OwinMiddleware next, SignatureAuthenticationOptions options)
+        private readonly OAuthAuthorizationServerOptions oauthOptions;
+
+        public SignatureAuthenticationMiddleware(OwinMiddleware next, SignatureAuthenticationOptions options, OAuthAuthorizationServerOptions oauthOptions)
             : base(next, options)
         {
+            this.oauthOptions = oauthOptions;
         }
 
         /// <summary>Creates a handler for validating Basic auth requests.</summary>
         /// <returns>The new handler.</returns>
         protected override AuthenticationHandler<SignatureAuthenticationOptions> CreateHandler()
         {
-            return new SignatureAuthenticationHandler(this.Options);
+            return new SignatureAuthenticationHandler(this.Options, this.oauthOptions);
         }
     }
 }

@@ -102,35 +102,6 @@
                 options.ClientManager = new ClientManager(options.PasswordCryptoProvider, options.SignatureCryptoProvider, options.ClientRepository);
             }
 
-            // Initialize basic auth if specified
-            if (options.EnableBasicAuthentication)
-            {
-                var basicAuthenticationOptions = new BasicAuthenticationOptions()
-                {
-                    ClientManager = options.ClientManager,
-                    UserManager = options.UserManager,
-                    Logger = options.Logger,
-                    RequireSecureConnection = options.RequireSecureConnection,
-                    Realm = options.Realm
-                };
-                app.Use<BasicAuthenticationMiddleware>(basicAuthenticationOptions);
-            }
-
-            if (options.EnableSignatureAuthentication)
-            {
-                var apiKeyAuthenticationOptions = new SignatureAuthenticationOptions()
-                {
-                    ClientManager = options.ClientManager,
-                    UserManager = options.UserManager,
-                    Logger = options.Logger,
-                    Realm = options.Realm,
-                    RequireSecureConnection = options.RequireSecureConnection,
-                    MaximumClockSkew = options.MaximumClockSkew
-                };
-                app.Use<SignatureAuthenticationMiddleware>(apiKeyAuthenticationOptions);
-            }
-
-            // Initialize underlying OWIN OAuth system
             var oauthOptions = new OAuthAuthorizationServerOptions
             {
                 AllowInsecureHttp = true,
@@ -144,6 +115,35 @@
                 RefreshTokenProvider = new SentinelRefreshTokenProvider(options)
             };
 
+            // Initialize basic auth if specified
+            if (options.EnableBasicAuthentication)
+            {
+                var basicAuthenticationOptions = new BasicAuthenticationOptions()
+                {
+                    ClientManager = options.ClientManager,
+                    UserManager = options.UserManager,
+                    Logger = options.Logger,
+                    RequireSecureConnection = options.RequireSecureConnection,
+                    Realm = options.Realm
+                };
+                app.Use<BasicAuthenticationMiddleware>(basicAuthenticationOptions, oauthOptions);
+            }
+
+            if (options.EnableSignatureAuthentication)
+            {
+                var apiKeyAuthenticationOptions = new SignatureAuthenticationOptions()
+                {
+                    ClientManager = options.ClientManager,
+                    UserManager = options.UserManager,
+                    Logger = options.Logger,
+                    Realm = options.Realm,
+                    RequireSecureConnection = options.RequireSecureConnection,
+                    MaximumClockSkew = options.MaximumClockSkew
+                };
+                app.Use<SignatureAuthenticationMiddleware>(apiKeyAuthenticationOptions, oauthOptions);
+            }
+
+            // Initialize underlying OWIN OAuth system
             app.UseOAuthAuthorizationServer(oauthOptions);
             app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions()
             {

@@ -9,6 +9,7 @@
     using Microsoft.Owin;
     using Microsoft.Owin.Security;
     using Microsoft.Owin.Security.Infrastructure;
+    using Microsoft.Owin.Security.OAuth;
 
     using Sentinel.OAuth.Core.Extensions;
     using Sentinel.OAuth.Core.Interfaces.Identity;
@@ -18,17 +19,19 @@
 
     public class SignatureAuthenticationHandler : AuthenticationHandler<SignatureAuthenticationOptions>
     {
-        /// <summary>Options for controlling the operation.</summary>
         private readonly SignatureAuthenticationOptions options;
+
+        private readonly OAuthAuthorizationServerOptions oauthOptions;
 
         /// <summary>The nonces.</summary>
         private readonly ObjectCache nonces;
 
         /// <summary>Initializes a new instance of the <see cref="SignatureAuthenticationHandler" /> class.</summary>
         /// <param name="options">Options for controlling the operation.</param>
-        public SignatureAuthenticationHandler(SignatureAuthenticationOptions options)
+        public SignatureAuthenticationHandler(SignatureAuthenticationOptions options, OAuthAuthorizationServerOptions oauthOptions)
         {
             this.options = options;
+            this.oauthOptions = oauthOptions;
             this.nonces = MemoryCache.Default;
         }
 
@@ -45,8 +48,8 @@
 
             if (string.IsNullOrEmpty(authorizationHeader)
                 || !authorizationHeader.StartsWith("Signature ", StringComparison.OrdinalIgnoreCase)
-                || this.Request.Path == new PathString("/oauth/token")
-                || this.Request.Path == new PathString("/oauth/authorize"))
+                || this.Request.Path == this.oauthOptions.TokenEndpointPath
+                || this.Request.Path == this.oauthOptions.AuthorizeEndpointPath)
             {
                 return new AuthenticationTicket(null, new AuthenticationProperties());
             }

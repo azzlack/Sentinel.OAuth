@@ -9,6 +9,7 @@
     using Microsoft.Owin;
     using Microsoft.Owin.Security;
     using Microsoft.Owin.Security.Infrastructure;
+    using Microsoft.Owin.Security.OAuth;
 
     using Sentinel.OAuth.Core.Extensions;
     using Sentinel.OAuth.Core.Interfaces.Identity;
@@ -18,14 +19,14 @@
 
     public class BasicAuthenticationHandler : AuthenticationHandler<BasicAuthenticationOptions>
     {
-        /// <summary>Options for controlling the operation.</summary>
         private readonly BasicAuthenticationOptions options;
 
-        /// <summary>Initializes a new instance of the <see cref="BasicAuthenticationHandler" /> class.</summary>
-        /// <param name="options">Options for controlling the operation.</param>
-        public BasicAuthenticationHandler(BasicAuthenticationOptions options)
+        private readonly OAuthAuthorizationServerOptions oauthOptions;
+
+        public BasicAuthenticationHandler(BasicAuthenticationOptions options, OAuthAuthorizationServerOptions oauthOptions)
         {
             this.options = options;
+            this.oauthOptions = oauthOptions;
         }
 
         /// <summary>
@@ -41,8 +42,8 @@
 
             if (string.IsNullOrEmpty(authorizationHeader)
                 || !authorizationHeader.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase)
-                || this.Request.Path == new PathString("/oauth/token")
-                || this.Request.Path == new PathString("/oauth/authorize"))
+                || this.Request.Path == this.oauthOptions.TokenEndpointPath
+                || this.Request.Path == this.oauthOptions.AuthorizeEndpointPath)
             {
                 return new AuthenticationTicket(null, new AuthenticationProperties());
             }
