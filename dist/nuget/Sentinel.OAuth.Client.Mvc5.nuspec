@@ -17,9 +17,9 @@
     <language>en-US</language>
     <tags>oauth webapi mvc owin security authentication authorization eyecatch</tags>
     <dependencies>
-      <dependency id="Sentinel.OAuth.Core" version="2.0.0" />
-      <dependency id="Sentinel.OAuth.Client" version="2.0.0" />
-      <dependency id="Sentinel.OAuth" version="2.1.0" />
+      <dependency id="Sentinel.OAuth.Core" version="2.2.0" />
+      <dependency id="Sentinel.OAuth.Client" version="2.2.0" />
+      <dependency id="Sentinel.OAuth" version="2.2.0" />
 	  <dependency id="Common.Logging.Core" version="3.1.0" />
 	  <dependency id="Microsoft.AspNet.Mvc" version="5.2.0" />
 	  <dependency id="Microsoft.Owin.Security.Cookies" version="3.0.0" />
