@@ -116,6 +116,46 @@ However, the [Sentinel.OAuth.Authorize](https://www.nuget.org/packages/Sentinel.
 Coming soon
 ```
 
+## About Models
+### Client
+A client has a `ClientSecret` and a `PublicKey` property. Both should be populated when creating the client. The `ClientSecret` should be a hash, and the `PublicKey` should be the public key portion of the RSA key pair.
+
+### User
+A user has a `Password` field that can be used to authenticate the user using Basic authentication. In addition, it is possible to use an api key to authenticate using Basic or Signature authentication.
+
+## UserApiKey
+A user can have multiple api keys
+
+
+## Authentication Types
+### OAuth 2.0 / OpenID Connect
+
+### Basic Authentication
+[Basic authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) can be enabled by setting the `EnableBasicAuthentication` property to `true` when setting up the Authorization server.
+
+When enabled, you can create requests against your API using a [regular Basic Authorization header](https://en.wikipedia.org/wiki/Basic_access_authentication#Client_side).
+
+### Signature Authentication
+Signature authentication can be enabled by setting the `EnableSignatureAuthentication` property to `true` when setting up the Authorization server. It is safer than Basic authentication, but it is not possible to use it with all application types.
+
+Signature authentication is based on a public/private key system, where the public key is stored at the server. Only the user/client has access to the private key.  By default, Sentinel uses [SHA256](https://en.wikipedia.org/wiki/SHA-2) for hashing, and [RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem)) for generating the private/public key pair.
+**NOTE: The private key must not be disclosed.**
+
+To use Signature authentication you must supply an Authorization header using `Signature` as scheme. To create the parameter you must follow the procedure below:
+
+1. Create a data string using this format `user_id={userId},client_id={clientId},redirect_uri={redirectUri},request_url={requestUrl},timestamp={timestamp},nonce={nonce}`
+
+        The `timestamp` should be in Unix format
+        The `request_url` must match the actual request url
+2. Create a signature for the data string using the private key
+3. Create a digest by adding the signature to the data string
+
+        `user_id={userId},client_id={clientId},redirect_uri={redirectUri},request_url={requestUrl},timestamp={timestamp},nonce={nonce},signature={signature}` 
+4. Base64 encode the digest
+5. Add the digest to the `Authorization` header
+
+        Authorization: Signature dXNlcl9pZD1OVW5pdCxjbGllbnRfaWQ9TlVuaXQscmVkaXJlY3RfdXJpPWh0dHA6Ly9sb2NhbGhvc3QscmVxdWVzdF91cmw9b3BlbmlkL3VzZXJpbmZvLHRpbWVzdGFtcD0xNDc2Njk5NTQzLG5vbmNlPTQwNmQ5OTk3ODNjYTQwZGZiMzY4YzQxNzkzZTAzMmEyLHNpZ25hdHVyZT1HR1VNZE1CSTFNR2x4cFhGZENkcUcvZkFpUkRzWnJ2aGF6NDN2MUJ1TUduS29zZ2FwU0Z0dml4ZU14RCtGcFZlblBoTExGSVlJSnFMbHZWVGF0V2U2UT09
+
 ## Usage
 There is nothing special with `Sentinel` as an OAuth 2 provider, you can use a normal OAuth client that conforms to the [specification](https://tools.ietf.org/html/rfc6749).  
 `Sentinel` also includes a [client for use in .NET projects](https://www.nuget.org/packages/Sentinel.OAuth.Client/) ([source](https://github.com/azzlack/Sentinel.OAuth/tree/develop/src/Sentinel.OAuth.Client))
