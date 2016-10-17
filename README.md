@@ -4,6 +4,8 @@
 `Sentinel` is an OAuth server based on the ASP.NET OWIN OAuth 2.0 Authorization Server.
 This project aims to simplify the work with setting up OAuth on a WebAPI application, by providing you with simpler interfaces and less work to do before  you have proper authorization up and running.
 
+Please note that this library is for people wanting to make their own authentication server using ASP.NET. Sentinel is designed to lessen the burden of creating an authentication server, but you need to do some work yourself to fully support OAuth 2.0.
+
 | Package | Description | Version |
 | --- | --- | --- |
 | `Sentinel.OAuth.Core` | <sub><sup>The base package that is used by all the other packages and 3rd party plugins</sup></sub> | [![NuGet Version](https://img.shields.io/nuget/v/Sentinel.OAuth.Core.svg?style=flat-square)](https://www.nuget.org/packages/Sentinel.OAuth.Core) |
