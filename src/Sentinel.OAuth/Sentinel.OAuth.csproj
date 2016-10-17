@@ -98,6 +98,7 @@
     <Compile Include="Extensions\ClaimsPrincipalExtensions.cs" />
     <Compile Include="Extensions\JsonWebTokenExtensions.cs" />
     <Compile Include="Extensions\OwinContextExtensions.cs" />
+    <Compile Include="Extensions\OwinRequestExtensions.cs" />
     <Compile Include="Extensions\SentinelClaimExtensions.cs" />
     <Compile Include="Extensions\SentinelIdentityExtensions.cs" />
     <Compile Include="Implementation\Managers\ClientManager.cs" />

@@ -110,7 +110,6 @@
     <Compile Include="Constants.cs" />
     <Compile Include="AuthenticationEndpoints.cs" />
     <Compile Include="AuthenticationEvents.cs" />
-    <Compile Include="Extensions\OwinRequestExtensions.cs" />
     <Compile Include="Framework\Mvc\AliasModelBinder.cs" />
     <Compile Include="Framework\Mvc\SentinelOAuthController.cs" />
     <Compile Include="Framework\Mvc\SentinelLoginController.cs" />
