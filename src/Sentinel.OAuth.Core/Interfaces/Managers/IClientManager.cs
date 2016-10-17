@@ -9,8 +9,7 @@
     public interface IClientManager
     {
         /// <summary>
-        ///     Authenticates the client.
-        ///     Used when authenticating with the authorization_code grant type.
+        /// Authenticates the client. Used when authenticating with the authorization_code grant type.
         /// </summary>
         /// <param name="clientId">The client id.</param>
         /// <param name="redirectUri">The redirect URI.</param>
@@ -18,8 +17,7 @@
         Task<ISentinelPrincipal> AuthenticateClientAsync(string clientId, string redirectUri);
 
         /// <summary>
-        ///     Authenticates the client.
-        ///     Used when authenticating with the client_credentials grant type.
+        /// Authenticates the client. Used when authenticating with the client_credentials grant type.
         /// </summary>
         /// <param name="clientId">The client id.</param>
         /// <param name="scope">The redirect URI.</param>
@@ -39,7 +37,7 @@
         /// <returns>The client principal.</returns>
         Task<ISentinelPrincipal> AuthenticateClientCredentialsAsync(string clientId, string clientSecret);
 
-        /// <summary>Authenticate client using API Key.</summary>
+        /// <summary>Authenticate client using signature.</summary>
         /// <param name="digest">The digest.</param>
         /// <returns>The client principal.</returns>
         Task<ISentinelPrincipal> AuthenticateClientWithSignatureAsync(SignatureAuthenticationDigest digest);

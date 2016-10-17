@@ -76,7 +76,7 @@
                         {
                             RequireSecureConnection = false,
                             EnableBasicAuthentication = true,
-                            EnableApiKeyAuthentication = true,
+                            EnableSignatureAuthentication = true,
                             ClientRepository = clientRepository.Object,
                             UserRepository = userRepository.Object,
                             UserApiKeyRepository = userApiKeyRepository.Object,

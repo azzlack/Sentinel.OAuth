@@ -19,5 +19,8 @@
 
         /// <summary>Authenticated using Basic authentication.</summary>
         public const string Basic = "basic";
+
+        /// <summary>Authenticated using Signature authentication.</summary>
+        public const string Signature = "signature";
     }
 }

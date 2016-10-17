@@ -57,9 +57,9 @@
                 options.PasswordCryptoProvider = new PBKDF2CryptoProvider();
             }
 
-            if (options.ApiKeyCryptoProvider == null)
+            if (options.SignatureCryptoProvider == null)
             {
-                options.ApiKeyCryptoProvider = new AsymmetricCryptoProvider();
+                options.SignatureCryptoProvider = new AsymmetricCryptoProvider();
             }
 
             if (options.PrincipalProvider == null)
@@ -94,12 +94,12 @@
 
             if (options.UserManager == null && options.UserRepository != null)
             {
-                options.UserManager = new UserManager(options.PasswordCryptoProvider, options.ApiKeyCryptoProvider, options.UserRepository, options.UserApiKeyRepository);
+                options.UserManager = new UserManager(options.PasswordCryptoProvider, options.SignatureCryptoProvider, options.UserRepository, options.UserApiKeyRepository);
             }
 
             if (options.ClientManager == null && options.ClientRepository != null)
             {
-                options.ClientManager = new ClientManager(options.PasswordCryptoProvider, options.ApiKeyCryptoProvider, options.ClientRepository);
+                options.ClientManager = new ClientManager(options.PasswordCryptoProvider, options.SignatureCryptoProvider, options.ClientRepository);
             }
 
             // Initialize basic auth if specified
@@ -116,7 +116,7 @@
                 app.Use<BasicAuthenticationMiddleware>(basicAuthenticationOptions);
             }
 
-            if (options.EnableApiKeyAuthentication)
+            if (options.EnableSignatureAuthentication)
             {
                 var apiKeyAuthenticationOptions = new SignatureAuthenticationOptions()
                 {

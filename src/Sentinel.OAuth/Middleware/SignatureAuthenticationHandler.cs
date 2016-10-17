@@ -58,7 +58,7 @@
                     throw new AuthenticationException("Signature authentication requires a secure connection");
                 }
 
-                this.options.Logger.Debug("Authenticating user using ApiKey authentication");
+                this.options.Logger.Debug("Authenticating user using Signature authentication");
 
                 var parameter = authorizationHeader.Substring(6).Trim();
                 var digest = this.ParseParameter(parameter);
@@ -110,7 +110,7 @@
             }
             catch (FormatException)
             {
-                this.options.Logger.Warn("The ApiKey parameter is not Base-64 encoded");
+                this.options.Logger.Warn("The Signature parameter is not Base-64 encoded");
 
                 return null;
             }
@@ -119,7 +119,7 @@
 
             if (splitDigest.Length != 7)
             {
-                throw new ArgumentException("The ApiKey is invalid");
+                throw new ArgumentException("The Signature is invalid");
             }
 
             try
