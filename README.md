@@ -152,6 +152,7 @@ To use Signature authentication you must supply an Authorization header using `S
 
         The `timestamp` should be in Unix format
         The `request_url` must match the actual request url
+        The `nonce` must be unique in a timeframe of 5 minutes to prevent replay attacks
 2. Create a signature for the data string using the private key
 3. Create a digest by adding the signature to the data string
 
