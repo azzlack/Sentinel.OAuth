@@ -75,7 +75,7 @@
         /// <summary>Authenticate the user using an API key.</summary>
         /// <param name="digest">The digest.</param>
         /// <returns>The user principal.</returns>
-        public virtual async Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(ApiKeyAuthenticationDigest digest)
+        public virtual async Task<ISentinelPrincipal> AuthenticateUserWithSignatureAsync(SignatureAuthenticationDigest digest)
         {
             throw new NotImplementedException();
         }

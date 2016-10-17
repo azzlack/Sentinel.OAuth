@@ -11,9 +11,9 @@
     using Microsoft.Owin.Logging;
     using Microsoft.Owin.Security;
     using Microsoft.Owin.Security.Infrastructure;
-
-    using Sentinel.OAuth.Client.Mvc5.Extensions;
+    
     using Sentinel.OAuth.Client.Mvc5.Models.Http;
+    using Sentinel.OAuth.Extensions;
 
     public class SentinelAuthenticationHandler : AuthenticationHandler<SentinelAuthenticationOptions>
     {

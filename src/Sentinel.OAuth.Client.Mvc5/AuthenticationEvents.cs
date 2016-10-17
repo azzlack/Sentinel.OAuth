@@ -14,11 +14,11 @@
     using Microsoft.Owin.Security;
 
     using Newtonsoft.Json;
-
-    using Sentinel.OAuth.Client.Mvc5.Extensions;
+    
     using Sentinel.OAuth.Client.Mvc5.Framework.Owin;
     using Sentinel.OAuth.Client.Mvc5.Models.Http;
     using Sentinel.OAuth.Core.Models.OAuth.Http;
+    using Sentinel.OAuth.Extensions;
     using Sentinel.OAuth.Models.Identity;
 
     public class AuthenticationEvents

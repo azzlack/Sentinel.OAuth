@@ -38,5 +38,10 @@
         /// <param name="clientSecret">The client secret.</param>
         /// <returns>The client principal.</returns>
         Task<ISentinelPrincipal> AuthenticateClientCredentialsAsync(string clientId, string clientSecret);
+
+        /// <summary>Authenticate client using API Key.</summary>
+        /// <param name="digest">The digest.</param>
+        /// <returns>The client principal.</returns>
+        Task<ISentinelPrincipal> AuthenticateClientWithSignatureAsync(SignatureAuthenticationDigest digest);
     }
 }

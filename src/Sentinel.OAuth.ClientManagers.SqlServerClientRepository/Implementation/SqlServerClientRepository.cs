@@ -73,6 +73,7 @@
                             Created = x.Created ?? DateTimeOffset.MinValue,
                             ClientId = x.ClientId,
                             ClientSecret = x.ClientSecret,
+                            PublicKey = x.PublicKey,
                             RedirectUri = x.RedirectUri,
                             Name = x.Name,
                             LastUsed = x.LastUsed ?? DateTimeOffset.MinValue,

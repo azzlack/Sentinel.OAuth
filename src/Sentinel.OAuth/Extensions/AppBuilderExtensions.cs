@@ -99,7 +99,7 @@
 
             if (options.ClientManager == null && options.ClientRepository != null)
             {
-                options.ClientManager = new ClientManager(options.PasswordCryptoProvider, options.ClientRepository);
+                options.ClientManager = new ClientManager(options.PasswordCryptoProvider, options.ApiKeyCryptoProvider, options.ClientRepository);
             }
 
             // Initialize basic auth if specified
@@ -110,6 +110,7 @@
                     ClientManager = options.ClientManager,
                     UserManager = options.UserManager,
                     Logger = options.Logger,
+                    RequireSecureConnection = options.RequireSecureConnection,
                     Realm = options.Realm
                 };
                 app.Use<BasicAuthenticationMiddleware>(basicAuthenticationOptions);
@@ -117,15 +118,16 @@
 
             if (options.EnableApiKeyAuthentication)
             {
-                var basicAuthenticationOptions = new ApiKeyAuthenticationOptions()
+                var apiKeyAuthenticationOptions = new SignatureAuthenticationOptions()
                 {
                     ClientManager = options.ClientManager,
                     UserManager = options.UserManager,
                     Logger = options.Logger,
                     Realm = options.Realm,
+                    RequireSecureConnection = options.RequireSecureConnection,
                     MaximumClockSkew = options.MaximumClockSkew
                 };
-                app.Use<ApiKeyAuthenticationMiddleware>(basicAuthenticationOptions);
+                app.Use<SignatureAuthenticationMiddleware>(apiKeyAuthenticationOptions);
             }
 
             // Initialize underlying OWIN OAuth system

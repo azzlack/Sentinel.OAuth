@@ -47,7 +47,7 @@
                 return new AuthenticationTicket(null, new AuthenticationProperties());
             }
 
-            if (!this.Request.IsSecure)
+            if (this.options.RequireSecureConnection && !this.Request.IsSecure)
             {
                 throw new AuthenticationException("Basic authentication requires a secure connection");
             }

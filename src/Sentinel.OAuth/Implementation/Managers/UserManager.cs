@@ -93,7 +93,7 @@
         /// <summary>Authenticate the user using an API key.</summary>
         /// <param name="digest">The digest.</param>
         /// <returns>The user principal.</returns>
-        public override async Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(ApiKeyAuthenticationDigest digest)
+        public override async Task<ISentinelPrincipal> AuthenticateUserWithSignatureAsync(SignatureAuthenticationDigest digest)
         {
             var userKeys = await this.UserApiKeyRepository.GetForUser(digest.UserId);
 
@@ -107,7 +107,7 @@
                     var principal =
                         new SentinelPrincipal(
                             new SentinelIdentity(
-                                AuthenticationType.ApiKey,
+                                AuthenticationType.Signature,
                                 new SentinelClaim(JwtClaimType.Name, user.UserId),
                                 new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ApiKey),
                                 new SentinelClaim(ClaimType.AuthenticationSource, "local"),
@@ -161,7 +161,7 @@
                     var principal =
                         new SentinelPrincipal(
                             new SentinelIdentity(
-                                AuthenticationType.ApiKey,
+                                AuthenticationType.Signature,
                                 new SentinelClaim(JwtClaimType.Name, user.UserId),
                                 new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ApiKey),
                                 new SentinelClaim(ClaimType.AuthenticationSource, "local"),

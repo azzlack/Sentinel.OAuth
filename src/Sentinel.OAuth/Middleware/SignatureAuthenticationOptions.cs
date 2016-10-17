@@ -8,11 +8,11 @@
 
     using Sentinel.OAuth.Core.Interfaces.Managers;
 
-    public class ApiKeyAuthenticationOptions : AuthenticationOptions
+    public class SignatureAuthenticationOptions : AuthenticationOptions
     {
-        /// <summary>Initializes a new instance of the <see cref="ApiKeyAuthenticationOptions" /> class.</summary>
-        public ApiKeyAuthenticationOptions()
-            : base("ApiKey")
+        /// <summary>Initializes a new instance of the <see cref="SignatureAuthenticationOptions" /> class.</summary>
+        public SignatureAuthenticationOptions()
+            : base("Signature")
         {
         }
 
@@ -27,6 +27,10 @@
         /// <summary>Gets or sets the maximum clock skew.</summary>
         /// <value>The maximum clock skew.</value>
         public TimeSpan MaximumClockSkew { get; set; }
+
+        /// <summary>Gets or sets a value indicating whether to require a secure connection.</summary>
+        /// <value>true if a secure connection is required, false if not.</value>
+        public bool RequireSecureConnection { get; set; }
 
         /// <summary>
         /// Gets or sets the user management provider. This is the class responsible for locating and

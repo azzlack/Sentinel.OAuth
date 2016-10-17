@@ -12,6 +12,10 @@
         /// <value>The client secret.</value>
         string ClientSecret { get; set; }
 
+        /// <summary>Gets or sets the public key.</summary>
+        /// <value>The public key.</value>
+        string PublicKey { get; set; }
+
         /// <summary>Gets or sets the redirect uri.</summary>
         /// <value>The redirect uri.</value>
         string RedirectUri { get; set; }

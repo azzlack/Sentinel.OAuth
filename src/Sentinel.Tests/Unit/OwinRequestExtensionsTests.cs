@@ -8,7 +8,7 @@
 
     using NUnit.Framework;
 
-    using Sentinel.OAuth.Client.Mvc5.Extensions;
+    using Sentinel.OAuth.Extensions;
 
     [TestFixture]
     [Category("Unit")]

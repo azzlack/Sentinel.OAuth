@@ -16,6 +16,7 @@
         {
             this.ClientId = client.ClientId;
             this.ClientSecret = client.ClientSecret;
+            this.PublicKey = client.PublicKey;
             this.RedirectUri = client.RedirectUri;
             this.Name = client.Name;
             this.LastUsed = client.LastUsed;
@@ -33,6 +34,10 @@
         /// </summary>
         /// <value>The client secret.</value>
         public string ClientSecret { get; set; }
+
+        /// <summary>Gets or sets the public key.</summary>
+        /// <value>The public key.</value>
+        public string PublicKey { get; set; }
 
         /// <summary>
         /// Gets or sets the redirect uri.

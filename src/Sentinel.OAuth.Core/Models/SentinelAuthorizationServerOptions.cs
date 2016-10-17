@@ -19,6 +19,7 @@
         public SentinelAuthorizationServerOptions()
         {
             // Set default options
+            this.RequireSecureConnection = true;
             this.EnableApiKeyAuthentication = true;
             this.EnableBasicAuthentication = false;
             this.AccessTokenLifetime = TimeSpan.FromHours(1);
@@ -58,6 +59,10 @@
         /// </summary>
         /// <value>true if enable basic authentication, false if not.</value>
         public bool EnableBasicAuthentication { get; set; }
+
+        /// <summary>Gets or sets a value indicating whether to require a secure connection.</summary>
+        /// <value>true if a secure connection is required, false if not.</value>
+        public bool RequireSecureConnection { get; set; }
 
         /// <summary>Gets or sets the access token lifetime.</summary>
         /// <value>The access token lifetime.</value>

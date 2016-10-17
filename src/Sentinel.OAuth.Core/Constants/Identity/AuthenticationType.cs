@@ -5,7 +5,10 @@
         /// <summary>The OAuth authentication method.</summary>
         public const string OAuth = "OAuth";
 
-        /// <summary>The API key authentication method.</summary>
-        public const string ApiKey = "ApiKey";
+        /// <summary>The Signature authentication method.</summary>
+        public const string Signature = "Signature";
+
+        /// <summary>The Basic authentication method.</summary>
+        public const string Basic = "Basic";
     }
 }

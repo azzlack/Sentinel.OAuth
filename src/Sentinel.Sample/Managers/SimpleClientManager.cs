@@ -63,5 +63,10 @@
 
             return SentinelPrincipal.Anonymous;
         }
+
+        public Task<ISentinelPrincipal> AuthenticateClientWithSignatureAsync(SignatureAuthenticationDigest digest)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

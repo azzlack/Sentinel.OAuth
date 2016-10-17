@@ -24,6 +24,10 @@
         /// <value>The logger.</value>
         public ILog Logger { get; set; }
 
+        /// <summary>Gets or sets a value indicating whether to require a secure connection.</summary>
+        /// <value>true if a secure connection is required, false if not.</value>
+        public bool RequireSecureConnection { get; set; }
+
         /// <summary>
         /// Gets or sets the user management provider. This is the class responsible for locating and
         /// validating users.

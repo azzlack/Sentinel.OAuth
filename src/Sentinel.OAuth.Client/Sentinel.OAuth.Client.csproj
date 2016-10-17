@@ -39,6 +39,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SignatureAuthenticationHeaderValue.cs" />
     <Compile Include="BasicAuthenticationHeaderValue.cs" />
     <Compile Include="Interfaces\IOAuthClient.cs" />
     <Compile Include="Interfaces\ISentinelClientSettings.cs" />

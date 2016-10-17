@@ -2,9 +2,9 @@
 {
     using System;
 
-    public class ApiKeyAuthenticationDigest
+    public class SignatureAuthenticationDigest
     {
-        /// <summary>Initializes a new instance of the <see cref="ApiKeyAuthenticationDigest" /> class.</summary>
+        /// <summary>Initializes a new instance of the <see cref="SignatureAuthenticationDigest" /> class.</summary>
         /// <param name="userId">The identifier of the user.</param>
         /// <param name="clientId">The identifier of the client.</param>
         /// <param name="redirectUri">URI of the redirect.</param>
@@ -12,7 +12,7 @@
         /// <param name="timestamp">The timestamp in seconds since epoch (UTC).</param>
         /// <param name="nonce">The nonce.</param>
         /// <param name="signature">The signature.</param>
-        public ApiKeyAuthenticationDigest(string userId, string clientId, string redirectUri, Uri requestUrl, long timestamp, string nonce, string signature = null)
+        public SignatureAuthenticationDigest(string userId, string clientId, string redirectUri, string requestUrl, long timestamp, string nonce, string signature = null)
         {
             this.UserId = userId;
             this.ClientId = clientId;
@@ -37,7 +37,7 @@
 
         /// <summary>Gets URL of the request.</summary>
         /// <value>The request URL.</value>
-        public Uri RequestUrl { get; }
+        public string RequestUrl { get; }
 
         /// <summary>Gets the nonce.</summary>
         /// <value>The nonce.</value>
@@ -55,14 +55,21 @@
         /// <returns>The data.</returns>
         public string GetData()
         {
-            return $"client_id={this.ClientId},redirect_uri={this.RedirectUri},request_url={this.RequestUrl},timestamp={this.Timestamp},nonce={this.Nonce}";
+            return $"user_id={this.UserId},client_id={this.ClientId},redirect_uri={this.RedirectUri},request_url={this.RequestUrl},timestamp={this.Timestamp},nonce={this.Nonce}";
         }
 
         /// <summary>Sets the signature.</summary>
         /// <param name="signature">The signature.</param>
-        public void SetSignature(string signature)
+        public void Sign(string signature)
         {
             this.Signature = signature;
+        }
+
+        /// <summary>Returns a string that represents the current object.</summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            return $"{this.GetData()},signature={this.Signature}";
         }
     }
 }

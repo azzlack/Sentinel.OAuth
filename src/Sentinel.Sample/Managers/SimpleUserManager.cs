@@ -45,14 +45,14 @@
             return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.OAuth, new SentinelClaim(JwtClaimType.Name, username)));
         }
 
-        public async Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(ApiKeyAuthenticationDigest digest)
+        public async Task<ISentinelPrincipal> AuthenticateUserWithSignatureAsync(SignatureAuthenticationDigest digest)
         {
-            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.ApiKey, new SentinelClaim(JwtClaimType.Name, digest.UserId)));
+            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.Signature, new SentinelClaim(JwtClaimType.Name, digest.UserId)));
         }
 
         public async Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(BasicAuthenticationDigest digest)
         {
-            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.ApiKey, new SentinelClaim(JwtClaimType.Name, digest.UserId)));
+            return new SentinelPrincipal(new SentinelIdentity(AuthenticationType.Signature, new SentinelClaim(JwtClaimType.Name, digest.UserId)));
         }
     }
 }

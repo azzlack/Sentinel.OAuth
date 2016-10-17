@@ -24,7 +24,7 @@
         /// <summary>Authenticate the user using an API key.</summary>
         /// <param name="digest">The digest.</param>
         /// <returns>The user principal.</returns>
-        Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(ApiKeyAuthenticationDigest digest);
+        Task<ISentinelPrincipal> AuthenticateUserWithSignatureAsync(SignatureAuthenticationDigest digest);
 
         /// <summary>Authenticate the user using an API key.</summary>
         /// <param name="digest">The digest.</param>

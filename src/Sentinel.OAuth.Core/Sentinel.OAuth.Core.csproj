@@ -102,7 +102,7 @@
     <Compile Include="Interfaces\Repositories\IClientRepository.cs" />
     <Compile Include="Interfaces\Validators\ITokenValidator.cs" />
     <Compile Include="Models\BasicAuthenticationDigest.cs" />
-    <Compile Include="Models\ApiKeyAuthenticationDigest.cs" />
+    <Compile Include="Models\SignatureAuthenticationDigest.cs" />
     <Compile Include="Models\KeyPair.cs" />
     <Compile Include="Models\OAuth\AccessToken.cs" />
     <Compile Include="Constants\Identity\AuthenticationType.cs" />
