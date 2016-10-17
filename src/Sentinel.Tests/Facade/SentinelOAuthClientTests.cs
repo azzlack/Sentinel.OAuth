@@ -115,6 +115,7 @@
             apiSettings.Setup(x => x.ClientId).Returns("NUnit");
             apiSettings.Setup(x => x.ClientSecret).Returns("sngldsnvkløsdnkdslgjklds");
             apiSettings.Setup(x => x.RedirectUri).Returns("http://localhost");
+            apiSettings.Setup(x => x.Endpoints).Returns(new AuthenticationEndpoints());
 
             var client = new SentinelOAuthClient(apiSettings.Object, this.server.Handler);
 
