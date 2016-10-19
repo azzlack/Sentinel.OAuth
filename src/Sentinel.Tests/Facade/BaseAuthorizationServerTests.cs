@@ -502,7 +502,7 @@
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
             
-            var digest = new SignatureAuthenticationDigest(username, "NUnit", "http://localhost", request.RequestUri.ToString(), DateTimeOffset.UtcNow.ToUnixTime(), Guid.NewGuid().ToString("N") );
+            var digest = new SignatureAuthenticationDigest(username, "NUnit", "http://localhost", $"{this.Client.BaseAddress}{request.RequestUri}", DateTimeOffset.UtcNow.ToUnixTime(), Guid.NewGuid().ToString("N") );
             var signature = this.AsymmetricCryptoProvider.Sign(digest.GetData(), privateKey);
             digest.Sign(signature);
 
@@ -521,7 +521,7 @@
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
 
-            var digest = new SignatureAuthenticationDigest(username, "NUnit", "http://localhost", request.RequestUri.ToString(), DateTimeOffset.UtcNow.ToUnixTime(), Guid.NewGuid().ToString("N"));
+            var digest = new SignatureAuthenticationDigest(username, "NUnit", "http://localhost", $"{this.Client.BaseAddress}{request.RequestUri}", DateTimeOffset.UtcNow.ToUnixTime(), Guid.NewGuid().ToString("N"));
             var signature = this.AsymmetricCryptoProvider.Sign(digest.GetData(), privateKey);
             digest.Sign(signature);
 
@@ -585,7 +585,7 @@
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
 
-            var digest = new SignatureAuthenticationDigest(username, "NUnit", "http://localhost", request.RequestUri.ToString(), DateTimeOffset.UtcNow.ToUnixTime(), Guid.NewGuid().ToString("N"));
+            var digest = new SignatureAuthenticationDigest(username, "NUnit", "http://localhost", $"{this.Client.BaseAddress}{request.RequestUri}", DateTimeOffset.UtcNow.ToUnixTime(), Guid.NewGuid().ToString("N"));
             var signature = this.AsymmetricCryptoProvider.Sign(digest.GetData(), privateKey);
             digest.Sign(signature);
 

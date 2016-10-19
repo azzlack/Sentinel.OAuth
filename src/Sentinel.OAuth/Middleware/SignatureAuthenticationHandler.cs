@@ -175,6 +175,8 @@
 
             if (!this.Request.IsSameUrl(digest.RequestUrl))
             {
+                this.options.Logger.Warn($"The request_url parameter ({digest.RequestUrl}) does not match the requested url {this.Request.Uri}");
+
                 return false;
             }
 
