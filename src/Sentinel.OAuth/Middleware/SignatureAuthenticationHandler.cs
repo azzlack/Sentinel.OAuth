@@ -61,7 +61,7 @@
                     throw new AuthenticationException("Signature authentication requires a secure connection");
                 }
 
-                this.options.Logger.Debug("Authenticating user using Signature authentication");
+                this.options.Logger.Debug("Authenticating using Signature authentication");
 
                 var parameter = authorizationHeader.Substring(this.options.AuthenticationType.Length).Trim();
                 var digest = this.ParseParameter(parameter);
@@ -81,7 +81,7 @@
                     // Validate ticket
                     var ticket = new AuthenticationTicket(identity.ToClaimsIdentity(), new AuthenticationProperties());
 
-                    this.options.Logger.Debug($"User '{identity.Name}' was successfully authenticated");
+                    this.options.Logger.Debug($"'{identity.Name}' was successfully authenticated");
 
                     return ticket;
                 }
@@ -173,8 +173,10 @@
                 this.nonces.Add($"{digest.ClientId}_{digest.Nonce}", digest, DateTimeOffset.UtcNow.Add(this.options.MaximumClockSkew));
             }
 
-            // 3. TODO: Validate uri
-            
+            if (!this.Request.IsSameUrl(digest.RequestUrl))
+            {
+                return false;
+            }
 
             return true;
         }
