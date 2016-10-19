@@ -210,27 +210,30 @@
                 throw new ArgumentException(nameof(digest), "The user_id is invalid, must be equal to client_id");
             }
 
-            var isValid = this.AsymmetricCryptoProvider.ValidateSignature(digest.GetData(), digest.Signature, client.PublicKey);
-            if (isValid)
+            if (!string.IsNullOrEmpty(client.PublicKey))
             {
-                var principal = 
-                    new SentinelPrincipal(
-                        new SentinelIdentity(
-                            AuthenticationType.Signature,
-                            new SentinelClaim(JwtClaimType.Name, client.ClientId),
-                            new SentinelClaim(ClaimType.Client, client.ClientId),
-                            new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
-                            new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ApiKey)));
-
-                if (principal.Identity.IsAuthenticated)
+                var isValid = this.AsymmetricCryptoProvider.ValidateSignature(digest.GetData(), digest.Signature, client.PublicKey);
+                if (isValid)
                 {
-                    client.LastUsed = DateTimeOffset.UtcNow;
-                    await this.ClientRepository.Update(client.GetIdentifier(), client);
+                    var principal =
+                        new SentinelPrincipal(
+                            new SentinelIdentity(
+                                AuthenticationType.Signature,
+                                new SentinelClaim(JwtClaimType.Name, client.ClientId),
+                                new SentinelClaim(ClaimType.Client, client.ClientId),
+                                new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
+                                new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ApiKey)));
+
+                    if (principal.Identity.IsAuthenticated)
+                    {
+                        client.LastUsed = DateTimeOffset.UtcNow;
+                        await this.ClientRepository.Update(client.GetIdentifier(), client);
+
+                        return principal;
+                    }
 
                     return principal;
                 }
-
-                return principal;
             }
 
             return SentinelPrincipal.Anonymous;
