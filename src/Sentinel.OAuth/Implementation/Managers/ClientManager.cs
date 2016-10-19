@@ -199,9 +199,14 @@
             // 1. Validate client id and redirect uri
             var client = await this.ClientRepository.GetClient(digest.ClientId);
 
-            if (client == null || client.RedirectUri != digest.RedirectUri)
+            if (client == null || !client.Enabled)
             {
-                throw new ArgumentException(nameof(digest), "The client_id or redirect_uri is invalid");
+                throw new ArgumentException(nameof(digest), "The client_id is invalid");
+            }
+
+            if (client.RedirectUri != digest.RedirectUri)
+            {
+                throw new ArgumentException(nameof(digest), "The redirect_uri is invalid");
             }
 
             // 2. Validate username and signature using client secret

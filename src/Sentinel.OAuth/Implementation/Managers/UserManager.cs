@@ -87,7 +87,7 @@
         {
             var user = await this.UserRepository.GetUser(username);
 
-            if (user != null && this.PasswordCryptoProvider.ValidateHash(password, user.Password))
+            if (user != null && this.PasswordCryptoProvider.ValidateHash(password, user.Password) && user.Enabled)
             {
                 var principal =
                     new SentinelPrincipal(
@@ -120,7 +120,7 @@
         {
             var user = await this.UserRepository.GetUser(username);
 
-            if (user != null)
+            if (user != null && user.Enabled)
             {
                 var principal =
                     new SentinelPrincipal(
@@ -155,7 +155,7 @@
             {
                 var user = await this.UserRepository.GetUser(matchingKey.UserId);
 
-                if (user != null)
+                if (user != null && user.Enabled)
                 {
                     var principal =
                         new SentinelPrincipal(
@@ -209,7 +209,7 @@
             {
                 var user = await this.UserRepository.GetUser(matchingKey.UserId);
 
-                if (user != null)
+                if (user != null && user.Enabled)
                 {
                     var principal =
                         new SentinelPrincipal(
