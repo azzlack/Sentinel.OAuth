@@ -66,7 +66,7 @@
                 var parameter = authorizationHeader.Substring(this.options.AuthenticationType.Length).Trim();
                 var digest = this.ParseParameter(parameter);
 
-                if (digest == null || !this.ValidateDigest(digest))
+                if (digest == null || !await this.ValidateDigest(digest))
                 {
                     throw new AuthenticationException("Invalid digest");
                 }
@@ -148,7 +148,7 @@
             }
         }
 
-        private bool ValidateDigest(SignatureAuthenticationDigest digest)
+        private async Task<bool> ValidateDigest(SignatureAuthenticationDigest digest)
         {
             // 1. Validate timestamp is within boundaries
             var serverTimestamp = DateTimeOffset.UtcNow.ToUnixTime();
@@ -173,6 +173,14 @@
                 this.nonces.Add($"{digest.ClientId}_{digest.Nonce}", digest, DateTimeOffset.UtcNow.Add(this.options.MaximumClockSkew));
             }
 
+            // 3. Validate client
+            var client = await this.options.ClientManager.AuthenticateClientAsync(digest.ClientId, digest.RedirectUri);
+            if (!client.Identity.IsAuthenticated)
+            {
+                return false;
+            }
+
+            // 4. Validate url
             if (!this.Request.IsSameUrl(digest.RequestUrl))
             {
                 this.options.Logger.Warn($"The request_url parameter ({digest.RequestUrl}) does not match the requested url {this.Request.Uri}");
