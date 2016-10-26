@@ -227,7 +227,7 @@
                                 new SentinelClaim(JwtClaimType.Name, client.ClientId),
                                 new SentinelClaim(ClaimType.Client, client.ClientId),
                                 new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
-                                new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ApiKey)));
+                                new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.Signature)));
 
                     if (principal.Identity.IsAuthenticated)
                     {

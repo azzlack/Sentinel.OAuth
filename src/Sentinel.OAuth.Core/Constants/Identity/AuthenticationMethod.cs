@@ -14,9 +14,6 @@
         /// <summary>Authenticated using user id only.</summary>
         public const string UserId = "user_id";
 
-        /// <summary>Authenticated using API key authentication.</summary>
-        public const string ApiKey = "api_key";
-
         /// <summary>Authenticated using Basic authentication.</summary>
         public const string Basic = "basic";
 

@@ -62,7 +62,6 @@
 
             if (identity.IsAuthenticated)
             {
-
                 // Validate ticket
                 var ticket = new AuthenticationTicket(identity.ToClaimsIdentity(), new AuthenticationProperties());
 
