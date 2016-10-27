@@ -191,19 +191,21 @@
         /// <returns>The user principal.</returns>
         public override async Task<ISentinelPrincipal> AuthenticateUserWithApiKeyAsync(BasicAuthenticationDigest digest)
         {
+            BasicAuthenticationCipher cipher;
             string data;
             string signature;
 
-            // Extract data from digest password
-            var cipher = digest.GetCipher();
-
-            if (string.IsNullOrEmpty(cipher.ClientId) || string.IsNullOrEmpty(cipher.RedirectUri) || string.IsNullOrEmpty(cipher.Password))
-            {
-                return SentinelPrincipal.Anonymous;
-            }
-
             try
             {
+                // Extract data from digest password
+                cipher = digest.GetCipher();
+
+                if (string.IsNullOrEmpty(cipher.ClientId) || string.IsNullOrEmpty(cipher.RedirectUri) || string.IsNullOrEmpty(cipher.Password))
+                {
+                    return SentinelPrincipal.Anonymous;
+                }
+
+
                 data = this.PasswordCryptoProvider.CreateHash(256);
                 signature = this.AsymmetricCryptoProvider.Sign(data, cipher.Password);
             }

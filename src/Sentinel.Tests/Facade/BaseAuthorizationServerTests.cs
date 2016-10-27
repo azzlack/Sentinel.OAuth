@@ -479,18 +479,19 @@
         public async void GetResource_WhenGivenValidUserBasicAuthentication_ReturnsData(string username, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
-            request.Headers.Authorization = new BasicAuthenticationHeaderValue(username, password);
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue(username, new BasicAuthenticationCipher("NUnit", "http://localhost", password).ToString());
 
             var response = await this.Client.SendAsync(request);
 
             Assert.IsTrue(response.IsSuccessStatusCode, "User was not authenticated");
         }
 
-        [TestCase("azzlack", "eeddccbbaa")]
-        public async void GetResource_WhenGivenInvalidUserBasicAuthentication_ReturnsData(string username, string password)
+        [TestCase("NUnit", "eeddccbbaa")]
+        [TestCase("azzlack", "client_id=NUnit&redirect_uri=http%3A%2F%2Flocalhost&password=eeddccbbaa")]
+        public async void GetResource_WhenGivenInvalidUserBasicAuthentication_ReturnsData(string username, string cipher)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
-            request.Headers.Authorization = new BasicAuthenticationHeaderValue(username, password);
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue(username, cipher);
 
             var response = await this.Client.SendAsync(request);
 
@@ -548,7 +549,7 @@
         public async void GetResource_WhenGivenValidClientBasicAuthentication_ReturnsData(string username, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
-            request.Headers.Authorization = new BasicAuthenticationHeaderValue(username, password);
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue(username, new BasicAuthenticationCipher("http://localhost", password).ToString());
 
             var response = await this.Client.SendAsync(request);
 
@@ -559,10 +560,11 @@
         }
 
         [TestCase("NUnit", "eeddccbbaa")]
-        public async void GetResource_WhenGivenInvalidClientBasicAuthentication_ReturnsData(string username, string password)
+        [TestCase("NUnit", "redirect_uri=http%3A%2F%2Flocalhost&password=eeddccbbaa")]
+        public async void GetResource_WhenGivenInvalidClientBasicAuthentication_ReturnsData(string username, string cipher)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "openid/userinfo");
-            request.Headers.Authorization = new BasicAuthenticationHeaderValue(username, password);
+            request.Headers.Authorization = new BasicAuthenticationHeaderValue(username, cipher);
 
             var response = await this.Client.SendAsync(request);
 

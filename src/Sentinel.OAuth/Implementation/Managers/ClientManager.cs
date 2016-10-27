@@ -129,11 +129,21 @@
 
         public override async Task<ISentinelPrincipal> AuthenticateClientCredentialsAsync(BasicAuthenticationDigest digest)
         {
-            var client = await this.ClientRepository.GetClient(digest.UserId);
+            BasicAuthenticationCipher cipher;
 
-            if (client != null && client.Enabled)
+            try
             {
-                if (this.PasswordCryptoProvider.ValidateHash(digest.Password, client.ClientSecret))
+                cipher = digest.GetCipher();
+            }
+            catch (ArgumentException)
+            {
+                return SentinelPrincipal.Anonymous;
+            }
+
+            var client = await this.ClientRepository.GetClient(digest.UserId);
+            if (client != null && client.Enabled && client.RedirectUri == cipher.RedirectUri)
+            {
+                if (this.PasswordCryptoProvider.ValidateHash(cipher.Password, client.ClientSecret))
                 {
                     var principal =
                         new SentinelPrincipal(
