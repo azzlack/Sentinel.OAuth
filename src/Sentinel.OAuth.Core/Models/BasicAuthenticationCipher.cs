@@ -1,8 +1,10 @@
 ﻿namespace Sentinel.OAuth.Core.Models
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Net;
+    using System.Text;
 
     public class BasicAuthenticationCipher
     {
@@ -71,7 +73,24 @@
 
         public override string ToString()
         {
-            return $"client_id={WebUtility.UrlEncode(this.ClientId)}&redirect_uri={WebUtility.UrlEncode(this.RedirectUri)}&password={WebUtility.UrlEncode(this.Password)}";
+            var arr = new List<string>();
+
+            if (!string.IsNullOrEmpty(this.ClientId))
+            {
+                arr.Add($"client_id={WebUtility.UrlEncode(this.ClientId)}");
+            }
+
+            if (!string.IsNullOrEmpty(this.RedirectUri))
+            {
+                arr.Add($"redirect_uri={WebUtility.UrlEncode(this.RedirectUri)}");
+            }
+
+            if (!string.IsNullOrEmpty(this.Password))
+            {
+                arr.Add($"password={WebUtility.UrlEncode(this.Password)}");
+            }
+
+            return string.Join("&", arr);
         }
     }
 }

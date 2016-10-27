@@ -123,19 +123,19 @@
             Assert.IsFalse(user.Identity.IsAuthenticated, "The client was authenticated");
         }
 
-        [TestCase("NUnit", "aabbccddee")]
-        public async void AuthenticateClientWithApiKeyAsync_WhenGivenValidBasicAuthenticationDigest_ReturnsAuthenticatedIdentity(string username, string password)
+        [TestCase("NUnit", "redirect_uri=http%3A%2F%2Flocalhost&password=aabbccddee")]
+        public async void AuthenticateClientWithApiKeyAsync_WhenGivenValidBasicAuthenticationDigest_ReturnsAuthenticatedIdentity(string username, string cipher)
         {
-            var client = await this.ClientManager.AuthenticateClientCredentialsAsync(new BasicAuthenticationDigest(username, password));
+            var client = await this.ClientManager.AuthenticateClientCredentialsAsync(new BasicAuthenticationDigest(username, cipher));
 
             Assert.IsTrue(client.Identity.IsAuthenticated, "The client was not authenticated");
         }
 
         [TestCase("NUnit", "")]
         [TestCase("NUnit", "eeddccbbaa")]
-        public async void AuthenticateClientWithApiKeyAsync_WhenGivenInvalidBasicAuthenticationDigest_ReturnsNotAuthenticatedIdentity(string username, string password)
+        public async void AuthenticateClientWithApiKeyAsync_WhenGivenInvalidBasicAuthenticationDigest_ReturnsNotAuthenticatedIdentity(string username, string cipher)
         {
-            var client = await this.ClientManager.AuthenticateClientCredentialsAsync(new BasicAuthenticationDigest(username, password));
+            var client = await this.ClientManager.AuthenticateClientCredentialsAsync(new BasicAuthenticationDigest(username, cipher));
 
             Assert.IsFalse(client.Identity.IsAuthenticated, "The client was authenticated");
         }
