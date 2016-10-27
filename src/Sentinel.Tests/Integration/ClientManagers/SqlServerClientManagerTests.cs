@@ -9,6 +9,8 @@
     using System.Data;
     using System.Data.SqlLocalDb;
 
+    using Common.Logging;
+
     [TestFixture]
     [Category("Integration")]
     public class SqlServerClientManagerTests : ClientManagerTests
@@ -62,6 +64,7 @@
             connectionStringBuilder.SetInitialCatalogName(this.databaseName);
 
             this.ClientManager = new ClientManager(
+                LogManager.GetLogger<SqlServerClientManagerTests>(),
                 new PBKDF2CryptoProvider(),
                 new AsymmetricCryptoProvider(), 
                 new SqlServerClientRepository(connectionStringBuilder.ToString()));

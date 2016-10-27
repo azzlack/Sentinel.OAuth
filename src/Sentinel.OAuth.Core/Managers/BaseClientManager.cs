@@ -7,6 +7,8 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
+    using Common.Logging;
+
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Models;
 
@@ -17,12 +19,17 @@
         /// <param name="passwordCryptoProvider">The password crypto provider.</param>
         /// <param name="asymmetricCryptoProvider">The asymmetric crypto provider.</param>
         /// <param name="clientRepository">The client repository.</param>
-        protected BaseClientManager(IPasswordCryptoProvider passwordCryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IClientRepository clientRepository)
+        protected BaseClientManager(ILog logger, IPasswordCryptoProvider passwordCryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IClientRepository clientRepository)
         {
+            this.Logger = logger;
             this.AsymmetricCryptoProvider = asymmetricCryptoProvider;
             this.PasswordCryptoProvider = passwordCryptoProvider;
             this.ClientRepository = clientRepository;
         }
+
+        /// <summary>Gets the logger.</summary>
+        /// <value>The logger.</value>
+        protected ILog Logger { get; private set; }
 
         /// <summary>Gets the client repository.</summary>
         /// <value>The client repository.</value>

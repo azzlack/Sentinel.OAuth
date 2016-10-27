@@ -94,12 +94,12 @@
 
             if (options.UserManager == null && options.UserRepository != null)
             {
-                options.UserManager = new UserManager(options.PasswordCryptoProvider, options.SignatureCryptoProvider, options.UserRepository, options.UserApiKeyRepository);
+                options.UserManager = new UserManager(options.Logger, options.PasswordCryptoProvider, options.SignatureCryptoProvider, options.UserRepository, options.UserApiKeyRepository, options.ClientRepository);
             }
 
             if (options.ClientManager == null && options.ClientRepository != null)
             {
-                options.ClientManager = new ClientManager(options.PasswordCryptoProvider, options.SignatureCryptoProvider, options.ClientRepository);
+                options.ClientManager = new ClientManager(options.Logger, options.PasswordCryptoProvider, options.SignatureCryptoProvider, options.ClientRepository);
             }
 
             var oauthOptions = new OAuthAuthorizationServerOptions

@@ -103,6 +103,7 @@
     <Compile Include="Interfaces\Repositories\IClientRepository.cs" />
     <Compile Include="Interfaces\Validators\ITokenValidator.cs" />
     <Compile Include="Models\BasicAuthenticationDigest.cs" />
+    <Compile Include="Models\BasicAuthenticationCipher.cs" />
     <Compile Include="Models\CreateClientResult.cs" />
     <Compile Include="Models\CreateUserResult.cs" />
     <Compile Include="Models\CreateUserApiKeyResult.cs" />

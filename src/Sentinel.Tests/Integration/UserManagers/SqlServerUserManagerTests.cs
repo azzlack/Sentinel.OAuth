@@ -4,10 +4,13 @@
     using System.Data;
     using System.Data.SqlLocalDb;
 
+    using Common.Logging;
+
     using Dapper;
 
     using NUnit.Framework;
 
+    using Sentinel.OAuth.ClientManagers.SqlServerClientRepository.Implementation;
     using Sentinel.OAuth.Core.Interfaces.Providers;
     using Sentinel.OAuth.Implementation.Managers;
     using Sentinel.OAuth.Implementation.Providers;
@@ -73,10 +76,12 @@
             connectionStringBuilder.SetInitialCatalogName(this.databaseName);
 
             this.UserManager = new UserManager(
+                LogManager.GetLogger<SqlServerUserManagerTests>(),
                 new PBKDF2CryptoProvider(),
                 new AsymmetricCryptoProvider(), 
                 new SqlServerUserRepository(connectionStringBuilder.ToString()),
-                new SqlServerUserApiKeyRepository(connectionStringBuilder.ToString()));
+                new SqlServerUserApiKeyRepository(connectionStringBuilder.ToString()),
+                new SqlServerClientRepository(connectionStringBuilder.ToString()));
 
             base.SetUp();
         }

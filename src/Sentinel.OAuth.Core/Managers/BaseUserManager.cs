@@ -6,6 +6,8 @@
     using Sentinel.OAuth.Core.Interfaces.Repositories;
     using System.Threading.Tasks;
 
+    using Common.Logging;
+
     using Sentinel.OAuth.Core.Interfaces.Models;
     using Sentinel.OAuth.Core.Models;
 
@@ -13,17 +15,25 @@
     public abstract class BaseUserManager : IUserManager
     {
         /// <summary>Initializes a new instance of the BaseUserManager class.</summary>
+        /// <param name="logger">The logger.</param>
         /// <param name="passwordCryptoProvider">The crypto provider.</param>
         /// <param name="asymmetricCryptoProvider">The asymmetric crypto provider.</param>
         /// <param name="userRepository">The user repository.</param>
         /// <param name="userApiKeyRepository">The user API key repository.</param>
-        protected BaseUserManager(IPasswordCryptoProvider passwordCryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IUserRepository userRepository, IUserApiKeyRepository userApiKeyRepository)
+        /// <param name="clientRepository">The client repository.</param>
+        protected BaseUserManager(ILog logger, IPasswordCryptoProvider passwordCryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IUserRepository userRepository, IUserApiKeyRepository userApiKeyRepository, IClientRepository clientRepository)
         {
+            this.Logger = logger;
             this.PasswordCryptoProvider = passwordCryptoProvider;
             this.AsymmetricCryptoProvider = asymmetricCryptoProvider;
             this.UserRepository = userRepository;
             this.UserApiKeyRepository = userApiKeyRepository;
+            this.ClientRepository = clientRepository;
         }
+
+        /// <summary>Gets the logger.</summary>
+        /// <value>The logger.</value>
+        protected ILog Logger { get; private set; }
 
         /// <summary>Gets the crypto provider.</summary>
         /// <value>The crypto provider.</value>
@@ -40,6 +50,10 @@
         /// <summary>Gets the user API key repository.</summary>
         /// <value>The user API key repository.</value>
         protected IUserApiKeyRepository UserApiKeyRepository { get; private set; }
+
+        /// <summary>Gets the client repository.</summary>
+        /// <value>The client repository.</value>
+        protected IClientRepository ClientRepository { get; private set; }
 
         /// <summary>Creates a user.</summary>
         /// <param name="userId">Identifier for the user.</param>

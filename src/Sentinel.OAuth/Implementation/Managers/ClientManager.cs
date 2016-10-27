@@ -12,6 +12,8 @@
     using System.Security.Claims;
     using System.Threading.Tasks;
 
+    using Common.Logging;
+
     using Microsoft.Owin.Security.OAuth;
 
     using Sentinel.OAuth.Core.Interfaces.Models;
@@ -21,11 +23,12 @@
     public class ClientManager : BaseClientManager
     {
         /// <summary>Initializes a new instance of the <see cref="ClientManager" /> class.</summary>
+        /// <param name="logger">The logger.</param>
         /// <param name="passwordCryptoProvider">The password crypto provider.</param>
         /// <param name="asymmetricCryptoProvider">The asymmetric crypto provider.</param>
         /// <param name="clientRepository">The client repository.</param>
-        public ClientManager(IPasswordCryptoProvider passwordCryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IClientRepository clientRepository)
-            : base(passwordCryptoProvider, asymmetricCryptoProvider, clientRepository)
+        public ClientManager(ILog logger, IPasswordCryptoProvider passwordCryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IClientRepository clientRepository)
+            : base(logger, passwordCryptoProvider, asymmetricCryptoProvider, clientRepository)
         {
         }
 

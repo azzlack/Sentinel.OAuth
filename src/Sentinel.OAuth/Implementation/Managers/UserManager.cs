@@ -2,8 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
+
+    using Common.Logging;
 
     using Sentinel.OAuth.Core.Constants.Identity;
     using Sentinel.OAuth.Core.Interfaces.Identity;
@@ -18,12 +21,14 @@
     public class UserManager : BaseUserManager
     {
         /// <summary>Initializes a new instance of the <see cref="UserManager" /> class.</summary>
+        /// <param name="logger">The logger.</param>
         /// <param name="passwordCryptoProvider">The crypto provider.</param>
         /// <param name="asymmetricCryptoProvider">The asymmetric crypto provider.</param>
         /// <param name="userRepository">The user repository.</param>
         /// <param name="userApiKeyRepository">The user API key repository.</param>
-        public UserManager(IPasswordCryptoProvider passwordCryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IUserRepository userRepository, IUserApiKeyRepository userApiKeyRepository)
-            : base(passwordCryptoProvider, asymmetricCryptoProvider, userRepository, userApiKeyRepository)
+        /// <param name="clientRepository">The client repository.</param>
+        public UserManager(ILog logger, IPasswordCryptoProvider passwordCryptoProvider, IAsymmetricCryptoProvider asymmetricCryptoProvider, IUserRepository userRepository, IUserApiKeyRepository userApiKeyRepository, IClientRepository clientRepository)
+            : base(logger, passwordCryptoProvider, asymmetricCryptoProvider, userRepository, userApiKeyRepository, clientRepository)
         {
         }
 
@@ -189,10 +194,18 @@
             string data;
             string signature;
 
+            // Extract data from digest password
+            var cipher = digest.GetCipher();
+
+            if (string.IsNullOrEmpty(cipher.ClientId) || string.IsNullOrEmpty(cipher.RedirectUri) || string.IsNullOrEmpty(cipher.Password))
+            {
+                return SentinelPrincipal.Anonymous;
+            }
+
             try
             {
                 data = this.PasswordCryptoProvider.CreateHash(256);
-                signature = this.AsymmetricCryptoProvider.Sign(data, digest.Password);
+                signature = this.AsymmetricCryptoProvider.Sign(data, cipher.Password);
             }
             catch (ArgumentException)
             {
@@ -203,6 +216,14 @@
                 return SentinelPrincipal.Anonymous;
             }
 
+            // Validate client
+            var client = await this.ClientRepository.GetClient(cipher.ClientId);
+            if (client == null || !client.Enabled || client.RedirectUri != cipher.RedirectUri)
+            {
+                return SentinelPrincipal.Anonymous;
+            }
+
+            // Validate password
             var userKeys = await this.UserApiKeyRepository.GetForUser(digest.UserId);
 
             var matchingKey = this.ValidateApiKey(userKeys, data, signature);

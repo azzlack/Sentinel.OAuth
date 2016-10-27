@@ -221,6 +221,7 @@
     <Compile Include="Integration\UserManagers\SqlServerUserManagerTests.cs" />
     <Compile Include="Integration\UserManagers\UserManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Unit\BasicAuthenticationDigestTests.cs" />
     <Compile Include="Unit\IdentityResponseJsonConverterTests.cs" />
     <Compile Include="Unit\JsonWebTokenTests.cs" />
     <Compile Include="Unit\OwinRequestExtensionsTests.cs" />
