@@ -3,6 +3,7 @@
     using System;
 
     using Sentinel.OAuth.Client.Models;
+    using Sentinel.OAuth.Core.Interfaces.Models;
 
     public interface ISentinelClientSettings
     {
@@ -38,6 +39,6 @@
 
         /// <summary>Gets the endpoints.</summary>
         /// <value>The endpoints.</value>
-        AuthenticationEndpoints Endpoints { get; }
+        IAuthenticationEndpoints Endpoints { get; }
     }
 }

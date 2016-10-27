@@ -4,6 +4,7 @@
 
     using Sentinel.OAuth.Client.Interfaces;
     using Sentinel.OAuth.Client.Models;
+    using Sentinel.OAuth.Core.Interfaces.Models;
 
     public class SentinelClientSettings : ISentinelClientSettings
     {
@@ -16,7 +17,7 @@
         /// <param name="redirectUri">URI of the redirect.</param>
         /// <param name="refreshTokenLifetime">The refresh token lifetime.</param>
         /// <param name="endpoints">The endpoints.</param>
-        public SentinelClientSettings(Uri uri, string clientId, string clientSecret, string redirectUri, TimeSpan refreshTokenLifetime, AuthenticationEndpoints endpoints)
+        public SentinelClientSettings(Uri uri, string clientId, string clientSecret, string redirectUri, TimeSpan refreshTokenLifetime, IAuthenticationEndpoints endpoints)
         {
             this.Url = uri;
             this.ClientId = clientId;
@@ -48,6 +49,6 @@
 
         /// <summary>Gets the endpoints.</summary>
         /// <value>The endpoints.</value>
-        public AuthenticationEndpoints Endpoints { get; private set; }
+        public IAuthenticationEndpoints Endpoints { get; private set; }
     }
 }

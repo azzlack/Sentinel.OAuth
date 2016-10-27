@@ -10,6 +10,7 @@
     using Microsoft.Owin.Security;
 
     using Sentinel.OAuth.Client.Models;
+    using Sentinel.OAuth.Core.Interfaces.Models;
 
     public class SentinelAuthenticationOptions : AuthenticationOptions
     {
@@ -62,7 +63,7 @@
 
         /// <summary>Gets or sets the endpoints.</summary>
         /// <value>The endpoints.</value>
-        public AuthenticationEndpoints Endpoints { get; set; }
+        public IAuthenticationEndpoints Endpoints { get; set; }
 
         /// <summary>Gets or sets the cookie configuration.</summary>
         /// <value>The cookie configuration.</value>

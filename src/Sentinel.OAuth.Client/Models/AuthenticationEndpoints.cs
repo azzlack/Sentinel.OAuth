@@ -1,6 +1,8 @@
 ﻿namespace Sentinel.OAuth.Client.Models
 {
-    public class AuthenticationEndpoints
+    using Sentinel.OAuth.Core.Interfaces.Models;
+
+    public class AuthenticationEndpoints : IAuthenticationEndpoints
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationEndpoints" /> class.

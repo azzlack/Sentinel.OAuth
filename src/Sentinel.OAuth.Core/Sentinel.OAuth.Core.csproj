@@ -92,6 +92,7 @@
     <Compile Include="Converters\JsonWebTokenComponentConverter.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
+    <Compile Include="Interfaces\Models\IAuthenticationEndpoints.cs" />
     <Compile Include="Interfaces\Models\IToken.cs" />
     <Compile Include="Interfaces\Models\IUserApiKey.cs" />
     <Compile Include="Interfaces\Models\IUser.cs" />
