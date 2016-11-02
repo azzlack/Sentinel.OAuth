@@ -290,7 +290,11 @@
                 { "state", state }
             };
 
-            return this.Options.Endpoints.AuthorizationCodeEndpointUrl + queryBuilder;
+            var endpoint = this.Options.Endpoints.AuthorizationCodeEndpointUrl.StartsWith("/")
+                               ? this.Options.Endpoints.AuthorizationCodeEndpointUrl
+                               : $"/{this.Options.Endpoints.AuthorizationCodeEndpointUrl}";
+
+            return endpoint + queryBuilder;
         }
     }
 }
