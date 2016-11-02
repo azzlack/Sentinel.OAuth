@@ -41,7 +41,7 @@
 
             // Set up static paths
             app.Map(
-                options.Endpoints.LoginEndpointUrl,
+                options.Endpoints.LoginEndpointUrl.StartsWith("/") ? options.Endpoints.LoginEndpointUrl : $"/{options.Endpoints.LoginEndpointUrl}",
                 builder =>
                     {
                         builder.Run(
@@ -52,7 +52,7 @@
                     });
 
             app.Map(
-                options.Endpoints.LogoutEndpointUrl,
+                options.Endpoints.LogoutEndpointUrl.StartsWith("/") ? options.Endpoints.LogoutEndpointUrl : $"/{options.Endpoints.LogoutEndpointUrl}",
                 builder =>
                     {
                         builder.Run(
@@ -63,7 +63,7 @@
                     });
 
             app.Map(
-                options.Endpoints.RefreshEndpointUrl,
+                options.Endpoints.RefreshEndpointUrl.StartsWith("/") ? options.Endpoints.RefreshEndpointUrl : $"/{options.Endpoints.RefreshEndpointUrl}",
                 builder =>
                     {
                         builder.Run(
@@ -74,7 +74,7 @@
                     });
 
             app.Map(
-                options.Endpoints.ErrorEndpointUrl,
+                options.Endpoints.ErrorEndpointUrl.StartsWith("/") ? options.Endpoints.ErrorEndpointUrl : $"/{options.Endpoints.ErrorEndpointUrl}",
                 builder =>
                 {
                     builder.Run(

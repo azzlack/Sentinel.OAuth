@@ -13,6 +13,15 @@
         /// <summary>The events.</summary>
         private SentinelAuthorizationServerEvents events;
 
+        /// <summary>URL of the authorization code endpoint.</summary>
+        private string authorizationCodeEndpointUrl;
+
+        /// <summary>URL of the token endpoint.</summary>
+        private string tokenEndpointUrl;
+
+        /// <summary>URL of the identity endpoint.</summary>
+        private string identityEndpointUrl;
+
         /// <summary>
         /// Initializes a new instance of the SentinelAuthorizationServerOptions class.
         /// </summary>
@@ -25,11 +34,12 @@
             this.AccessTokenLifetime = TimeSpan.FromHours(1);
             this.AuthorizationCodeLifetime = TimeSpan.FromMinutes(5);
             this.RefreshTokenLifetime = TimeSpan.FromDays(90);
-            this.AuthorizationCodeEndpointUrl = "/oauth/authorize";
-            this.TokenEndpointUrl = "/oauth/token";
-            this.IdentityEndpointUrl = "/openid/userinfo";
             this.Realm = "Sentinel";
             this.MaximumClockSkew = TimeSpan.FromSeconds(300);
+
+            this.authorizationCodeEndpointUrl = "/oauth/authorize";
+            this.tokenEndpointUrl = "/oauth/token";
+            this.identityEndpointUrl = "/openid/userinfo";
         }
 
         /// <summary>Gets the events.</summary>
@@ -140,14 +150,68 @@
         /// <summary>Gets or sets URL of the authorization code endpoint.</summary>
         /// <remarks>There must be a page answering on this url that is capable of logging in the user.</remarks>
         /// <value>The authorization code endpoint URL.</value>
-        public string AuthorizationCodeEndpointUrl { get; set; }
+        public string AuthorizationCodeEndpointUrl
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(this.authorizationCodeEndpointUrl))
+                {
+                    return this.authorizationCodeEndpointUrl.StartsWith("/")
+                               ? this.authorizationCodeEndpointUrl
+                               : $"/{this.authorizationCodeEndpointUrl}";
+                }
+
+                return string.Empty;
+            }
+
+            set
+            {
+                this.authorizationCodeEndpointUrl = value;
+            }
+        }
 
         /// <summary>Gets or sets URL of the token endpoint.</summary>
         /// <value>The token endpoint URL.</value>
-        public string TokenEndpointUrl { get; set; }
+        public string TokenEndpointUrl
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(this.tokenEndpointUrl))
+                {
+                    return this.tokenEndpointUrl.StartsWith("/")
+                               ? this.tokenEndpointUrl
+                               : $"/{this.tokenEndpointUrl}";
+                }
+
+                return string.Empty;
+            }
+
+            set
+            {
+                this.tokenEndpointUrl = value;
+            }
+        }
 
         /// <summary>Gets or sets URL of the identity endpoint.</summary>
         /// <value>The identity endpoint URL.</value>
-        public string IdentityEndpointUrl { get; set; }
+        public string IdentityEndpointUrl
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(this.identityEndpointUrl))
+                {
+                    return this.identityEndpointUrl.StartsWith("/")
+                               ? this.identityEndpointUrl
+                               : $"/{this.identityEndpointUrl}";
+                }
+
+                return string.Empty;
+            }
+
+            set
+            {
+                this.identityEndpointUrl = value;
+            }
+        }
     }
 }
