@@ -63,14 +63,16 @@
 
                 if (loginResult.IsAuthenticated)
                 {
+                    var returnUrl = "/";
+
                     if (!string.IsNullOrEmpty(model.ReturnUrl) && this.Url.IsLocalUrl(model.ReturnUrl))
                     {
-                        result = this.Redirect(model.ReturnUrl);
+                        returnUrl = model.ReturnUrl;
                     }
-                    else
-                    {
-                        result = this.Redirect("/");
-                    }
+
+                    this.log.Debug($"User is already authenticated, redirecting to {returnUrl}");
+
+                    result = this.Redirect(returnUrl);
                 }
             }
             else
@@ -83,10 +85,8 @@
             {
                 return result ?? this.View(model);
             }
-            else
-            {
-                return new JsonResult() { Data = model };
-            }
+
+            return new JsonResult() { Data = model };
         }
 
         /// <summary>Processes the login using the specified username and password.</summary>

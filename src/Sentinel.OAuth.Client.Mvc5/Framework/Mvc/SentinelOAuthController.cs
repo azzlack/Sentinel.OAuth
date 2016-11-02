@@ -48,15 +48,21 @@
 
             if (!this.Authentication.User.Identity.IsAuthenticated)
             {
+                this.log.Debug($"User is not authenticated, redirecting to login screen");
+
                 this.Authentication.Challenge(DefaultAuthenticationTypes.ApplicationCookie);
 
                 return new HttpUnauthorizedResult();
             }
 
+            this.log.Debug($"User is already authenticated, redirecting to {this.Request.Url}");
+
             // Remove trailing slash if present
             if (this.Request.Url != null && this.Request.Url.AbsolutePath.EndsWith("/"))
             {
-                return this.Redirect($"{this.Request.Url.Scheme}://{this.Request.Url.Authority}{this.Request.Url.AbsolutePath.TrimEnd('/')}{this.Request.Url.Query}");
+                var returnUrl = $"{this.Request.Url.Scheme}://{this.Request.Url.Authority}{this.Request.Url.AbsolutePath.TrimEnd('/')}{this.Request.Url.Query}";
+
+                return this.Redirect(returnUrl);
             }
 
             return this.View(model);
@@ -91,10 +97,10 @@
 
         public virtual Task SignIn(AuthorizeViewModel model)
         {
-            var identity = new SentinelIdentity(OAuthDefaults.AuthenticationType, this.Authentication.User.Identity);
+            var oauthIdentity = new SentinelIdentity(OAuthDefaults.AuthenticationType, this.Authentication.User.Identity);
 
             this.Authentication.SignOut(OAuthDefaults.AuthenticationType);
-            this.Authentication.SignIn(new AuthenticationProperties() { RedirectUri = model.RedirectUri }, identity.ToClaimsIdentity());
+            this.Authentication.SignIn(new AuthenticationProperties() { RedirectUri = model.RedirectUri }, oauthIdentity.ToClaimsIdentity());
 
             return Task.FromResult<object>(null);
         }
