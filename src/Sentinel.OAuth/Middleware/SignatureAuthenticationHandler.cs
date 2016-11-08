@@ -86,7 +86,7 @@
                     return ticket;
                 }
 
-                this.options.Logger.WarnFormat("User could not be authenticated");
+                this.options.Logger.Debug($"User '{digest.UserId}' could not be authenticated");
             }
             catch (Exception ex)
             {

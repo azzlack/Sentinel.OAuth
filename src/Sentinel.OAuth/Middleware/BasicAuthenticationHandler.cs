@@ -70,7 +70,7 @@
                 return ticket;
             }
 
-            this.options.Logger.WarnFormat("User could not be authenticated");
+            this.options.Logger.Debug($"User '{digest.UserId}' could not be authenticated");
 
             // Add challenge to response
             this.Response.Headers.AppendValues("WWW-Authenticate", $"Basic realm={this.options.Realm}");
