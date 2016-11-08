@@ -99,6 +99,7 @@
                         new SentinelIdentity(
                             AuthenticationType.OAuth,
                             new SentinelClaim(JwtClaimType.Name, user.UserId),
+                            new SentinelClaim(ClaimTypes.NameIdentifier, user.UserId),
                             new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.UserCredentials),
                             new SentinelClaim(JwtClaimType.GivenName, user.FirstName),
                             new SentinelClaim(JwtClaimType.FamilyName, user.LastName)));
@@ -132,6 +133,7 @@
                         new SentinelIdentity(
                             AuthenticationType.OAuth,
                             new SentinelClaim(JwtClaimType.Name, user.UserId),
+                            new SentinelClaim(ClaimTypes.NameIdentifier, user.UserId),
                             new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.UserId),
                             new SentinelClaim(JwtClaimType.GivenName, user.FirstName),
                             new SentinelClaim(JwtClaimType.FamilyName, user.LastName)));
@@ -167,6 +169,7 @@
                             new SentinelIdentity(
                                 AuthenticationType.Signature,
                                 new SentinelClaim(JwtClaimType.Name, user.UserId),
+                                new SentinelClaim(ClaimTypes.NameIdentifier, user.UserId),
                                 new SentinelClaim(ClaimType.Client, digest.ClientId),
                                 new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.Signature),
                                 new SentinelClaim(ClaimType.AuthenticationSource, "local"),
@@ -240,6 +243,7 @@
                             new SentinelIdentity(
                                 AuthenticationType.Signature,
                                 new SentinelClaim(JwtClaimType.Name, user.UserId),
+                                new SentinelClaim(ClaimTypes.NameIdentifier, user.UserId),
                                 new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.Basic),
                                 new SentinelClaim(ClaimType.AuthenticationSource, "local"),
                                 new SentinelClaim(JwtClaimType.GivenName, user.FirstName),

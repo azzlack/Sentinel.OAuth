@@ -16,6 +16,7 @@
     public abstract class BaseClientManager : IClientManager
     {
         /// <summary>Initializes a new instance of the <see cref="BaseClientManager" /> class.</summary>
+        /// <param name="logger">The logger.</param>
         /// <param name="passwordCryptoProvider">The password crypto provider.</param>
         /// <param name="asymmetricCryptoProvider">The asymmetric crypto provider.</param>
         /// <param name="clientRepository">The client repository.</param>

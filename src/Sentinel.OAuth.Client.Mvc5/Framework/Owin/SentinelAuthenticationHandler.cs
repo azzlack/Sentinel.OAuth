@@ -26,7 +26,7 @@
         {
             if (!this.ShouldAuthenticate())
             {
-                return null;
+                return new AuthenticationTicket(null, new AuthenticationProperties());
             }
 
             try

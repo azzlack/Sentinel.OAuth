@@ -1,6 +1,7 @@
 ﻿namespace Sentinel.OAuth.Middleware
 {
     using System;
+    using System.Linq;
     using System.Runtime.Caching;
     using System.Security.Authentication;
     using System.Text;
@@ -38,22 +39,20 @@
         /// </returns>
         protected override async Task<AuthenticationTicket> AuthenticateCoreAsync()
         {
-            var authorizationHeader = this.Request.Headers.Get("Authorization");
-
-            if (string.IsNullOrEmpty(authorizationHeader)
-                || !authorizationHeader.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase)
-                || this.Request.Path == this.oauthOptions.TokenEndpointPath
-                || this.Request.Path == this.oauthOptions.AuthorizeEndpointPath)
+            // Return user if already authenticated
+            if (!this.ShouldAuthenticate())
             {
                 return new AuthenticationTicket(null, new AuthenticationProperties());
             }
+
+            this.options.Logger.Debug("Authenticating user using Basic authentication");
 
             if (this.options.RequireSecureConnection && !this.Request.IsSecure)
             {
                 throw new AuthenticationException("Basic authentication requires a secure connection");
             }
 
-            this.options.Logger.Debug("Authenticating user using Basic authentication");
+            var authorizationHeader = this.Request.Headers.Get("Authorization");
 
             var parameter = authorizationHeader.Substring(this.options.AuthenticationType.Length).Trim();
             var digest = this.ParseParameter(parameter);
@@ -70,7 +69,7 @@
                 return ticket;
             }
 
-            this.options.Logger.WarnFormat("User could not be authenticated");
+            this.options.Logger.Debug($"User '{digest.UserId}' could not be authenticated");
 
             // Add challenge to response
             this.Response.Headers.AppendValues("WWW-Authenticate", $"Basic realm={this.options.Realm}");
@@ -107,6 +106,23 @@
             }
 
             return SentinelIdentity.Anonymous;
+        }
+        
+        /// <summary>Validates that the request should be acted upon.</summary>
+        /// <returns>true if it the request should be acted upon, otherwise false.</returns>
+        private bool ShouldAuthenticate()
+        {
+            var authorizationHeader = this.Request.Headers.Get("Authorization");
+
+            if (string.IsNullOrEmpty(authorizationHeader)
+                || !authorizationHeader.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase)
+                || this.Request.Path == this.oauthOptions.TokenEndpointPath
+                || this.Request.Path == this.oauthOptions.AuthorizeEndpointPath)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

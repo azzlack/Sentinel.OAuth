@@ -79,6 +79,7 @@
                         new SentinelIdentity(
                             AuthenticationType.OAuth,
                             new SentinelClaim(JwtClaimType.Name, clientId),
+                            new SentinelClaim(ClaimTypes.NameIdentifier, client.ClientId),
                             new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
                             new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ClientId)));
 
@@ -111,6 +112,7 @@
                             new SentinelIdentity(
                                 AuthenticationType.OAuth,
                                 new SentinelClaim(JwtClaimType.Name, clientId),
+                                new SentinelClaim(ClaimTypes.NameIdentifier, client.ClientId),
                                 new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
                                 new SentinelClaim(ClaimType.Scope, string.Join(" ", scope)),
                                 new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ClientId)));
@@ -150,8 +152,10 @@
                             new SentinelIdentity(
                                 AuthenticationType.Basic,
                                 new SentinelClaim(JwtClaimType.Name, client.ClientId),
+                                new SentinelClaim(ClaimTypes.NameIdentifier, client.ClientId),
                                 new SentinelClaim(ClaimType.Client, client.ClientId),
                                 new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
+                                new SentinelClaim(ClaimType.AuthenticationSource, "local"),
                                 new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.Basic)));
 
                     if (principal.Identity.IsAuthenticated)
@@ -184,6 +188,7 @@
                             new SentinelIdentity(
                                 AuthenticationType.OAuth,
                                 new SentinelClaim(JwtClaimType.Name, client.ClientId),
+                                new SentinelClaim(ClaimTypes.NameIdentifier, client.ClientId),
                                 new SentinelClaim(ClaimType.Client, client.ClientId),
                                 new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
                                 new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.ClientCredentials)));
@@ -238,6 +243,7 @@
                             new SentinelIdentity(
                                 AuthenticationType.Signature,
                                 new SentinelClaim(JwtClaimType.Name, client.ClientId),
+                                new SentinelClaim(ClaimTypes.NameIdentifier, client.ClientId),
                                 new SentinelClaim(ClaimType.Client, client.ClientId),
                                 new SentinelClaim(ClaimType.RedirectUri, client.RedirectUri),
                                 new SentinelClaim(ClaimTypes.AuthenticationMethod, AuthenticationMethod.Signature)));
