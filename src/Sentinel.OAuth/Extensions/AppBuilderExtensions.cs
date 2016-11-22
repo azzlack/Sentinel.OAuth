@@ -14,6 +14,8 @@
     using Sentinel.OAuth.Providers.OAuth;
     using System;
 
+    using Microsoft.Owin.Extensions;
+
     using Sentinel.OAuth.Core.Interfaces.Managers;
 
     /// <summary>
@@ -115,6 +117,13 @@
                 RefreshTokenProvider = new SentinelRefreshTokenProvider(options)
             };
 
+            // Initialize underlying OWIN OAuth system
+            app.UseOAuthAuthorizationServer(oauthOptions);
+            app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions()
+            {
+                AccessTokenProvider = oauthOptions.AccessTokenProvider
+            });
+
             // Initialize basic auth if specified
             if (options.EnableBasicAuthentication)
             {
@@ -143,12 +152,7 @@
                 app.Use<SignatureAuthenticationMiddleware>(apiKeyAuthenticationOptions, oauthOptions);
             }
 
-            // Initialize underlying OWIN OAuth system
-            app.UseOAuthAuthorizationServer(oauthOptions);
-            app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions()
-            {
-                AccessTokenProvider = oauthOptions.AccessTokenProvider
-            });
+            app.UseStageMarker(PipelineStage.Authenticate);
 
             // Set up identity endpoint
             app.Map(options.IdentityEndpointUrl, config => config.Use<UserInfoMiddleware>());

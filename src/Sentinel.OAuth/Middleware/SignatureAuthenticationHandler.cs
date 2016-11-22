@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Runtime.Caching;
     using System.Security.Authentication;
+    using System.Security.Claims;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -47,6 +48,11 @@
         {
             if (!this.ShouldAuthenticate())
             {
+                if (this.Request.User != null)
+                {
+                    return new AuthenticationTicket(new ClaimsIdentity(this.Request.User.Identity), new AuthenticationProperties());
+                }
+
                 return new AuthenticationTicket(null, new AuthenticationProperties());
             }
 

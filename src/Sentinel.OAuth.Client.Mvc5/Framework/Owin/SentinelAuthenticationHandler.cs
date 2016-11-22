@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Net;
+    using System.Security.Claims;
     using System.Security.Principal;
     using System.Text;
     using System.Threading.Tasks;
@@ -26,6 +27,11 @@
         {
             if (!this.ShouldAuthenticate())
             {
+                if (this.Request.User != null)
+                {
+                    return new AuthenticationTicket(new ClaimsIdentity(this.Request.User.Identity), new AuthenticationProperties());
+                }
+
                 return new AuthenticationTicket(null, new AuthenticationProperties());
             }
 
