@@ -44,8 +44,9 @@
         /// <returns/>
         public void CreateRefreshToken(AuthenticationTokenCreateContext context)
         {
-            // Dont create a refresh token if it is a client_credentials request
-            if (context.OwinContext.GetOAuthContext().GrantType == GrantType.ClientCredentials)
+            // Dont create a refresh token if it is a client_credentials request and for refresh token
+            if (context.OwinContext.GetOAuthContext().GrantType == GrantType.ClientCredentials ||
+                context.OwinContext.GetOAuthContext().GrantType == GrantType.RefreshToken)
             {
                 this.options.Logger.Debug("This is a client_credentials request, skipping refresh token creation.");
 
@@ -114,6 +115,12 @@
                             var redirect = principal.Identity.Claims.First(x => x.Type == ClaimType.RedirectUri);
                             var scope = principal.Identity.Claims.FirstOrDefault(x => x.Type == ClaimType.Scope);
 
+                            //Reinject the redirect uri from the request.
+                            if (redirectUri == null)
+                            {
+                                redirectUri = redirect.Value;
+                                context.OwinContext.GetOAuthContext().RedirectUri = redirect.Value;
+                            }
                             /* Override the validation parameters.
                              * This is because OWIN thinks the principal.Identity.Name should 
                              * be the same as the client_id from ValidateClientAuthentication method,
