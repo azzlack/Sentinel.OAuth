@@ -119,13 +119,14 @@
                 {
                     this.logger.DebugFormat("Refresh token is valid. It belongs to the user '{0}', client '{1}' and redirect uri '{2}'", validationResult.Entity.Subject, validationResult.Entity.ClientId, validationResult.Entity.RedirectUri);
 
+                    //When  using a refresh toket to the a token , there is no need to delete it. You mush reuse it for next refresh token requests.
                     // Delete refresh token to prevent it being used again
-                    var deleteResult = await this.TokenRepository.DeleteRefreshToken(validationResult.Entity);
+                    //var deleteResult = await this.TokenRepository.DeleteRefreshToken(validationResult.Entity);
 
-                    if (!deleteResult)
-                    {
-                        this.logger.Error($"Unable to delete used refresh token: {JsonConvert.SerializeObject(validationResult.Entity)}");
-                    }
+                    //if (!deleteResult)
+                    //{
+                    //    this.logger.Error($"Unable to delete used refresh token: {JsonConvert.SerializeObject(validationResult.Entity)}");
+                    //}
 
                     var principal = this.PrincipalProvider.Create(
                         AuthenticationType.OAuth,
